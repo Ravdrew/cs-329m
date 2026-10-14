@@ -1,0 +1,10 @@
+# Cal.com (and other target app) checkouts
+work/
+
+# Raw test runs; promote a run to results/baselines/ to commit it
+results/runs/
+
+node_modules/
+.env
+.env.*
+.DS_Store
