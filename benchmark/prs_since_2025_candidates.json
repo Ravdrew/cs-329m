@@ -1,0 +1,3204 @@
+[
+ {
+  "sha": "5242e419d966533683ff7b40cbe976d572b90240",
+  "date": "2026-02-26",
+  "pr": 24124,
+  "title": "feat: Calendar Sync",
+  "added_unit_tests": [
+   "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts",
+   "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/bookings/lib/handleCancelBooking.ts",
+   "M:packages/features/calendar-subscription/lib/sync/CalendarSyncService.ts",
+   "M:packages/features/users/lib/getRoutedUsers.ts",
+   "M:packages/prisma/zod-utils.ts"
+  ],
+  "n_src": 4,
+  "score": 7,
+  "areas": [
+   "packages/features/bookings",
+   "packages/features/calendar-subscription",
+   "packages/features/users"
+  ]
+ },
+ {
+  "sha": "b9c49b45673217891543e89a5cded1f0f7c684c4",
+  "date": "2025-07-24",
+  "pr": 22311,
+  "title": "feat: Add contact form for free users in Plain support widget",
+  "added_unit_tests": [
+   "apps/web/app/api/support/__tests__/route.test.ts",
+   "apps/web/components/plain/__tests__/PlainContactForm.test.tsx"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "A:apps/web/app/api/support/route.ts",
+   "A:apps/web/app/api/support/upload/route.ts",
+   "A:apps/web/lib/plain/PlainContactForm.tsx",
+   "A:apps/web/lib/plain/plain.ts",
+   "M:apps/web/lib/plain/plainChat.tsx",
+   "A:packages/ui/components/file-uploader/FileUploader.tsx",
+   "A:packages/ui/components/file-uploader/index.ts"
+  ],
+  "n_src": 7,
+  "score": 7,
+  "areas": [
+   "apps/web",
+   "packages/ui/components"
+  ]
+ },
+ {
+  "sha": "083a162d0e7f3b9fc880781e128acd2a31394859",
+  "date": "2025-09-05",
+  "pr": 23595,
+  "title": "feat: add time-based cancellation fees for no-show fee events",
+  "added_unit_tests": [
+   "apps/web/components/booking/__tests__/CancelBooking.cancellationFee.test.tsx",
+   "packages/lib/payment/shouldChargeNoShowCancellationFee.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/bookings/lib/handleCancelBooking/test/handleCancelBooking.test.ts"
+  ],
+  "added_e2e_tests": [
+   "apps/web/playwright/cancellation-fee-warning.e2e.ts"
+  ],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/components/booking/CancelBooking.tsx",
+   "M:apps/web/modules/bookings/views/bookings-single-view.getServerSideProps.tsx",
+   "M:apps/web/modules/bookings/views/bookings-single-view.tsx",
+   "M:packages/app-store/stripepayment/components/EventTypeAppSettingsInterface.tsx",
+   "M:packages/app-store/stripepayment/zod.ts",
+   "M:packages/features/bookings/lib/getBookingToDelete.ts",
+   "M:packages/features/bookings/lib/handleCancelBooking.ts",
+   "A:packages/lib/payment/handleNoShowFee.ts",
+   "A:packages/lib/payment/processNoShowFeeOnCancellation.ts",
+   "A:packages/lib/payment/shouldChargeNoShowCancellationFee.ts",
+   "M:packages/lib/server/repository/booking.ts",
+   "M:packages/trpc/server/routers/viewer/payments/chargeCard.handler.ts"
+  ],
+  "n_src": 12,
+  "score": 7,
+  "areas": [
+   "apps/web",
+   "packages/lib/payment",
+   "packages/app-store/stripepayment"
+  ]
+ },
+ {
+  "sha": "1dbaf8e7b42434cc1dfae9966dfd345dffd325ef",
+  "date": "2026-10-18",
+  "pr": 30354,
+  "title": "feat: overlay calendar v2 and troubleshooter v2",
+  "added_unit_tests": [
+   "apps/web/modules/bookings/components/OverlayCalendar/OverlayCalendarContinueModal.test.tsx",
+   "apps/web/modules/bookings/hooks/useCalendars.test.ts",
+   "apps/web/modules/bookings/hooks/useOverlayCalendar.test.ts",
+   "packages/app-store/office365calendar/lib/__tests__/CalendarService.test.ts",
+   "packages/features/bookings/lib/useCheckOverlapWithOverlay.test.ts",
+   "packages/features/calendar-subscription/lib/telemetry/__tests__/CalendarTelemetryWrapper.test.ts",
+   "packages/features/calendars/weeklyview/utils/index.test.ts",
+   "packages/trpc/server/routers/viewer/availability/user.handler.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/app-store/googlecalendar/lib/__tests__/CalendarService.test.ts",
+   "packages/features/calendars/lib/getCalendarsEvents.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/bookings/components/AvailableTimes.tsx",
+   "M:apps/web/modules/bookings/components/Booker.tsx",
+   "M:apps/web/modules/bookings/components/BookerWebWrapper.tsx",
+   "M:apps/web/modules/bookings/components/LargeCalendar.tsx",
+   "M:apps/web/modules/bookings/components/OverlayCalendar/OverlayCalendar.tsx",
+   "M:apps/web/modules/bookings/components/OverlayCalendar/OverlayCalendarContinueModal.tsx",
+   "M:apps/web/modules/bookings/hooks/useCalendars.ts",
+   "M:apps/web/modules/bookings/hooks/useOverlayCalendar.ts",
+   "M:apps/web/modules/bookings/types.ts",
+   "M:apps/web/modules/calendars/weeklyview/components/event/Event.tsx",
+   "M:apps/web/modules/calendars/weeklyview/components/event/EventList.tsx",
+   "M:apps/web/modules/troubleshooter/components/LargeCalendar.tsx",
+   "M:packages/app-store/googlecalendar/lib/CalendarService.ts",
+   "M:packages/app-store/googlecalendar/lib/__mocks__/googleapis.ts",
+   "M:packages/app-store/office365calendar/lib/CalendarService.ts",
+   "M:packages/features/bookings/lib/useCheckOverlapWithOverlay.tsx",
+   "M:packages/features/calendar-subscription/lib/telemetry/CalendarTelemetryWrapper.ts",
+   "M:packages/features/calendars/lib/getCalendarsEvents.ts",
+   "M:packages/features/calendars/weeklyview/utils/index.ts",
+   "M:packages/trpc/server/routers/viewer/availability/user.handler.ts",
+   "M:packages/types/BufferedBusyTime.d.ts",
+   "M:packages/types/Calendar.d.ts"
+  ],
+  "n_src": 22,
+  "score": 6,
+  "areas": [
+   "apps/web",
+   "packages/app-store/googlecalendar",
+   "packages/features/calendars"
+  ]
+ },
+ {
+  "sha": "7abbc8c22c8c0af804e8e2ab8cd2d7dd6492dff3",
+  "date": "2026-01-29",
+  "pr": 27372,
+  "title": "feat: Routing trace presenter",
+  "added_unit_tests": [
+   "packages/features/routing-trace/presenters/RoutingFormTracePresenter.test.ts",
+   "packages/features/routing-trace/presenters/RoutingTracePresenter.test.ts",
+   "packages/features/routing-trace/presenters/SalesforceRoutingTracePresenter.test.ts",
+   "packages/trpc/server/routers/viewer/bookings/getRoutingTrace.handler.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/routing-trace/domains/RoutingFormTraceService.test.ts",
+   "packages/features/routing-trace/repositories/PrismaRoutingTraceRepository.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/components/booking/BookingListItem.tsx",
+   "A:apps/web/components/booking/RoutingTraceSheet.tsx",
+   "M:apps/web/components/booking/actions/BookingActionsDropdown.tsx",
+   "M:apps/web/components/booking/actions/store.ts",
+   "A:packages/features/routing-trace/components/DomainIcon.tsx",
+   "A:packages/features/routing-trace/constants.ts",
+   "M:packages/features/routing-trace/domains/RoutingFormTraceService.ts",
+   "A:packages/features/routing-trace/presenters/RoutingFormTracePresenter.ts",
+   "A:packages/features/routing-trace/presenters/RoutingTracePresenter.ts",
+   "A:packages/features/routing-trace/presenters/SalesforceRoutingTracePresenter.ts",
+   "A:packages/features/routing-trace/presenters/getDomainLabel.ts",
+   "M:packages/features/routing-trace/repositories/PrismaRoutingTraceRepository.ts",
+   "M:packages/features/routing-trace/repositories/RoutingTraceRepository.interface.ts",
+   "M:packages/features/routing-trace/services/RoutingTraceService.ts",
+   "M:packages/trpc/server/routers/viewer/bookings/_router.tsx",
+   "A:packages/trpc/server/routers/viewer/bookings/getRoutingTrace.handler.ts",
+   "A:packages/trpc/server/routers/viewer/bookings/getRoutingTrace.schema.ts"
+  ],
+  "n_src": 17,
+  "score": 6,
+  "areas": [
+   "packages/features/routing-trace",
+   "apps/web",
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "aa8804e498c97958be8ee655521c858570bc2a4b",
+  "date": "2026-01-22",
+  "pr": 27063,
+  "title": "feat(flags): add @Memoize and @Unmemoize decorators for declarative caching",
+  "added_unit_tests": [
+   "packages/features/cache/decorators/__tests__/Memoize.test.ts",
+   "packages/features/cache/decorators/__tests__/Unmemoize.test.ts",
+   "packages/features/flags/repositories/__tests__/FeatureRepository.test.ts",
+   "packages/features/flags/repositories/__tests__/TeamFeatureRepository.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/feature-opt-in/services/FeatureOptInService.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "A:packages/features/cache/decorators/Memoize.ts",
+   "A:packages/features/cache/decorators/Unmemoize.ts",
+   "A:packages/features/cache/decorators/types.ts",
+   "A:packages/features/cache/index.ts",
+   "A:packages/features/di/containers/FeatureRepository.ts",
+   "A:packages/features/di/containers/Redis.ts",
+   "A:packages/features/di/containers/TeamFeatureRepository.ts",
+   "A:packages/features/di/containers/UserFeatureRepository.ts",
+   "M:packages/features/di/modules/FeatureOptInService.ts",
+   "M:packages/features/feature-opt-in/services/FeatureOptInService.ts",
+   "A:packages/features/flags/di/FeatureRepository.module.ts",
+   "A:packages/features/flags/di/TeamFeatureRepository.module.ts",
+   "A:packages/features/flags/di/UserFeatureRepository.module.ts",
+   "M:packages/features/flags/di/tokens.ts",
+   "A:packages/features/flags/repositories/FeatureRepository.ts",
+   "A:packages/features/flags/repositories/TeamFeatureRepository.ts",
+   "A:packages/features/flags/repositories/UserFeatureRepository.ts",
+   "A:packages/features/flags/repositories/schemas.ts",
+   "A:packages/lib/dto/FeatureDto.ts",
+   "A:packages/lib/dto/TeamFeaturesDto.ts",
+   "A:packages/lib/dto/UserFeaturesDto.ts",
+   "M:packages/trpc/server/routers/viewer/featureOptIn/_router.ts"
+  ],
+  "n_src": 22,
+  "score": 6,
+  "areas": [
+   "packages/features/flags",
+   "packages/features/di",
+   "packages/features/cache"
+  ]
+ },
+ {
+  "sha": "4e0798577ab61adeb725a57337553891899efd4b",
+  "date": "2025-11-26",
+  "pr": 25313,
+  "title": "feat: OAuth PKCE",
+  "added_unit_tests": [
+   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts",
+   "packages/lib/pkce.test.ts",
+   "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [
+   "apps/web/playwright/oauth-provider.e2e.ts"
+  ],
+  "source_files": [
+   "M:apps/web/app/api/auth/oauth/refreshToken/route.ts",
+   "M:apps/web/app/api/auth/oauth/token/route.ts",
+   "M:apps/web/modules/auth/oauth2/authorize-view.tsx",
+   "M:apps/web/modules/settings/admin/oauth-view.tsx",
+   "A:packages/features/oauth/repositories/AccessCodeRepository.ts",
+   "A:packages/features/oauth/repositories/OAuthClientRepository.ts",
+   "A:packages/features/oauth/services/OAuthService.ts",
+   "A:packages/lib/pkce.ts",
+   "M:packages/trpc/server/routers/viewer/oAuth/addClient.handler.ts",
+   "M:packages/trpc/server/routers/viewer/oAuth/addClient.schema.ts",
+   "M:packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.ts",
+   "M:packages/trpc/server/routers/viewer/oAuth/generateAuthCode.schema.ts",
+   "M:packages/types/oauth.d.ts"
+  ],
+  "n_src": 13,
+  "score": 6,
+  "areas": [
+   "apps/web",
+   "packages/trpc/server",
+   "packages/features/oauth"
+  ]
+ },
+ {
+  "sha": "b9fadf82a73cb08fbc942d5ce346dc0238875e4b",
+  "date": "2025-05-20",
+  "pr": 21296,
+  "title": "feat: pbac",
+  "added_unit_tests": [
+   "packages/features/pbac/services/__tests__/permission-check.service.test.ts",
+   "packages/features/pbac/services/__tests__/permission.service.test.ts",
+   "packages/features/pbac/services/__tests__/role.service.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "A:apps/web/pages/api/trpc/pbac/[trpc].ts",
+   "A:packages/features/pbac/context/PermissionProvider.tsx",
+   "A:packages/features/pbac/hooks/usePermission.ts",
+   "A:packages/features/pbac/lib/constants.ts",
+   "A:packages/features/pbac/lib/server/checkPermissions.ts",
+   "A:packages/features/pbac/repository/permission.repository.ts",
+   "A:packages/features/pbac/repository/role.repository.ts",
+   "A:packages/features/pbac/services/permission-check.service.ts",
+   "A:packages/features/pbac/services/permission.service.ts",
+   "A:packages/features/pbac/services/role.service.ts",
+   "A:packages/features/pbac/store/permission-store.ts",
+   "A:packages/features/pbac/types/permission-registry.ts",
+   "M:packages/trpc/server/routers/viewer/_router.tsx",
+   "A:packages/trpc/server/routers/viewer/pbac/_router.tsx"
+  ],
+  "n_src": 14,
+  "score": 6,
+  "areas": [
+   "packages/features/pbac",
+   "packages/trpc/server",
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "06d6c180d1ebb49820a64ec12d2afae1a479bf08",
+  "date": "2025-10-14",
+  "pr": 24324,
+  "title": "feat: report booking",
+  "added_unit_tests": [
+   "packages/lib/server/repository/bookingReport.test.ts",
+   "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/components/booking/BookingListItem.tsx",
+   "M:apps/web/components/booking/bookingActions.ts",
+   "A:apps/web/components/dialog/ReportBookingDialog.tsx",
+   "M:packages/features/bookings/lib/handleCancelBooking.ts",
+   "M:packages/features/bookings/repositories/BookingRepository.ts",
+   "A:packages/features/bookings/services/BookingAccessService.ts",
+   "M:packages/features/users/repositories/UserRepository.ts",
+   "A:packages/lib/server/repository/bookingReport.interface.ts",
+   "A:packages/lib/server/repository/bookingReport.ts",
+   "M:packages/prisma/zod-utils.ts",
+   "M:packages/trpc/server/routers/viewer/bookings/_router.tsx",
+   "M:packages/trpc/server/routers/viewer/bookings/get.handler.ts",
+   "A:packages/trpc/server/routers/viewer/bookings/reportBooking.handler.ts",
+   "A:packages/trpc/server/routers/viewer/bookings/reportBooking.schema.ts"
+  ],
+  "n_src": 14,
+  "score": 6,
+  "areas": [
+   "packages/trpc/server",
+   "apps/web",
+   "packages/features/bookings"
+  ]
+ },
+ {
+  "sha": "9bc703a437cfb47d37c595410bd205be6142ceff",
+  "date": "2025-04-16",
+  "pr": 20646,
+  "title": "feat: Embed - Show skeleton loader when pageType is provided",
+  "added_unit_tests": [
+   "packages/embeds/embed-core/src/EmbedElement.test.ts",
+   "packages/embeds/embed-core/src/__tests__/utils.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/embeds/embed-core/index.html",
+   "M:packages/embeds/embed-core/playground.ts",
+   "A:packages/embeds/embed-core/src/EmbedElement.ts",
+   "M:packages/embeds/embed-core/src/Inline/inline.ts",
+   "M:packages/embeds/embed-core/src/Inline/inlineHtml.ts",
+   "M:packages/embeds/embed-core/src/ModalBox/ModalBox.ts",
+   "M:packages/embeds/embed-core/src/ModalBox/ModalBoxHtml.ts",
+   "M:packages/embeds/embed-core/src/addAppCssVars.ts",
+   "M:packages/embeds/embed-core/src/embed-iframe.ts",
+   "M:packages/embeds/embed-core/src/embed.ts",
+   "M:packages/embeds/embed-core/src/types.ts",
+   "A:packages/embeds/embed-core/src/ui-utils.ts",
+   "A:packages/embeds/embed-core/src/ui/skeleton.ts",
+   "M:packages/embeds/embed-core/src/utils.ts",
+   "M:packages/embeds/embed-core/tailwind.config.js",
+   "A:packages/embeds/embed-core/test/__mocks__/windowMatchMedia.ts",
+   "M:packages/embeds/embed-react/inline.html",
+   "M:packages/embeds/embed-react/inline.tsx",
+   "M:packages/features/bookings/Booker/Booker.tsx"
+  ],
+  "n_src": 19,
+  "score": 6,
+  "areas": [
+   "packages/embeds/embed-core",
+   "packages/embeds/embed-react",
+   "packages/features/bookings"
+  ]
+ },
+ {
+  "sha": "358434429efd7d914243f2e8ad37077943116b41",
+  "date": "2025-09-29",
+  "pr": 24122,
+  "title": "feat: add booking flags for skipAvailabilityCheck, skipEventLimitsCheck, skipCalendarSyncTaskCreation",
+  "added_unit_tests": [
+   "packages/features/bookings/lib/handleNewBooking/test/booking-flags.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/bookings/lib/handleNewBooking.ts"
+  ],
+  "n_src": 1,
+  "score": 6,
+  "areas": [
+   "packages/features/bookings"
+  ]
+ },
+ {
+  "sha": "c3666dd064566cd21947d9fc459489b4e9492906",
+  "date": "2025-06-25",
+  "pr": 22015,
+  "title": "feat: correct error codes in responses for /social/og/image",
+  "added_unit_tests": [
+   "apps/web/app/api/social/og/image/__tests__/route.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/app/api/social/og/image/route.tsx"
+  ],
+  "n_src": 1,
+  "score": 6,
+  "areas": [
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "564497ec2a9c69a9b0b0d8ae64823f5123a9d690",
+  "date": "2025-02-24",
+  "pr": 15952,
+  "title": "feat(lexicalEditor): custom enter-key plugin",
+  "added_unit_tests": [
+   "packages/ui/components/editor/plugins/CustomEnterKeyPlugin.test.tsx"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/ui/components/editor/Editor.tsx",
+   "A:packages/ui/components/editor/plugins/customEnterKeyPlugin.tsx"
+  ],
+  "n_src": 2,
+  "score": 6,
+  "areas": [
+   "packages/ui/components"
+  ]
+ },
+ {
+  "sha": "8dc8d87ad04a1cf55630646a2cec7fd09883202d",
+  "date": "2025-12-12",
+  "pr": 25568,
+  "title": "feat: add time shift badge for recurring events with shifted local times",
+  "added_unit_tests": [
+   "packages/lib/__tests__/timeShift.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/bookings/views/bookings-single-view.tsx",
+   "M:packages/features/bookings/components/event-meta/Occurences.tsx",
+   "A:packages/lib/timeShift.ts"
+  ],
+  "n_src": 3,
+  "score": 6,
+  "areas": [
+   "apps/web",
+   "packages/features/bookings",
+   "packages/lib/timeShift.ts"
+  ]
+ },
+ {
+  "sha": "28693aba965e602e12fa14a4a5f3ba3648fb64dd",
+  "date": "2025-10-30",
+  "pr": 24717,
+  "title": "feat: distributed tracking",
+  "added_unit_tests": [
+   "packages/lib/tracing/index.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "A:packages/lib/tracing/error.ts",
+   "A:packages/lib/tracing/factory.ts",
+   "A:packages/lib/tracing/index.ts"
+  ],
+  "n_src": 3,
+  "score": 6,
+  "areas": [
+   "packages/lib/tracing"
+  ]
+ },
+ {
+  "sha": "60b608622189b3f235ff6f82377db64927c065df",
+  "date": "2026-02-19",
+  "pr": 27428,
+  "title": "feat: add keyboard shortcuts and tooltips to booking slideover buttons",
+  "added_unit_tests": [
+   "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [
+   "apps/web/playwright/booking-sheet-keyboard.e2e.ts"
+  ],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/bookings/components/BookingDetailsSheet.tsx",
+   "M:apps/web/modules/bookings/components/JoinMeetingButton.tsx",
+   "A:apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.ts",
+   "M:packages/features/calendars/weeklyview/components/event/Event.tsx"
+  ],
+  "n_src": 4,
+  "score": 6,
+  "areas": [
+   "apps/web",
+   "packages/features/calendars"
+  ]
+ },
+ {
+  "sha": "11f336811b10b7982377c04fb6c9789c2ad6e150",
+  "date": "2026-02-10",
+  "pr": 27831,
+  "title": "feat: add non-interactive mode to app-store CLI",
+  "added_unit_tests": [
+   "packages/app-store-cli/src/validateCreateAppFlags.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/app-store-cli/src/cli.tsx",
+   "M:packages/app-store-cli/src/components/AppCreateUpdateForm.tsx",
+   "M:packages/app-store-cli/src/constants.ts",
+   "A:packages/app-store-cli/src/validateCreateAppFlags.ts"
+  ],
+  "n_src": 4,
+  "score": 6,
+  "areas": [
+   "packages/app-store-cli/src"
+  ]
+ },
+ {
+  "sha": "1849fe7b7425f45fd51c8f901dcc890c838b934a",
+  "date": "2025-02-28",
+  "pr": 19463,
+  "title": "feat: plain-thread-tier",
+  "added_unit_tests": [
+   "apps/web/test/lib/plainTiers.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/app/api/customer-card/route.ts",
+   "M:apps/web/app/api/plain-hash/route.ts",
+   "A:apps/web/lib/plain/card-components.ts",
+   "M:apps/web/lib/plain/plainChat.tsx",
+   "D:apps/web/pages/api/plain/components.ts",
+   "D:apps/web/pages/api/plain/customer-card-display.ts",
+   "D:apps/web/pages/api/plain/example-cards/index.ts",
+   "D:apps/web/pages/api/plain/index.ts"
+  ],
+  "n_src": 4,
+  "score": 6,
+  "areas": [
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "7dcc2fe78a94a073e031e93d4a23cf508c6a5fb2",
+  "date": "2026-01-26",
+  "pr": 27211,
+  "title": "feat: add multi-step download app dropdown with platform-specific options",
+  "added_unit_tests": [
+   "packages/lib/hooks/useUserAgentData.test.ts"
+  ],
+  "modified_unit_tests": [
+   "apps/web/modules/shell/user-dropdown/UserDropdown.test.tsx"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "A:apps/web/modules/shell/user-dropdown/DownloadIcons.tsx",
+   "M:apps/web/modules/shell/user-dropdown/UserDropdown.tsx",
+   "A:packages/lib/hooks/useUserAgentData.ts",
+   "M:packages/ui/components/dropdown/Dropdown.tsx",
+   "M:packages/ui/components/dropdown/index.ts"
+  ],
+  "n_src": 5,
+  "score": 6,
+  "areas": [
+   "apps/web",
+   "packages/ui/components",
+   "packages/lib/hooks"
+  ]
+ },
+ {
+  "sha": "499cbd08ca2f2e28cd91ea64b358e013ae8a5b79",
+  "date": "2025-06-27",
+  "pr": 22024,
+  "title": "feat: Phone based bookings for everyone (#21320)",
+  "added_unit_tests": [
+   "packages/sms/test/sms-manager.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/bookings/lib/getBookingFields.ts",
+   "M:packages/features/eventtypes/components/tabs/advanced/EventAdvancedTab.tsx",
+   "M:packages/features/form-builder/FormBuilder.tsx",
+   "M:packages/lib/server/repository/team.ts",
+   "M:packages/sms/sms-manager.ts"
+  ],
+  "n_src": 5,
+  "score": 6,
+  "areas": [
+   "packages/features/bookings",
+   "packages/features/eventtypes",
+   "packages/features/form-builder"
+  ]
+ },
+ {
+  "sha": "866a0e259655bde9eb1fd1ef2d481c782d22206d",
+  "date": "2025-06-20",
+  "pr": 21320,
+  "title": "feat: Phone based bookings for everyone",
+  "added_unit_tests": [
+   "packages/sms/test/sms-manager.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/bookings/lib/getBookingFields.ts",
+   "M:packages/features/eventtypes/components/tabs/advanced/EventAdvancedTab.tsx",
+   "M:packages/features/form-builder/FormBuilder.tsx",
+   "M:packages/lib/server/repository/team.ts",
+   "M:packages/sms/sms-manager.ts"
+  ],
+  "n_src": 5,
+  "score": 6,
+  "areas": [
+   "packages/features/bookings",
+   "packages/features/eventtypes",
+   "packages/features/form-builder"
+  ]
+ },
+ {
+  "sha": "c0504993a60ce8fcdd252aac3d3884cdb89fcf4e",
+  "date": "2026-02-10",
+  "pr": 27405,
+  "title": "feat: Write wrong assignment reports to the database",
+  "added_unit_tests": [
+   "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/components/dialog/WrongAssignmentDialog.tsx",
+   "M:packages/features/bookings/repositories/BookingRepository.ts",
+   "A:packages/features/bookings/repositories/WrongAssignmentReportRepository.ts",
+   "M:packages/trpc/server/routers/viewer/bookings/_router.tsx",
+   "A:packages/trpc/server/routers/viewer/bookings/hasWrongAssignmentReport.handler.ts",
+   "A:packages/trpc/server/routers/viewer/bookings/hasWrongAssignmentReport.schema.ts",
+   "M:packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.ts"
+  ],
+  "n_src": 7,
+  "score": 6,
+  "areas": [
+   "packages/trpc/server",
+   "packages/features/bookings",
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "86353191d2545f49d206bbfc1b8f2c256a200326",
+  "date": "2025-11-11",
+  "pr": 24912,
+  "title": "feat: add booking actions into BookingDetailsSheet",
+  "added_unit_tests": [
+   "apps/web/components/booking/actions/bookingActions.test.ts"
+  ],
+  "modified_unit_tests": [
+   "apps/web/components/booking/bookingActions.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "D:apps/web/components/booking/BookingActionsDropdown.tsx",
+   "D:apps/web/components/booking/BookingActionsStoreProvider.tsx",
+   "M:apps/web/components/booking/BookingListItem.tsx",
+   "A:apps/web/components/booking/actions/BookingActionsDropdown.tsx",
+   "A:apps/web/components/booking/actions/BookingActionsStoreProvider.tsx",
+   "A:apps/web/components/booking/actions/bookingActions.ts",
+   "A:apps/web/components/booking/actions/store.ts",
+   "D:apps/web/components/booking/bookingActions.ts",
+   "D:apps/web/components/booking/store.ts",
+   "M:apps/web/components/booking/types.ts",
+   "M:apps/web/modules/bookings/components/BookingDetailsSheet.tsx",
+   "M:apps/web/modules/bookings/views/bookings-view.tsx"
+  ],
+  "n_src": 8,
+  "score": 6,
+  "areas": [
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "b01cb27c561c3bce304acaf0bb61bbfabe3230d3",
+  "date": "2025-11-05",
+  "pr": 24880,
+  "title": "feat: improve overlapping events display in weekly calendar view",
+  "added_unit_tests": [
+   "packages/features/calendars/weeklyview/utils/overlap.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/playground/page.tsx",
+   "A:apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/playground/weekly-calendar/page.tsx",
+   "M:packages/features/calendars/weeklyview/components/Calendar.tsx",
+   "M:packages/features/calendars/weeklyview/components/event/Event.tsx",
+   "M:packages/features/calendars/weeklyview/components/event/EventList.tsx",
+   "M:packages/features/calendars/weeklyview/state/store.ts",
+   "A:packages/features/calendars/weeklyview/utils/overlap.ts",
+   "M:packages/ui/components/tooltip/Tooltip.tsx"
+  ],
+  "n_src": 8,
+  "score": 6,
+  "areas": [
+   "packages/features/calendars",
+   "apps/web",
+   "packages/ui/components"
+  ]
+ },
+ {
+  "sha": "c58e1f4ae52055f8e956fe157f3509573e631530",
+  "date": "2026-02-10",
+  "pr": 27208,
+  "title": "feat: add filter segment validation with useActiveFiltersValidator hook and refactor DataTableProvider",
+  "added_unit_tests": [
+   "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/bookings/components/BookingListContainer.tsx",
+   "A:apps/web/modules/bookings/hooks/useActiveFiltersValidator.ts",
+   "M:apps/web/modules/bookings/views/bookings-view.tsx",
+   "M:packages/features/data-table/DataTableProvider.tsx",
+   "A:packages/features/data-table/contexts/DataTableFiltersContext.tsx",
+   "A:packages/features/data-table/contexts/DataTableSegmentContext.tsx",
+   "A:packages/features/data-table/contexts/DataTableStateContext.tsx",
+   "A:packages/features/data-table/contexts/index.ts",
+   "M:packages/features/data-table/index.ts"
+  ],
+  "n_src": 9,
+  "score": 6,
+  "areas": [
+   "packages/features/data-table",
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "7799b191ece7dba2e2ef1b4ad1241f932fabceec",
+  "date": "2025-10-06",
+  "pr": 24207,
+  "title": "feat: botid enabled on api/book/event api route",
+  "added_unit_tests": [
+   "packages/features/bot-detection/BotDetectionService.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:.env.example",
+   "M:apps/web/instrumentation-client.ts",
+   "M:apps/web/next.config.js",
+   "M:apps/web/pages/api/book/event.ts",
+   "A:packages/features/bot-detection/BotDetectionService.ts",
+   "A:packages/features/bot-detection/index.ts",
+   "M:packages/features/flags/config.ts",
+   "M:packages/features/flags/hooks/index.ts",
+   "M:packages/lib/server/repository/eventTypeRepository.ts"
+  ],
+  "n_src": 9,
+  "score": 6,
+  "areas": [
+   "apps/web",
+   "packages/features/bot-detection",
+   "packages/features/flags"
+  ]
+ },
+ {
+  "sha": "a4621da2be1d8f58863117271887823a27c972ea",
+  "date": "2026-03-06",
+  "pr": 27088,
+  "title": "feat: make source required on EventBusyDetails for Troubleshooter display",
+  "added_unit_tests": [
+   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/troubleshooter/components/LargeCalendar.tsx",
+   "M:packages/features/availability/lib/getUserAvailability.ts",
+   "M:packages/features/busyTimes/lib/getBusyTimesFromLimits.ts",
+   "M:packages/features/busyTimes/services/getBusyTimes.ts",
+   "M:packages/features/calendars/weeklyview/components/event/EventList.tsx",
+   "M:packages/features/schedules/lib/date-ranges.ts",
+   "M:packages/lib/intervalLimits/limitManager.ts",
+   "M:packages/trpc/server/routers/viewer/availability/user.handler.ts",
+   "M:packages/trpc/server/routers/viewer/slots/util.ts",
+   "M:packages/types/Calendar.d.ts"
+  ],
+  "n_src": 10,
+  "score": 6,
+  "areas": [
+   "packages/features/busyTimes",
+   "packages/trpc/server",
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "3355fab4fb8c58b8c0d8567a9a5de8a14dc879bf",
+  "date": "2026-01-23",
+  "pr": 27192,
+  "title": "feat: display assignment reason in organizer emails and booking single view",
+  "added_unit_tests": [
+   "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/CalendarEventBuilder.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/bookings/views/bookings-single-view.tsx",
+   "M:packages/emails/src/templates/BaseScheduledEmail.tsx",
+   "M:packages/features/CalendarEventBuilder.ts",
+   "A:packages/features/bookings/lib/getAssignmentReasonCategory.ts",
+   "M:packages/features/bookings/lib/getUserBooking.ts",
+   "M:packages/features/bookings/lib/service/RegularBookingService.ts",
+   "M:packages/features/bookings/repositories/BookingRepository.ts",
+   "M:packages/features/webhooks/lib/sendPayload.ts",
+   "M:packages/trpc/server/routers/viewer/bookings/confirm.handler.ts",
+   "M:packages/types/Calendar.d.ts"
+  ],
+  "n_src": 10,
+  "score": 6,
+  "areas": [
+   "packages/features/bookings",
+   "apps/web",
+   "packages/emails/src"
+  ]
+ },
+ {
+  "sha": "6f7c8bdd739faa9305c0b24638aefbb70624e1b0",
+  "date": "2026-01-22",
+  "pr": 25839,
+  "title": "feat: add wrong assignment report dialog and webhook for routing form bookings",
+  "added_unit_tests": [
+   "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/components/booking/BookingListItem.tsx",
+   "M:apps/web/components/booking/actions/BookingActionsDropdown.tsx",
+   "M:apps/web/components/booking/actions/store.ts",
+   "A:apps/web/components/dialog/WrongAssignmentDialog.tsx",
+   "M:apps/web/modules/webhooks/components/WebhookForm.tsx",
+   "M:packages/features/bookings/repositories/BookingRepository.ts",
+   "M:packages/features/webhooks/lib/constants.ts",
+   "M:packages/features/webhooks/lib/factory/versioned/PayloadBuilderFactory.ts",
+   "M:packages/trpc/server/routers/viewer/bookings/_router.tsx",
+   "A:packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.ts",
+   "A:packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.schema.ts"
+  ],
+  "n_src": 11,
+  "score": 6,
+  "areas": [
+   "apps/web",
+   "packages/trpc/server",
+   "packages/features/webhooks"
+  ]
+ },
+ {
+  "sha": "eacfcd15a41653ccc1ca5e8bc65419c55e338b06",
+  "date": "2026-01-06",
+  "pr": 26039,
+  "title": "feat: Hubspot write to meeting object",
+  "added_unit_tests": [
+   "packages/app-store/hubspot/lib/CrmService.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "A:packages/app-store/_components/crm/WriteToObjectSettings.tsx",
+   "A:packages/app-store/_components/crm/WriteToObjectSettings.types.ts",
+   "A:packages/app-store/_components/crm/WriteToObjectSettings.utils.ts",
+   "A:packages/app-store/_lib/crm-enums.ts",
+   "A:packages/app-store/_lib/crm-schemas.ts",
+   "M:packages/app-store/hubspot/components/EventTypeAppCardInterface.tsx",
+   "M:packages/app-store/hubspot/lib/CrmService.ts",
+   "M:packages/app-store/hubspot/zod.ts",
+   "A:packages/lib/server/repository/PrismaTrackingRepository.ts",
+   "A:packages/lib/server/repository/TrackingRepository.interface.ts",
+   "M:packages/prisma/selects/booking.ts"
+  ],
+  "n_src": 11,
+  "score": 6,
+  "areas": [
+   "packages/app-store/_components",
+   "packages/app-store/hubspot",
+   "packages/app-store/_lib"
+  ]
+ },
+ {
+  "sha": "55e6682832dade38e37e97d2042779b11f77bdec",
+  "date": "2025-09-16",
+  "pr": 19997,
+  "title": "feat: Custom Fields OR Add-Ons with a fee associated",
+  "added_unit_tests": [
+   "packages/features/bookings/lib/handlePayment.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/form-builder/FormBuilder.test.tsx"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/app/(use-page-wrapper)/payment/[uid]/PaymentPage.tsx",
+   "M:packages/app-store/_utils/payments/currencyConversions.ts",
+   "M:packages/features/bookings/Booker/components/BookEventForm/BookEventForm.tsx",
+   "M:packages/features/bookings/Booker/components/BookEventForm/BookingFields.tsx",
+   "M:packages/features/bookings/lib/getBookingFields.ts",
+   "M:packages/features/bookings/lib/handleNewBooking.ts",
+   "M:packages/features/bookings/lib/handlePayment.ts",
+   "M:packages/features/eventtypes/components/tabs/advanced/EventAdvancedTab.tsx",
+   "M:packages/features/form-builder/FormBuilder.tsx",
+   "M:packages/features/form-builder/fieldTypes.ts",
+   "M:packages/features/form-builder/schema.ts",
+   "M:packages/features/form-builder/testUtils.ts"
+  ],
+  "n_src": 12,
+  "score": 6,
+  "areas": [
+   "packages/features/bookings",
+   "packages/features/form-builder",
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "170203051f20fe1a3d2445fb1cdfef8dc7cca950",
+  "date": "2026-01-06",
+  "pr": 26217,
+  "title": "fix: handle existing users on invite token flow",
+  "added_unit_tests": [
+   "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts",
+   "packages/features/auth/signup/handlers/__tests__/mocks/next.mocks.ts",
+   "packages/features/auth/signup/handlers/__tests__/mocks/prisma.mocks.ts",
+   "packages/features/auth/signup/handlers/__tests__/mocks/signup.factories.ts",
+   "packages/features/auth/signup/handlers/__tests__/p2002.test-suite.ts",
+   "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts",
+   "packages/features/auth/signup/lib/fetchSignup.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [
+   "apps/web/playwright/signup.e2e.ts"
+  ],
+  "source_files": [
+   "M:apps/web/modules/signup-view.tsx",
+   "A:packages/features/auth/signup/constants.ts",
+   "M:packages/features/auth/signup/handlers/calcomHandler.ts",
+   "M:packages/features/auth/signup/handlers/selfHostedHandler.ts",
+   "A:packages/features/auth/signup/lib/fetchSignup.ts",
+   "M:packages/lib/server/getServerErrorFromUnknown.ts"
+  ],
+  "n_src": 6,
+  "score": 5,
+  "areas": [
+   "packages/features/auth",
+   "apps/web",
+   "packages/lib/server"
+  ]
+ },
+ {
+  "sha": "a03722fd7f5a934f366ac43dba93e42614a5f726",
+  "date": "2026-01-21",
+  "pr": 25556,
+  "title": "feat: add OAuth client developer settings page with approval workflow",
+  "added_unit_tests": [
+   "packages/emails/templates/admin-oauth-client-notification.test.ts",
+   "packages/emails/templates/oauth-client-approved-notification.test.ts",
+   "packages/emails/templates/oauth-client-rejected-notification.test.ts",
+   "packages/trpc/server/routers/viewer/oAuth/submitClientForReview.handler.test.ts",
+   "packages/trpc/server/routers/viewer/oAuth/updateClient.handler.test.ts"
+  ],
+  "modified_unit_tests": [
+   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts",
+   "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts"
+  ],
+  "added_e2e_tests": [
+   "apps/web/playwright/fixtures/cal2.png",
+   "apps/web/playwright/oauth/oauth-authorize-approval-status.e2e.ts",
+   "apps/web/playwright/oauth/oauth-client-admin.e2e.ts",
+   "apps/web/playwright/oauth/oauth-client-helpers.ts",
+   "apps/web/playwright/oauth/oauth-client-owner-crud.e2e.ts",
+   "apps/web/playwright/oauth/oauth-refresh-tokens.e2e.ts"
+  ],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "D:apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/oAuth/page.tsx",
+   "A:apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/oauth/page.tsx",
+   "M:apps/web/app/(use-page-wrapper)/settings/(settings-layout)/SettingsLayoutAppDirClient.tsx",
+   "A:apps/web/app/(use-page-wrapper)/settings/(settings-layout)/developer/oauth/page.tsx",
+   "M:apps/web/modules/auth/oauth2/authorize-view.tsx",
+   "A:apps/web/modules/settings/admin/oauth-clients-admin-skeleton.tsx",
+   "A:apps/web/modules/settings/admin/oauth-clients-admin-view.tsx",
+   "D:apps/web/modules/settings/admin/oauth-view.tsx",
+   "A:apps/web/modules/settings/developer/oauth-clients-skeleton.tsx",
+   "A:apps/web/modules/settings/developer/oauth-clients-view.tsx",
+   "A:apps/web/modules/settings/oauth/OAuthClientsList.tsx",
+   "A:apps/web/modules/settings/oauth/create/NewOAuthClientButton.tsx",
+   "A:apps/web/modules/settings/oauth/create/OAuthClientCreateModal.tsx",
+   "A:apps/web/modules/settings/oauth/create/OAuthClientPreviewDialog.tsx",
+   "A:apps/web/modules/settings/oauth/view/OAuthClientDetailsDialog.tsx",
+   "A:apps/web/modules/settings/oauth/view/OAuthClientFormFields.tsx",
+   "A:packages/emails/oauth-email-service.ts",
+   "A:packages/emails/src/templates/AdminOAuthClientNotificationEmail.tsx",
+   "A:packages/emails/src/templates/OAuthClientApprovedNotificationEmail.tsx",
+   "A:packages/emails/src/templates/OAuthClientRejectedNotificationEmail.tsx",
+   "M:packages/emails/src/templates/index.ts",
+   "A:packages/emails/templates/admin-oauth-client-notification.ts",
+   "A:packages/emails/templates/oauth-client-approved-notification.ts",
+   "A:packages/emails/templates/oauth-client-rejected-notification.ts",
+   "M:packages/features/oauth/repositories/OAuthClientRepository.ts",
+   "M:packages/features/oauth/services/OAuthService.ts",
+   "M:packages/features/oauth/utils/generateSecret.ts",
+   "M:packages/trpc/server/routers/viewer/oAuth/_router.tsx",
+   "D:packages/trpc/server/routers/viewer/oAuth/addClient.handler.ts",
+   "D:packages/trpc/server/routers/viewer/oAuth/addClient.schema.ts",
+   "A:packages/trpc/server/routers/viewer/oAuth/createClient.handler.ts",
+   "A:packages/trpc/server/routers/viewer/oAuth/createClient.schema.ts",
+   "A:packages/trpc/server/routers/viewer/oAuth/deleteClient.handler.ts",
+   "A:packages/trpc/server/routers/viewer/oAuth/deleteClient.schema.ts",
+   "D:packages/trpc/server/routers/viewer/oAuth/getClient.handler.ts",
+   "D:packages/trpc/server/routers/viewer/oAuth/getClient.schema.ts",
+   "A:packages/trpc/server/routers/viewer/oAuth/getClientForAuthorization.handler.ts",
+   "A:packages/trpc/server/routers/viewer/oAuth/getClientForAuthorization.schema.ts",
+   "A:packages/trpc/server/routers/viewer/oAuth/listClients.handler.ts",
+   "A:packages/trpc/server/routers/viewer/oAuth/listClients.schema.ts",
+   "A:packages/trpc/server/routers/viewer/oAuth/listUserClients.handler.ts",
+   "A:packages/trpc/server/routers/viewer/oAuth/submitClientForReview.handler.ts",
+   "A:packages/trpc/server/routers/viewer/oAuth/submitClientForReview.schema.ts",
+   "A:packages/trpc/server/routers/viewer/oAuth/updateClient.handler.ts",
+   "A:packages/trpc/server/routers/viewer/oAuth/updateClient.schema.ts"
+  ],
+  "n_src": 39,
+  "score": 5,
+  "areas": [
+   "apps/web",
+   "packages/trpc/server",
+   "packages/emails/src"
+  ]
+ },
+ {
+  "sha": "f15d34780435a46a8bc2b8c466c008326dc868f4",
+  "date": "2025-03-31",
+  "pr": 20066,
+  "title": "feat: implement filter segment",
+  "added_unit_tests": [
+   "packages/trpc/server/routers/viewer/filterSegments/__tests__/create.handler.test.ts",
+   "packages/trpc/server/routers/viewer/filterSegments/__tests__/delete.handler.test.ts",
+   "packages/trpc/server/routers/viewer/filterSegments/__tests__/list.handler.test.ts",
+   "packages/trpc/server/routers/viewer/filterSegments/__tests__/update.handler.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [
+   "apps/web/playwright/icons.e2e.ts-snapshots/icons--calcom-web-linux.png"
+  ],
+  "source_files": [
+   "A:apps/web/pages/api/trpc/filterSegments/[trpc].ts",
+   "M:packages/features/data-table/DataTableProvider.tsx",
+   "M:packages/features/data-table/components/DataTable.tsx",
+   "M:packages/features/data-table/components/DataTableSelectionBar.tsx",
+   "M:packages/features/data-table/components/DataTableToolbar.tsx",
+   "M:packages/features/data-table/components/filters/ClearFiltersButton.tsx",
+   "M:packages/features/data-table/components/filters/ColumnVisibilityButton.tsx",
+   "M:packages/features/data-table/components/filters/NumberFilterOptions.tsx",
+   "M:packages/features/data-table/components/filters/TextFilterOptions.tsx",
+   "M:packages/features/data-table/components/index.ts",
+   "A:packages/features/data-table/components/segment/DeleteSegmentDialog.tsx",
+   "A:packages/features/data-table/components/segment/DuplicateSegmentDialog.tsx",
+   "A:packages/features/data-table/components/segment/FilterSegmentSelect.tsx",
+   "A:packages/features/data-table/components/segment/RenameSegmentDialog.tsx",
+   "A:packages/features/data-table/components/segment/SaveFilterSegmentButton.tsx",
+   "M:packages/features/data-table/lib/resizing.ts",
+   "A:packages/features/data-table/lib/segments.ts",
+   "M:packages/features/data-table/lib/types.ts",
+   "M:packages/features/users/components/UserTable/UserListTable.tsx",
+   "M:packages/trpc/react/shared.ts",
+   "M:packages/trpc/server/routers/viewer/_router.tsx",
+   "A:packages/trpc/server/routers/viewer/filterSegments/_router.tsx",
+   "A:packages/trpc/server/routers/viewer/filterSegments/create.handler.ts",
+   "A:packages/trpc/server/routers/viewer/filterSegments/create.schema.ts",
+   "A:packages/trpc/server/routers/viewer/filterSegments/delete.handler.ts",
+   "A:packages/trpc/server/routers/viewer/filterSegments/delete.schema.ts",
+   "A:packages/trpc/server/routers/viewer/filterSegments/list.handler.ts",
+   "A:packages/trpc/server/routers/viewer/filterSegments/list.schema.ts",
+   "A:packages/trpc/server/routers/viewer/filterSegments/types.ts",
+   "A:packages/trpc/server/routers/viewer/filterSegments/update.handler.ts",
+   "A:packages/trpc/server/routers/viewer/filterSegments/update.schema.ts",
+   "M:packages/ui/components/icon/icon-list.mjs",
+   "M:packages/ui/components/icon/icon-names.ts",
+   "M:packages/ui/components/radio/Radio.tsx",
+   "M:packages/ui/components/radio/RadioAreaGroup.tsx",
+   "M:packages/ui/components/radio/index.ts"
+  ],
+  "n_src": 36,
+  "score": 5,
+  "areas": [
+   "packages/features/data-table",
+   "packages/trpc/server",
+   "packages/ui/components"
+  ]
+ },
+ {
+  "sha": "50c7210d6b64dc70987b99b7ea4b160704d9af1f",
+  "date": "2026-02-13",
+  "pr": 27923,
+  "title": "fix: resolve signup watchlist review issues and auto-unlock on SIGNUP entry removal",
+  "added_unit_tests": [
+   "packages/features/watchlist/lib/repository/GlobalWatchlistRepository.test.ts",
+   "packages/features/watchlist/lib/service/AdminWatchlistOperationsService.test.ts",
+   "packages/trpc/server/routers/viewer/admin/lockUserAccount.handler.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/app/api/auth/signup/handlers/calcomSignupHandler.ts",
+   "M:packages/features/di/watchlist/containers/watchlist.ts",
+   "M:packages/features/users/repositories/UserRepository.ts",
+   "M:packages/features/watchlist/lib/repository/GlobalWatchlistRepository.ts",
+   "M:packages/features/watchlist/lib/repository/WatchlistRepository.ts",
+   "M:packages/features/watchlist/lib/service/AdminWatchlistOperationsService.ts",
+   "M:packages/trpc/server/routers/viewer/admin/lockUserAccount.handler.ts"
+  ],
+  "n_src": 7,
+  "score": 5,
+  "areas": [
+   "packages/features/watchlist",
+   "apps/web",
+   "packages/features/di"
+  ]
+ },
+ {
+  "sha": "e5ebf7feb421e13afadac275836fc79996aed3e2",
+  "date": "2025-11-21",
+  "pr": 25334,
+  "title": "fix: signup",
+  "added_unit_tests": [
+   "packages/app-store/stripepayment/api/__tests__/paymentCallback.test.ts",
+   "packages/lib/server/repository/__tests__/verificationToken.test.ts",
+   "packages/lib/server/service/__tests__/VerificationTokenService.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/auth/verify-view.tsx",
+   "M:packages/app-store/stripepayment/api/paymentCallback.ts",
+   "M:packages/features/auth/lib/sendVerificationRequest.ts",
+   "M:packages/features/auth/signup/handlers/calcomHandler.ts",
+   "M:packages/lib/server/repository/verificationToken.ts",
+   "A:packages/lib/server/service/VerificationTokenService.ts",
+   "M:packages/trpc/server/routers/publicViewer/_router.tsx",
+   "D:packages/trpc/server/routers/publicViewer/stripeCheckoutSession.handler.ts",
+   "D:packages/trpc/server/routers/publicViewer/stripeCheckoutSession.schema.ts"
+  ],
+  "n_src": 7,
+  "score": 5,
+  "areas": [
+   "packages/features/auth",
+   "packages/lib/server",
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "f85f2269822ab0b68127fe76213588191c6da5b3",
+  "date": "2025-07-17",
+  "pr": 22396,
+  "title": "fix: Create `RoutingFormResponseService` to get field value from identifier",
+  "added_unit_tests": [
+   "packages/lib/server/service/routingForm/RoutingFormResponseDataFactory.test.ts",
+   "packages/lib/server/service/routingForm/responseData/findFieldValueByIdentifier.test.ts",
+   "packages/lib/server/service/routingForm/responseData/parseRoutingFormResponse.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/app-store/salesforce/lib/CrmService.ts",
+   "A:packages/lib/server/repository/PrismaRoutingFormResponseRepository.ts",
+   "A:packages/lib/server/repository/RoutingFormResponseRepository.interface.ts",
+   "A:packages/lib/server/service/routingForm/RoutingFormResponseDataFactory.ts",
+   "A:packages/lib/server/service/routingForm/responseData/findFieldValueByIdentifier.ts",
+   "A:packages/lib/server/service/routingForm/responseData/parseRoutingFormResponse.ts",
+   "A:packages/lib/server/service/routingForm/responseData/types.ts"
+  ],
+  "n_src": 7,
+  "score": 5,
+  "areas": [
+   "packages/lib/server",
+   "packages/app-store/salesforce"
+  ]
+ },
+ {
+  "sha": "c3a8301b0cdc5bea32102bd2b2696253f7c3e04f",
+  "date": "2026-02-10",
+  "pr": 27802,
+  "title": "fix: hide feature opt-in feedback dialog during impersonation",
+  "added_unit_tests": [
+   "apps/web/modules/feature-opt-in/hooks/useFeatureOptInBanner.test.ts",
+   "apps/web/modules/feature-opt-in/hooks/useOptInFeedback.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/feature-opt-in/hooks/useOptInFeedback.ts"
+  ],
+  "n_src": 1,
+  "score": 5,
+  "areas": [
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "44d9c4bcc52ea887c8db1b5772a4b59046b902b7",
+  "date": "2025-05-15",
+  "pr": 21317,
+  "title": "fix: Seated events and round robin - all round robin hosts are being added to the calendar event",
+  "added_unit_tests": [
+   "packages/features/bookings/lib/handleNewBooking/test/buildEventForTeamEventType.test.ts",
+   "packages/features/bookings/lib/handleNewBooking/test/team-bookings/seatedRoundRobin.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/bookings/lib/handleNewBooking.ts"
+  ],
+  "n_src": 1,
+  "score": 5,
+  "areas": [
+   "packages/features/bookings"
+  ]
+ },
+ {
+  "sha": "48b8afd8af7b526c9b2c29eb44a0785b0eed2605",
+  "date": "2025-02-26",
+  "pr": 19582,
+  "title": "fix: ics compat with older ical specced calendars",
+  "added_unit_tests": [
+   "packages/emails/lib/generateIcsString.test.ts",
+   "packages/emails/lib/getICalUID.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/emails/lib/test/generateIcsString.test.ts",
+   "packages/emails/lib/test/getICalUID.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/emails/lib/generateIcsString.ts"
+  ],
+  "n_src": 1,
+  "score": 5,
+  "areas": [
+   "packages/emails/lib"
+  ]
+ },
+ {
+  "sha": "2ad24048b677b8d2494267c425336d99f538fdaa",
+  "date": "2025-12-12",
+  "pr": 25794,
+  "title": "fix: use relative redirects in booking confirmation routes to fix localhost redirect issue",
+  "added_unit_tests": [
+   "apps/web/app/api/link/__tests__/route.test.ts",
+   "apps/web/app/api/verify-booking-token/__tests__/route.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/app/api/link/route.ts",
+   "M:apps/web/app/api/verify-booking-token/route.ts"
+  ],
+  "n_src": 2,
+  "score": 5,
+  "areas": [
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "17ab088af837679bf73965fd00add64c38c1158a",
+  "date": "2025-10-15",
+  "pr": 24465,
+  "title": "fix: Faulty logic around `shouldServeCache`",
+  "added_unit_tests": [
+   "packages/app-store/googlecalendar/lib/__tests__/getFreeBusyResult.test.ts",
+   "packages/features/calendar-cache/lib/getShouldServeCache.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/app-store/googlecalendar/lib/CalendarService.ts",
+   "M:packages/features/calendar-cache/lib/getShouldServeCache.ts"
+  ],
+  "n_src": 2,
+  "score": 5,
+  "areas": [
+   "packages/app-store/googlecalendar",
+   "packages/features/calendar-cache"
+  ]
+ },
+ {
+  "sha": "51a076212bb7ce2375c0b5cf9d5e04fcc6e1dcf6",
+  "date": "2025-07-09",
+  "pr": 22323,
+  "title": "fix: Do not wait for slots request before removing the",
+  "added_unit_tests": [
+   "packages/embeds/embed-core/src/embed-iframe/__tests__/isLinkReady.test.ts",
+   "packages/embeds/embed-core/src/embed-iframe/__tests__/test-utils.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/embeds/embed-core/src/EmbedElement.test.ts",
+   "packages/embeds/embed-core/src/__tests__/embed-iframe.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/embeds/embed-core/src/EmbedElement.ts",
+   "M:packages/embeds/embed-core/src/embed-iframe/lib/utils.ts"
+  ],
+  "n_src": 2,
+  "score": 5,
+  "areas": [
+   "packages/embeds/embed-core"
+  ]
+ },
+ {
+  "sha": "3ebac0194e7ba84a81e0ecd50d987ff5ba40b30a",
+  "date": "2025-12-09",
+  "pr": 25513,
+  "title": "fix: block Google Meet installation without Google Calendar dependency",
+  "added_unit_tests": [
+   "apps/web/components/apps/InstallAppButtonChild.test.tsx",
+   "packages/app-store/AppDependencyComponent.test.tsx"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/components/apps/AppPage.tsx",
+   "M:apps/web/components/apps/InstallAppButtonChild.tsx",
+   "M:packages/app-store/AppDependencyComponent.tsx"
+  ],
+  "n_src": 3,
+  "score": 5,
+  "areas": [
+   "apps/web",
+   "packages/app-store/AppDependencyComponent.tsx"
+  ]
+ },
+ {
+  "sha": "1cfd94d293d7ec64dcd802a638e793a7f5c5df07",
+  "date": "2025-03-02",
+  "pr": 19605,
+  "title": "fix: Re-instate new slot logic now it's A/B tested in production",
+  "added_unit_tests": [
+   "packages/core/getAggregatedAvailability.test.ts",
+   "packages/core/getAggregatedAvailability/date-range-utils/mergeOverlappingDateRanges.test.ts"
+  ],
+  "modified_unit_tests": [
+   "apps/web/test/lib/getAggregateWorkingHours.test.ts",
+   "packages/core/getAggregateWorkingHours.test.ts",
+   "packages/core/getAggregatedAvailability/date-range-utils/mergeOverlappingDateRanges/mergeOverlappingDateRanges.test.ts",
+   "packages/core/getAggregatedAvailability/getAggregatedAvailability.test.ts",
+   "packages/lib/slots.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "D:packages/core/getAggregateWorkingHours.ts",
+   "A:packages/core/getAggregatedAvailability.ts",
+   "A:packages/core/getAggregatedAvailability/date-range-utils/mergeOverlappingDateRanges.ts",
+   "D:packages/core/getAggregatedAvailability/date-range-utils/mergeOverlappingDateRanges/index.ts",
+   "D:packages/core/getAggregatedAvailability/getAggregatedAvailability.ts",
+   "D:packages/core/getAggregatedAvailability/getAggregatedAvailabilityOld.ts",
+   "D:packages/core/getAggregatedAvailability/index.ts",
+   "M:packages/lib/slots.ts",
+   "M:packages/trpc/server/routers/viewer/slots/util.ts"
+  ],
+  "n_src": 4,
+  "score": 5,
+  "areas": [
+   "packages/core/getAggregatedAvailability.ts",
+   "packages/core/getAggregatedAvailability",
+   "packages/lib/slots.ts"
+  ]
+ },
+ {
+  "sha": "5aa24c847297bd2e1a46270e48a9f0d0221dce10",
+  "date": "2025-10-09",
+  "pr": 24318,
+  "title": "fix: event-type permissions",
+  "added_unit_tests": [
+   "packages/features/pbac/lib/__tests__/event-type-permissions.test.ts",
+   "packages/trpc/server/routers/viewer/eventTypes/__tests__/util.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/pbac/services/__tests__/permission-check.service.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/app/(use-page-wrapper)/event-types/[type]/page.tsx",
+   "A:packages/features/pbac/lib/event-type-permissions.ts",
+   "M:packages/features/pbac/services/permission-check.service.ts",
+   "M:packages/trpc/server/routers/viewer/eventTypes/procedures/get.ts",
+   "M:packages/trpc/server/routers/viewer/eventTypes/util.ts"
+  ],
+  "n_src": 5,
+  "score": 5,
+  "areas": [
+   "packages/features/pbac",
+   "packages/trpc/server",
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "417acdaacb98fc06f349d626c4bda972d6fde2ae",
+  "date": "2025-04-15",
+  "pr": 20451,
+  "title": "fix: Improves dialog window that appears when there is no availability in a month. Adding a description to clarify limits when rolling or range period types are in use.",
+  "added_unit_tests": [
+   "packages/features/calendars/__tests__/DatePicker.test.tsx",
+   "packages/features/calendars/__tests__/NoAvailabilityDialog.test.tsx"
+  ],
+  "modified_unit_tests": [
+   "packages/features/bookings/Booker/__tests__/Booker.test.tsx",
+   "packages/features/calendars/DatePicker.test.tsx"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/bookings/Booker/components/DatePicker.tsx",
+   "M:packages/features/calendars/DatePicker.tsx",
+   "A:packages/features/calendars/NoAvailabilityDialog.tsx",
+   "M:packages/features/eventtypes/lib/getPublicEvent.ts",
+   "M:packages/lib/__mocks__/logger.ts",
+   "M:packages/types/Event.d.ts",
+   "M:packages/ui/components/dialog/Dialog.tsx"
+  ],
+  "n_src": 7,
+  "score": 5,
+  "areas": [
+   "packages/features/calendars",
+   "packages/features/bookings",
+   "packages/features/eventtypes"
+  ]
+ },
+ {
+  "sha": "0772e1d168b70711b433a446a05a0cfeda710adc",
+  "date": "2025-03-25",
+  "pr": 19626,
+  "title": "fix: skip when browsing month has no available slots",
+  "added_unit_tests": [
+   "packages/features/bookings/Booker/components/DatePicker.test.tsx",
+   "packages/features/calendars/DatePicker.test.tsx"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/bookings/Booker/Booker.tsx",
+   "M:packages/features/bookings/Booker/components/DatePicker.tsx",
+   "M:packages/features/bookings/Booker/store.ts",
+   "M:packages/features/bookings/components/AvailableTimes.tsx",
+   "M:packages/features/bookings/types.ts",
+   "M:packages/features/calendars/DatePicker.tsx",
+   "M:packages/features/embed/Embed.tsx",
+   "M:packages/features/schedules/index.ts",
+   "M:packages/features/schedules/lib/use-schedule/useNonEmptyScheduleDays.ts",
+   "A:packages/lib/hooks/useCompatSearchParams.ts",
+   "D:packages/lib/hooks/useCompatSearchParams.tsx"
+  ],
+  "n_src": 10,
+  "score": 5,
+  "areas": [
+   "packages/features/bookings",
+   "packages/features/schedules",
+   "packages/features/calendars"
+  ]
+ },
+ {
+  "sha": "2ec9e903ce965b81fd458fa36d851a76809e737a",
+  "date": "2026-01-29",
+  "pr": 27378,
+  "title": "feat: implement webhook tasker with async/sync fallback",
+  "added_unit_tests": [
+   "packages/features/webhooks/lib/tasker/WebhookTasker.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/di/webhooks/Webhooks.tokens.ts",
+   "M:packages/features/di/webhooks/containers/webhook.ts",
+   "M:packages/features/di/webhooks/modules/WebhookProducerService.module.ts",
+   "A:packages/features/di/webhooks/tasker/WebhookSyncTasker.module.ts",
+   "A:packages/features/di/webhooks/tasker/WebhookTaskConsumer.module.ts",
+   "A:packages/features/di/webhooks/tasker/WebhookTasker.module.ts",
+   "A:packages/features/di/webhooks/tasker/WebhookTriggerTasker.module.ts",
+   "A:packages/features/di/webhooks/tasker/tokens.ts",
+   "M:packages/features/webhooks/lib/service/WebhookTaskerProducerService.ts",
+   "A:packages/features/webhooks/lib/tasker/WebhookSyncTasker.ts",
+   "A:packages/features/webhooks/lib/tasker/WebhookTasker.ts",
+   "A:packages/features/webhooks/lib/tasker/WebhookTriggerTasker.ts",
+   "A:packages/features/webhooks/lib/tasker/trigger/config.ts",
+   "A:packages/features/webhooks/lib/tasker/trigger/deliver-webhook.ts",
+   "A:packages/features/webhooks/lib/tasker/trigger/schema.ts",
+   "A:packages/features/webhooks/lib/tasker/types.ts"
+  ],
+  "n_src": 16,
+  "score": 5,
+  "areas": [
+   "packages/features/di",
+   "packages/features/webhooks"
+  ]
+ },
+ {
+  "sha": "30060f03eb1d230c3797dc679166457fd437773c",
+  "date": "2025-05-26",
+  "pr": 21389,
+  "title": "fix: GoogleCalendar - Ensure that Delegation Credentials are able to reuse access_token",
+  "added_unit_tests": [
+   "packages/app-store/googlecalendar/lib/__tests__/CalendarService.auth.test.ts",
+   "packages/app-store/googlecalendar/lib/__tests__/CalendarService.test.ts",
+   "packages/app-store/googlecalendar/lib/__tests__/utils.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/app-store/_utils/oauth/OAuthManager.test.ts",
+   "packages/app-store/googlecalendar/lib/CalendarService.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/app-store/_utils/oauth/OAuthManager.ts",
+   "A:packages/app-store/_utils/oauth/getCurrentTokenObject.ts",
+   "M:packages/app-store/_utils/oauth/getTokenObjectFromCredential.ts",
+   "M:packages/app-store/_utils/oauth/oAuthManagerHelper.ts",
+   "M:packages/app-store/_utils/oauth/updateTokenObject.ts",
+   "A:packages/app-store/googlecalendar/lib/CalendarAuth.ts",
+   "M:packages/app-store/googlecalendar/lib/CalendarService.ts",
+   "A:packages/app-store/googlecalendar/lib/__mocks__/features.repository.ts",
+   "A:packages/app-store/googlecalendar/lib/__mocks__/getGoogleAppKeys.ts",
+   "M:packages/app-store/googlecalendar/lib/__mocks__/googleapis.ts",
+   "M:packages/lib/delegationCredential/server.ts",
+   "M:packages/lib/piiFreeData.ts",
+   "M:packages/lib/server/repository/credential.ts",
+   "A:scripts/prepare-local-for-delegation-credentials-testing.js",
+   "M:tests/libs/__mocks__/app-store.ts"
+  ],
+  "n_src": 15,
+  "score": 4,
+  "areas": [
+   "packages/app-store/_utils",
+   "packages/app-store/googlecalendar",
+   "packages/lib/delegationCredential"
+  ]
+ },
+ {
+  "sha": "abffde336e744e15cf69626c10e436d6172bc406",
+  "date": "2026-09-04",
+  "pr": 29984,
+  "title": "fix(paypal): don't scale zero-decimal currency amounts on order creation",
+  "added_unit_tests": [
+   "packages/app-store/paypal/lib/Paypal.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/app-store/paypal/lib/Paypal.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/app-store/paypal"
+  ]
+ },
+ {
+  "sha": "b879a542509d908d40141a82bf0caa8cd2fc8f9a",
+  "date": "2026-09-04",
+  "pr": 30039,
+  "title": "fix(hitpay): respect zero-decimal currencies when charging and storing",
+  "added_unit_tests": [
+   "packages/app-store/hitpay/lib/PaymentService.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/app-store/hitpay/lib/PaymentService.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/app-store/hitpay"
+  ]
+ },
+ {
+  "sha": "bb7c87cae1b9274f1c1260142e1c7f5c10286c0f",
+  "date": "2026-07-08",
+  "pr": 29673,
+  "title": "fix(notifications): use instance URL in push test notification",
+  "added_unit_tests": [
+   "packages/trpc/server/routers/loggedInViewer/addNotificationsSubscription.handler.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/trpc/server/routers/loggedInViewer/addNotificationsSubscription.handler.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "fbf6510dd85be1a4c5fad9eb88013df30f875812",
+  "date": "2026-03-28",
+  "pr": 28611,
+  "title": "fix: join Reply-To addresses as string for SMTP compatibility",
+  "added_unit_tests": [
+   "packages/lib/getReplyToHeader.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/lib/getReplyToHeader.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/lib/getReplyToHeader.ts"
+  ]
+ },
+ {
+  "sha": "806fd8edd0afde1021c2284866be8b3c23367c90",
+  "date": "2026-03-24",
+  "pr": 28569,
+  "title": "fix: prevent IDOR in PBAC updateRole and deleteRole tRPC endpoints",
+  "added_unit_tests": [
+   "packages/trpc/server/routers/viewer/pbac/_router.idor-prevention.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/trpc/server/routers/viewer/pbac/_router.tsx"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "9d4cb08c556af66e14c3ba44961b86de2650e6e6",
+  "date": "2026-02-15",
+  "pr": 27964,
+  "title": "fix: Correct hours-to-days conversion in convertToNewDurationType",
+  "added_unit_tests": [
+   "packages/lib/convertToNewDurationType.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/lib/convertToNewDurationType.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/lib/convertToNewDurationType.ts"
+  ]
+ },
+ {
+  "sha": "1b6b91b0adedb2c85c71d4246143fa48689cc2b0",
+  "date": "2026-02-13",
+  "pr": 27909,
+  "title": "fix: display phone numbers and localized timezone in BookingDetailsSheet",
+  "added_unit_tests": [
+   "packages/lib/dayjs/formatToLocalizedTimezone.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/bookings/components/BookingDetailsSheet.tsx"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "cdf901fee31248856b0c4856eaa51b6904a72284",
+  "date": "2026-02-09",
+  "pr": 27765,
+  "title": "fix: defer email validation to after first blur on signup form",
+  "added_unit_tests": [
+   "apps/web/modules/signup-view.test.tsx"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/signup-view.tsx"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "c183223b8d3db3a9c7ccc9d080ff6dcd6c64176d",
+  "date": "2026-02-04",
+  "pr": 27620,
+  "title": "fix: prevent attendee phone number from overriding organizer default app location",
+  "added_unit_tests": [
+   "packages/features/bookings/lib/handleNewBooking/getBookingData.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/bookings/lib/handleNewBooking/getBookingData.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/features/bookings"
+  ]
+ },
+ {
+  "sha": "99f0cf61896d3d2eba3d59b3d6e0682baf811510",
+  "date": "2026-02-04",
+  "pr": 27608,
+  "title": "fix: initiate OAuth flow in setup page instead of redirecting to dashboard for stripe",
+  "added_unit_tests": [
+   "packages/app-store/stripepayment/pages/setup/__tests__/_getServerSideProps.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/app-store/stripepayment/pages/setup/_getServerSideProps.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/app-store/stripepayment"
+  ]
+ },
+ {
+  "sha": "40e5b739d6e76c4114b20a6d87de19b144794a49",
+  "date": "2026-02-03",
+  "pr": 27574,
+  "title": "fix: prevent video redirect when booking additional seats",
+  "added_unit_tests": [
+   "apps/web/modules/bookings/hooks/useBookings.test.tsx"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/bookings/hooks/useBookings.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "45ea59ceb8ecbdd3cf349519e7596c0b4ac9695b",
+  "date": "2026-01-22",
+  "pr": 22434,
+  "title": "fix: prevent CalDAV duplicate invitations with RFC-compliant SCHEDULE-AGENT",
+  "added_unit_tests": [
+   "packages/lib/CalendarService.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/lib/CalendarService.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/lib/CalendarService.ts"
+  ]
+ },
+ {
+  "sha": "4d9e726fef2ac223512eb451418dd56a0f00ffa9",
+  "date": "2026-01-16",
+  "pr": 24275,
+  "title": "fix: make SSR-safe and fix ESLint warning for Beacon in UserDropdown",
+  "added_unit_tests": [
+   "apps/web/modules/shell/user-dropdown/UserDropdown.test.tsx"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/shell/user-dropdown/UserDropdown.tsx"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "f8dcc6b13dd56f983e8acdb91c4574bb7dacbbc2",
+  "date": "2026-01-08",
+  "pr": 26216,
+  "title": "fix: filter Google Workspace credentials by current user",
+  "added_unit_tests": [
+   "packages/trpc/server/routers/viewer/googleWorkspace/googleWorkspace.handler.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/trpc/server/routers/viewer/googleWorkspace/googleWorkspace.handler.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "2aed9908b7bf77576d2c7ee158bd3e16e8891c7b",
+  "date": "2026-01-07",
+  "pr": 26555,
+  "title": "fix: replace gray-matter with direct yaml.load for js-yaml 4.x compatibility",
+  "added_unit_tests": [
+   "apps/web/lib/apps/[slug]/__tests__/parseFrontmatter.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/lib/apps/[slug]/getStaticProps.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "110491ecb99db1471a5fc6a4afbbcd8cf78d2020",
+  "date": "2026-01-07",
+  "pr": 26148,
+  "title": "fix: generate compliant passwords using meeting_password_requirement",
+  "added_unit_tests": [
+   "packages/app-store/zoomvideo/lib/VideoApiAdapter.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/app-store/zoomvideo/lib/VideoApiAdapter.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/app-store/zoomvideo"
+  ]
+ },
+ {
+  "sha": "c58e0ca783c93586f09bb9c962a0ae0476ca21d7",
+  "date": "2026-01-02",
+  "pr": 26373,
+  "title": "fix: Custom time input for availability",
+  "added_unit_tests": [
+   "packages/features/schedules/components/parse-time-string.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/schedules/components/Schedule.tsx"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/features/schedules"
+  ]
+ },
+ {
+  "sha": "983af06787fd7bb11e347dd5438469100a331ae1",
+  "date": "2025-12-13",
+  "pr": 24968,
+  "title": "fix: allow two dots in exclude email",
+  "added_unit_tests": [
+   "packages/prisma/zod-utils.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/prisma/zod-utils.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/prisma/zod-utils.ts"
+  ]
+ },
+ {
+  "sha": "a7aabc8b4f0c3d9a8f20601d5fbca7e2feeb97ba",
+  "date": "2025-11-21",
+  "pr": 25325,
+  "title": "fix: toggleEnabled handler",
+  "added_unit_tests": [
+   "packages/trpc/server/routers/viewer/delegationCredential/toggleEnabled.handler.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/trpc/server/routers/viewer/delegationCredential/toggleEnabled.handler.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "1012f2f153605c36b5f72d4fabe4bc435f6390a1",
+  "date": "2025-11-16",
+  "pr": 25106,
+  "title": "fix: made show all columns work correctly",
+  "added_unit_tests": [
+   "packages/features/data-table/components/filters/ColumnVisibilityButton.test.tsx"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/data-table/components/filters/ColumnVisibilityButton.tsx"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/features/data-table"
+  ]
+ },
+ {
+  "sha": "e26a57bf258760534e258f5d34cafcc57fa28342",
+  "date": "2025-10-14",
+  "pr": 24452,
+  "title": "fix: prisma serialisation errors",
+  "added_unit_tests": [
+   "packages/features/pbac/infrastructure/repositories/__tests__/PermissionRepository.integration-test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/pbac/infrastructure/repositories/PermissionRepository.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/features/pbac"
+  ]
+ },
+ {
+  "sha": "d30d2792cde732cbdc872c1ae07e24da7e7d8bcb",
+  "date": "2025-09-10",
+  "pr": 22061,
+  "title": "fix: hide notes",
+  "added_unit_tests": [
+   "apps/web/test/lib/confirm.handler.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/trpc/server/routers/viewer/bookings/confirm.handler.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/trpc/server/routers/viewer/bookings/confirm.handler.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "c989817373df9d91645802435bebf9605bd690b0",
+  "date": "2025-08-14",
+  "pr": 23059,
+  "title": "fix: more precise error code for event type duplication handler",
+  "added_unit_tests": [
+   "packages/trpc/server/routers/viewer/eventTypes/duplicate.handler.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/trpc/server/routers/viewer/eventTypes/duplicate.handler.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "fa66f2531f74ffd70d2a9061760258b3fc03782b",
+  "date": "2025-07-16",
+  "pr": 22574,
+  "title": "fix: 400 is correct error code for computing slot for past booking",
+  "added_unit_tests": [
+   "packages/trpc/server/routers/viewer/slots/util.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/trpc/server/routers/viewer/slots/util.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "4404699fa6c9c318402b0451dd21083a57db6e04",
+  "date": "2025-07-08",
+  "pr": 20764,
+  "title": "fix: improve redirect parameter handling for success page",
+  "added_unit_tests": [
+   "packages/lib/bookingSuccessRedirect.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/lib/bookingSuccessRedirect.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/lib/bookingSuccessRedirect.ts"
+  ]
+ },
+ {
+  "sha": "0e9b419a072fa1d3216937113bdd4859845b8642",
+  "date": "2025-05-22",
+  "pr": 21431,
+  "title": "fix: Delegation Credentials - Use Cal Video if set as the default conferencing app",
+  "added_unit_tests": [
+   "packages/features/bookings/lib/handleNewBooking/test/getLocationValueForDb.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/bookings/lib/handleNewBooking/test/delegation-credential.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/bookings/lib/handleNewBooking/getLocationValuesForDb.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/features/bookings"
+  ]
+ },
+ {
+  "sha": "192238f4bff64628c3e9ed75a608f119963b172f",
+  "date": "2025-03-18",
+  "pr": 19859,
+  "title": "fix: UID cookie isn't accessible/created when in embed as it is third party context.",
+  "added_unit_tests": [
+   "packages/trpc/server/routers/viewer/slots/reserveSlot.handler.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "3f042a1077760662d68d0cd02609810cad1c996b",
+  "date": "2025-02-20",
+  "pr": 19290,
+  "title": "fix: reduce abnormal spacing in calendar invite",
+  "added_unit_tests": [
+   "packages/lib/CalEventParser.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/lib/CalEventParser.ts"
+  ],
+  "n_src": 1,
+  "score": 4,
+  "areas": [
+   "packages/lib/CalEventParser.ts"
+  ]
+ },
+ {
+  "sha": "0d164da8ddc68474300dc85677856950ef81ee7e",
+  "date": "2026-06-22",
+  "pr": 27634,
+  "title": "fix: implement missing password validation",
+  "added_unit_tests": [
+   "packages/trpc/server/routers/viewer/me/deleteMe.handler.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [
+   "apps/web/playwright/auth/delete-account.e2e.ts",
+   "apps/web/playwright/change-password.e2e.ts",
+   "apps/web/playwright/fixtures/users.ts",
+   "apps/web/playwright/lib/testUtils.ts",
+   "apps/web/playwright/login.2fa.e2e.ts",
+   "apps/web/playwright/oauth-provider.e2e.ts",
+   "apps/web/playwright/profile.e2e.ts"
+  ],
+  "source_files": [
+   "M:packages/features/auth/lib/ErrorCode.ts",
+   "M:packages/trpc/server/routers/viewer/me/deleteMe.handler.ts"
+  ],
+  "n_src": 2,
+  "score": 4,
+  "areas": [
+   "packages/features/auth",
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "2bf45677e85b2ed05850966c2d25f7c7108dab09",
+  "date": "2026-03-03",
+  "pr": 28203,
+  "title": "fix: add phone mask overrides for Argentina and Finland to prevent digit truncation",
+  "added_unit_tests": [
+   "apps/web/components/phone-input/PhoneInput.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/components/phone-input/PhoneInput.tsx",
+   "A:apps/web/components/phone-input/phone-masks.ts"
+  ],
+  "n_src": 2,
+  "score": 4,
+  "areas": [
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "896dfd50fd7d0c710210d7929fd2d77fdcafe0ab",
+  "date": "2026-02-13",
+  "pr": 27894,
+  "title": "fix: prevent BookingDetailsSheet flicker when switching bookings",
+  "added_unit_tests": [
+   "apps/web/modules/bookings/components/BookingDetailsSheet.test.tsx"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/bookings/components/BookingDetailsSheet.tsx",
+   "M:apps/web/modules/calendars/weeklyview/components/event/Event.tsx"
+  ],
+  "n_src": 2,
+  "score": 4,
+  "areas": [
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "a8ede7761fd0de53e4e8c10d53cdbc08798af7e2",
+  "date": "2026-02-06",
+  "pr": 27705,
+  "title": "fix: use LOGO_DARK constant for generic OG image instead of hardcoded value",
+  "added_unit_tests": [
+   "packages/lib/OgImages.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/lib/OgImages.tsx",
+   "M:packages/lib/constants.ts"
+  ],
+  "n_src": 2,
+  "score": 4,
+  "areas": [
+   "packages/lib/OgImages.tsx",
+   "packages/lib/constants.ts"
+  ]
+ },
+ {
+  "sha": "c28a0d7db0294320ed05abda921dc6a0e147afbf",
+  "date": "2026-01-21",
+  "pr": 27042,
+  "title": "fix: handle invalid timezones gracefully in calendar events",
+  "added_unit_tests": [
+   "packages/features/calendars/lib/timezone-conversion.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/calendars/lib/getCalendarsEvents.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/calendars/lib/getCalendarsEvents.ts",
+   "A:packages/features/calendars/lib/timezone-conversion.ts"
+  ],
+  "n_src": 2,
+  "score": 4,
+  "areas": [
+   "packages/features/calendars"
+  ]
+ },
+ {
+  "sha": "421936dc1433d77b1218c40956347ab75c6a4127",
+  "date": "2026-01-02",
+  "pr": 26399,
+  "title": "fix(auth): resolve session user by token subject ID",
+  "added_unit_tests": [
+   "packages/features/auth/lib/getServerSession.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "A:packages/features/auth/__mocks__/getServerSession.mocks.ts",
+   "M:packages/features/auth/lib/getServerSession.ts"
+  ],
+  "n_src": 2,
+  "score": 4,
+  "areas": [
+   "packages/features/auth"
+  ]
+ },
+ {
+  "sha": "5fe54fd3f2be5d4df8f4f71a070ee82ad76d431f",
+  "date": "2025-12-28",
+  "pr": 26218,
+  "title": "fix(schedules): add missing await on async permission check",
+  "added_unit_tests": [
+   "packages/trpc/server/routers/viewer/availability/schedule/getAllSchedulesByUserId.handler.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/schedules/repositories/ScheduleRepository.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/schedules/repositories/ScheduleRepository.ts",
+   "M:packages/trpc/server/routers/viewer/availability/schedule/getAllSchedulesByUserId.handler.ts"
+  ],
+  "n_src": 2,
+  "score": 4,
+  "areas": [
+   "packages/features/schedules",
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "e23354b48b92961475678477ef067ea169493a3d",
+  "date": "2025-12-22",
+  "pr": 25615,
+  "title": "fix: ESC key handler only works once in embed modal",
+  "added_unit_tests": [
+   "packages/embeds/embed-core/src/ModalBox/ModalBox.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/embeds/embed-core/src/EmbedElement.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/embeds/embed-core/src/EmbedElement.ts",
+   "M:packages/embeds/embed-core/src/ModalBox/ModalBox.ts"
+  ],
+  "n_src": 2,
+  "score": 4,
+  "areas": [
+   "packages/embeds/embed-core"
+  ]
+ },
+ {
+  "sha": "c941192979c71bd9d70ddb0d080afc922bbdfe10",
+  "date": "2025-11-21",
+  "pr": 25315,
+  "title": "fix: access service class for editLocationHandler",
+  "added_unit_tests": [
+   "packages/features/credentials/services/CredentialAccessService.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "A:packages/features/credentials/services/CredentialAccessService.ts",
+   "M:packages/trpc/server/routers/viewer/bookings/editLocation.handler.ts"
+  ],
+  "n_src": 2,
+  "score": 4,
+  "areas": [
+   "packages/features/credentials",
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "f117b2df320da1ca3d00c37a3770b2f2f1260165",
+  "date": "2025-07-14",
+  "pr": 22331,
+  "title": "fix: CalDAV credential verification between multiple instances",
+  "added_unit_tests": [
+   "packages/lib/EventManager.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/lib/getCalendarsEvents.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/lib/EventManager.ts",
+   "M:packages/lib/getCalendarsEvents.ts"
+  ],
+  "n_src": 2,
+  "score": 4,
+  "areas": [
+   "packages/lib/EventManager.ts",
+   "packages/lib/getCalendarsEvents.ts"
+  ]
+ },
+ {
+  "sha": "d80ed070930973681835fdccbc101f32be1185ee",
+  "date": "2025-03-29",
+  "pr": 20446,
+  "title": "fix: calendar cache date mismtach",
+  "added_unit_tests": [
+   "packages/features/calendar-cache/lib/datesForCache.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/calendar-cache/calendar-cache.repository.ts",
+   "M:packages/features/calendar-cache/lib/datesForCache.ts"
+  ],
+  "n_src": 2,
+  "score": 4,
+  "areas": [
+   "packages/features/calendar-cache"
+  ]
+ },
+ {
+  "sha": "c9abc556baf2ac8ad895e96915563ddfad73de5e",
+  "date": "2026-02-24",
+  "pr": 28152,
+  "title": "fix: improve getIP header resolution for CF \u2192 Vercel setup",
+  "added_unit_tests": [
+   "packages/lib/getIP.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/app/api/auth/forgot-password/route.ts",
+   "M:apps/web/app/api/ip/route.ts",
+   "M:packages/lib/getIP.ts"
+  ],
+  "n_src": 3,
+  "score": 4,
+  "areas": [
+   "apps/web",
+   "packages/lib/getIP.ts"
+  ]
+ },
+ {
+  "sha": "01ae6f1b9ea421bba8fa931c51e6f4cd80fae707",
+  "date": "2026-01-27",
+  "pr": 27264,
+  "title": "fix: Salesforce tokens add `token_lifetime`",
+  "added_unit_tests": [
+   "packages/app-store/salesforce/lib/__tests__/getSalesforceTokenLifetime.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/app-store/salesforce/lib/__tests__/CrmService.integration.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/app-store/salesforce/api/callback.ts",
+   "M:packages/app-store/salesforce/lib/CrmService.ts",
+   "A:packages/app-store/salesforce/lib/getSalesforceTokenLifetime.ts"
+  ],
+  "n_src": 3,
+  "score": 4,
+  "areas": [
+   "packages/app-store/salesforce"
+  ]
+ },
+ {
+  "sha": "4585d7402d70a371f6d417fe22cbd4a7291bc7bb",
+  "date": "2026-01-07",
+  "pr": 26044,
+  "title": "fix: BOOKING_PAID webhook & workflow isn't triggering after payment successful",
+  "added_unit_tests": [
+   "packages/app-store/_utils/payments/handlePaymentSuccess.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/app-store/_utils/payments/handlePaymentSuccess.ts",
+   "M:packages/features/bookings/lib/handleConfirmation.ts",
+   "M:packages/features/bookings/lib/payment/getBooking.ts"
+  ],
+  "n_src": 3,
+  "score": 4,
+  "areas": [
+   "packages/features/bookings",
+   "packages/app-store/_utils"
+  ]
+ },
+ {
+  "sha": "1c3ced5b7040115e0ac1301e8482d49a80881d6c",
+  "date": "2025-12-03",
+  "pr": 25386,
+  "title": "fix: simplify date range picker to Airbnb-style selection",
+  "added_unit_tests": [
+   "packages/ui/components/form/date-range-picker/dateRangeLogic.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [
+   "apps/web/playwright/out-of-office.e2e.ts"
+  ],
+  "source_files": [
+   "M:packages/ui/components/form/date-range-picker/Calendar.tsx",
+   "M:packages/ui/components/form/date-range-picker/DateRangePicker.tsx",
+   "A:packages/ui/components/form/date-range-picker/dateRangeLogic.ts"
+  ],
+  "n_src": 3,
+  "score": 4,
+  "areas": [
+   "packages/ui/components"
+  ]
+ },
+ {
+  "sha": "bed76beb2f705ef6b184341ac7809028a555ea16",
+  "date": "2025-10-13",
+  "pr": 24427,
+  "title": "fix: Layout shift in inline embed caused due to showing embed before it was really ready",
+  "added_unit_tests": [
+   "packages/embeds/embed-core/src/embed-iframe/__tests__/utils.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/embeds/embed-core/src/embed-iframe/__tests__/isLinkReady.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/embeds/embed-core/src/embed-iframe.ts",
+   "M:packages/embeds/embed-core/src/embed-iframe/lib/embedStore.ts",
+   "M:packages/embeds/embed-core/src/embed-iframe/lib/utils.ts"
+  ],
+  "n_src": 3,
+  "score": 4,
+  "areas": [
+   "packages/embeds/embed-core"
+  ]
+ },
+ {
+  "sha": "aa618dbaa2a6a871e98f79149d1c419f49f20bd3",
+  "date": "2025-08-01",
+  "pr": 22713,
+  "title": "fix: Missing bookingId in BOOKING_CANCELLED webhook payload",
+  "added_unit_tests": [
+   "packages/lib/server/service/__tests__/BookingWebhookFactory.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "A:packages/lib/server/service/BookingWebhookFactory.ts",
+   "M:packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts",
+   "A:packages/types/JsonObject.d.ts"
+  ],
+  "n_src": 3,
+  "score": 4,
+  "areas": [
+   "packages/lib/server",
+   "packages/trpc/server",
+   "packages/types/JsonObject.d.ts"
+  ]
+ },
+ {
+  "sha": "0386723ae89e65dc4751d23c27be0e7dc4ae468b",
+  "date": "2025-04-15",
+  "pr": 20633,
+  "title": "fix: recalculate date range from filter segments",
+  "added_unit_tests": [
+   "packages/features/data-table/lib/dateRange.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/data-table/components/filters/DateRangeFilter.tsx",
+   "M:packages/features/data-table/hooks/useSegments.ts",
+   "M:packages/features/data-table/lib/dateRange.ts"
+  ],
+  "n_src": 3,
+  "score": 4,
+  "areas": [
+   "packages/features/data-table"
+  ]
+ },
+ {
+  "sha": "c21094ab0a089d13224df6beb9a30b43a0743261",
+  "date": "2025-03-25",
+  "pr": 20233,
+  "title": "fix: Buffers when combined with seated events",
+  "added_unit_tests": [
+   "packages/lib/getBusyTimes.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/lib/getBusyTimes.ts",
+   "M:packages/lib/server/repository/booking.ts",
+   "M:packages/trpc/server/routers/viewer/slots/util.ts"
+  ],
+  "n_src": 3,
+  "score": 4,
+  "areas": [
+   "packages/lib/getBusyTimes.ts",
+   "packages/lib/server",
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "f5dc22f1454bf0cb778a5ba58de76e91c390416e",
+  "date": "2025-02-11",
+  "pr": 18772,
+  "title": "fix: Multiple rr-hosts combine to create erroneous availability",
+  "added_unit_tests": [
+   "packages/core/getAggregatedAvailability/getAggregatedAvailability.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/lib/slots.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/core/getAggregatedAvailability/index.ts",
+   "M:packages/lib/slots.ts",
+   "M:packages/trpc/server/routers/viewer/slots/util.ts"
+  ],
+  "n_src": 3,
+  "score": 4,
+  "areas": [
+   "packages/core/getAggregatedAvailability",
+   "packages/lib/slots.ts",
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "f86767c125a0148eda57cbbfcb1aba36e352bf27",
+  "date": "2026-03-10",
+  "pr": 28129,
+  "title": "fix: correct admin password banner message and auto-sign-out after 2FA enable",
+  "added_unit_tests": [
+   "apps/web/modules/users/components/AdminPasswordBanner.test.tsx"
+  ],
+  "modified_unit_tests": [
+   "packages/features/auth/lib/next-auth-options.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/settings/security/two-factor-auth-view.tsx",
+   "M:apps/web/modules/users/components/AdminPasswordBanner.tsx",
+   "M:packages/features/auth/lib/next-auth-options.ts",
+   "M:packages/types/next-auth.d.ts"
+  ],
+  "n_src": 4,
+  "score": 4,
+  "areas": [
+   "apps/web",
+   "packages/features/auth",
+   "packages/types/next-auth.d.ts"
+  ]
+ },
+ {
+  "sha": "c0302bfc51ac654657f7fa7b1e2cb7948f9834ef",
+  "date": "2026-01-16",
+  "pr": 25434,
+  "title": "fix: get bookings handler for pbac and fallback roles",
+  "added_unit_tests": [
+   "packages/trpc/server/routers/viewer/bookings/get.handler.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/pbac/infrastructure/repositories/__tests__/PermissionRepository.integration-test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/pbac/domain/repositories/IPermissionRepository.ts",
+   "M:packages/features/pbac/infrastructure/repositories/PermissionRepository.ts",
+   "M:packages/features/pbac/services/permission-check.service.ts",
+   "M:packages/trpc/server/routers/viewer/bookings/get.handler.ts"
+  ],
+  "n_src": 4,
+  "score": 4,
+  "areas": [
+   "packages/features/pbac",
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "cc1efe1298c0edc3e156afeca3435693451711f4",
+  "date": "2025-11-18",
+  "pr": 24816,
+  "title": "fix: Conditional fetch cache",
+  "added_unit_tests": [
+   "packages/features/calendar-subscription/lib/cache/__tests__/CalendarCacheWrapper.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/app-store/_utils/getCalendar.ts",
+   "M:packages/app-store/googlecalendar/lib/__mocks__/features.repository.ts",
+   "M:packages/features/calendar-subscription/lib/cache/CalendarCacheWrapper.ts",
+   "M:packages/features/flags/features.repository.ts"
+  ],
+  "n_src": 4,
+  "score": 4,
+  "areas": [
+   "packages/app-store/_utils",
+   "packages/app-store/googlecalendar",
+   "packages/features/calendar-subscription"
+  ]
+ },
+ {
+  "sha": "39917ebfa6fdcb367c143ce0edeff531178e952e",
+  "date": "2025-09-17",
+  "pr": 23736,
+  "title": "fix: Alternate reschedule behaviour for past bookings - Don't allow new booking",
+  "added_unit_tests": [
+   "packages/features/bookings/lib/reschedule/determineReschedulePreventionRedirect.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/lib/reschedule/[uid]/getServerSideProps.ts",
+   "A:packages/features/bookings/lib/reschedule/determineReschedulePreventionRedirect.ts",
+   "M:packages/lib/constants.ts",
+   "M:packages/lib/defaultEvents.ts"
+  ],
+  "n_src": 4,
+  "score": 4,
+  "areas": [
+   "apps/web",
+   "packages/features/bookings",
+   "packages/lib/constants.ts"
+  ]
+ },
+ {
+  "sha": "cc6beedfb0fd93bdc6759eb8b6cf6a862ab06445",
+  "date": "2025-07-25",
+  "pr": 22679,
+  "title": "fix: App Crash inside Embed when Cross Domain cookies are disabled in browser(Firefox)",
+  "added_unit_tests": [
+   "apps/web/pages/_applyThemeForDocument.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "A:apps/web/pages/_applyThemeForDocument.ts",
+   "M:apps/web/pages/_document.tsx",
+   "M:packages/eslint-plugin/src/rules/avoid-web-storage.ts",
+   "M:packages/lib/hooks/useTheme.tsx"
+  ],
+  "n_src": 4,
+  "score": 4,
+  "areas": [
+   "apps/web",
+   "packages/eslint-plugin/src",
+   "packages/lib/hooks"
+  ]
+ },
+ {
+  "sha": "ef1844557f2533c53f6b29a1d72783fbc29cb64d",
+  "date": "2025-05-24",
+  "pr": 20750,
+  "title": "fix: Host schedule not updating upon updating/deleting default schedule",
+  "added_unit_tests": [
+   "packages/trpc/server/routers/viewer/availability/util.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "A:packages/lib/server/repository/host.ts",
+   "M:packages/trpc/server/routers/viewer/availability/schedule/delete.handler.ts",
+   "M:packages/trpc/server/routers/viewer/availability/schedule/update.handler.ts",
+   "M:packages/trpc/server/routers/viewer/availability/util.ts"
+  ],
+  "n_src": 4,
+  "score": 4,
+  "areas": [
+   "packages/trpc/server",
+   "packages/lib/server"
+  ]
+ },
+ {
+  "sha": "1e67f98970459cfdcba14d70ba55d27152f723f5",
+  "date": "2026-01-13",
+  "pr": 25519,
+  "title": "fix: add Icelandic, Lithuanian, and Norwegian locale support for Booker",
+  "added_unit_tests": [
+   "packages/lib/dateTimeFormatter.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/lib/weekday.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/modules/bookings/components/Header.tsx",
+   "M:packages/dayjs/locales.ts",
+   "M:packages/features/bookings/Booker/utils/dates.tsx",
+   "M:packages/features/tasker/tasks/translateEventTypeData.ts",
+   "A:packages/lib/dateTimeFormatter.ts",
+   "M:packages/lib/weekday.ts"
+  ],
+  "n_src": 6,
+  "score": 4,
+  "areas": [
+   "apps/web",
+   "packages/dayjs/locales.ts",
+   "packages/features/bookings"
+  ]
+ },
+ {
+  "sha": "a7d87fc5be71927f5e57b8bd715b066047484fee",
+  "date": "2025-11-22",
+  "pr": 25320,
+  "title": "fix: Proxy Mintlify traffic through a Next.js API route",
+  "added_unit_tests": [
+   "apps/web/app/api/mintlify-chat/__tests__/route.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:.env.example",
+   "A:apps/web/app/api/mintlify-chat/message/route.ts",
+   "A:apps/web/app/api/mintlify-chat/topic/route.ts",
+   "M:packages/features/kbar/Kbar.tsx",
+   "M:packages/features/mintlify-chat/util.ts",
+   "A:packages/lib/server/mintlifyChatValidation.ts"
+  ],
+  "n_src": 6,
+  "score": 4,
+  "areas": [
+   "apps/web",
+   ".env.example",
+   "packages/features/kbar"
+  ]
+ },
+ {
+  "sha": "24ff3622fd3539f1ab41cd7b7b1539c1e4eaae5f",
+  "date": "2025-09-01",
+  "pr": 23443,
+  "title": "fix: fixes PBAC roles creation and update when adding Attributes",
+  "added_unit_tests": [
+   "packages/features/pbac/domain/types/__tests__/permission-registry.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/pbac/services/__tests__/permission-diff.service.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/pbac/domain/types/permission-registry.ts",
+   "M:packages/features/pbac/infrastructure/repositories/PermissionRepository.ts",
+   "M:packages/features/pbac/infrastructure/repositories/RoleRepository.ts",
+   "M:packages/features/pbac/services/permission-diff.service.ts",
+   "M:packages/features/pbac/services/permission.service.ts",
+   "M:packages/trpc/server/routers/viewer/pbac/_router.tsx"
+  ],
+  "n_src": 6,
+  "score": 4,
+  "areas": [
+   "packages/features/pbac",
+   "packages/trpc/server"
+  ]
+ },
+ {
+  "sha": "33b5bf1db88e726b5b5fe95378b4cca7e4e8c5e0",
+  "date": "2025-07-10",
+  "pr": 22318,
+  "title": "fix: Move pbac to prisma from kysley",
+  "added_unit_tests": [
+   "packages/features/pbac/services/__tests__/permission-diff.service.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/pbac/services/__tests__/role.service.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "D:packages/features/pbac/domain/mappers/RoleMapper.ts",
+   "M:packages/features/pbac/domain/models/Role.ts",
+   "M:packages/features/pbac/domain/repositories/IRoleRepository.ts",
+   "A:packages/features/pbac/infrastructure/mappers/RoleOutputMapper.ts",
+   "M:packages/features/pbac/infrastructure/repositories/PermissionRepository.ts",
+   "M:packages/features/pbac/infrastructure/repositories/RoleRepository.ts",
+   "A:packages/features/pbac/services/permission-diff.service.ts",
+   "M:packages/features/pbac/services/role.service.ts"
+  ],
+  "n_src": 7,
+  "score": 4,
+  "areas": [
+   "packages/features/pbac"
+  ]
+ },
+ {
+  "sha": "6c6cf0433ad02abb2ded79b9614efd0641f7a76d",
+  "date": "2025-08-12",
+  "pr": 23009,
+  "title": "fix: handle TempOrgRedirect when NEXT_PUBLIC_SINGLE_ORG_SLUG forces org context",
+  "added_unit_tests": [
+   "apps/web/lib/handleOrgRedirect.test.ts"
+  ],
+  "modified_unit_tests": [
+   "apps/web/lib/getTemporaryOrgRedirect.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/app/(booking-page-wrapper)/team/[slug]/[type]/pageWithCachedData.tsx",
+   "M:apps/web/lib/d/[link]/[slug]/getServerSideProps.tsx",
+   "D:apps/web/lib/getTemporaryOrgRedirect.ts",
+   "A:apps/web/lib/handleOrgRedirect.ts",
+   "M:apps/web/lib/org/[orgSlug]/[user]/getServerSideProps.tsx",
+   "M:apps/web/lib/team/[slug]/[type]/getServerSideProps.tsx",
+   "M:apps/web/lib/team/[slug]/getServerSideProps.tsx",
+   "M:apps/web/server/lib/[user]/[type]/getServerSideProps.ts",
+   "M:apps/web/server/lib/[user]/getServerSideProps.ts"
+  ],
+  "n_src": 8,
+  "score": 4,
+  "areas": [
+   "apps/web"
+  ]
+ },
+ {
+  "sha": "0ad5770bb9e3ef96e989b798356839eee5590962",
+  "date": "2025-02-27",
+  "pr": 19590,
+  "title": "fix: Valid timeslot marked 'slot no longer available'",
+  "added_unit_tests": [
+   "packages/features/bookings/Booker/utils/isFeatureEnabledForVisitor.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/features/bookings/Booker/utils/isTimeslotAvailable.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:.env.example",
+   "M:packages/features/bookings/Booker/Booker.tsx",
+   "A:packages/features/bookings/Booker/components/hooks/useIsQuickAvailabilityCheckFeatureEnabled.ts",
+   "M:packages/features/bookings/Booker/components/hooks/useSlots.ts",
+   "A:packages/features/bookings/Booker/utils/isFeatureEnabledForVisitor.ts",
+   "M:packages/features/bookings/Booker/utils/isTimeslotAvailable.ts",
+   "M:packages/lib/constants.ts",
+   "A:packages/lib/cookie.ts"
+  ],
+  "n_src": 8,
+  "score": 4,
+  "areas": [
+   "packages/features/bookings",
+   ".env.example",
+   "packages/lib/constants.ts"
+  ]
+ },
+ {
+  "sha": "c43c48b1a8338f6f06ed074d1306bf4855e95c67",
+  "date": "2026-02-02",
+  "pr": 26976,
+  "title": "fix: add input validation to analytics app schemas",
+  "added_unit_tests": [
+   "packages/app-store/analytics-apps.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [
+   "apps/web/playwright/fixtures/apps.ts"
+  ],
+  "source_files": [
+   "A:packages/app-store/_lib/analytics-schemas.ts",
+   "M:packages/app-store/databuddy/zod.ts",
+   "M:packages/app-store/fathom/zod.ts",
+   "M:packages/app-store/ga4/zod.ts",
+   "M:packages/app-store/gtm/zod.ts",
+   "M:packages/app-store/insihts/zod.ts",
+   "M:packages/app-store/matomo/zod.ts",
+   "M:packages/app-store/metapixel/zod.ts",
+   "M:packages/app-store/plausible/zod.ts",
+   "M:packages/app-store/posthog/zod.ts",
+   "M:packages/app-store/twipla/zod.ts",
+   "M:packages/app-store/umami/zod.ts"
+  ],
+  "n_src": 12,
+  "score": 4,
+  "areas": [
+   "packages/app-store/_lib",
+   "packages/app-store/databuddy",
+   "packages/app-store/fathom"
+  ]
+ },
+ {
+  "sha": "68a8fade89e61a419775831690927abe11915796",
+  "date": "2025-12-14",
+  "pr": 25566,
+  "title": "add tests",
+  "added_unit_tests": [
+   "packages/features/auth/lib/next-auth-options.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/auth/lib/next-auth-options.ts"
+  ],
+  "n_src": 1,
+  "score": 3,
+  "areas": [
+   "packages/features/auth"
+  ]
+ },
+ {
+  "sha": "390ee791346a2bdf2b9b54323271f80095df6127",
+  "date": "2025-05-07",
+  "pr": 21093,
+  "title": "Reduce payload size",
+  "added_unit_tests": [
+   "packages/features/bookings/lib/handleNewBooking/test/buildDryRunBooking.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/features/bookings/lib/handleNewBooking.ts"
+  ],
+  "n_src": 1,
+  "score": 3,
+  "areas": [
+   "packages/features/bookings"
+  ]
+ },
+ {
+  "sha": "a538ba64d2fbaffdf178d3be888470d377a578e1",
+  "date": "2025-09-23",
+  "pr": 23833,
+  "title": "Add validation tests",
+  "added_unit_tests": [
+   "packages/features/bookings/lib/handleNewBooking/test/booking-validations.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/test/utils/bookingScenario/bookingScenario.ts",
+   "M:tests/libs/__mocks__/prisma.ts"
+  ],
+  "n_src": 2,
+  "score": 3,
+  "areas": [
+   "apps/web",
+   "tests/libs"
+  ]
+ },
+ {
+  "sha": "288248d94f19487b001d1c3fb3ea75a86d79fa52",
+  "date": "2025-02-05",
+  "pr": 18978,
+  "title": "Prevent xss in preview aand load resources from known URL",
+  "added_unit_tests": [
+   "packages/lib/getSafeRedirectUrl.test.ts"
+  ],
+  "modified_unit_tests": [],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [
+   "packages/embeds/embed-core/playwright/tests/preview.e2e.ts"
+  ],
+  "source_files": [
+   "M:packages/embeds/embed-core/src/preview.ts",
+   "M:packages/embeds/embed-core/vite.config.js",
+   "M:packages/embeds/vite.config.js",
+   "M:packages/lib/getSafeRedirectUrl.ts"
+  ],
+  "n_src": 4,
+  "score": 3,
+  "areas": [
+   "packages/embeds/embed-core",
+   "packages/embeds/vite.config.js",
+   "packages/lib/getSafeRedirectUrl.ts"
+  ]
+ },
+ {
+  "sha": "7813d3739f34f3c2cf2edef7d0cd38133627cc2c",
+  "date": "2025-07-23",
+  "pr": 22547,
+  "title": "fix: Scrolling to timeslot issue on Safari with inline-embeds",
+  "added_unit_tests": [
+   "packages/embeds/embed-core/src/lib/domUtils.test.ts"
+  ],
+  "modified_unit_tests": [
+   "packages/embeds/embed-core/src/__tests__/utils.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:packages/embeds/embed-core/index.html",
+   "M:packages/embeds/embed-core/playground/lib/playground.ts",
+   "M:packages/embeds/embed-core/src/Inline/inline.ts",
+   "M:packages/embeds/embed-core/src/ModalBox/ModalBox.ts",
+   "M:packages/embeds/embed-core/src/embed-iframe/lib/embedStore.ts",
+   "M:packages/embeds/embed-core/src/embed.ts",
+   "A:packages/embeds/embed-core/src/lib/domUtils.ts",
+   "A:packages/embeds/embed-core/src/lib/eventHandlers/scrollByDistanceEventHandler.ts",
+   "A:packages/embeds/embed-core/src/lib/utils.ts",
+   "M:packages/embeds/embed-core/src/sdk-action-manager.ts",
+   "D:packages/embeds/embed-core/src/utils.ts",
+   "M:packages/eslint-plugin/src/rules/no-scroll-into-view-embed.ts",
+   "M:packages/features/bookings/Booker/Booker.tsx",
+   "M:packages/lib/browser/browser.utils.ts"
+  ],
+  "n_src": 13,
+  "score": 3,
+  "areas": [
+   "packages/embeds/embed-core",
+   "packages/eslint-plugin/src",
+   "packages/features/bookings"
+  ]
+ },
+ {
+  "sha": "f905ae750285761b8fab3c6c015ddba633208e48",
+  "date": "2025-07-26",
+  "pr": 22688,
+  "title": "fix: Add CSP back to login page",
+  "added_unit_tests": [
+   "__checks__/csp-login.spec.ts"
+  ],
+  "modified_unit_tests": [
+   "apps/web/middleware.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/app/(booking-page-wrapper)/layout.tsx",
+   "M:apps/web/app/(use-page-wrapper)/layout.tsx",
+   "M:apps/web/app/layout.tsx",
+   "M:apps/web/app/not-found.tsx",
+   "M:apps/web/app/providers.tsx",
+   "M:apps/web/components/PageWrapper.tsx",
+   "M:apps/web/lib/app-providers-app-dir.tsx",
+   "M:apps/web/lib/app-providers.tsx",
+   "M:apps/web/lib/csp.ts",
+   "M:apps/web/lib/plain/dynamicProvider.tsx",
+   "M:apps/web/lib/plain/plainChat.tsx",
+   "D:apps/web/lib/withNonce.tsx",
+   "M:apps/web/middleware.ts",
+   "M:apps/web/modules/auth/login-view.tsx",
+   "M:apps/web/pages/_document.tsx",
+   "M:vitest.workspace.ts"
+  ],
+  "n_src": 15,
+  "score": 3,
+  "areas": [
+   "apps/web",
+   "vitest.workspace.ts"
+  ]
+ },
+ {
+  "sha": "649faf4ff657c175dbd51b5e16f30a90818f0c6b",
+  "date": "2025-02-18",
+  "pr": 18550,
+  "title": "fix: Fairness when routing",
+  "added_unit_tests": [
+   "packages/lib/bookings/filterHostsBySameRoundRobinHost.test.ts"
+  ],
+  "modified_unit_tests": [
+   "apps/web/test/lib/getSchedule.test.ts",
+   "packages/features/bookings/lib/handleNewBooking/test/team-bookings/collective-scheduling.test.ts",
+   "packages/lib/bookings/filterHostsByLeadThreshold.test.ts",
+   "packages/lib/bookings/findQualifiedHosts.test.ts",
+   "packages/lib/bookings/getRoutedUsers.test.ts",
+   "packages/trpc/server/routers/viewer/slots/util.test.ts"
+  ],
+  "added_e2e_tests": [],
+  "modified_e2e_tests": [],
+  "source_files": [
+   "M:apps/web/test/utils/bookingScenario/bookingScenario.ts",
+   "M:packages/features/bookings/lib/handleNewBooking.ts",
+   "M:packages/features/bookings/lib/handleNewBooking/getLocationValuesForDb.ts",
+   "M:packages/features/bookings/lib/handleNewBooking/loadAndValidateUsers.ts",
+   "M:packages/features/bookings/lib/handleNewBooking/loadUsers.ts",
+   "M:packages/features/schedules/lib/use-schedule/useSchedule.ts",
+   "M:packages/lib/bookings/filterHostsByLeadThreshold.ts",
+   "A:packages/lib/bookings/filterHostsBySameRoundRobinHost.ts",
+   "M:packages/lib/bookings/findQualifiedHosts.ts",
+   "M:packages/lib/bookings/getRoutedUsers.ts",
+   "M:packages/lib/bookings/routing/utils.ts",
+   "M:packages/lib/server/getLuckyUser.ts",
+   "M:packages/lib/server/repository/eventType.ts",
+   "M:packages/trpc/server/routers/viewer/slots/types.ts",
+   "M:packages/trpc/server/routers/viewer/slots/util.ts"
+  ],
+  "n_src": 15,
+  "score": 3,
+  "areas": [
+   "packages/lib/bookings",
+   "packages/features/bookings",
+   "packages/lib/server"
+  ]
+ }
+]
