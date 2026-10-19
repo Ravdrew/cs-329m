@@ -7,3 +7,8 @@ We build a component-level graph of a real TypeScript app (starting with [Cal.co
 ## Workflow
 
 Open a pull request for changes; don't push directly to `master`.
+
+| `docs/benchmark-pr-audit.md` | **PR audit**: how the SWE-bench-style tasks were mined and verified, the recommended 20, caveats |
+| `benchmark/tasks.json` | 37 verified fail-to-pass task instances (base/merge commit, test files, FAIL_TO_PASS / PASS_TO_PASS ids, test command) |
+| `benchmark/scripts/` | Mining, filtering and verification scripts (`benchmark/README.md` has the commands) |
+| `docs/screenshots/` | Viewer screenshots for reports |

@@ -1,0 +1,7 @@
+# local checkouts and large regenerable dumps
+cal.diy/
+work/
+prs_since_2025.json
+.vitest-report.json
+*.log
+__pycache__/
