@@ -45,7 +45,12 @@ case "$MODE" in
   unit) export TZ=UTC; unset VITEST_MODE ;;
   timezone) export TZ=America/Los_Angeles VITEST_MODE=timezone ;;
   integration) export TZ=UTC VITEST_MODE=integration INTEGRATION_TESTS=true ;;
-  api-e2e) export TZ=UTC; unset VITEST_MODE ;;
+  # CI=true as in Cal.com CI: test/jest.setup-e2e.ts then retries each failed
+  # test up to 2 times (and ts-jest skips type checks). Without retries some
+  # order-dependent tests fail on every run that pass in CI, e.g. the
+  # reschedule-without-seatUid test in seated-bookings.e2e-spec.ts. The
+  # summarizer lists tests that passed only on a retry.
+  api-e2e) export TZ=UTC CI=true; unset VITEST_MODE ;;
   *) echo "error: unknown mode $MODE" >&2; exit 1 ;;
 esac
 
@@ -83,8 +88,13 @@ if [[ "$MODE" == api-e2e ]]; then
   files=()
   for f in "$@"; do files+=("${f#apps/api/v2/}"); done
   # Jest's JSON output has the same shape as Vitest's, so the summarizer reads both.
+  # 4 workers, as in each CI shard and Cal.com's own test:e2e:local; with Jest's
+  # local default of 8, parallel files collide on booking slots. Each file's
+  # beforeAll boots the whole Nest app, which on a laptop sometimes takes longer
+  # than Jest's default 5 s and fails every test in the file (retries don't
+  # rerun hooks), so the default timeout is raised to 30 s.
   NODE_OPTIONS="--max_old_space_size=8192 --experimental-vm-modules" \
-    corepack yarn jest --ci --forceExit --config ./jest-e2e.ts \
+    corepack yarn jest --ci --forceExit --maxWorkers=4 --testTimeout=30000 --config ./jest-e2e.ts \
     --json --outputFile="$OUT" ${files[@]+"${files[@]}"} || status=$?
   echo "==> jest exited $status after $(( $(date +%s) - start ))s"
   node "$ROOT/scripts/summarize_results.mjs" "$OUT" || true

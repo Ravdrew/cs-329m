@@ -8,6 +8,8 @@
 // some runs, failed in others), which a baseline should exclude.
 // --write-baseline saves each test's status across the runs ("passed",
 // "failed", "skipped" or "flaky") as a compact, committable JSON file.
+// Jest retries (api-e2e runs with CI=true) count as passes, as in Cal.com CI;
+// tests that passed only on a retry are listed separately.
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
@@ -25,6 +27,8 @@ if (files.length === 0) {
 
 // test id ("file > full name") -> list of statuses, one per run
 const statuses = new Map();
+// test id -> number of runs in which it passed only on a retry (Jest's invocations > 1)
+const retried = new Map();
 for (const file of files) {
   const report = JSON.parse(readFileSync(file, "utf8"));
   const root = findRoot(report);
@@ -38,10 +42,17 @@ for (const file of files) {
       // the file itself failed to load (import or setup error)
       failedFiles.push(`${rel}: ${firstLine(suite.message)}`);
     }
+    const seen = new Map();
     for (const test of suite.assertionResults ?? []) {
-      const id = `${rel} > ${test.fullName}`;
+      // A file can have two tests with the same name; number the repeats so
+      // their statuses aren't merged (e.g. one passing and one skipped).
+      const name = `${rel} > ${test.fullName}`;
+      const n = (seen.get(name) ?? 0) + 1;
+      seen.set(name, n);
+      const id = n === 1 ? name : `${name} (#${n})`;
       if (!statuses.has(id)) statuses.set(id, []);
       statuses.get(id).push(test.status);
+      if (test.status === "passed" && test.invocations > 1) retried.set(id, (retried.get(id) ?? 0) + 1);
       if (test.status === "passed") passed++;
       else if (test.status === "failed") failed++;
       else skipped++;
@@ -70,6 +81,10 @@ if (flaky.length) {
   console.log(`\nFlaky (${flaky.length}):`);
   for (const id of flaky) console.log(`  ${id}`);
 }
+if (retried.size) {
+  console.log(`\nPassed only on a retry (${retried.size}):`);
+  for (const [id, n] of retried) console.log(`  ${id} (${n}/${statuses.get(id).length} runs)`);
+}
 
 if (baselineOut) {
   const tests = {};
@@ -78,7 +93,9 @@ if (baselineOut) {
     const kinds = new Set(runs.map((s) => (s === "passed" || s === "failed" ? s : "skipped")));
     tests[id] = kinds.size === 1 ? [...kinds][0] : "flaky";
   }
-  writeFileSync(baselineOut, JSON.stringify({ runs: files.map((f) => path.basename(f)), tests }, null, 1) + "\n");
+  const baseline = { runs: files.map((f) => path.basename(f)), tests };
+  if (retried.size) baseline.passedOnRetry = Object.fromEntries([...retried].sort());
+  writeFileSync(baselineOut, JSON.stringify(baseline, null, 1) + "\n");
   console.log(`\nWrote baseline for ${Object.keys(tests).length} tests to ${baselineOut}`);
 }
 

@@ -21,7 +21,7 @@
 #   CALCOM_REDIS_PORT  Redis port (default 6379)
 #   PG_BIN             directory with initdb/pg_ctl/psql for the native backend
 #
-# docker: needs Docker Desktop (macOS/Windows) or Docker Engine (Linux).
+# docker: needs Docker Desktop or Colima (macOS), or Docker Engine (Linux).
 # native: needs Postgres and Redis installed, e.g. on macOS
 #   brew install postgresql@18 redis
 # and must run as a normal (non-root) user. Data lives in work/db/.
