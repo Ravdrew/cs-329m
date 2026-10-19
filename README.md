@@ -60,10 +60,13 @@ On a Mac without Docker Desktop, [Colima](https://github.com/abiosoft/colima) wo
 
 ```bash
 brew install colima docker docker-compose
-# let `docker compose` find the plugin
-echo '{"cliPluginsExtraDirs":["/opt/homebrew/lib/docker/cli-plugins"]}' > ~/.docker/config.json
+# let `docker compose` find the plugin (only if you have no Docker config yet)
+mkdir -p ~/.docker
+[ -e ~/.docker/config.json ] || echo '{"cliPluginsExtraDirs":["/opt/homebrew/lib/docker/cli-plugins"]}' > ~/.docker/config.json
 colima start --cpu 4 --memory 6
 ```
+
+If you already have `~/.docker/config.json`, add `"cliPluginsExtraDirs": ["/opt/homebrew/lib/docker/cli-plugins"]` to it by hand instead.
 
 For the native backend instead: `brew install postgresql@18 redis`.
 
@@ -82,7 +85,7 @@ At `54343aa` on a 10-core M-series MacBook Pro with 16 GB (Node 22.17, Docker vi
 | integration | 15 | 114 | 0 | 1 | 7–9 s |
 | api-e2e | 42 (2 fully skipped) | 522 | 0 | 30 | 68–78 s |
 
-Results were identical across the 3 runs (no flaky tests), and they match Cal.com CI's integration job (114 passed, 1 skipped). The 30 skipped api-e2e tests are `.skip`ped in Cal.com's source (calendars, Google Calendar and two others). One-time costs: the first `db.sh up` (migrations and seed) took 67 s with Docker, including pulling the images, and 41 s native. Restoring the snapshot takes 1–2 s. The first `api-e2e` run builds the platform packages in about 85 s.
+These runs used Node 22.17, while Cal.com CI and the unit baseline use Node 20, so rerun them on Node 20 before relying on exact counts (`run_calcom_tests.sh` now warns when the Node version differs). Results were identical across the 3 runs (no flaky tests), and they match Cal.com CI's integration job (114 passed, 1 skipped). The 30 skipped api-e2e tests are `.skip`ped in Cal.com's source (calendars, Google Calendar and two others). One-time costs: the first `db.sh up` (migrations and seed) took 67 s with Docker, including pulling the images, and 41 s native. Restoring the snapshot takes 1–2 s. The first `api-e2e` run builds the platform packages in about 85 s.
 
 Tests that passed only on a retry:
 - `seated-bookings.e2e-spec.ts` › "should not be able to reschedule seated booking if seatUid is not provided", in every run. It sends an unauthenticated reschedule for a booking that still has seats, and the API answers 500 (`No auth user found`) before it reaches the 400 the test expects. It passes on the retry because by then later tests in the file have moved the seats. Cal.com CI logs show the same 500 followed by a pass. Keep this in mind when grading PRs that touch seated bookings, such as calcom/cal.diy#26786.

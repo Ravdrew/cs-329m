@@ -41,6 +41,15 @@ if [[ ! -d "$DIR/node_modules" ]]; then
   exit 1
 fi
 
+# shellcheck source=../targets/calcom.env
+source "$ROOT/targets/calcom.env"
+node_major="$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo none)"
+if [[ "$node_major" != "$CALCOM_NODE_MAJOR" ]]; then
+  # A warning, not an error, so old runs can be reproduced; but results from
+  # another Node version aren't comparable with the baselines.
+  echo "warning: Cal.com CI and our baselines use Node $CALCOM_NODE_MAJOR, but this is Node $node_major (try: nvm use $CALCOM_NODE_MAJOR)" >&2
+fi
+
 case "$MODE" in
   unit) export TZ=UTC; unset VITEST_MODE ;;
   timezone) export TZ=America/Los_Angeles VITEST_MODE=timezone ;;
