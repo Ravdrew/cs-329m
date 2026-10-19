@@ -7,3 +7,11 @@ We build a component-level graph of a real TypeScript app (starting with [Cal.co
 ## Workflow
 
 Open a pull request for changes; don't push directly to `master`.
+
+## Layout
+
+| Path | What |
+|---|---|
+| `viewer/` | React graph viewer with editing (`cd viewer && npm install && npm run dev`); see `viewer/README.md` |
+| `viewer/public/graphs/` | Sample graphs: the Cal.com booking subsystem (34 nodes / 50 edges) and a developer-edit variant |
+| `schema/graph.schema.json` | JSON Schema for the graph file format (`cd viewer && npm run validate`) |
