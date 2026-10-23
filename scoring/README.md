@@ -210,16 +210,29 @@ For each task:
 - `file_recall` = share of eligible files that some candidate node lists, after expansion.
 - `in_scope_files` = eligible files whose owner is a node id; `in_scope_recall` is computed over those.
 - `nodes_pointed` = candidate nodes listing any eligible file.
+- `precision` = eligible task files listed / all files (present at the pinned commit) of the `nodes_pointed`.
+  This is the share of what the graph hands a developer for this task that the task actually needed. Listing
+  more files raises recall but makes the pointed nodes bigger, so listing every file is not free: one node holding
+  the whole repo gets near-perfect recall and near-zero precision. Undefined when nothing is hit.
+- `f1` = harmonic mean of precision and `file_recall`; 0 when nothing is hit.
 - `hit` = at least one eligible file is listed.
 
 Aggregates:
 
 - `file_recall_macro`: mean over tasks with at least one eligible file;
 - `in_scope_recall_macro`: mean over tasks with at least one in-scope file;
+- `precision_macro`: mean over tasks with a hit; `f1_macro`: mean over tasks with at least one eligible file
+  (a miss counts 0), the balanced headline;
 - `hit_rate` and the counts.
 
-The **reference ceiling** treats a file as listed when ownership assigns it to a node. It appears as an extra
-column in `comparison.md` and under `reference_ceiling` in `comparison.json`.
+**Reference (ownership).** The same metrics are computed with ownership standing in for a graph: each owner
+is a node holding every file assigned to it. For recall and hit rate this is the **ceiling**, since a candidate
+can only be credited for files it lists, and ownership covers the reference's whole universe. Each candidate
+reports `file_recall_macro_vs_ceiling` and `hit_rate_vs_ceiling` (its value divided by the ceiling) and copies
+the reference values under `reference_ceiling`. These ratios can exceed 1 when a graph lists task files outside
+the reference's universe. For precision and F1 the reference value is a point of comparison, not a bound: finer
+nodes than the reference's can be more precise. The values appear as the last column of `comparison.md`
+and under `reference_ceiling` in `comparison.json`.
 
 ### Coherence (`coherence`)
 

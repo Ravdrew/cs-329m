@@ -434,6 +434,13 @@ def strip_status(s):
 
 
 def localization(tasks, listed_by, src, uni):
+    """Per task: recall = eligible task files some node lists; precision = task files among all files (present at
+    the commit) of the nodes those task files point to, so listing every file in a few big nodes is not free."""
+    node_files = defaultdict(set)
+    for f, ns in listed_by.items():
+        if f in src.files:
+            for a in ns:
+                node_files[a].add(f)
     per, excluded, renamed = [], [], []
     for t in tasks:
         files = list(dict.fromkeys(strip_status(s) for s in t.get('source_files', [])))
@@ -445,10 +452,14 @@ def localization(tasks, listed_by, src, uni):
         excluded += [{'task': t.get('pull_number') or t.get('instance_id'), 'path': f} for f in absent if f not in moved]
         scope = [f for f in ok if uni.node_owner(f)]
         hits = lambda fs: sum(bool(listed_by.get(f)) for f in fs)
+        pointed = sorted({a for f in ok for a in listed_by.get(f, ())})
+        pool = set().union(*(node_files[a] for a in pointed)) if pointed else set()
+        prec, rec = ratio(hits(ok), len(pool)), ratio(hits(ok), len(ok))
         per.append({'task': t.get('pull_number') or t.get('instance_id'), 'title': t.get('title'), 'files': len(files),
                     'eligible_files': len(ok), 'excluded_files': len(absent) - len(moved), 'renamed_files': len(moved), 'in_scope_files': len(scope),
-                    'file_recall': ratio(hits(ok), len(ok)), 'in_scope_recall': ratio(hits(scope), len(scope)),
-                    'nodes_pointed': sorted({a for f in ok for a in listed_by.get(f, ())}), 'hit': hits(ok) > 0})
+                    'file_recall': rec, 'in_scope_recall': ratio(hits(scope), len(scope)),
+                    'nodes_pointed': pointed, 'files_in_pointed_nodes': len(pool), 'precision': prec,
+                    'f1': (f1(prec, rec) if prec is not None else 0.0) if ok else None, 'hit': hits(ok) > 0})
     mean = lambda xs: ratio(sum(xs), len(xs))
     elig = [p for p in per if p['eligible_files']]
     return {'tasks': len(per), 'tasks_with_eligible_files': len(elig),
@@ -456,6 +467,8 @@ def localization(tasks, listed_by, src, uni):
             'file_recall_macro': mean([p['file_recall'] for p in elig]),
             'in_scope_recall_macro': mean([p['in_scope_recall'] for p in per if p['in_scope_recall'] is not None]),
             'hit_rate': mean([p['hit'] for p in elig]), 'hits': sum(p['hit'] for p in elig),
+            'precision_macro': mean([p['precision'] for p in elig if p['precision'] is not None]),
+            'f1_macro': mean([p['f1'] for p in elig]),
             'files_followed_through_renames': len(renamed), 'renamed': renamed,
             'files_excluded_absent_at_commit': len(excluded), 'excluded': excluded, 'per_task': per}
 
@@ -640,7 +653,7 @@ def reference_ceiling(ctx):
     if ctx['tasks'] is None or not ctx['src']:
         return None
     uni = ctx['uni']
-    listed = {p: [uni.node_owner(p)] for p in uni.paths if uni.node_owner(p)}
+    listed = {p: [uni.node_owner(p)] for p in uni.paths if uni.node_owner(p)}  # ownership nodes as the graph
     return localization(ctx['tasks'], listed, ctx['src'], ctx['uni'])
 
 
@@ -676,6 +689,8 @@ def cost_total(bc):
     return f'{sum(toks)} tokens' if toks else 'given'
 
 
+CEILING_KEYS = ('file_recall_macro', 'in_scope_recall_macro', 'hit_rate', 'precision_macro', 'f1_macro')
+
 ROWS = [
     ('Node recall', ('nodes', 'recall')), ('Node precision', ('nodes', 'precision')),
     ('Edge P (decided), tolerant', ('edges', 'tolerant', 'precision_decided')),
@@ -690,7 +705,11 @@ ROWS = [
     ('Questions: does-not-have', ('questions', 'headline', 'does_not_have', 'accuracy')),
     ('Questions: scope', ('questions', 'headline', 'scope', 'accuracy')),
     ('Localization file recall', ('localization', 'file_recall_macro')),
+    ('Localization file recall / ceiling', ('localization', 'file_recall_macro_vs_ceiling')),
     ('Localization hit rate', ('localization', 'hit_rate')),
+    ('Localization hit rate / ceiling', ('localization', 'hit_rate_vs_ceiling')),
+    ('Localization precision', ('localization', 'precision_macro')),
+    ('Localization F1', ('localization', 'f1_macro')),
     ('Coherence pass', ('coherence', 'coherence_pass')),
     ('Citation resolve rate', ('coherence', 'citations', 'citation_resolve_rate')),
 ]
@@ -714,8 +733,9 @@ def summary(name, res, ctx):
     lines.append(f"| Build cost | {cost_total(res['build_cost']) or 'n/a'} |")
     ceil = get(res, 'localization', 'reference_ceiling')
     if ceil:
-        lines += ['', f"Localization ceiling (files the reference's ownership assigns to a node): file recall "
-                  f"{fmt(ceil.get('file_recall_macro'))}, hit rate {fmt(ceil.get('hit_rate'))}."]
+        lines += ['', f"Localization, reference ownership as the graph: file recall {fmt(ceil.get('file_recall_macro'))} "
+                  f"and hit rate {fmt(ceil.get('hit_rate'))} (the ceiling), precision {fmt(ceil.get('precision_macro'))}, "
+                  f"F1 {fmt(ceil.get('f1_macro'))}."]
     e = res['edges']['tolerant']
     lines += ['', f"Edges: {e['tp_edges']} TP, {e['confirmed_fp_edges']} confirmed FP, {e['pending_edges']} pending, "
               f"{e['unmapped_edges']} unmapped, {e['collapsed_edges']} collapsed (tolerant). "
@@ -758,8 +778,9 @@ def comparison(results, ceiling):
     rows = {label: {n: get(r, *keys) for n, r in ordered} for label, keys in ROWS}
     cells = {label: {n: cell(r, keys) for n, r in ordered} for label, keys in ROWS}
     rows['Build cost'] = cells['Build cost'] = {n: cost_total(r['build_cost']) for n, r in ordered}
-    ceil = {'Localization file recall': get(ceiling, 'file_recall_macro'), 'Localization hit rate': get(ceiling, 'hit_rate')}
-    md = ['# Q1 comparison', '', '| Metric | ' + ' | '.join(names) + ' | reference ceiling |',
+    ceil = {label: get(ceiling, k) for label, k in (('Localization file recall', 'file_recall_macro'),
+            ('Localization hit rate', 'hit_rate'), ('Localization precision', 'precision_macro'), ('Localization F1', 'f1_macro'))}
+    md = ['# Q1 comparison', '', '| Metric | ' + ' | '.join(names) + ' | reference (ownership) |',
           '|---|' + '---|' * (len(names) + 1)]
     for label, vals in rows.items():
         md.append(f'| {label} | ' + ' | '.join(str(cells[label][n] or 'n/a') for n in names) + f" | {fmt(ceil[label]) if label in ceil else ''} |")
@@ -842,9 +863,11 @@ def main(argv=None):
     out.mkdir(parents=True, exist_ok=True)
     ceiling = reference_ceiling(ctx)
     for res in results.values():
-        if isinstance(res.get('localization'), dict) and ceiling:
-            res['localization']['reference_ceiling'] = {k: ceiling.get(k) for k in
-                                                        ('file_recall_macro', 'in_scope_recall_macro', 'hit_rate')}
+        loc = res.get('localization')
+        if isinstance(loc, dict) and ceiling:
+            loc['reference_ceiling'] = {k: ceiling.get(k) for k in CEILING_KEYS}
+            for k in ('file_recall_macro', 'hit_rate'):
+                loc[k + '_vs_ceiling'] = ratio(loc[k], ceiling[k]) if loc[k] is not None and ceiling[k] is not None else None
     for name, res in results.items():
         (out / f'{name}.score.json').write_text(json.dumps(res, indent=1, allow_nan=False, default=str) + '\n')
         md = summary(name, res, ctx)

@@ -305,7 +305,7 @@ def test_comparison_order_and_cost_tiebreak(env):
     comp = json.loads((env['tmp'] / 'out' / 'comparison.json').read_text())
     assert comp['order'] == ['cheap', 'dear', 'worse']
     md = (env['tmp'] / 'out' / 'comparison.md').read_text()
-    assert '| Metric | cheap | dear | worse | reference ceiling |' in md and 'cheaper build' in md
+    assert '| Metric | cheap | dear | worse | reference (ownership) |' in md and 'cheaper build' in md
     r = json.loads((env['tmp'] / 'out' / 'cheap.score.json').read_text())
     assert r['build_cost'] == {'model': 'small', 'usd': 2.0}
     assert score_graph.unique_names(['x/self.yaml', 'y/self.json'], None) == ['self', 'self-2']
@@ -385,3 +385,22 @@ def test_localization_follows_renames_since_the_merge_commit(env):
     assert loc['renamed'] == [{'task': 9, 'path': 'lib/billing/old-charge.ts', 'now': 'lib/billing/charge.ts'}]
     assert [x['path'] for x in loc['excluded']] == ['lib/billing/gone.ts']
     assert loc['per_task'][0]['eligible_files'] == 1 and loc['per_task'][0]['excluded_files'] == 1
+
+
+def test_localization_precision_penalises_one_big_node_and_normalises_to_ceiling(env):
+    own = json.loads((FIX / 'ownership.json').read_text())['files']
+    g = graph(env)
+    giant = copy.deepcopy(g)
+    giant['nodes'] = [{'id': 'everything', 'label': 'Everything', 'kind': 'service', 'files': sorted(own)}]
+    giant['edges'] = []
+    selfr, big = run(env, write(env, 'self.yaml', g), write(env, 'giant.yaml', giant), tasks=True, names=['self', 'giant'])
+    s, b = selfr['localization'], big['localization']
+    assert b['file_recall_macro'] >= s['file_recall_macro'] and b['precision_macro'] < s['precision_macro']
+    t = b['per_task'][0]
+    assert t['nodes_pointed'] == ['everything'] and t['files_in_pointed_nodes'] == len(own)
+    assert t['precision'] == pytest.approx(sum(f in own for f in ['lib/scheduling/slots.ts', 'lib/scheduling/tz.ts',
+                                                                   'lib/shared/util.ts']) / len(own))
+    ceil = s['reference_ceiling']
+    assert s['file_recall_macro_vs_ceiling'] == pytest.approx(s['file_recall_macro'] / ceil['file_recall_macro'])
+    assert s['hit_rate_vs_ceiling'] == pytest.approx(s['hit_rate'] / ceil['hit_rate'])
+    assert ceil['precision_macro'] is not None and ceil['f1_macro'] is not None
