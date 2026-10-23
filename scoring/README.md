@@ -214,15 +214,17 @@ For each task:
   This is the share of what the graph hands a developer for this task that the task actually needed. Listing
   more files raises recall but makes the pointed nodes bigger, so listing every file is not free: one node holding
   the whole repo gets near-perfect recall and near-zero precision. Undefined when nothing is hit.
-- `f1` = harmonic mean of precision and `file_recall`; 0 when nothing is hit.
+- `f2` = F-beta with beta = 2 of precision and `file_recall` (`5PR / (4P + R)`); 0 when nothing is hit. Recall
+  counts four times as much as precision, because a file the agent is never pointed to costs it more than an
+  extra file it has to skim. This was fixed as the headline before any candidate graph was scored.
 - `hit` = at least one eligible file is listed.
 
 Aggregates:
 
 - `file_recall_macro`: mean over tasks with at least one eligible file;
 - `in_scope_recall_macro`: mean over tasks with at least one in-scope file;
-- `precision_macro`: mean over tasks with a hit; `f1_macro`: mean over tasks with at least one eligible file
-  (a miss counts 0), the balanced headline;
+- `precision_macro`: mean over tasks with a hit; `f2_macro`: mean over tasks with at least one eligible file
+  (a miss counts 0), the headline. Recall and precision are always reported alongside it;
 - `hit_rate` and the counts.
 
 **Reference (ownership).** The same metrics are computed with ownership standing in for a graph: each owner
@@ -230,7 +232,7 @@ is a node holding every file assigned to it. For recall and hit rate this is the
 can only be credited for files it lists, and ownership covers the reference's whole universe. Each candidate
 reports `file_recall_macro_vs_ceiling` and `hit_rate_vs_ceiling` (its value divided by the ceiling) and copies
 the reference values under `reference_ceiling`. These ratios can exceed 1 when a graph lists task files outside
-the reference's universe. For precision and F1 the reference value is a point of comparison, not a bound: finer
+the reference's universe. For precision and F2 the reference value is a point of comparison, not a bound: finer
 nodes than the reference's can be more precise. The values appear as the last column of `comparison.md`
 and under `reference_ceiling` in `comparison.json`.
 

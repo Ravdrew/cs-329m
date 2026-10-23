@@ -403,4 +403,10 @@ def test_localization_precision_penalises_one_big_node_and_normalises_to_ceiling
     ceil = s['reference_ceiling']
     assert s['file_recall_macro_vs_ceiling'] == pytest.approx(s['file_recall_macro'] / ceil['file_recall_macro'])
     assert s['hit_rate_vs_ceiling'] == pytest.approx(s['hit_rate'] / ceil['hit_rate'])
-    assert ceil['precision_macro'] is not None and ceil['f1_macro'] is not None
+    assert ceil['precision_macro'] is not None and ceil['f2_macro'] is not None
+
+
+def test_localization_f2_weights_recall():
+    assert score_graph.f2(1.0, 1.0) == 1.0 and score_graph.f2(0.0, 0.0) == 0.0
+    assert score_graph.f2(0.1, 1.0) > score_graph.f2(1.0, 0.1)  # missing files costs more than extra ones
+    assert score_graph.f2(0.5, 0.25) == pytest.approx(5 * 0.5 * 0.25 / (4 * 0.5 + 0.25))

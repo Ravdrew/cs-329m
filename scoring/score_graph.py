@@ -83,6 +83,11 @@ def ratio(a, b):
     return a / b if b else None
 
 
+def f2(p, r):
+    """F-beta with beta=2: recall weighs four times precision (a missed file costs an agent more than an extra one)."""
+    return None if p is None or r is None else (5 * p * r / (4 * p + r) if p + r else 0.0)
+
+
 def f1(p, r):
     return None if p is None or r is None else (2 * p * r / (p + r) if p + r else 0.0)
 
@@ -459,7 +464,7 @@ def localization(tasks, listed_by, src, uni):
                     'eligible_files': len(ok), 'excluded_files': len(absent) - len(moved), 'renamed_files': len(moved), 'in_scope_files': len(scope),
                     'file_recall': rec, 'in_scope_recall': ratio(hits(scope), len(scope)),
                     'nodes_pointed': pointed, 'files_in_pointed_nodes': len(pool), 'precision': prec,
-                    'f1': (f1(prec, rec) if prec is not None else 0.0) if ok else None, 'hit': hits(ok) > 0})
+                    'f2': (f2(prec, rec) if prec is not None else 0.0) if ok else None, 'hit': hits(ok) > 0})
     mean = lambda xs: ratio(sum(xs), len(xs))
     elig = [p for p in per if p['eligible_files']]
     return {'tasks': len(per), 'tasks_with_eligible_files': len(elig),
@@ -468,7 +473,7 @@ def localization(tasks, listed_by, src, uni):
             'in_scope_recall_macro': mean([p['in_scope_recall'] for p in per if p['in_scope_recall'] is not None]),
             'hit_rate': mean([p['hit'] for p in elig]), 'hits': sum(p['hit'] for p in elig),
             'precision_macro': mean([p['precision'] for p in elig if p['precision'] is not None]),
-            'f1_macro': mean([p['f1'] for p in elig]),
+            'f2_macro': mean([p['f2'] for p in elig]),
             'files_followed_through_renames': len(renamed), 'renamed': renamed,
             'files_excluded_absent_at_commit': len(excluded), 'excluded': excluded, 'per_task': per}
 
@@ -689,7 +694,7 @@ def cost_total(bc):
     return f'{sum(toks)} tokens' if toks else 'given'
 
 
-CEILING_KEYS = ('file_recall_macro', 'in_scope_recall_macro', 'hit_rate', 'precision_macro', 'f1_macro')
+CEILING_KEYS = ('file_recall_macro', 'in_scope_recall_macro', 'hit_rate', 'precision_macro', 'f2_macro')
 
 ROWS = [
     ('Node recall', ('nodes', 'recall')), ('Node precision', ('nodes', 'precision')),
@@ -709,7 +714,7 @@ ROWS = [
     ('Localization hit rate', ('localization', 'hit_rate')),
     ('Localization hit rate / ceiling', ('localization', 'hit_rate_vs_ceiling')),
     ('Localization precision', ('localization', 'precision_macro')),
-    ('Localization F1', ('localization', 'f1_macro')),
+    ('Localization F2 (headline)', ('localization', 'f2_macro')),
     ('Coherence pass', ('coherence', 'coherence_pass')),
     ('Citation resolve rate', ('coherence', 'citations', 'citation_resolve_rate')),
 ]
@@ -735,7 +740,7 @@ def summary(name, res, ctx):
     if ceil:
         lines += ['', f"Localization, reference ownership as the graph: file recall {fmt(ceil.get('file_recall_macro'))} "
                   f"and hit rate {fmt(ceil.get('hit_rate'))} (the ceiling), precision {fmt(ceil.get('precision_macro'))}, "
-                  f"F1 {fmt(ceil.get('f1_macro'))}."]
+                  f"F2 {fmt(ceil.get('f2_macro'))}."]
     e = res['edges']['tolerant']
     lines += ['', f"Edges: {e['tp_edges']} TP, {e['confirmed_fp_edges']} confirmed FP, {e['pending_edges']} pending, "
               f"{e['unmapped_edges']} unmapped, {e['collapsed_edges']} collapsed (tolerant). "
@@ -779,7 +784,7 @@ def comparison(results, ceiling):
     cells = {label: {n: cell(r, keys) for n, r in ordered} for label, keys in ROWS}
     rows['Build cost'] = cells['Build cost'] = {n: cost_total(r['build_cost']) for n, r in ordered}
     ceil = {label: get(ceiling, k) for label, k in (('Localization file recall', 'file_recall_macro'),
-            ('Localization hit rate', 'hit_rate'), ('Localization precision', 'precision_macro'), ('Localization F1', 'f1_macro'))}
+            ('Localization hit rate', 'hit_rate'), ('Localization precision', 'precision_macro'), ('Localization F2 (headline)', 'f2_macro'))}
     md = ['# Q1 comparison', '', '| Metric | ' + ' | '.join(names) + ' | reference (ownership) |',
           '|---|' + '---|' * (len(names) + 1)]
     for label, vals in rows.items():
