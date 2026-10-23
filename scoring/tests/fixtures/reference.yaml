@@ -1,0 +1,93 @@
+# Synthetic reference for scorer tests: a fictional pet clinic booking app. Not derived from any real graph.
+version: 1
+repo: example/pet-clinic
+commit: PINNED
+title: Pet clinic - appointment booking (test fixture)
+groups:
+  - id: web
+    label: Web
+  - id: backend
+    label: Backend
+nodes:
+  - id: page.home
+    label: Clinic home page
+    kind: page
+    group: web
+    routes: ["/"]
+    files:
+      - path: web/pages/home.tsx
+        role: route
+      - web/pages/home-hero.tsx
+  - id: page.book-visit
+    label: Appointment booking page
+    kind: page
+    group: web
+    routes: ["/book"]
+    files:
+      - web/pages/book.tsx
+      - web/pages/book-form.tsx
+  - id: api.appointments
+    label: POST /api/appointments
+    kind: endpoint
+    group: backend
+    files:
+      - api/appointments/route.ts
+      - api/appointments/validate.ts
+  - id: service.scheduling
+    label: Slot scheduling
+    kind: service
+    group: backend
+    files:
+      - lib/scheduling/slots.ts
+      - path: lib/scheduling/rules.ts
+        lines: [1, 5]
+  - id: service.billing
+    label: Billing
+    kind: service
+    group: backend
+    files:
+      - lib/billing/invoice.ts
+      - lib/billing/charge.ts
+  - id: job.reminders
+    label: Reminder emails job
+    kind: job
+    group: backend
+    files:
+      - jobs/reminders.ts
+  - id: model.appointment
+    label: Appointment
+    kind: model
+    files:
+      - path: db/schema.prisma
+        role: schema
+        lines: [1, 6]
+  - id: model.pet
+    label: Pet
+    kind: model
+    files:
+      - path: db/schema.prisma
+        role: schema
+        lines: [8, 12]
+  - id: external.paypal
+    label: PayPal
+    kind: external
+    files:
+      - lib/billing/paypal.ts
+edges:
+  - {id: e01, from: page.home, to: page.book-visit, kind: navigates, label: book button,
+     evidence: [{file: web/pages/home.tsx, line: 2}]}
+  - {id: e02, from: page.book-visit, to: api.appointments, kind: calls, label: submits form,
+     evidence: [{file: web/pages/book-form.tsx, line: 4}]}
+  - {id: e03, from: api.appointments, to: service.scheduling, kind: calls, label: finds a slot}
+  - {id: e04, from: api.appointments, to: model.appointment, kind: writes, label: creates appointment}
+  - {id: e05, from: service.scheduling, to: model.appointment, kind: reads, label: reads booked slots}
+  - {id: e06, from: service.scheduling, to: model.pet, kind: reads, label: reads pet kind}
+  - {id: e07, from: api.appointments, to: service.billing, kind: calls, label: charges deposit}
+  - {id: e08, from: service.billing, to: external.paypal, kind: calls, label: captures payment}
+  - {id: e09, from: job.reminders, to: model.appointment, kind: reads, label: reads upcoming}
+  - {id: e10, from: service.billing, to: job.reminders, kind: emits, label: schedules receipt reminder}
+  - {id: e11, from: api.appointments, to: service.scheduling, kind: uses, label: "parallel edge, same pair"}
+x-scoring:
+  kind_mapping:
+    edges: {renders: renders, navigates: navigates, calls: calls, reads: reads, writes: writes, emits: calls, uses: calls}
+    nodes: {page: page, component: component, endpoint: endpoint, service: service, model: model, job: service, external: service}

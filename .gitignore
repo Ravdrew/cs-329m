@@ -8,3 +8,8 @@ node_modules/
 .env
 .env.*
 .DS_Store
+
+# Scorer output (never score against the real reference into the repo; see scoring/README.md)
+scoring/out/
+__pycache__/
+.pytest_cache/

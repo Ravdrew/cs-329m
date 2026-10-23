@@ -1,0 +1,8 @@
+[
+ {"instance_id": "pet-clinic-1", "pull_number": 1, "title": "Fix slot timezone", "base_commit": "PINNED", "areas": ["scheduling"],
+  "source_files": ["M:lib/scheduling/slots.ts", "A:lib/scheduling/tz.ts", "M:lib/shared/util.ts"]},
+ {"instance_id": "pet-clinic-2", "pull_number": 2, "title": "Refund deposits", "base_commit": "PINNED", "areas": ["billing"],
+  "source_files": ["M:lib/billing/charge.ts", "A:lib/billing/refund.ts"]},
+ {"instance_id": "pet-clinic-3", "pull_number": 3, "title": "Admin report columns", "base_commit": "PINNED", "areas": ["admin"],
+  "source_files": ["M:admin/reports.ts"]}
+]
