@@ -1,0 +1,8 @@
+questions:
+  - id: hand-1
+    polarity: has
+    category: documented
+    text: Does the graph have a component for billing (lib/billing/charge.ts)?
+    check: {type: files, paths: [lib/billing/charge.ts], min_share: 1.0}
+    source: hand-written
+    weight: 2

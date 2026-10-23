@@ -1,0 +1,3 @@
+pairs:
+  - {from: service.scheduling, to: service.billing, verdict: true, by: tester, evidence: "lib/scheduling/slots.ts:4", note: synthetic}
+  - {from: page.home, to: model.pet, verdict: false, by: tester, evidence: "web/pages/home.tsx:1", note: synthetic}
