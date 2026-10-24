@@ -9,6 +9,7 @@ We build a component-level graph of a real TypeScript app (starting with [Cal.co
 ```
 targets/calcom.env       pinned Cal.com commit and Node version
 experiments/llm-only/    LLM-only booking graph, provenance and review tools
+tools/llm-only/           automated LLM-only construction runner
 scripts/                 setup and test scripts for target apps
 results/baselines/       committed test baselines at the pinned commit
 results/runs/            raw test runs (git-ignored)
@@ -16,6 +17,8 @@ work/                    target app checkouts and local database data (git-ignor
 ```
 
 The [LLM-only booking graph](experiments/llm-only/README.md) was built in a separate clean Cal.com checkout at the shared pin. Load [graph.yaml](experiments/llm-only/graph.yaml) in the viewer; it uses the shared format in [schema/graph.schema.json](schema/graph.schema.json). Its 36 components and 62 relationships include source evidence, a Mermaid view and validation tools. Set `CALCOM_DIR` to the pinned checkout to validate, export or render it; graph review does not require Cal.com's dependencies or a database.
+
+For **automated independent construction**, see [tools/llm-only](tools/llm-only/README.md). After installing its dependencies, run `bash scripts/run_llm_only_graph.sh --model YOUR_MODEL`. It starts a fresh Codex agent with restricted source tools in a separate pinned checkout, validates the shared YAML and evidence, and saves the prediction and run logs outside this repository.
 
 ## Prerequisites
 
