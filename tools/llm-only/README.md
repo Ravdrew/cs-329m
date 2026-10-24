@@ -6,6 +6,8 @@ One command starts a fresh **Pi SDK session with `openai/gpt-6-astra`**, explore
 
 Requirements: Node **22.19+**, Git, and credentials for the selected Pi provider. This Node requirement is for the standalone runner; Cal.com's application runtime is separate. Graph construction does not require Cal.com dependencies, a database or Docker.
 
+Node **22.22.3 LTS** is verified for both the runner and Pi's interactive login. Avoid Node 23.7.0 for the login CLI: it lacks `zlib.createZstdDecompress`, which can crash Pi during startup. If multiple Node versions are installed, select the compatible version before running either command.
+
 ```sh
 npm ci --prefix tools/llm-only --ignore-scripts
 bash scripts/run_llm_only_graph.sh --check
@@ -14,12 +16,15 @@ bash scripts/run_llm_only_graph.sh
 
 The default is exactly `openai/gpt-6-astra`, with `medium` reasoning. `--check` resolves the model and local authentication without generating a graph or checking out source. Missing credentials, an unknown model or an unsupported effort cause an error; there is no model fallback.
 
-For authentication, make `OPENAI_API_KEY` available in your shell through your usual local credential setup, or open Pi and run `/login`, selecting OpenAI:
+For a ChatGPT subscription, open Pi, enter `/login openai`, and choose **Sign in with ChatGPT** using the account with your subscription:
 
 ```sh
 node tools/llm-only/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js \
-  --no-extensions --no-skills --no-prompt-templates --no-themes
+  --no-extensions --no-skills --no-prompt-templates --no-themes \
+  --no-context-files --no-session
 ```
+
+This uses the ChatGPT plan's allowance and model access. API-key authentication uses separate OpenAI Platform billing; a ChatGPT subscription does not fund an API key. To use API billing instead, choose Pi's API-key login or make `OPENAI_API_KEY` available through your usual local credential setup. See [OpenAI authentication](https://learn.chatgpt.com/docs/auth) and [Pi providers](https://pi.dev/docs/latest/providers).
 
 Quit Pi after signing in, then use the graph command above. The runner reads only Pi's credential file (`~/.pi/agent/auth.json` when present); it does not import Pi sessions, settings, models configuration or extensions. `--auth-file /absolute/path/to/auth.json` selects another Pi credential file. OAuth refresh may update that file. Never paste keys into chat or commit them. The runner does not reuse the Codex app's login.
 
@@ -62,7 +67,7 @@ The scope covers public booking, availability, submission, persistence, reschedu
 ## Run artifacts
 
 - `graph.yaml`, `validation.json`: frozen prediction, checksum and counts; created only after successful validation.
-- `run.json`: status, source pin, provider/model/effort, Pi version, elapsed time, usage, limits, hashes and inspection counts. Pi usage separates uncached input, output, cache reads and cache writes; reasoning is a subset of output. Counts accumulate across responses. `estimated_cost_usd` comes from Pi's catalog pricing; actual billed `cost_usd` remains `null`.
+- `run.json`: status, source pin, provider/model/effort, Pi version, elapsed time, usage, limits, hashes and inspection counts. Pi usage separates uncached input, output, cache reads and cache writes; reasoning is a subset of output. Counts accumulate across responses. `estimated_cost_usd` comes from Pi's catalog pricing; actual billed `cost_usd` remains `null`. With ChatGPT subscription authentication, this catalog estimate is not an API charge or a measure of remaining plan allowance.
 - `instructions.md`, `effective-system-prompt.md`, `schema.json`, `source-manifest.json`: construction inputs, including the effective prompt checked before generation.
 - `tools.jsonl`: tool calls, returned source, repair errors and timings. `events.jsonl` also records finalized Pi messages and attempted calls rejected before our tools execute.
 - `pi-session.json`: resolved model metadata, exact tools and session configuration. `pi.stderr.log` and `invocation.json` hold subprocess diagnostics and arguments. Credentials are not arguments and are not copied into artifacts.
@@ -93,6 +98,8 @@ Tests use tiny Git fixtures and a simulated model transport. They exercise the a
 
 The previous **Codex backend** completed a live Cal.com run on 2026-10-24 at `54343aa685ae8f33159d2f485ec4a57bad5c574a`, using `gpt-6.1-sol` with medium reasoning. It produced **42 nodes, 63 edges, 5 groups and 61 source files** in 278.289 seconds. Run ID: `2026-10-24T22-17-54.827Z-75ESDY`; frozen YAML SHA-256: `c8a5babd4a85b3af5f854b1854e72b8e7a6d638842d1ba5c5bd23c3fec0e8ccc`. The backend-independent verifier still supports that run. It is not a Pi/Astra result, and has not been scored against the withheld reference.
 
-Pi migration verification on 2026-10-24: **32 runner tests and 30 historical graph tests passed**. Pi/Astra live generation was not run because provider credentials were unavailable. The historical prediction in `experiments/llm-only/` is unchanged.
+Pi migration verification on 2026-10-24: **32 runner tests and 30 historical graph tests passed**. The historical prediction in `experiments/llm-only/` is unchanged.
+
+A fresh **Pi/Astra live run passed** on 2026-10-24 using Pi 1.4.0, `openai/gpt-6-astra`, medium reasoning, ChatGPT subscription OAuth and Node 22.22.3. At the same Cal.com pin it produced **33 nodes, 40 edges, 4 groups and 49 member source files** in 273.975 seconds. It made 134 tool calls, including two rejected source reads, and read 52 distinct files. Run ID: `2026-10-24T22-50-30.920Z-wLO9C6`; runner revision: `1bed35815012304ae5d35140a1deed08c6389902`; frozen YAML SHA-256: `c61e54a3b948bc54133d8a90ccbeabcc26f2fb0c3f23e4ba1ba4d4d305bff2fc`. Finalization and the separate `--verify` pass succeeded, and the source checkout remained clean. This validates execution, structure and provenance; graph quality has not been scored against the withheld reference.
 
 References: [Pi SDK](https://pi.dev/docs/latest/sdk), [Pi models and authentication](https://pi.dev/docs/latest/models), [GPT-6 Astra](https://developers.openai.com/api/docs/models/gpt-6-astra).
