@@ -5,7 +5,9 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createInterface } from 'node:readline';
 import { after, test } from 'node:test';
-import { codexArgs, disabledFeatures, executeCodex } from '../codex.mjs';
+import { createAssistantMessageEventStream, getCurrentTools, InMemoryCredentialStore } from '@earendil-works/pi-ai';
+import { ModelRuntime } from '@earendil-works/pi-coding-agent';
+import { checkPi, DEFAULT_MODEL, executePi, runPiSession, toolNames } from '../pi.mjs';
 import { DraftGraph, parseYaml, yaml } from '../graph.mjs';
 import { runExperiment, TEAM_ROOT, verifyRun } from '../runner.mjs';
 import { createGraphTools } from '../source-server.mjs';
@@ -22,6 +24,9 @@ writeFileSync(join(origin, 'src/service.ts'), 'export function book() {\n  retur
 writeFileSync(join(origin, 'binary.dat'), Buffer.from([0, 1, 2]));
 symlinkSync('/etc/hosts', join(origin, 'outside-link'));
 writeFileSync(join(origin, 'AGENTS.md'), 'Fixture instructions: never edit source.');
+mkdirSync(join(origin, '.pi/extensions'), { recursive: true });
+writeFileSync(join(origin, '.pi/settings.json'), JSON.stringify({ defaultModel: 'bad', customInstructions: 'CONTAMINATION_CANARY' }));
+writeFileSync(join(origin, '.pi/extensions/canary.js'), 'throw new Error("UNSAFE_EXTENSION_WAS_LOADED")');
 git(origin, ['add', '.']);
 git(origin, ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '--quiet', '-m', 'fixture']);
 const commit = git(origin, ['rev-parse', 'HEAD']).trim();
@@ -34,8 +39,9 @@ function fixture() {
   const checkout = join(runDir, 'calcom');
   const source = prepareCheckout({ directory: checkout, ...target });
   writeFileSync(join(runDir, 'schema.json'), JSON.stringify(schema));
-  const config = { ...target, runDir, checkout, maxTools: 100, maxMinutes: 1, deadline: Date.now() + 60_000, model: 'fixture', effort: 'low' };
+  const config = { ...target, runDir, checkout, maxTools: 100, maxMinutes: 1, deadline: Date.now() + 60_000, provider: 'openai', model: DEFAULT_MODEL, effort: 'low' };
   writeFileSync(join(runDir, 'server.json'), JSON.stringify(config));
+  writeFileSync(join(runDir, 'instructions.md'), 'Construct a graph using only supplied source tools.');
   return { source, config };
 }
 const prediction = () => ({
@@ -188,16 +194,6 @@ test('stdio MCP initializes and returns only the six allowlisted tools', async (
   assert.equal(responses[1].result.tools.length, 6);
   assert.equal(responses[2].result.isError, false);
 });
-test('Codex invocation disables inherited resources and uses no shell interpolation or resume', () => {
-  const { config } = fixture();
-  const args = codexArgs(config);
-  assert(args.includes('--ignore-user-config') && args.includes('--ephemeral') && args.includes('--ignore-rules'));
-  assert(args.includes('features.skip_host_skill_discovery=true'));
-  assert(args.includes('project_doc_max_bytes=0'));
-  assert(args.includes('read-only'));
-  assert(!args.includes('resume') && !args.includes('--dangerously-bypass-approvals-and-sandbox'));
-  for (const name of disabledFeatures) assert(args.includes(`features.${name}=false`));
-});
 test('orchestration: fresh prepare, full mock generation, repeat isolation and tamper detection', async () => {
   const outputRoot = join(root, 'experiments');
   const prepared = await runExperiment({ outputRoot, source: origin, prepareOnly: true }, { target });
@@ -212,11 +208,11 @@ test('orchestration: fresh prepare, full mock generation, repeat isolation and t
     assert.equal(tools.call('finalize_graph').isError, false);
     return { code: 0, stopReason: null, usage: { input_tokens: 10, output_tokens: 20 } };
   };
-  const completed = await runExperiment({ outputRoot, source: origin, model: 'test-model' }, { target, checkCodex: () => 'mock', execute });
+  const completed = await runExperiment({ outputRoot, source: origin, model: 'test-model' }, { target, checkPi: () => 'mock', execute });
   assert.equal(completed.metadata.status, 'completed');
   assert.equal(completed.metadata.usage.output_tokens, 20);
   assert.equal(completed.metadata.cost_usd, null);
-  const second = await runExperiment({ outputRoot, source: origin, model: 'test-model' }, { target, checkCodex: () => 'mock', execute });
+  const second = await runExperiment({ outputRoot, source: origin, model: 'test-model' }, { target, checkPi: () => 'mock', execute });
   assert.notEqual(second.runDir, completed.runDir);
   assert.equal(second.metadata.graph_sha256, completed.metadata.graph_sha256);
   const reportPath = join(second.runDir, 'validation.json');
@@ -230,7 +226,7 @@ test('failed runs preserve metadata and drafts but never claim a prediction', as
   let failure;
   try {
     await runExperiment({ outputRoot: join(root, 'failed'), source: origin, model: 'test' }, {
-      target, checkCodex: () => 'mock', execute: async config => {
+      target, checkPi: () => 'mock', execute: async config => {
         createGraphTools(config).call('update_graph', { yaml: 'title: Incomplete' });
         return { code: 1, lastError: 'Authentication unavailable', usage: null };
       },
@@ -243,23 +239,30 @@ test('failed runs preserve metadata and drafts but never claim a prediction', as
   assert(existsSync(join(failure.runDir, 'draft.partial.yaml')));
   assert(!existsSync(join(failure.runDir, 'graph.yaml')));
 });
-test('Codex subprocess records events/usage and enforces host timeout', async () => {
+test('Pi subprocess records events/usage and enforces host timeout', async () => {
   const { config } = fixture();
-  const fake = join(root, 'fake-codex');
-  writeFileSync(fake, `#!${process.execPath}\nprocess.stdin.resume();\nprocess.stdin.on('end', () => { console.log(JSON.stringify({type:'thread.started',thread_id:'fixture'})); console.log(JSON.stringify({type:'turn.completed',usage:{input_tokens:12,output_tokens:4}})); });\n`, { mode: 0o755 });
-  const result = await executeCodex({ ...config, codex: fake });
+  const fake = join(root, 'fake-pi.mjs');
+  writeFileSync(fake, `console.log(JSON.stringify({type:'usage',usage:{input:12,output:4},responses:1}));\n`);
+  const result = await executePi(config, undefined, fake);
   assert.equal(result.code, 0);
-  assert.equal(result.usage.output_tokens, 4);
-  const hang = join(root, 'hang-codex');
-  writeFileSync(hang, `#!${process.execPath}\nsetInterval(() => {}, 1000);\n`, { mode: 0o755 });
-  const timeout = await executeCodex({ ...fixture().config, codex: hang, deadline: Date.now() + 50 });
+  assert.equal(result.usage.output, 4);
+  const hang = join(root, 'hang-pi.mjs');
+  writeFileSync(hang, `process.on('SIGTERM', () => {}); setInterval(() => {}, 1000);\n`);
+  const timeout = await executePi({ ...fixture().config, deadline: Date.now() + 100 }, undefined, hang);
   assert.equal(timeout.stopReason, 'Time limit reached');
+  assert.equal(timeout.signal, 'SIGKILL');
+  const finishing = fixture();
+  const slowExit = join(root, 'finished-pi.mjs');
+  writeFileSync(slowExit, `import {writeFileSync} from 'node:fs'; writeFileSync('..' + '/validation.json', '{}'); setTimeout(() => process.exit(0), 800);\n`);
+  const finished = await executePi({ ...finishing.config, deadline: Date.now() + 300 }, undefined, slowExit);
+  assert.equal(finished.code, 0);
+  assert.equal(finished.stopReason, null, 'a frozen graph gets time to flush logs after the generation deadline');
 });
 test('truncated tool logs do not mask the original run failure', async () => {
   let failure;
   try {
     await runExperiment({ outputRoot: join(root, 'truncated'), source: origin, model: 'test' }, {
-      target, checkCodex: () => 'mock', execute: async config => {
+      target, checkPi: () => 'mock', execute: async config => {
         writeFileSync(join(config.runDir, 'tools.jsonl'), '{"event":');
         throw new Error('Process interrupted');
       },
@@ -269,4 +272,117 @@ test('truncated tool logs do not mask the original run failure', async () => {
   const record = JSON.parse(readFileSync(join(failure.runDir, 'run.json'), 'utf8'));
   assert.equal(record.status, 'failed');
   assert.equal(record.incomplete_tool_transcript, true);
+});
+
+async function modelFixture(steps) {
+  const runtime = await ModelRuntime.create({ credentials: new InMemoryCredentialStore(), modelsPath: null, refreshOnCreate: false, allowModelNetwork: false });
+  await runtime.setRuntimeApiKey('openai', 'test-credential-never-send');
+  const requests = [];
+  runtime.streamSimple = (model, context, options) => {
+    const index = requests.length;
+    requests.push(structuredClone(context));
+    assert.equal(options.maxRetries, 0);
+    assert.equal(options.reasoning, 'low');
+    const stream = createAssistantMessageEventStream();
+    queueMicrotask(() => {
+      let content;
+      try { content = typeof steps[index] === 'function' ? steps[index](context) : steps[index]; }
+      catch (error) { content = [{ type: 'text', text: error.stack }]; }
+      const message = {
+        role: 'assistant', content: content ?? [{ type: 'text', text: 'Fixture stopped without finalizing.' }],
+        api: model.api, provider: model.provider, model: model.id, timestamp: Date.now(),
+        usage: { input: 10, output: 5, cacheRead: 3, cacheWrite: 0, totalTokens: 18, reasoning: 2, cost: { input: 0.01, output: 0.02, cacheRead: 0.003, cacheWrite: 0, total: 0.033 } },
+        stopReason: content?.some(item => item.type === 'toolCall') ? 'toolUse' : 'stop',
+      };
+      stream.push({ type: 'start', partial: message });
+      stream.push({ type: 'done', reason: message.stopReason, message });
+      stream.end();
+    });
+    return stream;
+  };
+  return { runtime, requests };
+}
+const call = (name, args = {}) => ({ type: 'toolCall', id: `${name}-${Math.random()}`, name, arguments: args });
+
+test('real Pi session isolates resources, repairs rejected evidence and freezes a valid graph', async () => {
+  const { config } = fixture();
+  const { runtime, requests } = await modelFixture([
+    [call('read_source', { path: '../prior-graph.yaml' })],
+    [call('update_graph', { yaml: yaml(prediction()) }), call('finalize_graph')],
+    [call('read_source', { path: 'src/page.ts' }), call('read_source', { path: 'src/service.ts' })],
+    [call('finalize_graph')],
+  ]);
+  const events = [];
+  const result = await runPiSession(config, event => events.push(structuredClone(event)), runtime);
+  assert.equal(result.code, 0, JSON.stringify(result));
+  assert.equal(result.stopReason, 'Graph frozen; stopped after finalization');
+  assert.equal(requests.length, 4, 'finalization must not make another model request');
+  assert.deepEqual(getCurrentTools(requests[0].messages).map(tool => tool.name).sort(), [...toolNames].sort());
+  assert(!JSON.stringify(requests).includes('CONTAMINATION_CANARY'));
+  assert(!JSON.stringify(requests).includes('Fixture instructions'));
+  assert.equal(requests[0].messages.filter(message => message.role === 'user').length, 1);
+  assert(requests[2].messages.some(message => message.role === 'toolResult' && message.toolName === 'finalize_graph' && message.isError));
+  assert.equal(result.usage.input, 40);
+  assert.equal(result.usage.reasoning, 8);
+  assert.equal(result.usage.totalTokens, 72);
+  assert.equal(result.usage.cost.total, 0.132);
+  assert.equal(verifyRun(config.runDir).nodes, 2);
+  assert(!readFileSync(join(config.runDir, 'pi-session.json'), 'utf8').includes('test-credential'));
+  assert(events.some(event => event.type === 'run_completed'));
+});
+
+test('Pi checks the exact Astra model and effort without silently falling back', async () => {
+  const { runtime } = await modelFixture([]);
+  assert.equal((await checkPi({ model: DEFAULT_MODEL, effort: 'low' }, runtime)).api, 'openai-responses');
+  await assert.rejects(checkPi({ model: 'not-a-model' }, runtime), /no fallback/);
+  await assert.rejects(checkPi({ model: DEFAULT_MODEL, effort: 'off' }, runtime), /does not support/);
+  runtime.getAuth = async () => undefined;
+  await assert.rejects(checkPi({}, runtime), /credentials.*openai\/gpt-6-astra/);
+});
+
+test('real Pi session counts failed tool attempts and blocks unexpected tools', async () => {
+  const limited = fixture();
+  const fake = await modelFixture([[call('read_source', { path: '../bad' })], [call('list_source')]]);
+  const result = await runPiSession({ ...limited.config, maxTools: 1 }, undefined, fake.runtime);
+  assert.equal(result.code, 1);
+  assert.equal(result.stopReason, 'Tool-call limit reached', JSON.stringify(result));
+  assert(!existsSync(join(limited.config.runDir, 'graph.yaml')));
+  const unexpected = await modelFixture([[call('bash', { command: 'touch contamination' })]]);
+  const other = fixture();
+  const blocked = await runPiSession(other.config, undefined, unexpected.runtime);
+  assert.match(blocked.stopReason, /Unexpected tool request: bash/);
+  assert(!existsSync(join(other.config.checkout, 'contamination')));
+});
+
+test('actual Pi worker reports missing auth without a model fallback', async () => {
+  const { config } = fixture();
+  // An explicit nonexistent credential path makes this deterministic even on authenticated machines.
+  const invalid = { ...config, authFile: join(config.runDir, 'missing-auth.json') };
+  writeFileSync(join(config.runDir, 'server.json'), JSON.stringify(invalid));
+  const result = await executePi(invalid);
+  assert.equal(result.code, 1);
+  assert.match(result.lastError, /auth file does not exist/);
+  assert(!existsSync(join(config.runDir, 'graph.yaml')));
+});
+
+test('Pi orchestration records Astra selection, actual SDK usage and estimated cost', async () => {
+  const { runtime } = await modelFixture([[
+    call('read_source', { path: 'src/page.ts' }),
+    call('read_source', { path: 'src/service.ts' }),
+    call('update_graph', { yaml: yaml(prediction()) }),
+    call('finalize_graph'),
+  ]]);
+  const result = await runExperiment({ outputRoot: join(root, 'pi-complete'), source: origin, effort: 'low' }, {
+    target, checkPi: config => checkPi(config, runtime),
+    execute: config => runPiSession(config, undefined, runtime),
+  });
+  assert.equal(result.metadata.backend, 'pi-sdk');
+  assert.equal(result.metadata.provider, 'openai');
+  assert.equal(result.metadata.model, 'gpt-6-astra');
+  assert.equal(result.metadata.status, 'completed');
+  assert.equal(result.metadata.estimated_cost_usd, 0.033);
+  assert.equal(result.metadata.cost_usd, null);
+  assert.equal(result.metadata.execution.toolAttempts, 4);
+  assert.equal(result.metadata.inspection.tool_calls, 4);
+  assert.equal(verifyRun(result.runDir).nodes, 2);
 });

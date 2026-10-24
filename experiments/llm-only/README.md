@@ -2,7 +2,7 @@
 
 A source-grounded LLM prediction of the Cal.com booking subsystem, authored in a separate clean upstream checkout. The graph has **36 nodes and 62 directed relationships**, backed by exact excerpts and hashes from **72 source files**.
 
-For new automated runs, use the [construction runner](../../tools/llm-only/README.md): `bash scripts/run_llm_only_graph.sh --model YOUR_MODEL`. It constructs a new prediction from an empty graph in a fresh context and checkout, using the shared YAML format. The files in this directory remain the historical frozen prediction and are not supplied to that agent.
+For new automated runs, use the [Pi construction runner](../../tools/llm-only/README.md): `bash scripts/run_llm_only_graph.sh`. It defaults to `openai/gpt-6-astra` and constructs a new prediction from an empty graph in a fresh context and checkout, using the shared YAML format. The files in this directory remain the historical frozen prediction and are not supplied to that agent.
 
 The source is pinned to **`54343aa685ae8f33159d2f485ec4a57bad5c574a`**, the team's revision from [PR #1's target configuration](https://github.com/Ravdrew/cs-329m/blob/44e26e017fbcfe6c57b0f966572fb0ee0499e096/targets/calcom.env). The requested `calcom/cal.com` URL redirects to `calcom/cal.diy`. No application source was changed.
 

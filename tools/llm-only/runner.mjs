@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { checkCodex, executeCodex } from './codex.mjs';
+import { checkPi, DEFAULT_MODEL, DEFAULT_PROVIDER, executePi } from './pi.mjs';
 import { DraftGraph, parseYaml, yaml } from './graph.mjs';
 import { assertOutsideRepository, git, prepareCheckout, sha256, Source } from './source.mjs';
 
@@ -47,24 +47,24 @@ export async function runExperiment(options, dependencies = {}) {
   assertOutsideRepository(outputRoot, TEAM_ROOT);
   const runDir = mkdtempSync(join(realpathSync(outputRoot), `${new Date().toISOString().replaceAll(':', '-')}-`));
   const config = {
-    ...target, runDir, checkout: join(runDir, 'calcom'), model: options.model ?? null,
-    effort: options.effort ?? 'medium', codex: options.codex ?? 'codex',
+    ...target, runDir, checkout: join(runDir, 'calcom'), model: options.model ?? DEFAULT_MODEL,
+    provider: options.provider ?? DEFAULT_PROVIDER, effort: options.effort ?? 'medium',
+    authFile: options.authFile ? resolve(options.authFile) : null,
     maxTools: options.maxTools ?? 600, maxMinutes: options.maxMinutes ?? 45,
   };
   const metadata = {
-    version: 1, variant: 'llm-only', backend: 'codex-exec', status: 'preparing', started_at: new Date(started).toISOString(),
-    target, run_directory: runDir, model: config.model, reasoning_effort: config.effort,
+    version: 1, variant: 'llm-only', backend: 'pi-sdk', status: 'preparing', started_at: new Date(started).toISOString(),
+    target, run_directory: runDir, provider: config.provider, model: config.model, reasoning_effort: config.effort,
     limits: { max_tool_calls: config.maxTools, max_minutes: config.maxMinutes },
-    isolation: { fresh_session: true, fresh_checkout: true, source_access: 'tracked-regular-files-only MCP', shell: false, web: false, plugins: false, prior_graphs_supplied: false, inherited_project_instructions: false, os_container: false },
-    usage: null, cost_usd: null, graph_sha256: null,
+    isolation: { fresh_session: true, fresh_checkout: true, source_access: 'tracked-regular-files-only custom tools', shell: false, web: false, plugins: false, prior_graphs_supplied: false, inherited_project_instructions: false, os_container: false },
+    usage: null, cost_usd: null, estimated_cost_usd: null, graph_sha256: null,
   };
   const report = () => json(join(runDir, 'run.json'), metadata);
   report();
   options.progress?.({ run_directory: runDir, stage: 'preparing' });
   try {
     if (!options.prepareOnly) {
-      if (!config.model) throw new Error('Pass --model to explicitly pin the construction model');
-      metadata.codex_version = (dependencies.checkCodex ?? checkCodex)(config.codex);
+      metadata.pi = await (dependencies.checkPi ?? checkPi)(config);
     }
     const source = prepareCheckout({ directory: config.checkout, ...target, source: options.source ? resolve(options.source) : target.remote });
     const schemaText = readFileSync(join(TEAM_ROOT, 'schema/graph.schema.json'), 'utf8');
@@ -77,17 +77,18 @@ export async function runExperiment(options, dependencies = {}) {
     metadata.schema_sha256 = sha256(schemaText);
     metadata.source_manifest_sha256 = sha256(readFileSync(join(runDir, 'source-manifest.json')));
     metadata.runner_revision = git(TEAM_ROOT, ['rev-parse', 'HEAD']).trim();
-    metadata.runner_files = Object.fromEntries(['package-lock.json', 'source.mjs', 'graph.mjs', 'source-server.mjs', 'codex.mjs', 'runner.mjs', 'cli.mjs'].map(file => [file, sha256(readFileSync(join(HERE, file)))]));
+    metadata.runner_files = Object.fromEntries(['package-lock.json', 'source.mjs', 'graph.mjs', 'source-server.mjs', 'pi.mjs', 'runner.mjs', 'cli.mjs'].map(file => [file, sha256(readFileSync(join(HERE, file)))]));
     metadata.source_file_count = source.files.length;
     metadata.status = options.prepareOnly ? 'prepared' : 'running';
     config.deadline = Date.now() + config.maxMinutes * 60_000;
     json(join(runDir, 'server.json'), config);
     report();
     if (options.prepareOnly) return { runDir, metadata };
-    options.progress?.({ stage: 'running', model: config.model });
-    const execution = await (dependencies.execute ?? executeCodex)(config, options.progress);
+    options.progress?.({ stage: 'running', provider: config.provider, model: config.model });
+    const execution = await (dependencies.execute ?? executePi)(config, options.progress);
     metadata.execution = execution;
     metadata.usage = execution.usage;
+    metadata.estimated_cost_usd = execution.usage?.cost?.total ?? null;
     if (execution.stopReason && execution.stopReason !== 'Graph frozen; stopped after finalization') throw new Error(execution.stopReason);
     if (!existsSync(join(runDir, 'validation.json'))) throw new Error(execution.lastError ?? `Agent did not finalize a valid graph (exit ${execution.code}); see logs`);
     const validation = verifyRun(runDir);
