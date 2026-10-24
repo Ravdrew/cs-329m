@@ -96,3 +96,16 @@ Tests that passed only on a retry:
 ## Workflow
 
 Open a pull request for changes; don't push directly to `master`.
+
+## CodeGraph component baseline
+
+This branch includes a lean Cal.com component graph and a standalone interactive
+visualization. From the repository root on macOS:
+
+```bash
+open graphs/codegraph-calcom/visualization.html
+```
+
+No dependencies or Cal.com setup are needed to view the saved graph. Select a node
+to explore its dependencies. See [viewing instructions and graph data](graphs/codegraph-calcom/README.md)
+and [CodeGraph setup and component generation](tools/codegraph/README.md).
