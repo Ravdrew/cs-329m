@@ -1,0 +1,8 @@
+{
+  "name": "cs329m-codegraph-baseline",
+  "private": true,
+  "description": "Pinned CodeGraph CLI for the graph framework baseline",
+  "dependencies": {
+    "@colbymchenry/codegraph": "1.6.2"
+  }
+}
