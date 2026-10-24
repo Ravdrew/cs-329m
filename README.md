@@ -8,11 +8,14 @@ We build a component-level graph of a real TypeScript app (starting with [Cal.co
 
 ```
 targets/calcom.env       pinned Cal.com commit and Node version
+experiments/llm-only/    LLM-only booking graph, provenance and review tools
 scripts/                 setup and test scripts for target apps
 results/baselines/       committed test baselines at the pinned commit
 results/runs/            raw test runs (git-ignored)
 work/                    target app checkouts and local database data (git-ignored)
 ```
+
+The [LLM-only booking graph](experiments/llm-only/README.md) was built in a separate clean Cal.com checkout at the shared pin. Its 36 components and 62 relationships include source evidence, a Mermaid view and validation tools. Set `CALCOM_DIR` to the pinned checkout to validate or render it; graph review does not require Cal.com's dependencies or a database.
 
 ## Prerequisites
 

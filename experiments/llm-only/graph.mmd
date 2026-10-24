@@ -1,0 +1,113 @@
+flowchart LR
+  subgraph g0["Public booking"]
+    n0(["Public booking page"])
+    n1("Public event lookup")
+    n2["Booker composition"]
+    n3["Event summary"]
+    n4["Date and time selection"]
+    n5["Attendee booking form"]
+  end
+  subgraph g1["Availability"]
+    n6("Availability and reservation hooks")
+    n7{{"Public event tRPC API"}}
+    n8{{"Slot schedule tRPC API"}}
+    n9{{"Slot reservation tRPC API"}}
+    n10("Available slot computation")
+    n11("User availability rules")
+    n12("Busy-time aggregation")
+  end
+  subgraph g2["Side effects"]
+    n13("Calendar and meeting integrations")
+    n20("Booking email and SMS")
+    n21("Booking webhook dispatch")
+  end
+  subgraph g3["Creation"]
+    n14("Booking submission and redirect")
+    n15{{"Create booking HTTP API"}}
+    n16{{"Create recurring booking HTTP API"}}
+    n17("Regular booking orchestration")
+    n18("Recurring booking orchestration")
+  end
+  subgraph g4["Data"]
+    n19("Booking persistence")
+    n32[("Booking records")]
+    n33[("Event type configuration")]
+    n34[("Schedule and availability rules")]
+    n35[("Temporary slot holds")]
+  end
+  subgraph g5["Manage booking"]
+    n22(["Booking detail and success route"])
+    n23["Booking detail view"]
+    n24(["Reschedule redirect route"])
+    n25["Cancellation form"]
+    n26{{"Cancellation HTTP API"}}
+    n27("Booking cancellation")
+  end
+  subgraph g6["Host management"]
+    n28(["Host bookings route"])
+    n29["Host booking list and actions"]
+    n30{{"Host bookings tRPC API"}}
+    n31("Booking confirmation")
+  end
+  n0 -->|"calls: load event"| n1
+  n0 -->|"renders: render booker"| n2
+  n1 -->|"reads: read event configuration"| n33
+  n2 -->|"renders: show event details"| n3
+  n2 -->|"renders: show dates and slots"| n4
+  n2 -->|"renders: show attendee form"| n5
+  n2 -->|"calls: load slots and hold selection"| n6
+  n2 -->|"calls: initialize submission"| n14
+  n6 -->|"calls: query public event"| n7
+  n7 -->|"calls: lookup event"| n1
+  n6 -->|"calls: query available slots"| n8
+  n6 -->|"calls: reserve and release slot"| n9
+  n8 -->|"calls: compute available slots"| n10
+  n10 -->|"calls: calculate host availability"| n11
+  n10 -->|"calls: check booking limits"| n12
+  n10 -->|"calls: load existing bookings"| n19
+  n10 -->|"reads: load event policy"| n33
+  n10 -->|"reads: apply restriction schedule"| n34
+  n10 -->|"reads: exclude other bookers holds"| n35
+  n10 -->|"writes: remove expired holds"| n35
+  n9 -->|"writes: upsert or release holds"| n35
+  n9 -->|"reads: check event and seats"| n33
+  n9 -->|"reads: check seated attendance"| n32
+  n11 -->|"calls: subtract busy periods"| n12
+  n11 -->|"reads: use working-hour rules"| n34
+  n12 -->|"calls: load occupied booking intervals"| n19
+  n12 -->|"calls: fetch provider busy times"| n13
+  n14 -->|"calls: submit booking"| n15
+  n14 -->|"calls: submit recurring series"| n16
+  n14 -->|"navigates_to: open confirmation page"| n22
+  n15 -->|"calls: create or reschedule"| n17
+  n16 -->|"calls: create series"| n18
+  n18 -->|"calls: create occurrences"| n17
+  n17 -->|"reads: load booking policy"| n33
+  n17 -->|"calls: recheck availability"| n11
+  n17 -->|"calls: persist booking"| n19
+  n17 -->|"calls: create or reschedule meeting"| n13
+  n17 -->|"calls: notify participants"| n20
+  n17 -->|"calls: emit booking event"| n21
+  n19 -->|"writes: create and update records"| n32
+  n19 -->|"reads: query existing records"| n32
+  n22 -->|"reads: load booking by UID"| n32
+  n22 -->|"renders: render booking details"| n23
+  n23 -->|"navigates_to: reschedule booking"| n24
+  n23 -->|"renders: show cancellation form"| n25
+  n24 -->|"reads: load original booking"| n32
+  n24 -->|"navigates_to: return to event with reschedule UID"| n0
+  n25 -->|"calls: POST cancellation"| n26
+  n26 -->|"calls: cancel by UID"| n27
+  n27 -->|"calls: mark cancelled"| n19
+  n27 -->|"calls: cancel provider events"| n13
+  n27 -->|"calls: send cancellation notice"| n20
+  n27 -->|"calls: send cancellation webhook"| n21
+  n28 -->|"renders: show host bookings"| n29
+  n29 -->|"calls: list inspect and confirm"| n30
+  n30 -->|"reads: load booking and series counts"| n32
+  n30 -->|"writes: reject booking"| n32
+  n30 -->|"calls: confirm pending booking"| n31
+  n31 -->|"writes: accept and save references"| n32
+  n31 -->|"calls: create confirmed meeting"| n13
+  n31 -->|"calls: send confirmed notice"| n20
+  n31 -->|"calls: send confirmation webhook"| n21
