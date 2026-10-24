@@ -1,0 +1,83 @@
+{
+  "operation": "format-only export of frozen LLM-only prediction",
+  "recorded_at_utc": "2026-10-24T21:58:10.440594+00:00",
+  "input": {
+    "file": "graph.json",
+    "sha256": "273bf829388a424363d9c3163d8af16735f78cc910bb43c1e1660b2592ac6919"
+  },
+  "output": {
+    "file": "graph.yaml",
+    "sha256": "efe0711e44a29693316f88538b68b69deb3a4245dd3cf9ca7e48a25b0ad34f15",
+    "format": "shared draft v0",
+    "version": 1
+  },
+  "schema": {
+    "file": "../../schema/graph.schema.json",
+    "sha256": "c91cef3657b8c081f2d81c2c94b2b6257a6fd8aeeb69308c4ea9a78e89b4f155",
+    "repository": "Ravdrew/cs-329m",
+    "commit": "a5ef1f90022c5c7744bf6cc032d3888605dd5c54",
+    "path": "schema/graph.schema.json"
+  },
+  "source_commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+  "counts": {
+    "nodes": 36,
+    "edges": 62,
+    "groups": 7,
+    "source_files": 72
+  },
+  "mapping": {
+    "node_kinds": {
+      "page": "page",
+      "route": "page",
+      "ui_component": "component",
+      "api_endpoint": "endpoint",
+      "service": "service",
+      "data_model": "model"
+    },
+    "edge_kinds": {
+      "navigates_to": "navigates",
+      "other_kinds": "unchanged"
+    },
+    "groups": "Original group labels mapped to kebab-case IDs; no new nesting.",
+    "ids": "All existing node and edge IDs retained.",
+    "summaries": "First sentence for summary; full original summary in description.",
+    "routes": "Only existing frozen scope entrypoints assigned to their original page/endpoint nodes.",
+    "provenance": "inferred for every node and edge",
+    "status": "existing for every node and edge",
+    "evidence": "Standard file/line/note plus exact original spans and excerpts in x-source-evidence.",
+    "extensions": [
+      "x-source-type",
+      "x-source-evidence",
+      "x-graph-id",
+      "x-variant",
+      "x-scope",
+      "x-source-files",
+      "x-frozen-prediction"
+    ]
+  },
+  "post_freeze_exposure": {
+    "user_format_draft_sha256": "2f68cea27921ba8dc9ebd922a8f6b1e6d28d67c6ee3cde7c9ecd9805149e77ff",
+    "user_supplied_trimmed_booking_example_read": true,
+    "note": "The supplied format draft included a trimmed booking graph with developer edits. It was read only after the original prediction was frozen; it did not supply graph nodes, edges, file membership or evidence for this export.",
+    "viewer_files_read": [
+      "schema/graph.schema.json",
+      "viewer/scripts/validate.mjs",
+      "viewer/package.json"
+    ],
+    "full_sample_graph_read": false,
+    "reference_pr_3_opened_or_fetched": false,
+    "hot_started_graph_read": false
+  },
+  "validation": {
+    "shared_json_schema_valid": true,
+    "validator": "jsonschema 4.26.0 / Draft202012Validator",
+    "yaml_parser": "PyYAML 6.0.2",
+    "unique_ids_references_and_group_cycles_checked": true,
+    "exact_source_provenance_valid": true,
+    "frozen_semantics_and_evidence_preserved": true,
+    "tests_passed": 30,
+    "viewer_npm_validator_run": false,
+    "check_command": "python3 experiments/llm-only/export_graph.py --check",
+    "tests_command": "python3 -m unittest discover -s experiments/llm-only -p 'test_*.py' -v"
+  }
+}

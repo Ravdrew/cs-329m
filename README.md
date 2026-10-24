@@ -15,7 +15,7 @@ results/runs/            raw test runs (git-ignored)
 work/                    target app checkouts and local database data (git-ignored)
 ```
 
-The [LLM-only booking graph](experiments/llm-only/README.md) was built in a separate clean Cal.com checkout at the shared pin. Its 36 components and 62 relationships include source evidence, a Mermaid view and validation tools. Set `CALCOM_DIR` to the pinned checkout to validate or render it; graph review does not require Cal.com's dependencies or a database.
+The [LLM-only booking graph](experiments/llm-only/README.md) was built in a separate clean Cal.com checkout at the shared pin. Load [graph.yaml](experiments/llm-only/graph.yaml) in the viewer; it uses the shared format in [schema/graph.schema.json](schema/graph.schema.json). Its 36 components and 62 relationships include source evidence, a Mermaid view and validation tools. Set `CALCOM_DIR` to the pinned checkout to validate, export or render it; graph review does not require Cal.com's dependencies or a database.
 
 ## Prerequisites
 
