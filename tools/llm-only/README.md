@@ -88,4 +88,13 @@ npm test --prefix tools/llm-only
 
 Tests use tiny Git fixtures and mock model execution; they do not spend model tokens or require a network. They cover checkout isolation, path/symlink restrictions, source reads and search, invalid evidence and repairs, shared schema, graph consistency, frozen-output verification, the stdio protocol, budgets, process handling and repeated independent runs. A successful mock run is not evidence of model quality on Cal.com.
 
+Verified on 2026-10-24 with Node 23.7.0 and Codex CLI 0.162.0-alpha.17.2:
+
+- All **28 runner tests** and **30 historical graph tests** passed.
+- A live run at `54343aa685ae8f33159d2f485ec4a57bad5c574a`, using `gpt-6.1-sol` with medium reasoning, completed in **278.289 seconds**. It produced **42 nodes, 63 edges and 5 groups**, with evidence from **61 source files**. The committed verifier subsequently revalidated its schema, source transcript, exact excerpts, file hashes and frozen checksum.
+- The run made 215 tool calls, including 104 successful source reads across 64 files and 4 rejected calls. Codex reported 2,878,572 input tokens (2,720,512 cached) and 14,604 output tokens. These are cumulative across requests, not unique context size; dollar cost was unavailable.
+- Run ID: `2026-10-24T22-17-54.827Z-75ESDY`. Frozen YAML SHA-256: `c8a5babd4a85b3af5f854b1854e72b8e7a6d638842d1ba5c5bd23c3fec0e8ccc`. The run and its checkout remain outside the team repository. Source/graph construction code matches this implementation; the final verifier additionally checks reported counts and preserves failure metadata for truncated logs.
+
+This independent prediction has not been scored against the withheld reference. The earlier frozen graph remains the historical artifact in `experiments/llm-only/`.
+
 Codex integration references: [non-interactive execution](https://learn.chatgpt.com/docs/non-interactive-mode), [configuration controls](https://learn.chatgpt.com/docs/config-file/config-reference), [MCP](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
