@@ -109,3 +109,13 @@ open graphs/codegraph-calcom/visualization.html
 No dependencies or Cal.com setup are needed to view the saved graph. Select a node
 to explore its dependencies. See [viewing instructions and graph data](graphs/codegraph-calcom/README.md)
 and [CodeGraph setup and component generation](tools/codegraph/README.md).
+## Graph viewer
+
+| Path | What |
+|---|---|
+| `viewer/` | React graph viewer with editing (`cd viewer && npm install && npm run dev`); see `viewer/README.md` |
+| `viewer/public/graphs/` | Sample graphs: the Cal.com booking subsystem (34 nodes / 50 edges) and a developer-edit variant |
+| `schema/graph.schema.json` | JSON Schema for the graph file format (`cd viewer && npm run validate`) |
+
+To view the generated CodeGraph baseline, run the viewer and use **Open…** to
+select `graphs/codegraph-calcom/components.json` from this repository.
