@@ -2,6 +2,28 @@
 
 ## View the interactive graph
 
+### Team viewer/editor
+
+From the repository root:
+
+```bash
+npm ci --prefix viewer
+npm run dev --prefix viewer
+```
+
+Open http://localhost:5173/?graph=/graphs/codegraph-calcom-components.json
+to load the lean graph directly. If Vite chooses another port, use the port it
+prints. The viewer supports inspecting and editing nodes, edges, and file lists.
+The served graph is a snapshot copied to
+`viewer/public/graphs/codegraph-calcom-components.json`. After regenerating the
+component graph, refresh that copy with:
+
+```bash
+cp graphs/codegraph-calcom/components.json viewer/public/graphs/codegraph-calcom-components.json
+```
+
+### Standalone snapshot
+
 The standalone [visualization.html](visualization.html) is included in this branch.
 After checking out `codegraph-baseline`, open it in a browser. No installation,
 Cal.com checkout, database, or local server is needed to view this saved snapshot.
