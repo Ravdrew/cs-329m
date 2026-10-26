@@ -69,6 +69,32 @@ def partition(files, config):
     return owners
 
 
+def scoped_partition(files, rules):
+    """Assign files by longest literal path prefix; brackets are not glob syntax."""
+    ids = [rule["id"] for rule in rules]
+    if len(ids) != len(set(ids)):
+        raise ValueError("Duplicate component rule ids")
+    owners = {}
+    matched = set()
+    for path in sorted(files):
+        matches = [(len(prefix), rule["id"], prefix)
+                   for rule in rules for prefix in rule["paths"]
+                   if path == prefix or path.startswith(prefix.rstrip("/") + "/")]
+        if not matches:
+            continue
+        best = max(length for length, _, _ in matches)
+        winning_ids = {owner for length, owner, _ in matches if length == best}
+        if len(winning_ids) != 1:
+            raise ValueError(f"Ambiguous component rules for {path}")
+        owners[path] = winning_ids.pop()
+        matched.update(prefix for _, _, prefix in matches)
+    empty = set(ids) - set(owners.values())
+    if empty:
+        raise ValueError(f"Component rules without indexed non-test files: {sorted(empty)}")
+    missing = sorted({prefix for rule in rules for prefix in rule["paths"]} - matched)
+    return owners, missing
+
+
 def describe(path):
     if path == "repository":
         return "Repository tooling", "other", "tooling"
@@ -85,7 +111,7 @@ def describe(path):
     return path.removeprefix("packages/"), kind, "packages"
 
 
-def make_nodes(owners, symbols):
+def make_nodes(owners, symbols, rules=None):
     files = defaultdict(list)
     counts = Counter()
     for path, owner in owners.items():
@@ -94,8 +120,12 @@ def make_nodes(owners, symbols):
         if symbol["file_path"] in owners:
             counts[owners[symbol["file_path"]]] += 1
     nodes = []
+    definitions = {r["id"]: r for r in (rules or [])}
     for path in sorted(files):
         label, kind, group = describe(path)
+        definition = definitions.get(path)
+        if definition:
+            label, kind, group = definition["label"], definition["kind"], definition["group"]
         nodes.append({"id": component_id(path), "label": label, "kind": kind, "group": group,
                       "files": sorted(files[path]), "provenance": "inferred",
                       "summary": f"{len(files[path])} indexed non-test files; boundary: {path}.",
@@ -103,6 +133,11 @@ def make_nodes(owners, symbols):
                                      "Files assigned to a more specific component are excluded.",
                       "x-codegraph": {"boundary": path, "file_count": len(files[path]),
                                       "structural_node_count": counts[path]}})
+        if definition:
+            nodes[-1]["summary"] = definition["summary"]
+            nodes[-1]["description"] = (definition["summary"] + " Component membership is a configured "
+                                        "source-path projection; edges are extracted by CodeGraph.")
+            nodes[-1]["x-codegraph"]["path_rules"] = definition["paths"]
     return nodes
 
 
@@ -198,7 +233,7 @@ def git(project, *args):
     return subprocess.check_output(["git", "-C", str(project), *args], text=True).strip()
 
 
-def build(project, config):
+def build(project, config, raw_out=None):
     db = project / ".codegraph/codegraph.db"
     if not db.is_file():
         raise ValueError(f"Missing CodeGraph index: {db}; run codegraph init first")
@@ -208,6 +243,8 @@ def build(project, config):
         conn.execute("BEGIN")  # One consistent read snapshot, even if a writer is active.
         metadata = dict(conn.execute("SELECT key,value FROM project_metadata"))
         commit = git(project, "rev-parse", "HEAD")
+        if config.get("expected_commit") and config["expected_commit"] != commit:
+            raise ValueError("Checkout does not match the configured expected_commit")
         if metadata.get("index_state") != "complete":
             raise ValueError("CodeGraph index is incomplete; rebuild it before exporting")
         if metadata.get("indexed_at_commit") != commit:
@@ -218,7 +255,7 @@ def build(project, config):
         if dirty.get("paths"):
             raise ValueError("Index was built from modified sources; rebuild from a clean checkout")
         symbols = {row["id"]: dict(row) for row in conn.execute(
-            "SELECT id,kind,name,file_path FROM nodes ORDER BY id")}
+            "SELECT * FROM nodes ORDER BY id")}
         indexed = {row[0] for row in conn.execute("SELECT path FROM files")}
         indexed.update(s["file_path"] for s in symbols.values())
         tracked = set(git(project, "ls-files").splitlines())
@@ -226,9 +263,16 @@ def build(project, config):
         if missing:
             raise ValueError(f"Index contains {len(missing)} untracked/deleted files; rebuild it")
         omitted = sorted(p for p in indexed if excluded(p))
-        owners = partition(indexed - set(omitted), config)
-        nodes = make_nodes(owners, symbols)
-        edges, edge_stats = aggregate_edges(conn.execute("SELECT * FROM edges ORDER BY id"),
+        rules = config.get("component_rules")
+        if rules:
+            owners, unmatched = scoped_partition(indexed - set(omitted), rules)
+            if len(set(owners.values())) > config["components"]:
+                raise ValueError("Scoped component rules exceed the component budget")
+        else:
+            owners, unmatched = partition(indexed - set(omitted), config), []
+        nodes = make_nodes(owners, symbols, rules)
+        rows = [dict(row) for row in conn.execute("SELECT * FROM edges ORDER BY id")]
+        edges, edge_stats = aggregate_edges(rows,
                                             symbols, owners, config["min_confidence"])
     finally:
         conn.close()
@@ -259,6 +303,39 @@ def build(project, config):
     graph = dict(base, edges=lean)
     graph["x-codegraph"] = dict(base["x-codegraph"], projection="lean", omitted_edges=len(edges)-len(lean))
     full["x-codegraph"] = dict(base["x-codegraph"], projection="full")
+    if rules:
+        scoped_symbols = {key: value for key, value in symbols.items() if value["file_path"] in owners}
+        raw_edges = [r for r in rows if r["source"] in scoped_symbols and r["target"] in scoped_symbols]
+        boundary = Counter()
+        for row in rows:
+            a, b = row["source"] in scoped_symbols, row["target"] in scoped_symbols
+            if a != b:
+                boundary["outgoing" if a else "incoming"] += 1
+        scope = {"description": config["scope"], "method": "longest literal source-path prefix",
+                 "structural_nodes": len(scoped_symbols), "structural_edges": len(raw_edges),
+                 "boundary_edges_not_included": dict(sorted(boundary.items())),
+                 "unmatched_path_rules": unmatched,
+                 "out_of_scope_indexed_non_test_files": sorted(indexed - set(omitted) - set(owners)),
+                 "tracked_in_scope_but_unindexed_files": sorted(
+                     p for p in tracked - indexed if not excluded(p) and any(
+                         p == prefix or p.startswith(prefix.rstrip("/") + "/")
+                         for rule in rules for prefix in rule["paths"]))}
+        report["scope"] = scope
+        report["limitations"][0] = "Manually configured source-path boundaries; not a semantic ground truth."
+        for result in (graph, full):
+            result["description"] = config["scope"] + " Built by projecting CodeGraph edges onto configured source-path components."
+            result["groups"] = config.get("groups", result["groups"])
+            result["x-codegraph"]["scope"] = {k: scope[k] for k in ("description", "method", "structural_nodes", "structural_edges")}
+        if raw_out is not None:
+            raw = {"format": "codegraph-structural-export-v1", "repo": config["repo"], "commit": commit,
+                   "codegraph_version": report["codegraph_version"], "scope": config["scope"],
+                   "nodes": list(scoped_symbols.values()), "edges": raw_edges,
+                   "file_components": {path: component_id(owner) for path, owner in sorted(owners.items())}}
+            raw_out.parent.mkdir(parents=True, exist_ok=True)
+            raw_out.write_text(json.dumps(raw, separators=(",", ":")) + "\n")
+            report["scope"]["raw_export_sha256"] = hashlib.sha256(raw_out.read_bytes()).hexdigest()
+    elif raw_out is not None:
+        raise ValueError("--raw-out requires scoped component_rules")
     return graph, full, report
 
 
@@ -267,6 +344,7 @@ def main():
     parser.add_argument("path", type=Path, help="Indexed source repository")
     parser.add_argument("--config", type=Path, default=HERE / "components.config.json")
     parser.add_argument("--out", type=Path, required=True, help="Output directory")
+    parser.add_argument("--raw-out", type=Path, help="Also export the scoped structural graph (use a gitignored path)")
     parser.add_argument("--components", type=int, help="Maximum component count")
     parser.add_argument("--top-dependencies", type=int, help="Outgoing edges per component in lean view")
     args = parser.parse_args()
@@ -281,7 +359,7 @@ def main():
                 raise ValueError(f"{key} must be a positive integer")
         if not 0 <= config["min_confidence"] <= 1:
             raise ValueError("min_confidence must be between 0 and 1")
-        graph, full, report = build(args.path.resolve(), config)
+        graph, full, report = build(args.path.resolve(), config, args.raw_out)
         args.out.mkdir(parents=True, exist_ok=True)
         for name, value in [("components.json", graph), ("components.full.json", full),
                             ("components.report.json", report)]:

@@ -3,10 +3,33 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from components import aggregate_edges, build, component_id, excluded, lean_edges, partition
+from components import aggregate_edges, build, component_id, excluded, lean_edges, partition, scoped_partition
 
 
 class ComponentGraphTests(unittest.TestCase):
+    def test_scope_uses_longest_literal_prefix_and_drops_unrelated_files(self):
+        rules = [{"id": "booking", "paths": ["features/booking"]},
+                 {"id": "create", "paths": ["features/booking/create.ts"]},
+                 {"id": "page", "paths": ["app/[user]/page.tsx"]}]
+        files = {"features/booking/a.ts", "features/booking/create.ts", "features/bookings-other.ts",
+                 "app/[user]/page.tsx", "app/u/page.tsx", "unrelated.ts"}
+        owners, unmatched = scoped_partition(files, rules)
+        self.assertEqual(owners, {"features/booking/a.ts": "booking", "features/booking/create.ts": "create",
+                                  "app/[user]/page.tsx": "page"})
+        self.assertEqual(unmatched, [])
+
+    def test_scope_rejects_duplicate_and_ambiguous_rules(self):
+        with self.assertRaisesRegex(ValueError, "Duplicate"):
+            scoped_partition({"a.ts"}, [{"id": "a", "paths": ["a.ts"]}, {"id": "a", "paths": ["b.ts"]}])
+        with self.assertRaisesRegex(ValueError, "Ambiguous"):
+            scoped_partition({"a.ts"}, [{"id": "a", "paths": ["a.ts"]}, {"id": "b", "paths": ["a.ts"]}])
+
+    def test_scope_fails_for_empty_components_and_reports_missing_paths(self):
+        with self.assertRaisesRegex(ValueError, "without indexed"):
+            scoped_partition({"a.ts"}, [{"id": "b", "paths": ["b.ts"]}])
+        _, unmatched = scoped_partition({"a.ts"}, [{"id": "a", "paths": ["a.ts", "missing.ts"]}])
+        self.assertEqual(unmatched, ["missing.ts"])
+
     def test_partition_preserves_unique_ownership_and_budget(self):
         files = {"packages/features/bookings/a.ts", "packages/features/bookings/b.ts",
                  "packages/features/auth/a.ts", "packages/features/auth/b.ts",

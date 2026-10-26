@@ -99,6 +99,12 @@ Open a pull request for changes; don't push directly to `master`.
 
 ## CodeGraph component baseline
 
+For a booking-scoped variant at `6bfe2df9`, see
+[the booking baseline and viewer instructions](graphs/codegraph-booking/README.md).
+Reproduce it with `bash scripts/build_booking_graph.sh` after installing the
+CodeGraph CLI. It includes both a structural graph export and a smaller graph in
+the shared format.
+
 This branch includes a lean Cal.com component graph and a standalone interactive
 visualization. From the repository root on macOS:
 

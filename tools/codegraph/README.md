@@ -31,6 +31,11 @@ or convert CodeGraph output to the shared conceptual graph schema.
 
 ## Component-level graph extension
 
+For the booking-only baseline at the viewer's pinned commit, see
+[the booking baseline](../../graphs/codegraph-booking/README.md).
+`bash scripts/build_booking_graph.sh` runs both the CodeGraph indexing and scoped
+component projection stages. Its path rules live in `booking.config.json`.
+
 The repository launcher now adds a `components` command to CodeGraph. This is a
 local coarsening stage over its SQLite index, not a patch inside `node_modules`
 or a fork of the upstream parser. It requires Python 3.9+ and no Python packages.
