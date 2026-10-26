@@ -99,7 +99,7 @@ Open a pull request for changes; don't push directly to `master`.
 
 ## CodeGraph component baseline
 
-For a booking-scoped variant at `6bfe2df9`, see
+For a booking-scoped variant at `54343aa`, see
 [the booking baseline and viewer instructions](graphs/codegraph-booking/README.md).
 Reproduce it with `bash scripts/build_booking_graph.sh` after installing the
 CodeGraph CLI. It includes both a structural graph export and a smaller graph in

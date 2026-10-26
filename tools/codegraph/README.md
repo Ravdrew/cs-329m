@@ -31,7 +31,7 @@ or convert CodeGraph output to the shared conceptual graph schema.
 
 ## Component-level graph extension
 
-For the booking-only baseline at the viewer's pinned commit, see
+For the booking-only baseline at the Cal.com setup's pinned commit (`54343aa`), see
 [the booking baseline](../../graphs/codegraph-booking/README.md).
 `bash scripts/build_booking_graph.sh` runs both the CodeGraph indexing and scoped
 component projection stages. Its path rules live in `booking.config.json`.

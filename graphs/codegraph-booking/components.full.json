@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "repo": "calcom/cal.diy",
-  "commit": "6bfe2df9d13c456dc9374c9e6581b36fba188728",
-  "title": "Cal.diy booking subsystem — CodeGraph baseline",
+  "repo": "calcom/cal.com",
+  "commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+  "title": "Cal.com booking subsystem — CodeGraph baseline",
   "description": "Web booking subsystem: public booking and management UI, web HTTP/tRPC booking and slot APIs, availability, booking lifecycle, persistence adapters, and supporting notification/calendar services. API v2, generic UI/auth utilities and provider-specific app-store implementations are outside this boundary. Supporting packages include their indexed files, not just booking-exclusive code. Built by projecting CodeGraph edges onto configured source-path components.",
   "groups": [
     {
@@ -100,7 +100,7 @@
       "x-codegraph": {
         "boundary": "booker-composition",
         "file_count": 2,
-        "structural_node_count": 85,
+        "structural_node_count": 80,
         "path_rules": [
           "apps/web/modules/bookings/components/Booker.tsx",
           "apps/web/modules/bookings/components/BookerWebWrapper.tsx"
@@ -734,7 +734,7 @@
       "x-codegraph": {
         "boundary": "booking-shared",
         "file_count": 74,
-        "structural_node_count": 921,
+        "structural_node_count": 922,
         "path_rules": [
           "packages/features/bookings"
         ]
@@ -847,7 +847,7 @@
       "x-codegraph": {
         "boundary": "booking-web",
         "file_count": 94,
-        "structural_node_count": 1583,
+        "structural_node_count": 1572,
         "path_rules": [
           "apps/web/modules/bookings",
           "apps/web/components/booking",
@@ -929,7 +929,7 @@
       "x-codegraph": {
         "boundary": "calendars",
         "file_count": 33,
-        "structural_node_count": 512,
+        "structural_node_count": 511,
         "path_rules": [
           "packages/features/calendars"
         ]
@@ -1408,9 +1408,9 @@
   "x-codegraph": {
     "version": "1.6.2",
     "config": {
-      "repo": "calcom/cal.diy",
-      "expected_commit": "6bfe2df9d13c456dc9374c9e6581b36fba188728",
-      "title": "Cal.diy booking subsystem — CodeGraph baseline",
+      "repo": "calcom/cal.com",
+      "expected_commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+      "title": "Cal.com booking subsystem — CodeGraph baseline",
       "scope": "Web booking subsystem: public booking and management UI, web HTTP/tRPC booking and slot APIs, availability, booking lifecycle, persistence adapters, and supporting notification/calendar services. API v2, generic UI/auth utilities and provider-specific app-store implementations are outside this boundary. Supporting packages include their indexed files, not just booking-exclusive code.",
       "components": 36,
       "min_component_files": 1,
@@ -1795,8 +1795,8 @@
     "scope": {
       "description": "Web booking subsystem: public booking and management UI, web HTTP/tRPC booking and slot APIs, availability, booking lifecycle, persistence adapters, and supporting notification/calendar services. API v2, generic UI/auth utilities and provider-specific app-store implementations are outside this boundary. Supporting packages include their indexed files, not just booking-exclusive code.",
       "method": "longest literal source-path prefix",
-      "structural_nodes": 11541,
-      "structural_edges": 20396
+      "structural_nodes": 11525,
+      "structural_edges": 20363
     }
   },
   "edges": [
@@ -2283,7 +2283,7 @@
           "file": "apps/web/modules/bookings/components/BookerWebWrapper.tsx",
           "symbol": "BookerWebWrapperComponent",
           "note": "CodeGraph calls → useEvent (apps/web/modules/schedules/hooks/useEvent.ts)",
-          "line": 45
+          "line": 39
         }
       ],
       "x-codegraph": {
@@ -2307,7 +2307,7 @@
           "file": "apps/web/modules/bookings/components/BookerWebWrapper.tsx",
           "symbol": "BookerWebWrapper.tsx",
           "note": "CodeGraph imports → useEvent (apps/web/modules/schedules/hooks/useEvent.ts)",
-          "line": 20
+          "line": 19
         }
       ],
       "x-codegraph": {
@@ -2325,26 +2325,26 @@
       "to": "booking-client-state-e76f1605",
       "kind": "calls",
       "provenance": "extracted",
-      "label": "calls · 11 file pairs",
+      "label": "calls · 10 file pairs",
       "evidence": [
         {
           "file": "apps/web/modules/bookings/components/Booker.tsx",
           "symbol": "BookerComponent",
           "note": "CodeGraph calls → useBookerStoreContext (packages/features/bookings/Booker/BookerStoreProvider.tsx)",
-          "line": 94
+          "line": 93
         },
         {
           "file": "apps/web/modules/bookings/components/BookerWebWrapper.tsx",
           "symbol": "BookerWebWrapperComponent",
           "note": "CodeGraph calls → useBookerLayout (packages/features/bookings/Booker/hooks/useBookerLayout.ts)",
-          "line": 58
+          "line": 52
         }
       ],
       "x-codegraph": {
-        "file_pair_count": 11,
-        "raw_edge_count": 19,
+        "file_pair_count": 10,
+        "raw_edge_count": 18,
         "raw_kinds": {
-          "calls": 19
+          "calls": 18
         },
         "unknown_confidence_count": 1
       }
@@ -2355,7 +2355,7 @@
       "to": "booking-client-state-e76f1605",
       "kind": "uses",
       "provenance": "extracted",
-      "label": "uses · 14 file pairs",
+      "label": "uses · 13 file pairs",
       "evidence": [
         {
           "file": "apps/web/modules/bookings/components/Booker.tsx",
@@ -2371,10 +2371,10 @@
         }
       ],
       "x-codegraph": {
-        "file_pair_count": 14,
-        "raw_edge_count": 33,
+        "file_pair_count": 13,
+        "raw_edge_count": 31,
         "raw_kinds": {
-          "imports": 31,
+          "imports": 29,
           "references": 2
         },
         "unknown_confidence_count": 0
@@ -2493,15 +2493,15 @@
         {
           "file": "apps/web/modules/bookings/components/BookerWebWrapper.tsx",
           "symbol": "BookerWebWrapperComponent",
-          "note": "CodeGraph calls → useVerifyEmail (apps/web/modules/bookings/hooks/useVerifyEmail.ts)",
-          "line": 129
+          "note": "CodeGraph calls → useCalendars (apps/web/modules/bookings/hooks/useCalendars.ts)",
+          "line": 123
         }
       ],
       "x-codegraph": {
         "file_pair_count": 15,
-        "raw_edge_count": 16,
+        "raw_edge_count": 15,
         "raw_kinds": {
-          "calls": 16
+          "calls": 15
         },
         "unknown_confidence_count": 8
       }
@@ -2512,7 +2512,7 @@
       "to": "booking-web-710c6e5d",
       "kind": "uses",
       "provenance": "extracted",
-      "label": "uses · 17 file pairs",
+      "label": "uses · 16 file pairs",
       "evidence": [
         {
           "file": "apps/web/modules/bookings/components/Booker.tsx",
@@ -2524,15 +2524,15 @@
           "file": "apps/web/modules/bookings/components/BookerWebWrapper.tsx",
           "symbol": "BookerWebWrapper.tsx",
           "note": "CodeGraph imports → useBookings (apps/web/modules/bookings/hooks/useBookings.ts)",
-          "line": 27
+          "line": 24
         }
       ],
       "x-codegraph": {
-        "file_pair_count": 17,
-        "raw_edge_count": 38,
+        "file_pair_count": 16,
+        "raw_edge_count": 34,
         "raw_kinds": {
-          "imports": 35,
-          "references": 3
+          "imports": 32,
+          "references": 2
         },
         "unknown_confidence_count": 0
       }
@@ -2621,7 +2621,7 @@
           "file": "apps/web/modules/bookings/components/BookerWebWrapper.tsx",
           "symbol": "BookerWebWrapper.tsx",
           "note": "CodeGraph imports → getPublicEvent (packages/features/eventtypes/lib/getPublicEvent.ts)",
-          "line": 16
+          "line": 15
         }
       ],
       "x-codegraph": {
@@ -7087,7 +7087,7 @@
           "file": "packages/features/bookings/lib/useCheckOverlapWithOverlay.tsx",
           "symbol": "useCheckOverlapWithOverlay",
           "note": "CodeGraph calls → useOverlayCalendarStore (packages/features/bookings/Booker/components/OverlayCalendar/store.ts)",
-          "line": 15
+          "line": 21
         }
       ],
       "x-codegraph": {
@@ -7968,7 +7968,7 @@
           "file": "apps/web/modules/bookings/components/LargeCalendar.tsx",
           "symbol": "LargeCalendar.tsx",
           "note": "CodeGraph imports → useEvent.ts (apps/web/modules/schedules/hooks/useEvent.ts)",
-          "line": 13
+          "line": 12
         },
         {
           "file": "apps/web/modules/bookings/types.ts",
@@ -8011,14 +8011,14 @@
           "file": "apps/web/modules/bookings/components/LargeCalendar.tsx",
           "symbol": "LargeCalendar",
           "note": "CodeGraph calls → useBookerStoreContext (packages/features/bookings/Booker/BookerStoreProvider.tsx)",
-          "line": 31
+          "line": 29
         }
       ],
       "x-codegraph": {
         "file_pair_count": 33,
-        "raw_edge_count": 56,
+        "raw_edge_count": 57,
         "raw_kinds": {
-          "calls": 56
+          "calls": 57
         },
         "unknown_confidence_count": 1
       }
@@ -9073,7 +9073,7 @@
           "file": "apps/web/modules/bookings/components/AvailableTimes.tsx",
           "symbol": "SlotItem",
           "note": "CodeGraph calls → useCheckOverlapWithOverlay (packages/features/bookings/lib/useCheckOverlapWithOverlay.tsx)",
-          "line": 131
+          "line": 130
         },
         {
           "file": "apps/web/modules/bookings/components/AvailableTimesHeader.tsx",

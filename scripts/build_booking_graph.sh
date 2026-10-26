@@ -2,9 +2,9 @@
 # Reproduce the booking-scoped structural and component CodeGraph baseline.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SOURCE="$ROOT/work/calcom-booking"
-COMMIT="6bfe2df9d13c456dc9374c9e6581b36fba188728"
-REPO="https://github.com/calcom/cal.diy.git"
+SOURCE="$ROOT/work/calcom"
+COMMIT="54343aa685ae8f33159d2f485ec4a57bad5c574a"
+REPO="https://github.com/calcom/cal.com.git"
 
 bash "$ROOT/scripts/codegraph.sh" --version
 if [[ ! -d "$SOURCE/.git" ]]; then

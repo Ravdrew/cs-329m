@@ -1,7 +1,7 @@
 {
-  "repo": "calcom/cal.diy",
-  "expected_commit": "6bfe2df9d13c456dc9374c9e6581b36fba188728",
-  "title": "Cal.diy booking subsystem — CodeGraph baseline",
+  "repo": "calcom/cal.com",
+  "expected_commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+  "title": "Cal.com booking subsystem — CodeGraph baseline",
   "scope": "Web booking subsystem: public booking and management UI, web HTTP/tRPC booking and slot APIs, availability, booking lifecycle, persistence adapters, and supporting notification/calendar services. API v2, generic UI/auth utilities and provider-specific app-store implementations are outside this boundary. Supporting packages include their indexed files, not just booking-exclusive code.",
   "components": 36,
   "min_component_files": 1,

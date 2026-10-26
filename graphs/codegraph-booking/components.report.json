@@ -1,12 +1,12 @@
 {
-  "repo": "calcom/cal.diy",
-  "commit": "6bfe2df9d13c456dc9374c9e6581b36fba188728",
+  "repo": "calcom/cal.com",
+  "commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
   "codegraph_version": "1.6.2",
   "extraction_version": "27",
   "config": {
-    "repo": "calcom/cal.diy",
-    "expected_commit": "6bfe2df9d13c456dc9374c9e6581b36fba188728",
-    "title": "Cal.diy booking subsystem — CodeGraph baseline",
+    "repo": "calcom/cal.com",
+    "expected_commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+    "title": "Cal.com booking subsystem — CodeGraph baseline",
     "scope": "Web booking subsystem: public booking and management UI, web HTTP/tRPC booking and slot APIs, availability, booking lifecycle, persistence adapters, and supporting notification/calendar services. API v2, generic UI/auth utilities and provider-specific app-store implementations are outside this boundary. Supporting packages include their indexed files, not just booking-exclusive code.",
     "components": 36,
     "min_component_files": 1,
@@ -387,8 +387,8 @@
       }
     ]
   },
-  "structural_nodes": 61549,
-  "indexed_files": 5161,
+  "structural_nodes": 61470,
+  "indexed_files": 5153,
   "assigned_files": 740,
   "excluded_test_files": [
     "__checks__/csp-login.spec.ts",
@@ -520,7 +520,6 @@
     "apps/web/modules/bookings/components/Booker.test.tsx",
     "apps/web/modules/bookings/components/BookingDetailsSheet.test.tsx",
     "apps/web/modules/bookings/components/DatePicker.test.tsx",
-    "apps/web/modules/bookings/components/OverlayCalendar/OverlayCalendarContinueModal.test.tsx",
     "apps/web/modules/bookings/components/__mocks__/AvailableTimeSlots.tsx",
     "apps/web/modules/bookings/components/__mocks__/DatePicker.tsx",
     "apps/web/modules/bookings/components/__mocks__/DryRunMessage.tsx",
@@ -530,8 +529,6 @@
     "apps/web/modules/bookings/components/__mocks__/OverlayCalendar.tsx",
     "apps/web/modules/bookings/components/__mocks__/Section.tsx",
     "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts",
-    "apps/web/modules/bookings/hooks/useCalendars.test.ts",
-    "apps/web/modules/bookings/hooks/useOverlayCalendar.test.ts",
     "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts",
     "apps/web/modules/data-table/components/filters/ColumnVisibilityButton.test.tsx",
     "apps/web/modules/event-types/components/tabs/advanced/FormBuilder.test.tsx",
@@ -671,7 +668,6 @@
     "packages/app-store/googlecalendar/tests/testUtils.ts",
     "packages/app-store/hitpay/lib/PaymentService.test.ts",
     "packages/app-store/hubspot/lib/CrmService.test.ts",
-    "packages/app-store/office365calendar/lib/__tests__/CalendarService.test.ts",
     "packages/app-store/office365video/lib/VideoApiAdapter.test.ts",
     "packages/app-store/paypal/lib/Paypal.test.ts",
     "packages/app-store/salesforce/lib/CrmService.test.ts",
@@ -810,7 +806,6 @@
     "packages/features/bookings/lib/payment/shouldChargeNoShowCancellationFee.test.ts",
     "packages/features/bookings/lib/reschedule/determineReschedulePreventionRedirect.test.ts",
     "packages/features/bookings/lib/service/RecurringBookingService.test.ts",
-    "packages/features/bookings/lib/useCheckOverlapWithOverlay.test.ts",
     "packages/features/bookings/repositories/BookingRepository.test.ts",
     "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts",
     "packages/features/bookings/services/BookingAccessService.test.ts",
@@ -831,7 +826,6 @@
     "packages/features/calendar-subscription/lib/cache/__tests__/CalendarCacheWrapper.test.ts",
     "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts",
     "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts",
-    "packages/features/calendar-subscription/lib/telemetry/__tests__/CalendarTelemetryWrapper.test.ts",
     "packages/features/calendars/__tests__/DatePicker.test.tsx",
     "packages/features/calendars/__tests__/NoAvailabilityDialog.test.tsx",
     "packages/features/calendars/lib/CalendarManager.test.ts",
@@ -839,7 +833,6 @@
     "packages/features/calendars/lib/getAvailableDatesInMonth.timezone.test.ts",
     "packages/features/calendars/lib/getCalendarsEvents.test.ts",
     "packages/features/calendars/lib/timezone-conversion.test.ts",
-    "packages/features/calendars/weeklyview/utils/index.test.ts",
     "packages/features/calendars/weeklyview/utils/overlap.test.ts",
     "packages/features/credentials/deleteCredential.test.ts",
     "packages/features/credentials/handleDeleteCredential.integration-test.ts",
@@ -1011,7 +1004,6 @@
     "packages/trpc/server/routers/viewer/admin/lockUserAccount.handler.test.ts",
     "packages/trpc/server/routers/viewer/apps/appById.handler.test.ts",
     "packages/trpc/server/routers/viewer/availability/schedule/getAllSchedulesByUserId.handler.test.ts",
-    "packages/trpc/server/routers/viewer/availability/user.handler.test.ts",
     "packages/trpc/server/routers/viewer/bookings/confirm.handler.test.ts",
     "packages/trpc/server/routers/viewer/bookings/editLocation.handler.test.ts",
     "packages/trpc/server/routers/viewer/bookings/get.handler.integration-test.ts",
@@ -3628,12 +3620,12 @@
   "lean_edges": 79,
   "omitted_from_lean": 219,
   "edge_accounting": {
-    "accepted_cross_component": 2206,
-    "containment_or_unsupported": 56092,
-    "excluded_file_edges": 79952,
+    "accepted_cross_component": 2199,
+    "containment_or_unsupported": 56021,
+    "excluded_file_edges": 79796,
     "low_confidence": 72,
-    "raw_edges": 145655,
-    "within_component": 7333
+    "raw_edges": 145411,
+    "within_component": 7323
   },
   "isolated_in_lean": [],
   "limitations": [
@@ -3646,11 +3638,11 @@
   "scope": {
     "description": "Web booking subsystem: public booking and management UI, web HTTP/tRPC booking and slot APIs, availability, booking lifecycle, persistence adapters, and supporting notification/calendar services. API v2, generic UI/auth utilities and provider-specific app-store implementations are outside this boundary. Supporting packages include their indexed files, not just booking-exclusive code.",
     "method": "longest literal source-path prefix",
-    "structural_nodes": 11541,
-    "structural_edges": 20396,
+    "structural_nodes": 11525,
+    "structural_edges": 20363,
     "boundary_edges_not_included": {
-      "incoming": 5653,
-      "outgoing": 6600
+      "incoming": 5615,
+      "outgoing": 6589
     },
     "unmatched_path_rules": [],
     "out_of_scope_indexed_non_test_files": [
@@ -8007,6 +7999,6 @@
       "packages/prisma/schema.prisma",
       "packages/prisma/sql/getSelectedCalendarsToWatch.sql"
     ],
-    "raw_export_sha256": "842388d0af79c3040008ea4c5405fe941245baef0bb6d86377352a0627365b54"
+    "raw_export_sha256": "90d9401bdff0fdcecb29e082e7834e362f762221359e93612ca3695d6936cff5"
   }
 }

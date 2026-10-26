@@ -1,23 +1,24 @@
 # Booking-scoped CodeGraph baseline
 
-Built against **calcom/cal.diy at `6bfe2df9d13c456dc9374c9e6581b36fba188728`**,
-the same source snapshot declared by the viewer's booking examples. This is a new
-baseline derived from a fresh CodeGraph 1.6.2 index. The existing whole-repository
-baseline at `54343aa` remains separate in `graphs/codegraph-calcom/`.
+Built against **calcom/cal.com at `54343aa685ae8f33159d2f485ec4a57bad5c574a`**,
+matching the pinned Cal.com setup and the whole-repository baseline. This booking
+baseline is derived from a CodeGraph 1.6.2 index. The whole-repository graph remains
+separate in `graphs/codegraph-calcom/`. The viewer's original sample graphs target
+the different commit `6bfe2df9`; those samples are unchanged.
 
 ## Two stages
 
 1. **Structural graph:** index the source checkout with CodeGraph, then retain the
    non-test files inside the declared booking boundary. The full repository index
-   contains **61,549 nodes / 145,655 edges across 5,161 indexed files**. Its
-   booking-scoped induced subgraph contains **11,541 nodes / 20,396 edges across
+   contains **61,470 nodes / 145,411 edges across 5,153 indexed files**. Its
+   booking-scoped induced subgraph contains **11,525 nodes / 20,363 edges across
    740 files**, including containment, import, call and reference edges.
 2. **Component projection:** map those files to **32 components**, aggregate
    extracted dependencies, and reduce the displayed connections to **79 edges**.
    The companion full component graph has **298 edges** after confidence and
    within-component filtering, before lean pruning.
 
-The raw index is at `work/calcom-booking/.codegraph/codegraph.db`. The scoped raw
+The raw index is at `work/calcom/.codegraph/codegraph.db`. The scoped raw
 export is `work/calcom-booking-structural.json`; it retains structural node IDs,
 edges, source locations and a file-to-component mapping. Both are gitignored.
 The report records the raw export's SHA-256 for reproducibility.
@@ -78,11 +79,11 @@ npm ci --prefix tools/codegraph
 bash scripts/build_booking_graph.sh
 ```
 
-This uses a separate checkout and does not install Cal.com's app dependencies.
+This uses the pinned `work/calcom` checkout and does not install Cal.com's app dependencies.
 To regenerate only the projection from the existing index:
 
 ```bash
-bash scripts/codegraph.sh components work/calcom-booking \
+bash scripts/codegraph.sh components work/calcom \
   --config tools/codegraph/booking.config.json \
   --raw-out work/calcom-booking-structural.json \
   --out graphs/codegraph-booking
