@@ -1,0 +1,24 @@
+{
+  "command": [
+    "<node>",
+    "--test",
+    "--test-reporter=tap",
+    "tools/llm-only/test/runner.test.mjs"
+  ],
+  "node": "v22.22.3",
+  "started_at": "2026-10-27T02:03:01.713Z",
+  "finished_at": "2026-10-27T02:03:24.911Z",
+  "elapsed_seconds": 23.193671208,
+  "exit_code": 1,
+  "signal": null,
+  "counts": {
+    "tests": 32,
+    "suites": 0,
+    "pass": 31,
+    "fail": 1,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "duration_ms": 23160.691875
+  }
+}

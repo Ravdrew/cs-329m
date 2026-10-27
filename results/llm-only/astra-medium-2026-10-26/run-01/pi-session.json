@@ -1,0 +1,77 @@
+{
+  "sdk_version": "1.4.0",
+  "session_id": "01a17b1c-6efb-7774-a02c-4ee0325c7c64",
+  "model": {
+    "id": "gpt-6-astra",
+    "name": "GPT-6 Astra",
+    "api": "openai-responses",
+    "provider": "openai",
+    "baseUrl": "https://api.openai.com/v1",
+    "reasoning": true,
+    "input": [
+      "text",
+      "image"
+    ],
+    "cost": {
+      "input": 10,
+      "output": 50,
+      "cacheRead": 1,
+      "cacheWrite": 12.5,
+      "tiers": [
+        {
+          "inputTokensAbove": 272000,
+          "input": 20,
+          "output": 75,
+          "cacheRead": 2,
+          "cacheWrite": 25
+        }
+      ]
+    },
+    "contextWindow": 272000,
+    "maxTokens": 128000,
+    "thinkingLevelMap": {
+      "off": null,
+      "minimal": null,
+      "low": "low",
+      "medium": "medium",
+      "high": "high",
+      "xhigh": "xhigh",
+      "max": "max"
+    },
+    "compat": {
+      "supportsStrictMode": true,
+      "supportsOpenAIGrammarTools": true,
+      "supportsAdditionalTools": true,
+      "supportsToolSearch": true,
+      "supportsMidConvoSystemMessages": true,
+      "supportsExplicitPromptCacheMode": true,
+      "supportsMidConvoEffort": true
+    },
+    "inputLimits": {
+      "maxRequestBytes": 536870912,
+      "images": {
+        "maxPerRequest": 1500,
+        "resize": {
+          "maxWidth": 2000,
+          "maxHeight": 2000,
+          "maxBytes": 4718592,
+          "jpegQuality": 80
+        }
+      }
+    },
+    "type": "chat"
+  },
+  "reasoning_effort": "medium",
+  "tools": [
+    "list_source",
+    "search_source",
+    "read_source",
+    "update_graph",
+    "inspect_graph",
+    "finalize_graph"
+  ],
+  "inherited_resources": [],
+  "compaction": false,
+  "cache_warming": false,
+  "retries": false
+}

@@ -1,0 +1,14 @@
+{
+  "runner_elapsed_seconds": 470.966,
+  "process": {
+    "exit_code": 0,
+    "signal": null,
+    "started_at": "2026-10-27T02:24:20.616Z",
+    "finished_at": "2026-10-27T02:32:11.955Z",
+    "wall_seconds": 471.347218417
+  },
+  "preparation_seconds": 4.154303124999977,
+  "generation_through_exit_seconds": 467.19291529200007,
+  "independent_verification_seconds": 0.8506298340000212,
+  "process_plus_independent_verification_seconds": 472.19784825100004
+}
