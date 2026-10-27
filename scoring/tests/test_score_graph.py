@@ -286,7 +286,7 @@ def test_localization(env):
     g2 = copy.deepcopy(g)
     g2['x-build-cost'] = {'usd': 1}
     run(env, write(env, 'self.yaml', g), write(env, 'other.yaml', g2), tasks=True)
-    ceiling = json.loads((env['tmp'] / 'out' / 'comparison.json').read_text())['reference_ceiling']
+    ceiling = json.loads((env['tmp'] / 'out' / 'comparison.json').read_text())['reference_baseline']
     assert ceiling['Localization file recall'] == pytest.approx(5 / 9)
     assert ceiling['Localization hit rate'] == pytest.approx(2 / 3)
     assert score_graph.strip_status('R100:old/a.ts\tnew/b.ts') == 'new/b.ts'
@@ -387,7 +387,7 @@ def test_localization_follows_renames_since_the_merge_commit(env):
     assert loc['per_task'][0]['eligible_files'] == 1 and loc['per_task'][0]['excluded_files'] == 1
 
 
-def test_localization_precision_penalises_one_big_node_and_normalises_to_ceiling(env):
+def test_localization_precision_penalises_one_big_node_and_normalises_to_reference(env):
     own = json.loads((FIX / 'ownership.json').read_text())['files']
     g = graph(env)
     giant = copy.deepcopy(g)
@@ -397,12 +397,13 @@ def test_localization_precision_penalises_one_big_node_and_normalises_to_ceiling
     s, b = selfr['localization'], big['localization']
     assert b['file_recall_macro'] >= s['file_recall_macro'] and b['precision_macro'] < s['precision_macro']
     t = b['per_task'][0]
-    assert t['nodes_pointed'] == ['everything'] and t['files_in_pointed_nodes'] == len(own)
+    src_own = [f for f in own if score_graph.is_source(f)]  # node size counts production code only
+    assert t['nodes_pointed'] == ['everything'] and t['files_in_pointed_nodes'] == len(src_own)
     assert t['precision'] == pytest.approx(sum(f in own for f in ['lib/scheduling/slots.ts', 'lib/scheduling/tz.ts',
-                                                                   'lib/shared/util.ts']) / len(own))
-    ceil = s['reference_ceiling']
-    assert s['file_recall_macro_vs_ceiling'] == pytest.approx(s['file_recall_macro'] / ceil['file_recall_macro'])
-    assert s['hit_rate_vs_ceiling'] == pytest.approx(s['hit_rate'] / ceil['hit_rate'])
+                                                                   'lib/shared/util.ts']) / len(src_own))
+    ceil = s['reference_baseline']
+    assert s['file_recall_macro_vs_reference'] == pytest.approx(s['file_recall_macro'] / ceil['file_recall_macro'])
+    assert s['hit_rate_vs_reference'] == pytest.approx(s['hit_rate'] / ceil['hit_rate'])
     assert ceil['precision_macro'] is not None and ceil['f2_macro'] is not None
 
 
@@ -410,3 +411,85 @@ def test_localization_f2_weights_recall():
     assert score_graph.f2(1.0, 1.0) == 1.0 and score_graph.f2(0.0, 0.0) == 0.0
     assert score_graph.f2(0.1, 1.0) > score_graph.f2(1.0, 0.1)  # missing files costs more than extra ones
     assert score_graph.f2(0.5, 0.25) == pytest.approx(5 * 0.5 * 0.25 / (4 * 0.5 + 0.25))
+
+
+def run_custom(env, cands, tasks, ownership=None, out='out'):
+    """Like run(), with tasks (and optionally ownership) written to tmp files."""
+    tp = env['tmp'] / 'tasks.custom.json'
+    tp.write_text(json.dumps(tasks))
+    op = FIX / 'ownership.json'
+    if ownership is not None:
+        op = env['tmp'] / 'ownership.custom.json'
+        op.write_text(json.dumps(ownership))
+    argv = ['--reference', str(env['ref_path']), '--ownership', str(op), '--schema', str(SCHEMA),
+            '--out-dir', str(env['tmp'] / out), '--source-repo', str(env['repo']), '--tasks', str(tp)]
+    argv += [str(c) for c in cands]
+    assert score_graph.main(argv) == 0
+    names = score_graph.unique_names([str(c) for c in cands], None)
+    return [json.loads((env['tmp'] / out / f'{n}.score.json').read_text()) for n in names]
+
+
+def test_localization_targets_only_production_code(env):
+    tasks = [{'instance_id': 'x', 'pull_number': 1, 'source_files': [
+        'M:lib/scheduling/slots.ts', 'M:lib/scheduling/slots.test.ts', 'M:web/index.html', 'M:.env.example',
+        'M:lib/__mocks__/clock.ts', 'M:lib/scheduling/testUtils.ts']}]
+    r, = run_custom(env, [write(env, 'self.yaml', graph(env))], tasks)
+    loc = r['localization']
+    assert loc['per_task'][0]['eligible_files'] == 1 and loc['per_task'][0]['file_recall'] == 1.0
+    assert loc['files_excluded_not_source'] == 5 and loc['files_excluded_absent_at_commit'] == 0
+    assert score_graph.is_source('packages/types/Calendar.d.ts') and score_graph.is_source('apps/web/next.config.ts')
+    assert not score_graph.is_source('packages/embeds/embed-core/index.html')
+
+
+def test_directory_entries_expand_over_the_repo_not_just_the_reference(env):
+    extra = env['repo'] / 'lib' / 'embeds'
+    extra.mkdir(parents=True)
+    (extra / 'widget.ts').write_text('export const w = 1;\n')
+    (extra / 'widget.test.ts').write_text('test\n')
+    git = lambda *a: subprocess.run(['git', '-C', str(env['repo']), '-c', 'user.name=t', '-c', 'user.email=t@example.com',
+                                     '-c', 'commit.gpgsign=false', *a], check=True, capture_output=True, text=True).stdout
+    git('add', '-A')
+    git('commit', '-qm', 'embeds')
+    env['ref']['commit'] = git('rev-parse', 'HEAD').strip()
+    env['ref_path'].write_text(yaml.safe_dump(env['ref'], sort_keys=False))
+    g = graph(env)
+    g['nodes'].append({'id': 'embeds', 'label': 'Embeds', 'kind': 'component', 'files': ['lib/embeds/']})
+    tasks = [{'instance_id': 'x', 'pull_number': 1, 'source_files': ['M:lib/embeds/widget.ts']}]
+    r, = run_custom(env, [write(env, 'withdir.yaml', g)], tasks)
+    t = r['localization']['per_task'][0]
+    assert t['file_recall'] == 1.0 and t['nodes_pointed'] == ['embeds']
+    assert t['files_in_pointed_nodes'] == 1  # the test file is not expanded
+    assert r['localization']['reference_baseline']['file_recall_macro'] == 0.0  # the reference does not own it
+
+
+def test_reference_baseline_lists_shared_files_under_member_nodes(env):
+    own = json.loads((FIX / 'ownership.json').read_text())
+    tasks = json.loads((FIX / 'tasks.json').read_text())
+    g = write(env, 'self.yaml', graph(env))
+    before, = run_custom(env, [g], tasks, out='a')
+    own['files']['lib/shared/util.ts']['candidates'] = [own['files']['lib/scheduling/slots.ts']['owner']]
+    after, = run_custom(env, [g], tasks, ownership=own, out='b')
+    assert before['localization']['reference_baseline']['file_recall_macro'] == pytest.approx(5 / 9)
+    assert after['localization']['reference_baseline']['file_recall_macro'] == pytest.approx(2 / 3)
+    assert after['file_grouping'] == before['file_grouping']  # exclusive ownership is unchanged
+
+
+def test_precision_ignores_listed_tests_so_file_and_directory_listings_agree(env):
+    (env['repo'] / 'lib' / 'scheduling' / 'slots.test.ts').write_text('test\n')
+    git = lambda *a: subprocess.run(['git', '-C', str(env['repo']), '-c', 'user.name=t', '-c', 'user.email=t@example.com',
+                                     '-c', 'commit.gpgsign=false', *a], check=True, capture_output=True, text=True).stdout
+    git('add', '-A')
+    git('commit', '-qm', 'test file')
+    env['ref']['commit'] = git('rev-parse', 'HEAD').strip()
+    env['ref_path'].write_text(yaml.safe_dump(env['ref'], sort_keys=False))
+    files = [p for p in json.loads((FIX / 'ownership.json').read_text())['files'] if p.startswith('lib/scheduling/')]
+    by_name, by_dir = graph(env), graph(env)
+    by_name['nodes'] = [{'id': 'sched', 'label': 'Sched', 'kind': 'service', 'files': files + ['lib/scheduling/slots.test.ts']}]
+    by_dir['nodes'] = [{'id': 'sched', 'label': 'Sched', 'kind': 'service', 'files': ['lib/scheduling/']}]
+    by_name['edges'] = by_dir['edges'] = []
+    tasks = [{'instance_id': 'x', 'pull_number': 1, 'source_files': ['M:lib/scheduling/slots.ts']}]
+    a, b = run_custom(env, [write(env, 'byname.yaml', by_name), write(env, 'bydir.yaml', by_dir)], tasks)
+    ta, tb = a['localization']['per_task'][0], b['localization']['per_task'][0]
+    assert ta['file_recall'] == tb['file_recall'] == 1.0
+    assert ta['files_in_pointed_nodes'] == tb['files_in_pointed_nodes'] == len(files)
+    assert ta['precision'] == tb['precision'] == pytest.approx(1 / len(files))

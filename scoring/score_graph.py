@@ -10,7 +10,8 @@ Rules (scoring/README.md has the full definitions):
 
   * paths       - candidate paths lose a leading ./ or /, use / separators, and lose the source-repo
                   prefix when absolute. A directory entry (ends with /, or has no extension and prefixes
-                  ownership paths) or a glob (*) expands to the ownership-universe paths under/matching it.
+                  known paths) or a glob (*) expands to the ownership-universe paths under/matching it plus,
+                  with --source-repo, every source file at the pinned commit under/matching it.
                   Each node's expanded paths are de-duplicated.
   * voting      - a node's voting files are its expanded paths whose ownership owner is a node id.
   * strict map  - S(a) = reference node owning the plurality of a's voting files; a tie maps to nothing.
@@ -34,8 +35,9 @@ Rules (scoring/README.md has the full definitions):
   * kind agree  - covered pairs with a reference kind where some covering edge's mapped kind matches.
   * grouping    - pairwise precision/recall over reference-assigned files the candidate lists (first listing
                   wins), plus coverage.
-  * questions   - has/does-not-have questions answered under T; localization - task files found in nodes,
-                  with the reference (ownership) as ceiling; coherence - schema, referential and citation
+  * questions   - has/does-not-have questions answered under T; localization - task source files found in
+                  nodes (tests, mocks, test utilities and non-code files are not targets), with the reference
+                  ownership scored the same way as a baseline (shared files listed under each member node); coherence - schema, referential and citation
                   checks at the pinned commit. Build cost is copied, never scored.
 """
 import argparse
@@ -55,6 +57,14 @@ REPO = Path(__file__).resolve().parents[1]
 NON_NODE = ('shared', 'out_of_scope')
 DEFAULT_KINDS = {'edges': {'emits': 'calls', 'uses': 'calls'}, 'nodes': {'job': 'service', 'external': 'service'}}
 ROUTE_KINDS = ('page', 'endpoint')
+# Q1 localization targets and directory expansion: production code only, one rule for every task and graph.
+CODE = re.compile(r'\.(ts|tsx|js|jsx|mjs|cjs)$')
+TEST = re.compile(r'(\.test\.|\.spec\.|\.e2e\.|\.integration-test\.|/test/|/tests/|__tests__|__mocks__|/mocks?/|'
+                  r'\.stories\.|/testing/|fixtures|/playwright/|testUtils|test-utils)')
+
+
+def is_source(p):
+    return bool(CODE.search(p)) and not TEST.search(p) and 'node_modules/' not in p
 
 
 class InputError(Exception):
@@ -134,11 +144,16 @@ def norm_path(p, repo_root=None):
 class Universe:
     """Ownership file universe: owners, named nodes, directory/glob expansion."""
 
-    def __init__(self, ownership):
+    def __init__(self, ownership, repo_files=()):
         self.own = {p: (r or {}).get('owner') for p, r in (ownership.get('files') or {}).items()}
         self.reasons = {p: (r or {}).get('reason') for p, r in (ownership.get('files') or {}).items()}
+        self.members = {p: [m for m in (r or {}).get('candidates') or [] if m not in NON_NODE]
+                        for p, r in (ownership.get('files') or {}).items() if (r or {}).get('owner') == 'shared'}
         self.named = ownership.get('named_nodes') or {}
         self.paths = sorted(self.own)
+        # directory/glob entries expand over the universe and, when a source repo is given, every source file
+        # at the pinned commit, so a graph that lists a directory outside the reference still gets its files
+        self.expandable = sorted(set(self.paths) | {f for f in repo_files if is_source(f)})
 
     def node_owner(self, p):
         o = self.own.get(p)
@@ -146,15 +161,15 @@ class Universe:
 
     def is_dir(self, p):
         last = p.rstrip('/').rsplit('/', 1)[-1]
-        return p.endswith('/') or ('.' not in last and any(q.startswith(p + '/') for q in self.paths))
+        return p.endswith('/') or ('.' not in last and any(q.startswith(p + '/') for q in self.expandable))
 
     def expand(self, p):
-        """List of universe paths for a directory/glob entry, or None if p is a plain file entry."""
+        """List of universe/source paths for a directory/glob entry, or None if p is a plain file entry."""
         if '*' in p:
-            return [q for q in self.paths if fnmatch.fnmatchcase(q, p)]
+            return [q for q in self.expandable if fnmatch.fnmatchcase(q, p)]
         if self.is_dir(p):
             d = p.rstrip('/') + '/'
-            return [q for q in self.paths if q.startswith(d)]
+            return [q for q in self.expandable if q.startswith(d)]
         return None
 
 
@@ -439,21 +454,25 @@ def strip_status(s):
 
 
 def localization(tasks, listed_by, src, uni):
-    """Per task: recall = eligible task files some node lists; precision = task files among all files (present at
-    the commit) of the nodes those task files point to, so listing every file in a few big nodes is not free."""
+    """Per task: recall = eligible task files some node lists; precision = task files among all production source
+    files (present at the commit) of the nodes those task files point to, so listing every file in a few big nodes
+    is not free. Node size uses the same production-code rule as targets and directory expansion, so a node
+    listing a.ts and a.test.ts by name scores the same as one listing their directory."""
     node_files = defaultdict(set)
     for f, ns in listed_by.items():
-        if f in src.files:
+        if f in src.files and is_source(f):
             for a in ns:
                 node_files[a].add(f)
-    per, excluded, renamed = [], [], []
+    per, excluded, renamed, not_source = [], [], [], []
     for t in tasks:
-        files = list(dict.fromkeys(strip_status(s) for s in t.get('source_files', [])))
+        listed = list(dict.fromkeys(strip_status(s) for s in t.get('source_files', [])))
+        files = [f for f in listed if is_source(f)]
+        not_source += [{'task': t.get('pull_number') or t.get('instance_id'), 'path': f} for f in listed if not is_source(f)]
         absent = [f for f in files if f not in src.files]
         moved = src.renames(t['merge_commit']) if absent and t.get('merge_commit') else {}
         moved = {f: moved[f] for f in absent if moved.get(f) in src.files}
         renamed += [{'task': t.get('pull_number') or t.get('instance_id'), 'path': f, 'now': g} for f, g in moved.items()]
-        ok = list(dict.fromkeys(moved.get(f, f) for f in files if f in src.files or f in moved))
+        ok = [f for f in dict.fromkeys(moved.get(f, f) for f in files if f in src.files or f in moved) if is_source(f)]
         excluded += [{'task': t.get('pull_number') or t.get('instance_id'), 'path': f} for f in absent if f not in moved]
         scope = [f for f in ok if uni.node_owner(f)]
         hits = lambda fs: sum(bool(listed_by.get(f)) for f in fs)
@@ -475,7 +494,8 @@ def localization(tasks, listed_by, src, uni):
             'precision_macro': mean([p['precision'] for p in elig if p['precision'] is not None]),
             'f2_macro': mean([p['f2'] for p in elig]),
             'files_followed_through_renames': len(renamed), 'renamed': renamed,
-            'files_excluded_absent_at_commit': len(excluded), 'excluded': excluded, 'per_task': per}
+            'files_excluded_absent_at_commit': len(excluded), 'excluded': excluded,
+            'files_excluded_not_source': len(not_source), 'not_source': not_source, 'per_task': per}
 
 
 # ---------------------------------------------------------------- coherence
@@ -654,11 +674,15 @@ def score(path, raw, ctx):
     }
 
 
-def reference_ceiling(ctx):
+def reference_baseline(ctx):
+    """The reference ownership scored as a graph: each node lists the files it owns, and each shared file is
+    listed under every member node. A baseline, not an upper bound: candidates may list files the reference
+    does not own and score above it."""
     if ctx['tasks'] is None or not ctx['src']:
         return None
     uni = ctx['uni']
-    listed = {p: [uni.node_owner(p)] for p in uni.paths if uni.node_owner(p)}  # ownership nodes as the graph
+    listed = {p: [uni.node_owner(p)] for p in uni.paths if uni.node_owner(p)}
+    listed.update({p: m for p, m in uni.members.items() if m})
     return localization(ctx['tasks'], listed, ctx['src'], ctx['uni'])
 
 
@@ -694,7 +718,7 @@ def cost_total(bc):
     return f'{sum(toks)} tokens' if toks else 'given'
 
 
-CEILING_KEYS = ('file_recall_macro', 'in_scope_recall_macro', 'hit_rate', 'precision_macro', 'f2_macro')
+BASELINE_KEYS = ('file_recall_macro', 'in_scope_recall_macro', 'hit_rate', 'precision_macro', 'f2_macro')
 
 ROWS = [
     ('Node recall', ('nodes', 'recall')), ('Node precision', ('nodes', 'precision')),
@@ -710,9 +734,9 @@ ROWS = [
     ('Questions: does-not-have', ('questions', 'headline', 'does_not_have', 'accuracy')),
     ('Questions: scope', ('questions', 'headline', 'scope', 'accuracy')),
     ('Localization file recall', ('localization', 'file_recall_macro')),
-    ('Localization file recall / ceiling', ('localization', 'file_recall_macro_vs_ceiling')),
+    ('Localization file recall / reference', ('localization', 'file_recall_macro_vs_reference')),
     ('Localization hit rate', ('localization', 'hit_rate')),
-    ('Localization hit rate / ceiling', ('localization', 'hit_rate_vs_ceiling')),
+    ('Localization hit rate / reference', ('localization', 'hit_rate_vs_reference')),
     ('Localization precision', ('localization', 'precision_macro')),
     ('Localization F2 (headline)', ('localization', 'f2_macro')),
     ('Coherence pass', ('coherence', 'coherence_pass')),
@@ -736,11 +760,14 @@ def summary(name, res, ctx):
     for label, keys in ROWS:
         lines.append(f'| {label} | {cell(res, keys)} |')
     lines.append(f"| Build cost | {cost_total(res['build_cost']) or 'n/a'} |")
-    ceil = get(res, 'localization', 'reference_ceiling')
-    if ceil:
-        lines += ['', f"Localization, reference ownership as the graph: file recall {fmt(ceil.get('file_recall_macro'))} "
-                  f"and hit rate {fmt(ceil.get('hit_rate'))} (the ceiling), precision {fmt(ceil.get('precision_macro'))}, "
-                  f"F2 {fmt(ceil.get('f2_macro'))}."]
+    base = get(res, 'localization', 'reference_baseline')
+    if base:
+        lines += ['', f"Localization, reference ownership as a graph (a baseline, not an upper bound): file recall "
+                  f"{fmt(base.get('file_recall_macro'))}, hit rate {fmt(base.get('hit_rate'))}, precision "
+                  f"{fmt(base.get('precision_macro'))}, F2 {fmt(base.get('f2_macro'))}."]
+    ns = get(res, 'localization', 'files_excluded_not_source')
+    if ns:
+        lines.append(f"{ns} changed files are not production code (tests, mocks, test utilities, non-code) and are not targets.")
     e = res['edges']['tolerant']
     lines += ['', f"Edges: {e['tp_edges']} TP, {e['confirmed_fp_edges']} confirmed FP, {e['pending_edges']} pending, "
               f"{e['unmapped_edges']} unmapped, {e['collapsed_edges']} collapsed (tolerant). "
@@ -777,13 +804,13 @@ def order_key(item):
     return (-round(f, 3) if f is not None else 1, cost, name)
 
 
-def comparison(results, ceiling):
+def comparison(results, baseline):
     ordered = sorted(results.items(), key=order_key)
     names = [n for n, _ in ordered]
     rows = {label: {n: get(r, *keys) for n, r in ordered} for label, keys in ROWS}
     cells = {label: {n: cell(r, keys) for n, r in ordered} for label, keys in ROWS}
     rows['Build cost'] = cells['Build cost'] = {n: cost_total(r['build_cost']) for n, r in ordered}
-    ceil = {label: get(ceiling, k) for label, k in (('Localization file recall', 'file_recall_macro'),
+    ceil = {label: get(baseline, k) for label, k in (('Localization file recall', 'file_recall_macro'),
             ('Localization hit rate', 'hit_rate'), ('Localization precision', 'precision_macro'), ('Localization F2 (headline)', 'f2_macro'))}
     md = ['# Q1 comparison', '', '| Metric | ' + ' | '.join(names) + ' | reference (ownership) |',
           '|---|' + '---|' * (len(names) + 1)]
@@ -791,7 +818,7 @@ def comparison(results, ceiling):
         md.append(f'| {label} | ' + ' | '.join(str(cells[label][n] or 'n/a') for n in names) + f" | {fmt(ceil[label]) if label in ceil else ''} |")
     md += ['', 'Columns are ordered by tolerant edge F1, descending. When two candidates are equal to 3 decimals, the '
            'cheaper build (x-build-cost usd, else total tokens; candidates without a cost last) comes first.', '']
-    return {'order': names, 'rows': rows, 'reference_ceiling': ceil}, '\n'.join(md)
+    return {'order': names, 'rows': rows, 'reference_baseline': ceil}, '\n'.join(md)
 
 
 # ---------------------------------------------------------------- main
@@ -822,7 +849,8 @@ def build_context(a):
         raise InputError(f'{a.tasks}: expected a list of tasks')
     inputs['pinned_commit'] = commit
     inputs['source_repo'] = a.source_repo
-    return {'ref': ref, 'ref_nodes': {n['id']: n for n in ref['nodes']}, 'uni': Universe(ownership), 'kinds': kinds,
+    return {'ref': ref, 'ref_nodes': {n['id']: n for n in ref['nodes']}, 'uni': Universe(ownership, src.files if src else ()),
+            'kinds': kinds,
             'R': R, 'ref_labels': labels, 'adj_false': {(x['from'], x['to']) for x in adj if x.get('verdict') is False},
             'questions': load(a.questions) if a.questions else None, 'tasks': tasks, 'src': src, 'pinned': commit,
             'repo': a.source_repo, 'schema': load(a.schema) if a.schema and Path(a.schema).exists() else None,
@@ -866,20 +894,20 @@ def main(argv=None):
         print(f'warning: {out} is inside the team repo but the reference is not; these scores are answer-key '
               'material that agents working in the repo can read. Prefer an --out-dir outside the repo.', file=sys.stderr)
     out.mkdir(parents=True, exist_ok=True)
-    ceiling = reference_ceiling(ctx)
+    baseline = reference_baseline(ctx)
     for res in results.values():
         loc = res.get('localization')
-        if isinstance(loc, dict) and ceiling:
-            loc['reference_ceiling'] = {k: ceiling.get(k) for k in CEILING_KEYS}
+        if isinstance(loc, dict) and baseline:
+            loc['reference_baseline'] = {k: baseline.get(k) for k in BASELINE_KEYS}
             for k in ('file_recall_macro', 'hit_rate'):
-                loc[k + '_vs_ceiling'] = ratio(loc[k], ceiling[k]) if loc[k] is not None and ceiling[k] is not None else None
+                loc[k + '_vs_reference'] = ratio(loc[k], baseline[k]) if loc[k] is not None and baseline[k] is not None else None
     for name, res in results.items():
         (out / f'{name}.score.json').write_text(json.dumps(res, indent=1, allow_nan=False, default=str) + '\n')
         md = summary(name, res, ctx)
         (out / f'{name}.summary.md').write_text(md)
         print(md)
     if len(results) > 1:
-        cj, cm = comparison(results, ceiling)
+        cj, cm = comparison(results, baseline)
         (out / 'comparison.json').write_text(json.dumps(cj, indent=1, allow_nan=False) + '\n')
         (out / 'comparison.md').write_text(cm)
         print(cm)

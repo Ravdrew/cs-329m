@@ -62,9 +62,11 @@ Candidate paths are normalised in this order:
    removed.
 3. Leading `./` and `/` are removed.
 
-A file entry expands to every ownership-universe path under or matching it when it is:
+A file entry expands to every ownership-universe path under or matching it, plus (with `--source-repo`) every
+production source file at the pinned commit under or matching it (see "Production code" under Localization), when
+it is:
 
-- a directory: it ends with `/`, or its last segment has no `.` and it is a prefix of an ownership path; or
+- a directory: it ends with `/`, or its last segment has no `.` and it is a prefix of such a path; or
 - a glob: it contains `*`, and is matched with `fnmatch`, so `*` also crosses `/`.
 
 `nodes.path_expansion` records the number of entries expanded and the paths they added. Each node's expanded
@@ -202,6 +204,11 @@ For each task:
 
 - **Files**: `source_files` with the status prefix (`M:`, `A:`, `D:`, `R100:` …) removed. For renames the new
   path is kept.
+- **Production code**: only files with a code extension (`.ts .tsx .js .jsx .mjs .cjs`, so `.d.ts` and
+  `next.config.ts` count) that are not tests, specs, mocks, fixtures, stories or test utilities are targets.
+  Others (HTML, `.env.example`, `__mocks__/`, `testUtils.ts` …) are listed under `not_source` with a count in
+  `files_excluded_not_source`. The same rule limits directory expansion. Agent runs (Q2-Q4) are not affected:
+  they are scored on the PR's full diff and its tests.
 - **Eligible files**: those present as files at the pinned commit (from `git ls-tree -r`). Benchmark PRs are
   older than the pinned commit, so a file missing there is followed through git rename detection
   (`git diff -M50%` from the task's `merge_commit` to the pinned commit) and scored under its current path;
@@ -210,7 +217,8 @@ For each task:
 - `file_recall` = share of eligible files that some candidate node lists, after expansion.
 - `in_scope_files` = eligible files whose owner is a node id; `in_scope_recall` is computed over those.
 - `nodes_pointed` = candidate nodes listing any eligible file.
-- `precision` = eligible task files listed / all files (present at the pinned commit) of the `nodes_pointed`.
+- `precision` = eligible task files listed / all production source files (present at the pinned commit) of the
+  `nodes_pointed`. Tests and other non-source files a node lists by name do not count, matching directory expansion.
   This is the share of what the graph hands a developer for this task that the task actually needed. Listing
   more files raises recall but makes the pointed nodes bigger, so listing every file is not free: one node holding
   the whole repo gets near-perfect recall and near-zero precision. Undefined when nothing is hit.
@@ -227,14 +235,18 @@ Aggregates:
   (a miss counts 0), the headline. Recall and precision are always reported alongside it;
 - `hit_rate` and the counts.
 
-**Reference (ownership).** The same metrics are computed with ownership standing in for a graph: each owner
-is a node holding every file assigned to it. For recall and hit rate this is the **ceiling**, since a candidate
-can only be credited for files it lists, and ownership covers the reference's whole universe. Each candidate
-reports `file_recall_macro_vs_ceiling` and `hit_rate_vs_ceiling` (its value divided by the ceiling) and copies
-the reference values under `reference_ceiling`. These ratios can exceed 1 when a graph lists task files outside
-the reference's universe. For precision and F2 the reference value is a point of comparison, not a bound: finer
-nodes than the reference's can be more precise. The values appear as the last column of `comparison.md`
-and under `reference_ceiling` in `comparison.json`.
+**Reference baseline (ownership).** The same metrics are computed with ownership standing in for a graph: each
+owner is a node holding every file assigned to it, and each `shared` file is also listed under every member node
+in its `candidates` (exclusive ownership, and so file grouping, is unchanged). This is a **baseline, not an upper
+bound** (it was called the "ceiling" before 2026-10-27): a candidate is credited for every task file it lists,
+including files outside the reference's universe, so it can score above the reference on any of these metrics.
+Each candidate reports `file_recall_macro_vs_reference` and `hit_rate_vs_reference` (its value divided by the
+reference's) and copies the reference values under `reference_baseline`. The values appear as the last column of
+`comparison.md` and under `reference_baseline` in `comparison.json`.
+
+Caveat: nodes are chosen using the true changed files, and precision charges only for the size of the nodes
+chosen, not for how many nodes there are. Many small nodes therefore score well (one node per file would score
+perfect precision). Compare graphs with their node counts in view.
 
 ### Coherence (`coherence`)
 
