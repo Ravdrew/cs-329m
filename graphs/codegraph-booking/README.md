@@ -1,5 +1,10 @@
 # Booking-scoped CodeGraph baseline
 
+For the automated **CodeGraph → Pi/Astra grouping → static edge aggregation**
+variant, see [the separate runner](../../tools/codegraph-llm/README.md). It reuses
+this structural scope but discards these component assignments before calling
+Astra. The saved graphs described here remain the deterministic baseline.
+
 Built against **calcom/cal.com at `54343aa685ae8f33159d2f485ec4a57bad5c574a`**,
 matching the pinned Cal.com setup and the whole-repository baseline. This booking
 baseline is derived from a CodeGraph 1.6.2 index. The whole-repository graph remains

@@ -99,6 +99,14 @@ Open a pull request for changes; don't push directly to `master`.
 
 ## CodeGraph component baseline
 
+For **Astra-authored components hot-started from CodeGraph**, see
+[the Pi/Astra runner](tools/codegraph-llm/README.md). It supplies the raw booking
+structural graph to a fresh Pi session; Astra chooses memberships, names and
+summaries, and the host derives all component edges from the static dependencies.
+Run `bash scripts/run_codegraph_llm_graph.sh --source work/calcom` after installing
+the runner and configuring Pi authentication. Its completed `graph.yaml` opens
+in the existing viewer. The saved baseline below uses deterministic path rules.
+
 For a booking-scoped variant at `54343aa`, see
 [the booking baseline and viewer instructions](graphs/codegraph-booking/README.md).
 Reproduce it with `bash scripts/build_booking_graph.sh` after installing the
