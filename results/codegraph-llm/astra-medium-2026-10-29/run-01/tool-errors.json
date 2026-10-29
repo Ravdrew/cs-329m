@@ -1,0 +1,14 @@
+[
+  {
+    "tool": "read_source",
+    "error": "Read a valid inclusive range of at most 200 lines"
+  },
+  {
+    "tool": "update_graph",
+    "error": "File F0413 assigned to both booking-contracts and webhooks"
+  },
+  {
+    "tool": "finalize_graph",
+    "error": "x-scope requires included/excluded string arrays"
+  }
+]

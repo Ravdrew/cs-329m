@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "variant": "codegraph-llm",
+  "backend": "pi-sdk",
+  "status": "completed",
+  "started_at": "2026-10-29T22:43:13.775Z",
+  "target": {
+    "remote": "https://github.com/calcom/cal.com.git",
+    "commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+    "repo": "calcom/cal.com"
+  },
+  "run_directory": ".",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "limits": {
+    "max_tool_calls": 600,
+    "max_minutes": 45
+  },
+  "isolation": {
+    "fresh_session": true,
+    "fresh_checkout": true,
+    "source_access": "tracked-regular-files-only custom tools",
+    "shell": false,
+    "web": false,
+    "plugins": false,
+    "static_graph_supplied": true,
+    "prior_component_graphs_supplied": false,
+    "inherited_project_instructions": false,
+    "os_container": false
+  },
+  "usage": {
+    "input": 80000,
+    "output": 8663,
+    "cacheRead": 891648,
+    "cacheWrite": 0,
+    "totalTokens": 980311,
+    "cost": {
+      "input": 0.8,
+      "output": 0.43315,
+      "cacheRead": 0.8916479999999998,
+      "cacheWrite": 0,
+      "total": 2.124798
+    },
+    "reasoning": 490
+  },
+  "cost_usd": null,
+  "estimated_cost_usd": 2.124798,
+  "graph_sha256": "93cb234ef5de537f4289bf2cca2f8f9e445d10db615ad07c1cab53becd6336ea",
+  "pi": {
+    "version": "1.4.0",
+    "provider": "openai",
+    "model": "gpt-6-astra",
+    "api": "openai-responses",
+    "reasoning_effort": "medium"
+  },
+  "static_input": {
+    "sha256": "1ad7ebd9a23a434aeadc32a5281c8d003b1f16ade6b5b0c487cde753bbc88969",
+    "export_sha256": "1faa6f31970538f0e3ff716c5956da1f5ed904a2ff339116efd11ceef743b9e5",
+    "codegraph_version": "1.6.2",
+    "nodes": 11525,
+    "edges": 20363,
+    "files": 738,
+    "scope": "Web booking subsystem: public booking and management UI, web HTTP/tRPC booking and slot APIs, availability, booking lifecycle, persistence adapters, and supporting notification/calendar services. API v2, generic UI/auth utilities and provider-specific app-store implementations are outside this boundary. Supporting packages include their indexed files, not just booking-exclusive code.",
+    "previous_component_assignments_supplied": false
+  },
+  "prompt_sha256": "78dd970cd2f3665f51222a3a34a3c649a4d2f3693ccbc71ac54b0f0e8af81c5e",
+  "schema_sha256": "c91cef3657b8c081f2d81c2c94b2b6257a6fd8aeeb69308c4ea9a78e89b4f155",
+  "source_manifest_sha256": "d1d93468065213b623621d18b915cae9879ac0eaba38c46d68fa7f4c8ae53e95",
+  "runner_revision": "462cd12e9168091338548fc5a12908b1b3339f65",
+  "runner_files": {
+    "package-lock.json": "748f61ba7db95b42f618c24e2b44170e23b5cc98806a3e3ca674d702b33eea54",
+    "prompt.md": "1d03043c430c90489dd3ba580553079c157c95c1f04a3bf17e7bba2e4aca40ac",
+    "static.mjs": "421dfb1947f3ba1f351bbcff33a43e451edc6c5d553c9d6797c463c5f0f9824c",
+    "source.mjs": "f350b7995739dd59ca56e729e130a7f892f757473a11316734c15b0906383346",
+    "graph.mjs": "1684263ac2fc470c36962fc988812efa58e12a12dda4a29e2aea91538c27b4b6",
+    "source-server.mjs": "163d958a780ec81c9f75b3393dc19089b6cef91f7e788700cd5af4954c7de2c9",
+    "pi.mjs": "58ddc22d9065efedacfac7e1b2ef1179e5c911972fe1324d9101004bec0f1fe2",
+    "runner.mjs": "a9e26d8551f8026706ba09d524a88528c6907f3d19433eaf8086439b1c5059e0",
+    "cli.mjs": "570b58891f0a9fa2b093635c086d034f4f436aa093f59ee16b549989ac4d0051"
+  },
+  "source_file_count": 7695,
+  "execution": {
+    "code": 0,
+    "signal": null,
+    "stopReason": "Graph frozen; stopped after finalization",
+    "lastError": null,
+    "usage": {
+      "input": 80000,
+      "output": 8663,
+      "cacheRead": 891648,
+      "cacheWrite": 0,
+      "totalTokens": 980311,
+      "cost": {
+        "input": 0.8,
+        "output": 0.43315,
+        "cacheRead": 0.8916479999999998,
+        "cacheWrite": 0,
+        "total": 2.124798
+      },
+      "reasoning": 490
+    },
+    "responses": 18,
+    "toolAttempts": 62
+  },
+  "counts": {
+    "nodes": 33,
+    "edges": 307,
+    "groups": 5,
+    "source_files": 738
+  },
+  "inspection": {
+    "tool_calls": 62,
+    "failed_tool_calls": 1,
+    "source_reads": 43,
+    "unique_files_read": 37,
+    "source_lines_returned": 3118
+  },
+  "tool_transcript_sha256": "6b2c565720c48ac138d65edec0e45002385fb0362886484ad1e4022003d8c1e8",
+  "finished_at": "2026-10-29T22:47:14.312Z",
+  "elapsed_seconds": 240.537,
+  "original_run_id": "2026-10-29T22-43-13.812Z-IOCQoF"
+}

@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "local_date": "2026-10-29",
+  "timezone": "America/Los_Angeles",
+  "variant": "codegraph-llm",
+  "runs": {
+    "attempts": 3,
+    "completed": 3,
+    "execution_order": "sequential",
+    "initial_run_included": true,
+    "selection": "The initial requested live run is run-01; the follow-up requested three total, so two additional runs were made. No failed run was replaced or excluded.",
+    "first_started_at": "2026-10-29T22:25:46.950Z",
+    "last_finished_at": "2026-10-29T22:47:14.312Z",
+    "sum_runner_seconds": 820.976
+  },
+  "target": {
+    "remote": "https://github.com/calcom/cal.com.git",
+    "commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+    "repo": "calcom/cal.com"
+  },
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "backend": "pi-sdk",
+  "pi_version": "1.4.0",
+  "runtime": {
+    "node": "v22.22.3",
+    "python_for_component_tests": "3.12.14",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "limits": {
+    "max_tool_calls": 600,
+    "max_minutes": 45
+  },
+  "runner_revision": "462cd12e9168091338548fc5a12908b1b3339f65",
+  "runner_files": {
+    "package-lock.json": "748f61ba7db95b42f618c24e2b44170e23b5cc98806a3e3ca674d702b33eea54",
+    "prompt.md": "1d03043c430c90489dd3ba580553079c157c95c1f04a3bf17e7bba2e4aca40ac",
+    "static.mjs": "421dfb1947f3ba1f351bbcff33a43e451edc6c5d553c9d6797c463c5f0f9824c",
+    "source.mjs": "f350b7995739dd59ca56e729e130a7f892f757473a11316734c15b0906383346",
+    "graph.mjs": "1684263ac2fc470c36962fc988812efa58e12a12dda4a29e2aea91538c27b4b6",
+    "source-server.mjs": "163d958a780ec81c9f75b3393dc19089b6cef91f7e788700cd5af4954c7de2c9",
+    "pi.mjs": "58ddc22d9065efedacfac7e1b2ef1179e5c911972fe1324d9101004bec0f1fe2",
+    "runner.mjs": "a9e26d8551f8026706ba09d524a88528c6907f3d19433eaf8086439b1c5059e0",
+    "cli.mjs": "570b58891f0a9fa2b093635c086d034f4f436aa093f59ee16b549989ac4d0051"
+  },
+  "static_input": {
+    "sha256": "1ad7ebd9a23a434aeadc32a5281c8d003b1f16ade6b5b0c487cde753bbc88969",
+    "export_sha256": "1faa6f31970538f0e3ff716c5956da1f5ed904a2ff339116efd11ceef743b9e5",
+    "codegraph_version": "1.6.2",
+    "nodes": 11525,
+    "edges": 20363,
+    "files": 738,
+    "scope": "Web booking subsystem: public booking and management UI, web HTTP/tRPC booking and slot APIs, availability, booking lifecycle, persistence adapters, and supporting notification/calendar services. API v2, generic UI/auth utilities and provider-specific app-store implementations are outside this boundary. Supporting packages include their indexed files, not just booking-exclusive code.",
+    "previous_component_assignments_supplied": false
+  },
+  "prompt_sha256": "78dd970cd2f3665f51222a3a34a3c649a4d2f3693ccbc71ac54b0f0e8af81c5e",
+  "schema_sha256": "c91cef3657b8c081f2d81c2c94b2b6257a6fd8aeeb69308c4ea9a78e89b4f155",
+  "source_manifest_sha256": "d1d93468065213b623621d18b915cae9879ac0eaba38c46d68fa7f4c8ae53e95",
+  "isolation": {
+    "fresh_session": true,
+    "fresh_checkout": true,
+    "source_access": "tracked-regular-files-only custom tools",
+    "shell": false,
+    "web": false,
+    "plugins": false,
+    "static_graph_supplied": true,
+    "prior_component_graphs_supplied": false,
+    "inherited_project_instructions": false,
+    "os_container": false
+  },
+  "sessions": [
+    {
+      "run": "run-01",
+      "session_id": "01a189c4-ff9e-7073-98ca-14e9cae1c2d9"
+    },
+    {
+      "run": "run-02",
+      "session_id": "01a189d0-150d-7322-a216-0ecbe1487291"
+    },
+    {
+      "run": "run-03",
+      "session_id": "01a189d4-f8b5-72f6-b0b2-339e34ac5528"
+    }
+  ],
+  "source_checks": {
+    "same_pin": true,
+    "distinct_standalone_checkouts": true,
+    "clean_after_each_run": true,
+    "same_source_manifest": true,
+    "same_static_input": true
+  },
+  "authentication": "Existing Pi login; no credentials published.",
+  "timing": "Runner elapsed_seconds includes setup, generation and internal verification; separate verification and time between requests are excluded. No contiguous batch wall-time comparison is claimed.",
+  "cache": "Fresh in-memory sessions; no compaction, cache warming or automatic provider retries. OS and provider caches were not reset; token cache reads are reported.",
+  "input_scope_note": "The raw export maps 740 files. The snapshot has 738 files with structural nodes; packages/emails/docker-compose.yml and packages/prisma/docker-compose.yml have no nodes. All 11525 nodes are assigned exactly once.",
+  "checks": {
+    "harness": "30/30 passed",
+    "components": "10/10 passed",
+    "independent_replay": "3/3 passed",
+    "viewer_yaml_and_json": "3/3 passed"
+  },
+  "excluded_checks": [
+    "semantic reference scoring",
+    "Cal.com application test suites"
+  ],
+  "publication": {
+    "graphs_and_sidecars": "Exact bytes; graph.json, membership.json, aggregation.json and tools.jsonl use lossless gzip.",
+    "shared_inputs": "Identical static-input.json and source-manifest.json are losslessly gzipped once; instructions.md and schema.json are exact bytes.",
+    "run_records": "Only run_directory is normalized to . and original_run_id added; original run.json hashes are in statistics.json.",
+    "omitted": "Source checkouts, model event streams, effective prompts with local cwd, subprocess server configuration and credentials remain local.",
+    "test_logs": "Local checkout paths normalized to <repo>; no test outcomes changed."
+  }
+}

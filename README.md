@@ -107,6 +107,9 @@ Run `bash scripts/run_codegraph_llm_graph.sh --source work/calcom` after install
 the runner and configuring Pi authentication. Its completed `graph.yaml` opens
 in the existing viewer. The saved baseline below uses deterministic path rules.
 
+[Three verified Pi/Astra hotstart runs](results/codegraph-llm/astra-medium-2026-10-29/README.md)
+include frozen graphs, timing and usage summaries, test logs and a replay verifier.
+
 For a booking-scoped variant at `54343aa`, see
 [the booking baseline and viewer instructions](graphs/codegraph-booking/README.md).
 Reproduce it with `bash scripts/build_booking_graph.sh` after installing the
