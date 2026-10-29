@@ -1,0 +1,195 @@
+
+> cs329m-codegraph-llm-runner@0.1.0 test
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: raw preparation strips previous grouping, normalizes file EOF and rejects stale/dangling input
+ok 1 - raw preparation strips previous grouping, normalizes file EOF and rejects stale/dangling input
+  ---
+  duration_ms: 421.625125
+  type: 'test'
+  ...
+# Subtest: component edges aggregate static relationships with exact conservation and no confidence pruning
+ok 2 - component edges aggregate static relationships with exact conservation and no confidence pruning
+  ---
+  duration_ms: 1045.52225
+  type: 'test'
+  ...
+# Subtest: Astra owns membership, may split a shared file, and cannot author or prune edges
+ok 3 - Astra owns membership, may split a shared file, and cannot author or prune edges
+  ---
+  duration_ms: 559.344416
+  type: 'test'
+  ...
+# Subtest: incomplete memberships, empty components, bad groups and invented summaries remain repairable
+    # Subtest: unassigned
+    ok 1 - unassigned
+      ---
+      duration_ms: 502.223042
+      type: 'test'
+      ...
+    # Subtest: empty
+    ok 2 - empty
+      ---
+      duration_ms: 498.0775
+      type: 'test'
+      ...
+    # Subtest: missing group
+    ok 3 - missing group
+      ---
+      duration_ms: 497.477084
+      type: 'test'
+      ...
+    # Subtest: cycle
+    ok 4 - cycle
+      ---
+      duration_ms: 494.122625
+      type: 'test'
+      ...
+    # Subtest: duplicate
+    ok 5 - duplicate
+      ---
+      duration_ms: 493.330958
+      type: 'test'
+      ...
+    # Subtest: bad kind
+    ok 6 - bad kind
+      ---
+      duration_ms: 496.523083
+      type: 'test'
+      ...
+    # Subtest: no summary
+    ok 7 - no summary
+      ---
+      duration_ms: 499.931334
+      type: 'test'
+      ...
+    # Subtest: wrong evidence
+    ok 8 - wrong evidence
+      ---
+      duration_ms: 524.820584
+      type: 'test'
+      ...
+    # Subtest: fake excerpt
+    ok 9 - fake excerpt
+      ---
+      duration_ms: 572.930417
+      type: 'test'
+      ...
+    1..9
+ok 4 - incomplete memberships, empty components, bad groups and invented summaries remain repairable
+  ---
+  duration_ms: 4580.664708
+  type: 'test'
+  ...
+# Subtest: audit replay detects sidecar and static input tampering; all tools close after freeze
+ok 5 - audit replay detects sidecar and static input tampering; all tools close after freeze
+  ---
+  duration_ms: 1819.217375
+  type: 'test'
+  ...
+# Subtest: fresh checkout excludes cache artifacts, symlinks and Git internals
+ok 6 - fresh checkout excludes cache artifacts, symlinks and Git internals
+  ---
+  duration_ms: 410.957833
+  type: 'test'
+  ...
+# Subtest: rejects placing experimental runs inside any team checkout
+ok 7 - rejects placing experimental runs inside any team checkout
+  ---
+  duration_ms: 36.9105
+  type: 'test'
+  ...
+# Subtest: source search is literal and paginated, including directory prefixes
+ok 8 - source search is literal and paginated, including directory prefixes
+  ---
+  duration_ms: 635.89575
+  type: 'test'
+  ...
+# Subtest: read ranges, gaps, modified paths and the pin are enforced
+ok 9 - read ranges, gaps, modified paths and the pin are enforced
+  ---
+  duration_ms: 581.691
+  type: 'test'
+  ...
+# Subtest: citations require actual reads, not searches, and validation can be repaired
+ok 10 - citations require actual reads, not searches, and validation can be repaired
+  ---
+  duration_ms: 614.348208
+  type: 'test'
+  ...
+# Subtest: malformed YAML, aliases, duplicate batch IDs and pin changes are rejected atomically
+ok 11 - malformed YAML, aliases, duplicate batch IDs and pin changes are rejected atomically
+  ---
+  duration_ms: 452.045542
+  type: 'test'
+  ...
+# Subtest: Component tools freeze output and enforce the tool-call budget
+ok 12 - Component tools freeze output and enforce the tool-call budget
+  ---
+  duration_ms: 1947.589083
+  type: 'test'
+  ...
+# Subtest: orchestration: fresh prepare, full mock generation, repeat isolation and tamper detection
+ok 13 - orchestration: fresh prepare, full mock generation, repeat isolation and tamper detection
+  ---
+  duration_ms: 2825.465375
+  type: 'test'
+  ...
+# Subtest: failed runs preserve metadata and drafts but never claim a prediction
+ok 14 - failed runs preserve metadata and drafts but never claim a prediction
+  ---
+  duration_ms: 624.5925
+  type: 'test'
+  ...
+# Subtest: Pi subprocess records events/usage and enforces host timeout
+ok 15 - Pi subprocess records events/usage and enforces host timeout
+  ---
+  duration_ms: 4239.531708
+  type: 'test'
+  ...
+# Subtest: truncated tool logs do not mask the original run failure
+ok 16 - truncated tool logs do not mask the original run failure
+  ---
+  duration_ms: 513.431625
+  type: 'test'
+  ...
+# Subtest: real Pi session isolates resources, repairs rejected evidence and freezes a valid graph
+ok 17 - real Pi session isolates resources, repairs rejected evidence and freezes a valid graph
+  ---
+  duration_ms: 932.409042
+  type: 'test'
+  ...
+# Subtest: Pi checks the exact Astra model and effort without silently falling back
+ok 18 - Pi checks the exact Astra model and effort without silently falling back
+  ---
+  duration_ms: 2.658625
+  type: 'test'
+  ...
+# Subtest: real Pi session counts failed tool attempts and blocks unexpected tools
+ok 19 - real Pi session counts failed tool attempts and blocks unexpected tools
+  ---
+  duration_ms: 1117.532167
+  type: 'test'
+  ...
+# Subtest: actual Pi worker reports missing auth without a model fallback
+ok 20 - actual Pi worker reports missing auth without a model fallback
+  ---
+  duration_ms: 834.151916
+  type: 'test'
+  ...
+# Subtest: Pi orchestration records Astra selection, actual SDK usage and estimated cost
+ok 21 - Pi orchestration records Astra selection, actual SDK usage and estimated cost
+  ---
+  duration_ms: 1125.776708
+  type: 'test'
+  ...
+1..21
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 26210.34225
