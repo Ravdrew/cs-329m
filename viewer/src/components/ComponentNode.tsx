@@ -30,8 +30,8 @@ export default function ComponentNode({ id, data, selected }: Props) {
   return (
     <div className={cls} title={node.summary ?? node.label}>
       {/* The first target/source handles are where edges attach visually. */}
-      <Handle type="target" position={Position.Top} id="in" className="handle handle-in" isConnectable={!!data.editable} />
-      <Handle type="source" position={Position.Bottom} id="out" className="handle handle-out" isConnectable={!!data.editable} />
+      <Handle type="target" position={data.horizontal ? Position.Left : Position.Top} id="in" className="handle handle-in" isConnectable={!!data.editable} />
+      <Handle type="source" position={data.horizontal ? Position.Right : Position.Bottom} id="out" className="handle handle-out" isConnectable={!!data.editable} />
       {dropTarget && (
         <Handle
           type="target"

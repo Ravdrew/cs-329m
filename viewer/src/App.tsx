@@ -62,6 +62,9 @@ function AppInner() {
   const [focusId, setFocusId] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [editable, setEditable] = useState(() => readBool("viewer.editable", true));
+  const [columns, setColumns] = useState(() => readBool("viewer.columns", false));
+  const columnsRef = useRef(columns);
+  columnsRef.current = columns;
   const [changesOpen, setChangesOpen] = useState(false);
   const [freshNodeId, setFreshNodeId] = useState<string | null>(null);
   const graphRef = useRef<ComponentGraph | null>(null);
@@ -119,7 +122,7 @@ function AppInner() {
     const g = graphRef.current;
     if (!g) return;
     let cancelled = false;
-    layoutGraph(g, direction).then((l) => {
+    layoutGraph(g, direction, columns).then((l) => {
       if (cancelled) return;
       setLayout(l);
       setLayoutVersion((v) => v + 1);
@@ -127,15 +130,16 @@ function AppInner() {
     return () => {
       cancelled = true;
     };
-  }, [loadNonce, direction, relayoutNonce]);
+  }, [loadNonce, direction, columns, relayoutNonce]);
 
   useEffect(() => {
     try {
       localStorage.setItem("viewer.editable", editable ? "1" : "0");
+      localStorage.setItem("viewer.columns", columns ? "1" : "0");
     } catch {
       /* ignore */
     }
-  }, [editable]);
+  }, [editable, columns]);
 
   // ------------------------------------------------------------ editing core
 
@@ -149,7 +153,7 @@ function AppInner() {
     }
     coalesceRef.current = key;
     setGraph(next);
-    setLayout((l) => (l ? mergeLayout(l, next, opts.placeAt) : l));
+    setLayout((l) => (l ? mergeLayout(l, next, opts.placeAt, columnsRef.current) : l));
   }, []);
 
   const undo = useCallback(() => {
@@ -159,7 +163,7 @@ function AppInner() {
       const cur = graphRef.current;
       if (!prev || !cur) return h;
       setGraph(prev);
-      setLayout((l) => (l ? mergeLayout(l, prev) : l));
+      setLayout((l) => (l ? mergeLayout(l, prev, {}, columnsRef.current) : l));
       return { past: h.past.slice(0, -1), future: [cur, ...h.future] };
     });
   }, []);
@@ -171,7 +175,7 @@ function AppInner() {
       const cur = graphRef.current;
       if (!next || !cur) return h;
       setGraph(next);
-      setLayout((l) => (l ? mergeLayout(l, next) : l));
+      setLayout((l) => (l ? mergeLayout(l, next, {}, columnsRef.current) : l));
       return { past: [...h.past, cur], future: h.future.slice(1) };
     });
   }, []);
@@ -402,6 +406,8 @@ function AppInner() {
         onToggleKind={toggleKind}
         direction={direction}
         onDirection={setDirection}
+        columns={columns}
+        onToggleColumns={() => setColumns((v) => !v)}
         editable={editable}
         onToggleEditable={() => setEditable((v) => !v)}
         onAddNode={addNode}
@@ -425,6 +431,7 @@ function AppInner() {
               hiddenKinds={hiddenKinds}
               focusId={focusId}
               editable={editable}
+              columns={columns}
               onConnect={onConnect}
               onReconnect={onReconnect}
               onMoveToGroup={onMoveToGroup}
