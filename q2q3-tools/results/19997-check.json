@@ -1,0 +1,8 @@
+{
+ "pull": 19997,
+ "f2p": 11,
+ "pass_at_base": 0,
+ "pass_with_gold_patch": 11,
+ "gold_patch": "full PR diff minus its test files",
+ "gold_failures": {}
+}

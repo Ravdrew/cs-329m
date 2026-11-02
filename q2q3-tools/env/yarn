@@ -1,0 +1,8 @@
+#!/bin/sh
+# Run the checkout's bundled Yarn. Yarn 4 renamed caFilePath to httpsCaFilePath and rejects the old setting.
+top=$(git rev-parse --show-toplevel 2>/dev/null || echo /home/claude/pilot/calcom)
+rel=$(ls "$top/.yarn/releases" | head -1)
+case "$rel" in
+  yarn-4*) export YARN_HTTPS_CA_FILE_PATH="${YARN_CA_FILE_PATH:-/root/.ccr/ca-bundle.crt}"; unset YARN_CA_FILE_PATH ;;
+esac
+exec node "$top/.yarn/releases/$rel" "$@"

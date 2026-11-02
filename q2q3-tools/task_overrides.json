@@ -1,0 +1,6 @@
+{
+ "_doc": "Per-task harness overrides (2026-11-02). hidden_support_files: test infrastructure the PR adds or changes. They are copied in from the merge commit together with the hidden tests at evaluation, are left out of the spec, and are not counted as PR files for file recall or precision. Edits an agent makes to them are overwritten at evaluation.",
+ "19997": {"hidden_support_files": ["packages/features/form-builder/testUtils.ts"]},
+ "20646": {"hidden_support_files": ["packages/embeds/embed-core/test/__mocks__/windowMatchMedia.ts"]},
+ "30354": {"hidden_support_files": ["packages/app-store/googlecalendar/lib/__mocks__/googleapis.ts"]}
+}

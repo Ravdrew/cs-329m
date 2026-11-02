@@ -1,0 +1,48 @@
+{
+ "new_files": [
+  "packages/lib/pkce.ts"
+ ],
+ "new_exports": {},
+ "new_methods": {},
+ "mocks": {
+  "next/server": {
+   "route.test.ts": [
+    "NextRequest",
+    "NextResponse"
+   ]
+  },
+  "packages/lib/pkce.ts": {
+   "route.test.ts": [
+    "verifyCodeChallenge"
+   ]
+  },
+  "packages/trpc/server/routers/viewer/oAuth/addClient.handler.ts": {
+   "route.test.ts": [
+    "generateSecret"
+   ]
+  },
+  "jsonwebtoken": {
+   "route.test.ts": [
+    "default",
+    "default.sign"
+   ]
+  },
+  "@calcom/prisma": {
+   "route.test.ts": [
+    "default"
+   ]
+  },
+  "app/api/defaultResponderForAppDir": {
+   "route.test.ts": [
+    "defaultResponderForAppDir"
+   ]
+  },
+  "app/api/parseRequestData": {
+   "route.test.ts": [
+    "parseUrlFormData"
+   ]
+  }
+ },
+ "changed": {},
+ "schema_blocks": 3
+}

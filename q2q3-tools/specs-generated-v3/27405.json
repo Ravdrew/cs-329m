@@ -1,0 +1,52 @@
+{
+ "new_files": [
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.ts"
+ ],
+ "new_exports": {},
+ "new_methods": {},
+ "mocks": {
+  "packages/features/bookings/repositories/BookingRepository.ts": {
+   "reportWrongAssignment.handler.test.ts": [
+    "(automocked: every export replaced)"
+   ]
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.ts": {
+   "reportWrongAssignment.handler.test.ts": [
+    "(automocked: every export replaced)"
+   ]
+  },
+  "packages/features/bookings/services/BookingAccessService.ts": {
+   "reportWrongAssignment.handler.test.ts": [
+    "(automocked: every export replaced)"
+   ]
+  },
+  "packages/features/webhooks/lib/getWebhooks.ts": {
+   "reportWrongAssignment.handler.test.ts": [
+    "(automocked: every export replaced)"
+   ]
+  },
+  "packages/features/webhooks/lib/sendPayload.ts": {
+   "reportWrongAssignment.handler.test.ts": [
+    "(automocked: every export replaced)"
+   ]
+  },
+  "@calcom/prisma": {
+   "reportWrongAssignment.handler.test.ts": [
+    "default"
+   ]
+  },
+  "packages/lib/server/i18n.ts": {
+   "reportWrongAssignment.handler.test.ts": [
+    "getTranslation"
+   ]
+  },
+  "packages/lib/logger.ts": {
+   "reportWrongAssignment.handler.test.ts": [
+    "default",
+    "default.getSubLogger"
+   ]
+  }
+ },
+ "changed": {},
+ "schema_blocks": 6
+}

@@ -1,0 +1,25 @@
+{
+ "new_files": [],
+ "new_exports": {},
+ "new_methods": {},
+ "mocks": {
+  "packages/lib/checkRateLimitAndThrowError.ts": {
+   "sms-manager.test.ts": [
+    "(automocked: every export replaced)"
+   ]
+  },
+  "packages/features/ee/workflows/lib/reminders/messageDispatcher.ts": {
+   "sms-manager.test.ts": [
+    "(automocked: every export replaced)"
+   ]
+  },
+  "@calcom/prisma": {
+   "sms-manager.test.ts": [
+    "default",
+    "default.team"
+   ]
+  }
+ },
+ "changed": {},
+ "schema_blocks": 0
+}

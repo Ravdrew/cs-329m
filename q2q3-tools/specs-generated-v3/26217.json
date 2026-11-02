@@ -1,0 +1,176 @@
+{
+ "new_files": [
+  "packages/features/auth/signup/constants.ts",
+  "packages/features/auth/signup/lib/fetchSignup.ts"
+ ],
+ "new_exports": {},
+ "new_methods": {},
+ "mocks": {
+  "next/server": {
+   "calcomHandler.test.ts": [
+    "NextResponse"
+   ],
+   "selfHostedHandler.test.ts": [
+    "NextResponse"
+   ]
+  },
+  "next/headers": {
+   "calcomHandler.test.ts": [
+    "cookies",
+    "headers"
+   ]
+  },
+  "@calcom/prisma": {
+   "calcomHandler.test.ts": [
+    "Prisma",
+    "default",
+    "prisma"
+   ],
+   "selfHostedHandler.test.ts": [
+    "Prisma",
+    "default",
+    "prisma"
+   ]
+  },
+  "packages/prisma/client/index.ts": {
+   "calcomHandler.test.ts": [
+    "Prisma",
+    "default",
+    "prisma"
+   ],
+   "selfHostedHandler.test.ts": [
+    "Prisma",
+    "default",
+    "prisma"
+   ]
+  },
+  "packages/lib/logger.ts": {
+   "calcomHandler.test.ts": [
+    "default",
+    "default.getSubLogger"
+   ],
+   "selfHostedHandler.test.ts": [
+    "default",
+    "default.getSubLogger"
+   ]
+  },
+  "packages/lib/auth/hashPassword.ts": {
+   "calcomHandler.test.ts": [
+    "hashPassword"
+   ],
+   "selfHostedHandler.test.ts": [
+    "hashPassword"
+   ]
+  },
+  "packages/lib/constants.ts": {
+   "calcomHandler.test.ts": [
+    "WEBAPP_URL"
+   ],
+   "selfHostedHandler.test.ts": [
+    "IS_PREMIUM_USERNAME_ENABLED"
+   ]
+  },
+  "packages/lib/tracking/index.ts": {
+   "calcomHandler.test.ts": [
+    "getTrackingFromCookies"
+   ]
+  },
+  "packages/app-store/stripepayment/lib/utils.ts": {
+   "calcomHandler.test.ts": [
+    "getPremiumMonthlyPlanPriceId"
+   ]
+  },
+  "packages/features/auth/lib/getLocaleFromRequest.ts": {
+   "calcomHandler.test.ts": [
+    "getLocaleFromRequest"
+   ]
+  },
+  "packages/features/auth/lib/verifyEmail.ts": {
+   "calcomHandler.test.ts": [
+    "sendEmailVerification"
+   ],
+   "selfHostedHandler.test.ts": [
+    "sendEmailVerification"
+   ]
+  },
+  "packages/features/auth/signup/utils/createOrUpdateMemberships.ts": {
+   "calcomHandler.test.ts": [
+    "createOrUpdateMemberships"
+   ],
+   "selfHostedHandler.test.ts": [
+    "createOrUpdateMemberships"
+   ]
+  },
+  "packages/features/auth/signup/utils/prefillAvatar.ts": {
+   "calcomHandler.test.ts": [
+    "prefillAvatar"
+   ],
+   "selfHostedHandler.test.ts": [
+    "prefillAvatar"
+   ]
+  },
+  "packages/features/auth/signup/utils/validateUsername.ts": {
+   "calcomHandler.test.ts": [
+    "validateAndGetCorrectedUsernameAndEmail"
+   ],
+   "selfHostedHandler.test.ts": [
+    "validateAndGetCorrectedUsernameAndEmail"
+   ]
+  },
+  "packages/features/ee/billing/di/containers/Billing.ts": {
+   "calcomHandler.test.ts": [
+    "getBillingProviderService"
+   ]
+  },
+  "packages/features/watchlist/lib/telemetry/index.ts": {
+   "calcomHandler.test.ts": [
+    "sentrySpan"
+   ]
+  },
+  "packages/features/watchlist/operations/check-if-email-in-watchlist.controller.ts": {
+   "calcomHandler.test.ts": [
+    "checkIfEmailIsBlockedInWatchlistController"
+   ]
+  },
+  "apps/web/lib/buildLegacyCtx.ts": {
+   "calcomHandler.test.ts": [
+    "buildLegacyRequest"
+   ]
+  },
+  "packages/features/auth/signup/utils/organization.ts": {
+   "calcomHandler.test.ts": [
+    "joinAnyChildTeamOnOrgInvite"
+   ],
+   "selfHostedHandler.test.ts": [
+    "joinAnyChildTeamOnOrgInvite"
+   ]
+  },
+  "packages/features/auth/signup/utils/token.ts": {
+   "calcomHandler.test.ts": [
+    "findTokenByToken",
+    "throwIfTokenExpired",
+    "validateAndGetCorrectedUsernameForTeam"
+   ],
+   "selfHostedHandler.test.ts": [
+    "findTokenByToken",
+    "throwIfTokenExpired",
+    "validateAndGetCorrectedUsernameForTeam"
+   ]
+  },
+  "packages/lib/server/username.ts": {
+   "calcomHandler.test.ts": [
+    "usernameHandler"
+   ],
+   "selfHostedHandler.test.ts": [
+    "isUsernameReservedDueToMigration"
+   ]
+  },
+  "packages/lib/slugify.ts": {
+   "selfHostedHandler.test.ts": [
+    "default"
+   ]
+  }
+ },
+ "changed": {},
+ "schema_blocks": 0
+}

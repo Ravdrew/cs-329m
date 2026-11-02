@@ -1,0 +1,29 @@
+{
+ "new_files": [
+  "packages/features/webhooks/lib/tasker/WebhookSyncTasker.ts",
+  "packages/features/webhooks/lib/tasker/WebhookTasker.ts",
+  "packages/features/webhooks/lib/tasker/WebhookTriggerTasker.ts",
+  "packages/features/webhooks/lib/tasker/trigger/deliver-webhook.ts"
+ ],
+ "new_exports": {},
+ "new_methods": {},
+ "mocks": {
+  "nanoid": {
+   "WebhookTasker.test.ts": [
+    "nanoid"
+   ]
+  },
+  "packages/features/webhooks/lib/tasker/trigger/deliver-webhook.ts": {
+   "WebhookTasker.test.ts": [
+    "deliverWebhook"
+   ]
+  }
+ },
+ "changed": {
+  "packages/features/webhooks/lib/service/WebhookTaskerProducerService.ts": [
+   "IWebhookTaskerProducerServiceDeps",
+   "WebhookTaskerProducerService.constructor"
+  ]
+ },
+ "schema_blocks": 0
+}
