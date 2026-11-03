@@ -12,6 +12,8 @@ interface Props {
   onToggleKind: (k: NodeKind) => void;
   direction: "DOWN" | "RIGHT";
   onDirection: (d: "DOWN" | "RIGHT") => void;
+  columns: boolean;
+  onToggleColumns: () => void;
   editable: boolean;
   onToggleEditable: () => void;
   onAddNode: () => void;
@@ -26,7 +28,7 @@ interface Props {
 
 export default function Toolbar(props: Props) {
   const {
-    graph, fileName, onOpenFile, onPickNode, hiddenKinds, onToggleKind, direction, onDirection,
+    graph, fileName, onOpenFile, onPickNode, hiddenKinds, onToggleKind, direction, onDirection, columns, onToggleColumns,
     editable, onToggleEditable, onAddNode, onRelayout, onUndo, onRedo, canUndo, canRedo, changeCount, onShowChanges,
   } = props;
   const [q, setQ] = useState("");
@@ -124,16 +126,24 @@ export default function Toolbar(props: Props) {
       </div>
 
       <div className="seg">
-        <button className={direction === "DOWN" ? "on" : ""} onClick={() => onDirection("DOWN")} title="Top to bottom">
-          ↓
-        </button>
-        <button className={direction === "RIGHT" ? "on" : ""} onClick={() => onDirection("RIGHT")} title="Left to right">
-          →
-        </button>
+        {!columns && (
+          <>
+            <button className={direction === "DOWN" ? "on" : ""} onClick={() => onDirection("DOWN")} title="Top to bottom">
+              ↓
+            </button>
+            <button className={direction === "RIGHT" ? "on" : ""} onClick={() => onDirection("RIGHT")} title="Left to right">
+              →
+            </button>
+          </>
+        )}
         <button onClick={onRelayout} title="Re-run automatic layout">
           ⟳
         </button>
       </div>
+      <label className="switch" title="Order nodes into columns by kind: pages, UI, endpoints, services, jobs, data">
+        <input type="checkbox" checked={columns} onChange={onToggleColumns} />
+        <span>Columns</span>
+      </label>
 
       <div className="edit-tools">
         <label className="switch" title="Toggle editing">

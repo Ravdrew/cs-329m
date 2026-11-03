@@ -1,18 +1,53 @@
 import ELK, { type ElkNode, type ElkExtendedEdge } from "elkjs/lib/elk.bundled.js";
 import type { Edge, Node } from "@xyflow/react";
-import type { ComponentGraph, GraphEdge, GraphNode, Group } from "./types";
+import type { ComponentGraph, GraphEdge, GraphNode, Group, NodeKind } from "./types";
 import { edgeId } from "./types";
 
 export const NODE_W = 220;
 export const NODE_H = 72;
 const GROUP_PAD = 48;
+const HEADER_H = 36;
+const HEADER_GAP = 28;
 
-export type ComponentNodeData = { node: GraphNode; selected?: boolean; dimmed?: boolean; editable?: boolean };
+export type ComponentNodeData = {
+  node: GraphNode;
+  selected?: boolean;
+  dimmed?: boolean;
+  editable?: boolean;
+  /** Edges attach left/right instead of top/bottom (RIGHT direction, columns). */
+  horizontal?: boolean;
+};
 export type GroupNodeData = { group: Group; dimmed?: boolean };
+export type ColumnHeaderData = { label: string; kinds: NodeKind[] };
 export type EdgeData = { edge: GraphEdge; dimmed?: boolean; highlighted?: boolean };
 
-export type RFNode = Node<ComponentNodeData, "component"> | Node<GroupNodeData, "group">;
+export type RFNode =
+  | Node<ComponentNodeData, "component">
+  | Node<GroupNodeData, "group">
+  | Node<ColumnHeaderData, "columnHeader">;
 export type RFEdge = Edge<EdgeData>;
+
+/**
+ * Columns mode: left-to-right bands by node kind, so the graph reads as a
+ * data flow (UI -> API -> services -> side effects -> data). Index = ELK
+ * partition.
+ */
+export const COLUMNS: ReadonlyArray<{ label: string; kinds: NodeKind[] }> = [
+  { label: "Pages", kinds: ["page"] },
+  { label: "UI components", kinds: ["component", "store"] },
+  { label: "Endpoints", kinds: ["endpoint"] },
+  { label: "Services", kinds: ["service"] },
+  { label: "Jobs & external", kinds: ["job", "external", "other"] },
+  { label: "Data models", kinds: ["model"] },
+];
+
+export function columnOf(kind: NodeKind): number {
+  const i = COLUMNS.findIndex((c) => c.kinds.includes(kind));
+  return i < 0 ? COLUMNS.length - 2 : i;
+}
+
+const HEADER_PREFIX = "__column:";
+const headerId = (col: number) => `${HEADER_PREFIX}${col}`;
 
 const elk = new ELK();
 
@@ -20,11 +55,19 @@ const elk = new ELK();
  * Lay out the graph with ELK's layered algorithm. Groups become compound
  * nodes; ELK handles cross-group edges because hierarchyHandling is
  * INCLUDE_CHILDREN.
+ *
+ * With `columns` on, the layout is flat (no group boxes: ELK partitions do not
+ * mix with compound nodes), direction is forced to RIGHT and every node is
+ * assigned an ELK partition from its kind, so partition 0 is strictly left of
+ * partition 1 and so on. A "columnHeader" node is added above each non-empty
+ * column.
  */
 export async function layoutGraph(
   graph: ComponentGraph,
-  direction: "DOWN" | "RIGHT" = "DOWN"
+  direction: "DOWN" | "RIGHT" = "DOWN",
+  columns = false
 ): Promise<{ nodes: RFNode[]; edges: RFEdge[] }> {
+  if (columns) return layoutColumns(graph);
   const childrenOfGroup = new Map<string | undefined, ElkNode[]>();
   const push = (parent: string | undefined, n: ElkNode) => {
     const arr = childrenOfGroup.get(parent) ?? [];
@@ -113,7 +156,13 @@ export async function layoutGraph(
   };
   walk(laid);
 
-  const edges: RFEdge[] = graph.edges.map((e) => ({
+  if (direction === "RIGHT") for (const n of nodes) if (n.type === "component") n.data.horizontal = true;
+
+  return { nodes, edges: rfEdges(graph) };
+}
+
+function rfEdges(graph: ComponentGraph): RFEdge[] {
+  return graph.edges.map((e) => ({
     id: edgeId(e),
     source: e.from,
     target: e.to,
@@ -121,8 +170,84 @@ export async function layoutGraph(
     zIndex: 5,
     data: { edge: e },
   }));
+}
 
-  return { nodes, edges };
+async function layoutColumns(graph: ComponentGraph): Promise<{ nodes: RFNode[]; edges: RFEdge[] }> {
+  const root: ElkNode = {
+    id: "root",
+    layoutOptions: {
+      "elk.algorithm": "layered",
+      "elk.direction": "RIGHT",
+      "elk.partitioning.activate": "true",
+      // keep every component in one layering so partitions line up globally
+      "elk.separateConnectedComponents": "false",
+      "elk.layered.spacing.nodeNodeBetweenLayers": "48",
+      "elk.spacing.nodeNode": "28",
+      "elk.layered.spacing.edgeNodeBetweenLayers": "12",
+      "elk.layered.spacing.edgeEdgeBetweenLayers": "4",
+      "elk.spacing.edgeNode": "12",
+      "elk.spacing.edgeEdge": "4",
+      "elk.layered.nodePlacement.strategy": "NETWORK_SIMPLEX",
+      "elk.layered.crossingMinimization.strategy": "LAYER_SWEEP",
+      "elk.edgeRouting": "SPLINES",
+    },
+    children: graph.nodes.map((n) => ({
+      id: n.id,
+      width: NODE_W,
+      height: NODE_H,
+      layoutOptions: { "elk.partitioning.partition": String(columnOf(n.kind)) },
+    })),
+    edges: graph.edges.map((e) => ({ id: edgeId(e), sources: [e.from], targets: [e.to] })),
+  };
+
+  const laid = await elk.layout(root);
+  const nodeById = new Map(graph.nodes.map((n) => [n.id, n]));
+  const nodes: RFNode[] = [];
+  const extent = new Map<number, { minX: number; maxX: number }>();
+  let minY = Infinity;
+  for (const c of laid.children ?? []) {
+    const gn = nodeById.get(c.id);
+    if (!gn) continue;
+    const x = c.x ?? 0;
+    const y = c.y ?? 0;
+    minY = Math.min(minY, y);
+    const col = columnOf(gn.kind);
+    const ex = extent.get(col) ?? { minX: Infinity, maxX: -Infinity };
+    ex.minX = Math.min(ex.minX, x);
+    ex.maxX = Math.max(ex.maxX, x + NODE_W);
+    extent.set(col, ex);
+    nodes.push({
+      id: c.id,
+      type: "component",
+      position: { x, y },
+      data: { node: gn, horizontal: true },
+      width: NODE_W,
+      height: NODE_H,
+      zIndex: 10,
+    });
+  }
+  const headers: RFNode[] = [];
+  for (const [col, ex] of [...extent.entries()].sort((a, b) => a[0] - b[0])) {
+    headers.push(columnHeaderNode(col, ex.minX, ex.maxX - ex.minX, (isFinite(minY) ? minY : 0) - HEADER_GAP - HEADER_H));
+  }
+  return { nodes: [...headers, ...nodes], edges: rfEdges(graph) };
+}
+
+function columnHeaderNode(col: number, x: number, width: number, y: number): RFNode {
+  return {
+    id: headerId(col),
+    type: "columnHeader",
+    position: { x, y },
+    data: { label: COLUMNS[col].label, kinds: COLUMNS[col].kinds },
+    width,
+    height: HEADER_H,
+    style: { width, height: HEADER_H },
+    selectable: false,
+    draggable: false,
+    connectable: false,
+    focusable: false,
+    zIndex: 0,
+  };
 }
 
 export type Point = { x: number; y: number };
@@ -193,8 +318,10 @@ export function groupAtPoint(nodes: RFNode[], p: Point): string | undefined {
 export function mergeLayout(
   prev: { nodes: RFNode[]; edges: RFEdge[] },
   graph: ComponentGraph,
-  placeAt: Record<string, Point> = {}
+  placeAt: Record<string, Point> = {},
+  columns = false
 ): { nodes: RFNode[]; edges: RFEdge[] } {
+  if (columns) return mergeColumns(prev, graph, placeAt);
   const groupIds = new Set(graph.groups.map((g) => g.id));
   const byId = new Map(prev.nodes.map((n) => [n.id, n]));
   const nodes: RFNode[] = [];
@@ -257,22 +384,65 @@ export function mergeLayout(
     });
   }
 
-  const edges: RFEdge[] = graph.edges.map((e) => ({
-    id: edgeId(e),
-    source: e.from,
-    target: e.to,
-    type: "component",
-    zIndex: 5,
-    data: { edge: e },
-  }));
-  return { nodes, edges };
+  return { nodes, edges: rfEdges(graph) };
+}
+
+/**
+ * Columns-mode merge: flat nodes, no group boxes. Column headers are kept
+ * (and added for a column that just gained its first node); a new node lands
+ * where it was dropped, or under its kind's column.
+ */
+function mergeColumns(
+  prev: { nodes: RFNode[]; edges: RFEdge[] },
+  graph: ComponentGraph,
+  placeAt: Record<string, Point>
+): { nodes: RFNode[]; edges: RFEdge[] } {
+  const byId = new Map(prev.nodes.map((n) => [n.id, n]));
+  const headers = new Map<number, RFNode>();
+  let minY = Infinity;
+  for (const n of prev.nodes) {
+    if (n.type === "columnHeader") headers.set(Number(n.id.slice(HEADER_PREFIX.length)), n);
+    else if (n.type === "component") minY = Math.min(minY, n.position.y);
+  }
+  const nodes: RFNode[] = [];
+  let freeY = maxBottom(prev.nodes) + 100;
+  for (const n of graph.nodes) {
+    const old = byId.get(n.id);
+    if (old && old.type === "component" && !old.parentId) {
+      nodes.push({ ...old, data: { ...old.data, node: n, horizontal: true } } as RFNode);
+      continue;
+    }
+    const col = columnOf(n.kind);
+    let header = headers.get(col);
+    let position = placeAt[n.id];
+    if (!position) {
+      position = { x: header ? header.position.x : 0, y: freeY };
+      freeY += NODE_H + 40;
+    }
+    if (!header) {
+      header = columnHeaderNode(col, position.x, NODE_W, (isFinite(minY) ? minY : position.y) - HEADER_GAP - HEADER_H);
+      headers.set(col, header);
+    }
+    nodes.push({
+      id: n.id,
+      type: "component",
+      position,
+      data: { node: n, horizontal: true },
+      width: NODE_W,
+      height: NODE_H,
+      zIndex: 10,
+      selected: old?.selected,
+    });
+  }
+  const headerNodes = [...headers.entries()].sort((a, b) => a[0] - b[0]).map(([, h]) => h);
+  return { nodes: [...headerNodes, ...nodes], edges: rfEdges(graph) };
 }
 
 function maxBottom(nodes: RFNode[]): number {
   let y = 0;
   for (const n of nodes) {
     if (n.parentId) continue;
-    const h = n.type === "group" ? Number(n.style?.height ?? 0) : NODE_H;
+    const h = n.type === "component" ? NODE_H : Number(n.style?.height ?? 0);
     y = Math.max(y, n.position.y + h);
   }
   return y;

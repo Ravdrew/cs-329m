@@ -19,10 +19,11 @@ import { groupAtPoint, NODE_H, NODE_W, type Point, type RFEdge, type RFNode } fr
 import { edgeColor } from "../graph/kinds";
 import ComponentNode from "./ComponentNode";
 import GroupNode from "./GroupNode";
+import ColumnHeaderNode from "./ColumnHeaderNode";
 import ComponentEdge from "./ComponentEdge";
 import type { Selection } from "./DetailPanel";
 
-const nodeTypes = { component: ComponentNode, group: GroupNode };
+const nodeTypes = { component: ComponentNode, group: GroupNode, columnHeader: ColumnHeaderNode };
 const edgeTypes = { component: ComponentEdge };
 
 interface Props {
@@ -34,6 +35,8 @@ interface Props {
   hiddenKinds: Set<string>;
   focusId: string | null;
   editable: boolean;
+  /** Columns layout mode: flat layout, no group boxes to drop nodes into. */
+  columns: boolean;
   onConnect: (from: string, to: string) => void;
   onReconnect: (edgeId: string, from: string, to: string) => void;
   /** A node was dropped inside a different group box (or outside every box). */
@@ -43,7 +46,7 @@ interface Props {
 }
 
 export default function GraphCanvas(props: Props) {
-  const { graph, layout, layoutVersion, selection, onSelect, hiddenKinds, focusId, editable, onConnect, onReconnect, onMoveToGroup, onNodePositioned } = props;
+  const { graph, layout, layoutVersion, selection, onSelect, hiddenKinds, focusId, editable, columns, onConnect, onReconnect, onMoveToGroup, onNodePositioned } = props;
   const [nodes, setNodes, onNodesChange] = useNodesState<RFNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<RFEdge>([]);
   const rf = useReactFlow();
@@ -86,6 +89,10 @@ export default function GraphCanvas(props: Props) {
         const style = old && n.type === "group" && keepPos ? old.style : n.style;
         if (n.type === "group") {
           return { ...n, position, style, data: { ...n.data, dimmed: !!focus } } as RFNode;
+        }
+        if (n.type === "columnHeader") {
+          // a column whose kinds are all filtered out has no header either
+          return { ...n, hidden: n.data.kinds.every((k) => hiddenKinds.has(k)) } as RFNode;
         }
         return {
           ...n,
@@ -158,7 +165,7 @@ export default function GraphCanvas(props: Props) {
     (_, n) => {
       const internal = rf.getInternalNode(n.id);
       if (!internal) return;
-      if (!editable || n.type !== "component") {
+      if (!editable || columns || n.type !== "component") {
         onNodePositioned(n.id, n.position);
         return;
       }
@@ -172,7 +179,7 @@ export default function GraphCanvas(props: Props) {
       if ((target ?? undefined) !== (current ?? undefined)) onMoveToGroup(n.id, target, abs);
       else onNodePositioned(n.id, n.position);
     },
-    [editable, graph.nodes, onMoveToGroup, onNodePositioned, rf]
+    [editable, columns, graph.nodes, onMoveToGroup, onNodePositioned, rf]
   );
   const handleReconnect = useCallback(
     (old: RFEdge, c: Connection) => {
@@ -216,7 +223,7 @@ export default function GraphCanvas(props: Props) {
       <MiniMap
         pannable
         zoomable
-        nodeColor={(n) => (n.type === "group" ? "transparent" : `var(--k-${(n.data as { node?: { kind: string } }).node?.kind ?? "other"})`)}
+        nodeColor={(n) => (n.type !== "component" ? "transparent" : `var(--k-${(n.data as { node?: { kind: string } }).node?.kind ?? "other"})`)}
         nodeStrokeWidth={0}
       />
     </ReactFlow>

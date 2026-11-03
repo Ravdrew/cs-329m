@@ -194,6 +194,18 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1
 .react-flow__node-group { pointer-events: none !important; }
 .react-flow__node-group .gnode { pointer-events: auto; }
 
+/* Column headers (columns layout mode) */
+.react-flow__node-columnHeader { pointer-events: none !important; cursor: default; }
+.colhead {
+  --kc: var(--k-other);
+  width: 100%; height: 100%; display: flex; align-items: flex-end; padding-bottom: 8px;
+  border-bottom: 2px solid color-mix(in srgb, var(--kc) 55%, var(--line-2));
+}
+.colhead-label {
+  font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--kc) 80%, var(--ink)); white-space: nowrap;
+}
+
 /* Edges */
 .react-flow__edge-path.cedge { --ec: var(--line-2); stroke: var(--ec); stroke-width: 1.6; transition: opacity .15s; }
 .cedge.edge-kind-renders { --ec: var(--e-renders); } .cedge.edge-kind-navigates { --ec: var(--e-navigates); }
