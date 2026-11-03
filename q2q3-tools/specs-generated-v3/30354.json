@@ -1,0 +1,106 @@
+{
+ "new_files": [],
+ "new_exports": {
+  "apps/web/modules/bookings/hooks/useCalendars.ts": [
+   "getLastVisibleDate",
+   "getOverlayDateRange"
+  ],
+  "packages/features/calendars/weeklyview/utils/index.ts": [
+   "getEventSegmentForDay"
+  ]
+ },
+ "new_methods": {
+  "packages/app-store/office365calendar/lib/CalendarService.ts": [
+   "getAvailabilityWithTitles"
+  ],
+  "packages/features/calendar-subscription/lib/telemetry/CalendarTelemetryWrapper.ts": [
+   "getAvailabilityWithTitles"
+  ],
+  "packages/app-store/googlecalendar/lib/CalendarService.ts": [
+   "getAvailabilityWithTitles"
+  ]
+ },
+ "mocks": {
+  "packages/lib/hooks/useLocale.ts": {
+   "OverlayCalendarContinueModal.test.tsx": [
+    "useLocale"
+   ]
+  },
+  "packages/features/components/controlled-dialog/index.tsx": {
+   "OverlayCalendarContinueModal.test.tsx": [
+    "Dialog"
+   ]
+  },
+  "packages/ui/components/dialog/index.ts": {
+   "OverlayCalendarContinueModal.test.tsx": [
+    "DialogContent",
+    "DialogFooter"
+   ]
+  },
+  "packages/features/bookings/lib/index.ts": {
+   "useOverlayCalendar.test.ts": [
+    "useTimePreferences"
+   ]
+  },
+  "packages/app-store/_utils/oauth/OAuthManager.ts": {
+   "CalendarService.test.ts": [
+    "OAuthManager"
+   ]
+  },
+  "packages/app-store/_utils/oauth/oAuthManagerHelper.ts": {
+   "CalendarService.test.ts": [
+    "oAuthManagerHelper"
+   ]
+  },
+  "packages/app-store/office365calendar/lib/getOfficeAppKeys.ts": {
+   "CalendarService.test.ts": [
+    "getOfficeAppKeys"
+   ]
+  },
+  "packages/features/webhooks/lib/triggerDelegationCredentialErrorWebhook.ts": {
+   "CalendarService.test.ts": [
+    "triggerDelegationCredentialErrorWebhook"
+   ]
+  },
+  "packages/features/availability/lib/findUsersForAvailabilityCheck.ts": {
+   "user.handler.test.ts": [
+    "findUsersForAvailabilityCheck"
+   ]
+  },
+  "packages/features/di/containers/GetUserAvailability.ts": {
+   "user.handler.test.ts": [
+    "getUserAvailabilityService"
+   ]
+  },
+  "packages/lib/crypto.ts": {
+   "getCalendarsEvents.test.ts": [
+    "symmetricDecrypt"
+   ]
+  },
+  "packages/app-store/calendar.services.generated.ts": {
+   "getCalendarsEvents.test.ts": [
+    "createEvent",
+    "deleteEvent",
+    "getAvailability",
+    "getAvailabilityWithTimeZones",
+    "getAvailabilityWithTitles",
+    "getCredentialId",
+    "listCalendars",
+    "updateEvent"
+   ]
+  }
+ },
+ "changed": {
+  "apps/web/modules/bookings/hooks/useCalendars.ts": [
+   "UseCalendarsProps",
+   "useCalendars"
+  ],
+  "apps/web/modules/bookings/types.ts": [
+   "WrappedBookerPropsMain"
+  ],
+  "packages/trpc/server/routers/viewer/availability/user.handler.ts": [
+   "userHandler"
+  ]
+ },
+ "schema_blocks": 0
+}

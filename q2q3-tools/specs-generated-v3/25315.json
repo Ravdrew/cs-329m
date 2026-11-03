@@ -1,0 +1,26 @@
+{
+ "new_files": [
+  "packages/features/credentials/services/CredentialAccessService.ts"
+ ],
+ "new_exports": {},
+ "new_methods": {},
+ "mocks": {
+  "@calcom/prisma": {
+   "CredentialAccessService.test.ts": [
+    "prisma"
+   ]
+  },
+  "packages/features/credentials/repositories/CredentialRepository.ts": {
+   "CredentialAccessService.test.ts": [
+    "CredentialRepository"
+   ]
+  },
+  "packages/features/users/repositories/UserRepository.ts": {
+   "CredentialAccessService.test.ts": [
+    "getUserOrganizationAndTeams"
+   ]
+  }
+ },
+ "changed": {},
+ "schema_blocks": 0
+}

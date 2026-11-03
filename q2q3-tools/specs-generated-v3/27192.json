@@ -1,0 +1,30 @@
+{
+ "new_files": [
+  "packages/features/bookings/lib/getAssignmentReasonCategory.ts"
+ ],
+ "new_exports": {},
+ "new_methods": {
+  "packages/features/CalendarEventBuilder.ts": [
+   "withAssignmentReason"
+  ]
+ },
+ "mocks": {
+  "packages/features/ee/organizations/lib/getBookerUrlServer.ts": {
+   "CalendarEventBuilder.test.ts": [
+    "getBookerBaseUrl"
+   ]
+  },
+  "packages/lib/server/i18n.ts": {
+   "CalendarEventBuilder.test.ts": [
+    "getTranslation"
+   ]
+  },
+  "packages/features/bookings/lib/getCalEventResponses.ts": {
+   "CalendarEventBuilder.test.ts": [
+    "getCalEventResponses"
+   ]
+  }
+ },
+ "changed": {},
+ "schema_blocks": 0
+}

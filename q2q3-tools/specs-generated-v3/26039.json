@@ -1,0 +1,27 @@
+{
+ "new_files": [
+  "packages/app-store/_lib/crm-enums.ts"
+ ],
+ "new_exports": {},
+ "new_methods": {},
+ "mocks": {
+  "@hubspot/api-client": {
+   "CrmService.test.ts": [
+    "Client"
+   ]
+  },
+  "packages/app-store/_utils/getAppKeysFromSlug.ts": {
+   "CrmService.test.ts": [
+    "default"
+   ]
+  },
+  "@calcom/prisma": {
+   "CrmService.test.ts": [
+    "default",
+    "default.credential"
+   ]
+  }
+ },
+ "changed": {},
+ "schema_blocks": 0
+}

@@ -1,0 +1,10 @@
+{
+ "new_files": [
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.ts"
+ ],
+ "new_exports": {},
+ "new_methods": {},
+ "mocks": {},
+ "changed": {},
+ "schema_blocks": 0
+}

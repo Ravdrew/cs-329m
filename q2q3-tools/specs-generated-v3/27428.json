@@ -1,0 +1,10 @@
+{
+ "new_files": [
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.ts"
+ ],
+ "new_exports": {},
+ "new_methods": {},
+ "mocks": {},
+ "changed": {},
+ "schema_blocks": 0
+}
