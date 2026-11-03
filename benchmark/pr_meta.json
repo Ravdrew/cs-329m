@@ -1,0 +1,812 @@
+{
+ "24124": {
+  "title": "feat: Calendar Sync",
+  "body": "## What does this PR do?\n\nImplements calendar sync functionality that allows Cal.com to sync booking changes from external calendars (Google Calendar, Office365) back to Cal.com. When a user cancels or reschedules a Cal.com booking directly in their external calendar, the change is synced back to Cal.com.\n\n### Key Changes\n\n1. **Infinite Loop Prevention**: Added flags to prevent infinite loops when calendar events are cancelled/rescheduled from external calendars:\n   - `skipCalendarSyncTaskCancellation` flag in `handleCancelBooking` - skips calendar event deletion\n   - `skipCalendarSyncTaskCreation` flag in `handleNewBooking` - skips calendar event creation (existing)\n   \n   The flow is:\n   - User deletes/modifies event in Google Calendar\n   - Google sends webhook to Cal.com\n   - CalendarSyncService processes the change\n   - handleCancelBooking/RegularBookingService is called with the appropriate skip flag set to `true`\n   - This prevents Cal.com from trying to update the external calendar again\n\n2. **CalendarSyncService Implementation**: \n   - `cancelBooking()`: Cancels a booking when the corresponding calendar event is deleted (uses `handleCancelBooking`)\n   - `rescheduleBooking()`: Updates booking times when the calendar event is rescheduled (uses `RegularBookingService.createBooking()` directly with `rescheduleUid`)\n   - **Error handling**: Errors are caught and logged but don't block the calendar sync operation\n   - Uses `safeStringify(error)` for proper error serialization in logs\n\n3. **Schema Update**: Added `skipCalendarSyncTaskCancellation` to `bookingCancelSchema` in zod-utils.ts\n\n4. **Booking Reference Consistency**: Moved booking reference update (`deleted: true`) outside the `skipCalendarSyncTaskCancellation` conditional block - references are always marked as deleted for data consistency since the external event is already deleted\n\n5. **Comprehensive Test Suite**: Added 16 unit tests covering:\n   - Event filtering (only Cal.com events processed)\n   - Booking cancellation scenarios\n   - Booking rescheduling scenarios\n   - Edge cases (null UIDs, malformed UIDs, missing bookings)\n   - Error handling (verifies errors are caught and logged, not thrown)\n\n### Updates since last revision\n\n- Added Sentry metrics telemetry to CalendarSyncService for observability:\n  - `calendar.sync.handleEvents.calls` - tracks sync invocations by integration\n  - `calendar.sync.handleEvents.events_count` - distribution of Cal.com events per sync\n  - `calendar.sync.cancelBooking.calls` / `calendar.sync.rescheduleBooking.calls` - tracks success/error/skipped status\n  - Duration metrics (`duration_ms`) for cancel and reschedule operations\n- Fixed null assertions by replacing `!` operators with proper null checks:\n  - `booking.userId` and `booking.userPrimaryEmail` checked before cancellation\n  - `booking.eventTypeId` checked before rescheduling\n  - Returns early with warning log and \"skipped\" metric when required data is missing\n- **Fixed RAQB import error**: \n  - `CalendarSyncService.ts`: Changed `getRegularBookingService` to use dynamic import\n  - `getRoutedUsers.ts`: Changed `findTeamMembersMatchingAttributeLogic` to use dynamic import (root cause fix)\n  - This prevents `react-awesome-query-builder` from being loaded at module evaluation time, fixing the \"Super expression must either be null or a function\" error in the calendar-subscription webhook endpoint\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A - internal implementation detail.\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n## How should this be tested?\n\n1. Set up a calendar subscription webhook for Google Calendar or Office365\n2. Create a booking in Cal.com that syncs to the external calendar\n3. Delete the event directly in Google Calendar/Office365\n4. Verify the booking is cancelled in Cal.com without creating an infinite loop\n5. Similarly test rescheduling by modifying the event time in the external calendar\n\n## Human Review Checklist\n\n- [ ] Verify the hardcoded values in `rescheduleBooking` are acceptable: `language: \"en\"`, `metadata: {}`, `timeZone: event.timeZone ?? \"UTC\"`\n- [ ] Verify that using `rescheduleUid` triggers a proper reschedule flow (not creating a duplicate booking)\n- [ ] Verify that removing `allRemainingBookings`/`cancelSubsequentBookings` is correct - now only cancels single bookings, not recurring series\n- [ ] Review edge cases where the skip flags might incorrectly skip legitimate calendar updates\n- [ ] Verify that silently catching errors in CalendarSyncService (logging but not throwing) is acceptable behavior\n- [ ] Verify the dynamic imports in `CalendarSyncService.ts` and `getRoutedUsers.ts` don't introduce any timing/race condition issues\n\n## Checklist\n\n- [x] My code follows the style guidelines of this project\n- [x] I have commented my code, particularly in hard-to-understand areas\n- [x] I have checked if my changes generate no new warnings\n\n\n---\nLink to Devin run: https://app.devin.ai/sessions/20575cfa274d4721bc8badeda938cc93\nRequested by: Volnei Munhoz (volnei@cal.com) (@volnei)\n<!-- devin-review-badge-begin -->\n\n---\n\n<a href=\"https://app.devin.ai/review/calcom/cal.com/pull/24124\">\n  <picture>\n    <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://static.devin.ai/assets/gh-open-in-devin-review-dark.svg?v=1\">\n    <img src=\"https://static.devin.ai/assets/gh-open-in-devin-review-light.svg?v=1\" alt=\"Open with Devin\">\n  </picture>\n</a>\n<!-- devin-review-badge-end -->\n",
+  "merged_at": "2026-02-26T16:12:52Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/24124",
+  "additions": 1877,
+  "deletions": 42,
+  "changed_files": 6,
+  "labels": [
+   "core",
+   "foundation",
+   "ready-for-e2e",
+   "size/XXL"
+  ],
+  "author": "volnei"
+ },
+ "22311": {
+  "title": "feat: Add contact form for free users in Plain support widget",
+  "body": "\n# refactor: Use @calcom/ui components and useLocale in Plain contact form\n\n## Summary\n\nThis PR updates the Plain support widget to conditionally show a contact form for free users while maintaining the real-time chat for paid users. The contact form component has been refactored to use @calcom/ui components and implement internationalization using the useLocale hook.\n\n**Key Changes:**\n- **PlainContactForm.tsx**: Complete refactor to use `Input`, `Label`, `TextArea` from @calcom/ui instead of native HTML elements\n- **Internationalization**: Added `useLocale` hook with translation keys for all user-facing text\n- **API Integration**: Created new `/api/plain-contact` endpoint that integrates with Plain's GraphQL API to create customers and support threads\n- **Conditional Rendering**: Updated `plainChat.tsx` to show contact form for free users, chat widget for paid users\n- **Test Coverage**: Added comprehensive test suites for both the component and API endpoint\n\n## Review & Testing Checklist for Human\n\n- [ ] **Verify translation keys exist** - Check that all translation keys used (`contact_support`, `name`, `email`, `subject`, `message`, `message_sent`, `contact_form_success_message`, `send_another_message`, `sending`, `send_message`) are defined in the i18n system\n- [ ] **Test UI components rendering** - Verify that @calcom/ui components render correctly and match the design system standards\n- [ ] **Test end-to-end contact form flow** - As a free user, open the contact form, fill it out, submit it, and verify it creates a support thread in Plain\n- [ ] **Test conditional rendering** - Verify that free users see the contact form and paid users see the chat widget\n- [ ] **Test Plain API integration** - Verify the API endpoint works with real Plain credentials and creates customers/threads correctly\n\n---\n\n### Diagram\n\n```mermaid\n%%{ init : { \"theme\" : \"default\" }}%%\ngraph TB\n    User[User]\n    PlainChat[\"apps/web/lib/plain/plainChat.tsx\"]:::minor-edit\n    PlainContactForm[\"apps/web/lib/plain/PlainContactForm.tsx\"]:::major-edit\n    PlainAPI[\"apps/web/app/api/plain-contact/route.ts\"]:::major-edit\n    PlainService[\"Plain API<br/>(External)\"]:::context\n    UIComponents[\"@calcom/ui<br/>Input, Label, TextArea\"]:::context\n    LocaleHook[\"useLocale hook<br/>@calcom/lib/hooks/useLocale\"]:::context\n    \n    PlainContactTest[\"apps/web/lib/plain/__tests__/PlainContactForm.test.tsx\"]:::major-edit\n    PlainAPITest[\"apps/web/app/api/plain-contact/__tests__/route.test.ts\"]:::major-edit\n\n    User -->|\"Free user\"| PlainChat\n    PlainChat -->|\"Renders\"| PlainContactForm\n    PlainContactForm -->|\"Uses\"| UIComponents\n    PlainContactForm -->|\"Uses\"| LocaleHook\n    PlainContactForm -->|\"Submits to\"| PlainAPI\n    PlainAPI -->|\"GraphQL calls\"| PlainService\n    \n    PlainContactTest -->|\"Tests\"| PlainContactForm\n    PlainAPITest -->|\"Tests\"| PlainAPI\n\n    subgraph Legend\n        L1[Major Edit]:::major-edit\n        L2[Minor Edit]:::minor-edit\n        L3[Context/No Edit]:::context\n    end\n\n    classDef major-edit fill:#90EE90\n    classDef minor-edit fill:#87CEEB\n    classDef context fill:#FFFFFF\n```\n\n### Notes\n\n- **Session**: Requested by peer@cal.com via Slack #talk-to-devin\n- **Devin Session**: https://app.devin.ai/sessions/4c1d3ccb2e3e4321b36de96aced340d0\n- **CI Status**: Code-specific checks (lint, type-check) are passing. Unit test failure is unrelated Google Calendar test.\n- **Translation Strategy**: Used predictable translation keys following patterns found in the codebase, but human verification needed\n- **Plain API**: Implemented GraphQL mutations for `upsertCustomer` and `createThread` based on Plain documentation\n",
+  "merged_at": "2025-07-24T18:14:39Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/22311",
+  "additions": 1334,
+  "deletions": 12,
+  "changed_files": 13,
+  "labels": [
+   "\u2728 feature",
+   "i18n",
+   "ready-for-e2e"
+  ],
+  "author": "devin-ai-integration[bot]"
+ },
+ "23595": {
+  "title": "feat: add time-based cancellation fees for no-show fee events",
+  "body": "## What does this PR do?\r\n\r\nExtends Cal.com's existing no-show fee system to support time-based cancellation fees. When a booking is cancelled within a configurable time frame (minutes/hours/days), the system automatically charges the held no-show fee. The feature includes:\r\n\r\n- **Configurable time thresholds** in event type settings (minutes/hours/days before event start)\r\n- **Automatic fee charging** when bookings are cancelled within the threshold\r\n- **Role-based exemptions** for organizers/admins (they can cancel without fees)\r\n- **User warnings** displayed during the cancellation process\r\n- **Integration with existing payment infrastructure** using the current no-show fee system\r\n\r\n\r\nhttps://www.loom.com/share/822045a284c948299e98a58d77a32b52\r\n\r\n**Requested by:** joe@cal.com (@joeauyeung)  \r\n**Link to Devin run:** https://app.devin.ai/sessions/37ae4e54c6d44a2cb304c6c844588374\r\n\r\n## Key Implementation Details\r\n\r\n### Schema Extensions\r\n- Extended `stripepayment/zod.ts` with `cancellationFeeEnabled`, `cancellationFeeTimeValue`, and `cancellationFeeTimeUnit` fields\r\n- Stored in existing `EventType.metadata.apps.stripe` structure for consistency\r\n\r\n### UI Components\r\n- Added configuration toggle in EventAdvancedTab (only shown when no-show fees are enabled)\r\n- Added warning display in CancelBooking component when fee would be charged\r\n- Integrated with existing translation system\r\n\r\n### Backend Logic\r\n- Added `shouldChargeCancellationFee` function in `handleCancelBooking.ts`\r\n- Reuses existing payment service infrastructure for charging\r\n- Implements time threshold calculations for minutes/hours/days\r\n\r\n## How should this be tested?\r\n\r\n### Prerequisites\r\n- Stripe payment app configured with \"Hold and charge later\" option\r\n- Event type with no-show fees enabled\r\n\r\n### Test Scenarios\r\n1. **Configuration Testing**\r\n   - Enable no-show fees \u2192 cancellation fee option should appear\r\n   - Configure different time thresholds (1 hour, 24 hours, 2 days, etc.)\r\n   - Verify settings persist correctly\r\n\r\n2. **Cancellation Fee Charging**\r\n   - Book an event with cancellation fees configured (1 hour threshold)\r\n   - Cancel within threshold \u2192 should show warning and charge fee\r\n   - Cancel outside threshold \u2192 should not charge fee\r\n\r\n3. **Role-based Exemptions** \r\n   - Organizer cancels within threshold \u2192 no fee charged\r\n   - Admin cancels within threshold \u2192 no fee charged\r\n   - Regular attendee cancels within threshold \u2192 fee charged\r\n\r\n4. **Edge Cases**\r\n   - Test timezone handling for threshold calculations\r\n   - Test with recurring events\r\n   - Test payment failures during fee charging\r\n\r\n## Critical Review Areas\r\n\r\n\u26a0\ufe0f **Payment Integration**: The automatic fee charging logic relies on existing payment service infrastructure. Verify that:\r\n- Payment credentials are correctly retrieved\r\n- Fee charging doesn't interfere with existing payment flows\r\n- Error handling prevents booking cancellation failures\r\n\r\n\u26a0\ufe0f **Time Calculations**: The threshold logic needs careful review for:\r\n- Timezone handling accuracy\r\n- Edge cases around daylight saving time\r\n- Correct handling of different time units (minutes/hours/days)\r\n\r\n\u26a0\ufe0f **Type Safety**: Heavy use of type casting for `Prisma.JsonValue` metadata. Review:\r\n- Metadata structure access patterns\r\n- Null/undefined handling\r\n- Type assertions are safe\r\n\r\n\u26a0\ufe0f **UI State Management**: EventAdvancedTab metadata updates must:\r\n- Preserve existing stripe configuration (price, currency, etc.)\r\n- Handle form state correctly\r\n- Not overwrite unrelated metadata\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [ ] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [ ] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). If N/A, write N/A here and check the checkbox.\r\n- [ ] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\r\n## Checklist\r\n\r\n- [x] My code follows the style guidelines of this project\r\n- [x] I have commented my code, particularly in hard-to-understand areas\r\n- [x] I have checked if my changes generate no new warnings\r\n- [x] Type checking passes (`yarn type-check:ci --force`)\r\n- [x] All tests pass (`TZ=UTC yarn test`)",
+  "merged_at": "2025-09-05T17:46:54Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/23595",
+  "additions": 1415,
+  "deletions": 144,
+  "changed_files": 17,
+  "labels": [
+   "\u2728 feature",
+   "enterprise",
+   "bookings",
+   "billing",
+   "core",
+   "ready-for-e2e",
+   "size/XXL"
+  ],
+  "author": "joeauyeung"
+ },
+ "30354": {
+  "title": "feat: overlay calendar v2 and troubleshooter v2",
+  "body": "## What does this PR do?\r\n\r\nReimplementation of #14693 (closed as stale) on top of current main. Overlay calendar and troubleshooter show real calendar event titles instead of \"Busy\", and the overlay calendar can be enabled by signing in with Google or Microsoft.\r\n\r\n- Calendar services can implement `getAvailabilityWithTitles`. Implemented for Google Calendar and Office365 Calendar. Titles are only ever fetched in \"overlay\" mode for the logged-in user's own credentials, so they never reach anyone but the calendar owner. If fetching titles fails we fall back to `getAvailability`.\r\n- `availability.user` uses \"overlay\" mode only when the requested user is the logged-in user (compared by id, since usernames repeat across organizations).\r\n- Troubleshooter shows event titles for calendar busy times.\r\n- Overlay calendar shows event titles in the week view and in the hover card of a conflicting time slot.\r\n- Overlay calendar starts with the calendars selected for conflict checking and loads them right away, instead of starting with the primary calendar only and waiting for a manual toggle.\r\n- The \"continue\" modal offers the social logins the instance has enabled (fetched from next-auth once the modal opens). Signing in with Google or Microsoft also connects that calendar, so the user comes straight back to the booking page with the overlay on. No change to the Google OAuth scopes.\r\n- Weekly view renders events that span midnight on every day they cover. Previously multi-day and all-day events were only drawn on their first day.\r\n\r\nNo schema, migration, or env changes.\r\n\r\nFixes #12763\r\nFixes #12752\r\nFixes #20793\r\n\r\n## Visual Demo (For contributors especially)\r\n\r\n#### Video Demo: https://cap.so/s/m75bdqsyhcq93hr\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [x] I have updated the developer docs if this PR makes changes that would require a documentation change. If N/A, write N/A here and check the checkbox. N/A\r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\r\n## How should this be tested?\r\n\r\nEnvironment: `GOOGLE_API_CREDENTIALS` and `GOOGLE_LOGIN_ENABLED=true` (and/or `MS_GRAPH_CLIENT_ID`/`MS_GRAPH_CLIENT_SECRET` for Microsoft). A Google or Outlook calendar with a few events, including one that crosses midnight and one all-day event.\r\n\r\n### Overlay calendar\r\n\r\n1. Open a booking page while logged out and toggle \"Overlay my calendar\".\r\n2. Pick \"Continue with Google\" (or Microsoft) and sign in.\r\n3. You land back on the booking page with the overlay on and the calendars you check for conflicts already overlaid.\r\n4. Busy times show their event titles in the week view. Click a conflicting slot: the hover card on the confirm button shows the title and time range.\r\n5. An event crossing midnight appears on both days, and its hover card shows the date on both ends.\r\n\r\n### Troubleshooter\r\n\r\n1. Log in with a Google or Outlook calendar connected and checked for conflicts.\r\n2. Open the troubleshooter and select an event type.\r\n3. Calendar busy times show their event titles instead of \"Busy\". Multi-day events appear on every day they cover.\r\n\r\n### Automated\r\n\r\nUnit tests added for the Google and Office365 `getAvailabilityWithTitles`, `getCalendarsEvents` overlay mode and fallback, `availability.user` handler mode selection, the weekly view day-splitting utils, the overlap hook, the telemetry wrapper, the overlay hook defaults, and the continue modal. Run with `TZ=UTC yarn vitest run` on the changed test files.\r\n",
+  "merged_at": "2026-10-18T07:14:50Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/30354",
+  "additions": 1082,
+  "deletions": 68,
+  "changed_files": 32,
+  "labels": [
+   "\ud83d\udc1b bug",
+   "\ud83e\uddf9 Improvements",
+   "Medium priority",
+   "booking-page",
+   "calendar-apps",
+   "community",
+   "ready-for-e2e",
+   "size/XXL",
+   "run-ci"
+  ],
+  "author": "kart1ka"
+ },
+ "25313": {
+  "title": "feat: OAuth PKCE",
+  "body": "## What does this PR do?\r\n\r\nAdds PKCE support to OAuth by allowing public clients without a client secret.\r\n\r\nFixes #25408\r\nFixes CAL-6818\r\n\r\n## How should this be tested?\r\n\r\n1. Create a public OAuth Client in `/settings/admin/oAuth`\r\n2. Generate a code verifier and challenge:\r\n   - code_verifier, run: `(openssl rand -base64 32 | tr -d '=' | tr '+' '-' | tr '/' '_')`\r\n   - code_challenge, run: `(echo -n \"{CODE_VERIFIER}\" | openssl dgst -binary -sha256 | openssl base64 -A | tr -d '=' | tr '+' '-' | tr '/' '_' && echo)`\r\n\r\n3. request authorization code\r\n   - localhost:3000/auth/oauth2/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&response_type=code&code_challenge={CODE_CHALLENGE}&code_challenge_method=S256\r\n4. Exchange auhorizaiton code for tokens \r\n   curl -X POST http://localhost:3000/api/auth/oauth/token \\\r\n  -H \"Content-Type: application/x-www-form-urlencoded\" \\\r\n  -d \"grant_type=authorization_code\" \\\r\n  -d \"code={AUTHORIZATION_CODE}\" \\\r\n  -d \"client_id={CLIENT_ID}\" \\\r\n  -d \"redirect_uri={REDIRECT_URI}\" \\\r\n  -d \"code_verifier={CODE_VERIFIER}\"\r\n--> Expected result: you should recieve access_token, refresh_token, expires_in\r\n\r\n5. Call refresh token endpoint \r\n```\r\ncurl -X POST http://localhost:3000/api/auth/oauth/refreshToken \\\r\n  -H \"Content-Type: application/x-www-form-urlencoded\" \\\r\n  -d \"grant_type=refresh_token\" \\\r\n  -d \"client_id={CLIENT_ID}\" \\\r\n  -d \"refresh_token={REFRESH_TOKEN_FROM_PREVIOUS_RESPONSE}\" \\\r\n  -d \"code_verifier={CODE_VERIFIER}\"\r\n```\r\n## Checklist\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\n\n\n\n<!-- This is an auto-generated description by cubic. -->\n---\n## Summary by cubic\nAdd OAuth PKCE with a new Public client type and an admin switch. Token/refresh enforce client_secret for Confidential, code_verifier (S256) for Public, and support optional PKCE for Confidential (code_verifier required on token exchange and refresh when used), returning standard OAuth fields.\n\n- **New Features**\n  - Added client types: CONFIDENTIAL and PUBLIC (PKCE). Admin UI includes a \u201cUse PKCE\u201d switch.\n  - Token and refresh endpoints: validate client_secret for confidential; verify PKCE (S256 only) for public; confidential clients can use PKCE and must send code_verifier on token exchange and refresh if PKCE was used. Refresh accepts refresh_token in body or Authorization; both endpoints return token_type/expires_in with no-store headers.\n  - Stores codeChallenge and codeChallengeMethod on AccessCode; clientSecret is optional for public clients.\n  - TRPC updates: addClient accepts enablePkce; generateAuthCode accepts codeChallenge and codeChallengeMethod. New PKCE util added.\n\n- **Migration**\n  - Run Prisma migrations (new enum, nullable clientSecret, clientType default confidential).\n  - Ensure CALENDSO_ENCRYPTION_KEY is set.\n  - For PKCE clients: send code_challenge (+ method, S256 required) when creating auth codes, and code_verifier when exchanging or refreshing tokens.\n  - Existing confidential clients continue to work without changes.\n\n<sup>Written for commit 66a75f26fd01380f81d8b2847e90d5ef55c8d979. Summary will update automatically on new commits.</sup>\n\n<!-- End of auto-generated description by cubic. -->\n\n\n\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+  "merged_at": "2025-11-26T16:02:42Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/25313",
+  "additions": 2032,
+  "deletions": 108,
+  "changed_files": 19,
+  "labels": [
+   "\u2757\ufe0f migrations",
+   "High priority",
+   "core",
+   "consumer",
+   "ready-for-e2e",
+   "size/XXL"
+  ],
+  "author": "CarinaWolli"
+ },
+ "24324": {
+  "title": "feat: report booking",
+  "body": "## What does this PR do?\r\n\r\n<!-- Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change. -->\r\n\r\nThis PR adds the feature to report problematic bookings (Spam, Don't Know Person, Other) and cancel booking when reporting\r\n\r\nUser reports booking \u2192 System creates BookingReport record with booker email, reason, description, and watchlistId: null \u2192 Report badge shows on booking with count/tooltip \u2192 Upcoming booking when reporting would get cancelled\r\n\r\n\r\nPlanned( In follow up PR)\r\n\r\nAdmin views aggregated reports grouped by email \u2192 Admin selects problematic email \u2192 Admin adds to watchlist (choosing REPORT/BLOCK/ALERT action) \u2192 System creates Watchlist entry and updates watchlistId on all related BookingReport records \u2192 Future bookings from that email get blocked/flagged based on watchlist action\r\n\r\nSome things are taken from this PR https://github.com/calcom/cal.com/pull/22709\r\n\r\nhttps://github.com/user-attachments/assets/49c66870-1e12-47fe-981f-7545fc8dbdda\r\n\r\n\r\n![Screenshot 2025-10-08 at 1 37 11\u202fAM](https://github.com/user-attachments/assets/0f774465-1b06-4a58-9c1a-d924e33dbc6f)\r\n\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [x] N/A I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). If N/A, write N/A here and check the checkbox.\r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\r\n## How should this be tested?\r\n\r\n1) Go to upcoming bookings\r\n2) Click on three dots icons\r\n3) Click on \"Report Booking\" \r\n \r\n Test both with cancellation and without cancellation\r\n\r\n",
+  "merged_at": "2025-10-14T08:23:31Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/24324",
+  "additions": 1272,
+  "deletions": 4,
+  "changed_files": 19,
+  "labels": [
+   "\u2728 feature",
+   "\u2757\ufe0f migrations",
+   "High priority",
+   "enterprise",
+   "bookings",
+   "core",
+   "ready-for-e2e",
+   "size/XXL"
+  ],
+  "author": "Udit-takkar"
+ },
+ "20646": {
+  "title": "feat: Embed - Show skeleton loader when pageType is provided",
+  "body": "<!-- This is an auto-generated description by mrge. -->\r\n## Summary by mrge\r\nAdded skeleton loader for embeds to improve user experience during loading. This replaces the default rotating loader with a more visually appealing skeleton UI that matches the final content layout.\r\n\r\n- **New Features**\r\n  - Created skeleton loader UI for booking page embeds that mimics the actual content\r\n  - Added support for both inline and modal embed types\r\n  - Implemented automatic detection of page type to show appropriate skeleton\r\n  - Built dynamic theme support for skeleton loaders (light/dark modes)\r\n\r\n- **Refactors**\r\n  - Restructured loader display logic to conditionally show skeleton or default loader\r\n  - Enhanced embed initialization to properly handle page type detection\r\n  - Improved theme handling for embedded components\r\n  - Added height adjustment to prevent layout shifts when content loads\r\n\r\n\r\n## What does this PR do?\r\n\r\n<!-- Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change. -->\r\n\r\n- Fixes CAL-5457\r\n\r\n#### Video Demo (if applicable):\r\n\r\n[Demo - Loom](https://www.loom.com/share/49723c3f9da3480dab25020ec66f174b)\r\n\r\n#### Image Demo (if applicable):\r\n\r\n- Add side-by-side screenshots of the original and updated change.\r\n- Highlight any significant change(s).\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [ ] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [ ] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). If N/A, write N/A here and check the checkbox.\r\n- [ ] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\r\n## How should this be tested?\r\n\r\n<!-- Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration. Write details that help to start the tests -->\r\n\r\n- Are there environment variables that should be set?\r\n- What are the minimal test data to have?\r\n- What is expected (happy path) to have (input and output)?\r\n- Any other important info that could help to test that PR\r\n\r\n",
+  "merged_at": "2025-04-16T13:40:51Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/20646",
+  "additions": 1645,
+  "deletions": 268,
+  "changed_files": 23,
+  "labels": [
+   "\u2728 feature",
+   "enterprise",
+   "embed",
+   "core",
+   "ready-for-e2e"
+  ],
+  "author": "hariombalhara"
+ },
+ "24122": {
+  "title": "feat: add booking flags for skipAvailabilityCheck, skipEventLimitsCheck, skipCalendarSyncTaskCreation",
+  "body": "## What does this PR do?\n\nThis PR introduces three new optional boolean flags to the `handleNewBooking` function that allow selective bypassing of core validation and synchronization operations during booking creation:\n\n- **`skipAvailabilityCheck`**: Bypasses all `ensureAvailableUsers` calls that validate user availability\n- **`skipEventLimitsCheck`**: Bypasses booking and duration limits validation  \n- **`skipCalendarSyncTaskCreation`**: Bypasses `EventManager` operations that create/update calendar events\n\nAll flags default to `false` to maintain backward compatibility. The implementation conditionally wraps existing logic without duplicating code.\n\n**Link to Devin run:** https://app.devin.ai/sessions/fc258a34aa1a4b4fac020537bba8df8f  \n**Requested by:** @volnei\n\n## How should this be tested?\n\nThe new test file `booking-flags.test.ts` covers:\n- Each flag individually to verify the specific operations are skipped\n- Combined flags to ensure they work together\n- Verification that bookings are still created successfully when validations are bypassed\n\n**Key test scenarios:**\n- `skipAvailabilityCheck`: Booking succeeds even without availability validation\n- `skipEventLimitsCheck`: Booking succeeds even with booking limits that would normally block it\n- `skipCalendarSyncTaskCreation`: Booking is created but no calendar references are stored (empty `references` array)\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [ ] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). **This will need documentation for API consumers explaining when/why to use these flags.**\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n## Human Review Checklist\n\n**\u26a0\ufe0f HIGH PRIORITY REVIEW ITEMS:**\n\n- [ ] **Business Justification**: When and why would we want to bypass availability checks, booking limits, or calendar sync? What are the legitimate use cases?\n- [ ] **Security Implications**: Are there scenarios where bypassing these validations could lead to security issues, data corruption, or poor user experience?\n- [ ] **Implementation Completeness**: \n  - [ ] Verify ALL `ensureAvailableUsers` calls are properly wrapped with `skipAvailabilityCheck`\n  - [ ] Verify ALL booking/duration limit checks are wrapped with `skipEventLimitsCheck` \n  - [ ] Verify ALL `EventManager` operations are wrapped with `skipCalendarSyncTaskCreation`\n- [ ] **API Documentation**: These flags need clear documentation about their purpose and risks\n- [ ] **Edge Case Testing**: Test behavior when flags are mixed with other booking scenarios (recurring events, team bookings, etc.)\n\n**Technical Review:**\n- [ ] Type safety: `BookingHandlerInput` interface changes are backward compatible\n- [ ] Default values ensure no breaking changes for existing API consumers  \n- [ ] Error handling remains consistent when validations are skipped\n- [ ] Calendar sync bypass properly handles both creation and rescheduling scenarios",
+  "merged_at": "2025-09-29T14:02:31Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/24122",
+  "additions": 505,
+  "deletions": 76,
+  "changed_files": 2,
+  "labels": [
+   "\u2728 feature",
+   "bookings",
+   "core",
+   "foundation",
+   "ready-for-e2e",
+   "size/XL"
+  ],
+  "author": "volnei"
+ },
+ "25568": {
+  "title": "feat: add time shift badge for recurring events with shifted local times",
+  "body": "## What does this PR do?\r\n\r\n<!-- Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change. -->\r\n\r\n- Fixes #25237\r\n- Fixes [CAL-6776](https://linear.app/calcom/issue/CAL-6776/add-time-shift-badge-to-recurring-events)\r\n\r\n## Visual Demo (For contributors especially)\r\n\r\nA visual demonstration is strongly recommended, for both the original and new change **(video / image - any one)**.\r\n\r\n#### Video Demo (if applicable):\r\n\r\n\r\nhttps://github.com/user-attachments/assets/d884d71e-2de3-48e9-88e4-558682b7fcdd\r\n\r\n\r\n\r\n- Add time-shift detection helper\r\n   - IIntroduce getTimeShiftFlags in packages/lib/timeShift.ts to identify recurring occurrences whose local start time (HH:mm) differs from the first occurrence in the target timezone.\r\n   - Handles DST transitions, timezone changes, and other scenarios where the same UTC time maps to a different local time.\r\n   - Add unit tests in packages/lib/__tests__/timeShift.test.ts covering DST transitions and non-shifting scenarios.\r\n- Display time shift on booking page\r\n   - Extend EventOccurences in packages/features/bookings/components/event-meta/Occurences.tsx to use getTimeShiftFlags alongside parseRecurringDates.getTimeShiftFlags alongside parseRecurringDates.\r\n   - Display an orange Time shift badge next to occurrences whose local start time differs from the first occurrence.\r\n- Display time shift on booking success page\r\n    - Update RecurringBookings in apps/web/modules/bookings/views/bookings-single-view.tsx to compute shift flags for recurring dates using getTimeShiftFlags.\r\n    - Show the same orange Time shift badge beside shifted instances in both the main list and the expanded \"+ more\" section.\r\n- Localization\r\n   - Add time_shift translation key to apps/web/public/static/locales/en/common.json for the badge label.\r\n- Behaviour\r\n   - For recurring events, only occurrences with a different local start time (compared to the first occurrence) are highlighted with the badge, helping users identify when meeting times shift due to DST or timezone changes.\r\n   \r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [ ] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). If N/A, write N/A here and check the checkbox.\r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\r\n## How should this be tested?\r\n\r\n<!-- Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration. Write details that help to start the tests -->\r\n\r\n- Are there environment variables that should be set?\r\n- What are the minimal test data to have?\r\n- What is expected (happy path) to have (input and output)?\r\n- Any other important info that could help to test that PR\r\n\r\n## Checklist\r\n\r\n<!-- Remove bullet points below that don't apply to you -->\r\n\r\n- I haven't read the [contributing guide](https://github.com/calcom/cal.com/blob/main/CONTRIBUTING.md)\r\n- My code doesn't follow the style guidelines of this project\r\n- I haven't commented my code, particularly in hard-to-understand areas\r\n- I haven't checked if my changes generate no new warnings\r\n",
+  "merged_at": "2025-12-11T20:18:00Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/25568",
+  "additions": 160,
+  "deletions": 12,
+  "changed_files": 5,
+  "labels": [
+   "Low priority",
+   "community",
+   "ready-for-e2e",
+   "size/L"
+  ],
+  "author": "KartikLabhshetwar"
+ },
+ "27428": {
+  "title": "feat: add keyboard shortcuts and tooltips to booking slideover buttons",
+  "body": "## What does this PR do?\n\nAdds keyboard shortcuts and tooltips to the booking details slideover navigation buttons:\n\n- **Up Arrow (\u2191)**: Navigate to previous booking\n- **Down Arrow (\u2193)**: Navigate to next booking  \n- **ESC**: Close slideover (already existed, now has tooltip)\n- **Enter**: Join meeting (opens conferencing link)\n\nEach button now displays a tooltip showing the keyboard shortcut on hover.\n\nKeyboard shortcuts are automatically disabled when focus is inside a Radix overlay (dialog, dropdown, popover, etc.) so they don't interfere with overlay interactions like BookingActionsDropdown.\n\n### Changes\n\n- **`bookingSheetKeyboardHandler.ts`** *(new)*: Extracted keyboard handler logic into a testable utility. Exports `isEditableTarget`, `checkSheetActive`, and `createBookingSheetKeydownHandler`.\n- **`bookingSheetKeyboardHandler.test.ts`** *(new)*: 25 unit tests covering editable target detection, sheet active state, arrow key propagation behavior (including at list boundaries), Enter key handling, overlay suppression, and unhandled key passthrough.\n- **`booking-sheet-keyboard.e2e.ts`** *(new)*: 6 Playwright E2E tests covering arrow navigation, boundary conditions (first/last booking), dropdown suppression at boundaries, Escape to close, and rapid keypresses.\n- **`BookingDetailsSheet.tsx`**: Uses the extracted utility for keyboard handling. Wrapped navigation and close buttons with `<Tooltip>`. Added `isSheetActive()` check using Radix portal detection. Updated `onInteractOutside` to check both `[data-booking-list-item]` and `[data-booking-calendar-event]` selectors. Added `data-testid=\"booking-sheet-title\"` for stable E2E selectors.\n- **`JoinMeetingButton.tsx`**: Converted to `forwardRef` to support ref from parent. Added optional `showTooltip` prop that wraps button in `<Tooltip>`.\n- **`Event.tsx`** (weekly calendar): Added `data-booking-uid` attribute and `data-booking-calendar-event` attribute to calendar event buttons so the sheet stays open when clicking between events.\n- **`common.json`**: Added 4 i18n keys: `close_shortcut`, `previous_shortcut`, `next_shortcut`, `join_shortcut`.\n\n### Calendar view fix\n\nThe sheet's `onInteractOutside` handler previously only checked for `[data-booking-list-item]`, which meant clicking between calendar events would close and reopen the sheet. Fixed by:\n1. Adding `data-booking-uid` and `data-booking-calendar-event` to calendar event buttons in `Event.tsx`\n2. Checking both `[data-booking-list-item]` and `[data-booking-calendar-event]` in the `onInteractOutside` handler \u2014 this covers both list and calendar views\n\n### Arrow key / actions dropdown fix\n\nPressing Arrow Up/Down was opening the BookingActionsDropdown alongside (or instead of) navigating bookings. Root cause: Radix's `DropdownMenuTrigger` natively opens on `ArrowDown` keypress. The keyboard handler needed to **always** consume arrow key events when the sheet is active \u2014 both `preventDefault()` and `stopPropagation()` \u2014 regardless of whether navigation is possible. Previously, these calls were inside the `if (canGoNext/canGoPrev)` guard, so at the first or last booking the event would leak through to Radix.\n\nFixed by moving `e.preventDefault()` and `e.stopPropagation()` outside the navigation guard for ArrowUp/ArrowDown. Navigation still only triggers when possible, but the event is always consumed.\n\n### Overlay suppression approach\n\nUses Radix portal detection (`[data-radix-portal]`) to determine whether the focused element is inside an overlay. The `checkSheetActive()` logic:\n if no element has focus, or focus is inside the sheet content, or focus is not inside any Radix portal \u2192 shortcuts work. Otherwise (focus is in a Radix portal that isn't the sheet) \u2192 shortcuts suppressed.\n\n### Capture phase and stopPropagation\n\n\nThe keyboard listener is registered in the **capture phase** (`addEventListener(\"keydown\", handler, true)`). This ensures shortcuts intercept events *before* they reach and activate any focused button. ArrowUp/ArrowDown always call `stopPropagation()` when the sheet is active (even at list boundaries). Enter calls `stopPropagation()` only when a join link is present.\n\n## Human Review Checklist\n\n> Items worth verifying manually:\n\n- [ ] **Arrow keys at list boundaries**: Navigate to the first booking \u2192 press Arrow Up \u2192 should do nothing but NOT open the actions dropdown. Same for last booking + Arrow Down.\n- [ ] **Calendar view: keyboard navigation**: In calendar view, click an event to open the sheet \u2192 press Arrow Down/Up \u2192 should navigate between bookings **without opening the actions dropdown**.\n- [ ] **Booking list view: keyboard navigation**: Same test in list view.\n- [ ] Test with BookingActionsDropdown open: pressing Enter should NOT join the meeting, and Arrow Up/Down should NOT navigate bookings.\n- [ ] Test with any dialog open (e.g. reschedule, cancel, reassign): shortcuts should be suppressed.\n- [ ] After closing an overlay, shortcuts should work again immediately.\n- [ ] **Enter key side-effect fix**: Open the sheet, press Enter \u2192 should open the conference link in a new tab but should NOT open the BookingActionsDropdown.\n- [ ] Verify arrow keys can't scroll the page when the sheet is open (this is intentional \u2014 arrows are consumed by the sheet).\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A - no docs changes needed.\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n## How should this be tested?\n\n1. Navigate to the `/bookings` page\n2. Click on a booking to open the slideover panel\n3. Verify tooltips appear when hovering over navigation buttons\n4. Test keyboard shortcuts:\n   - Press Up Arrow to navigate to previous booking\n   - Press Down Arrow to navigate to next booking\n   - Press ESC to close the slideover\n   - Press Enter to open the meeting link (when Join button is visible)\n5. **Test at list boundaries**:\n   - Navigate to the first booking \u2192 press Arrow Up \u2192 nothing should happen, dropdown should NOT open\n   - Navigate to the last booking \u2192 press Arrow Down \u2192 nothing should happen, dropdown should NOT open\n6. **Test overlay suppression**:\n   - Open the actions dropdown (three-dot menu) \u2192 press Arrow Up/Down \u2192 should NOT navigate bookings\n   - Open any dialog (reschedule, cancel, etc.) \u2192 press Enter \u2192 should NOT join meeting\n   - Close the overlay \u2192 shortcuts should work again\n7. **Test calendar view**:\n   - Switch to calendar view\n   - Click a calendar event to open the sheet\n   - Press Arrow Up/Down \u2192 should navigate bookings WITHOUT opening the actions dropdown\n   - Test at first/last booking in calendar view as well\n\n## Checklist\n\n- [x] My code follows the style guidelines of this project\n- [x] I have checked if my changes generate no new warnings\n\n---\n\nLink to Devin run: https://app.devin.ai/sessions/c89d946fc36b4c4b9921a095317deee0\nRequested by: @eunjae-lee\n\nPrevious Devin session: https://app.devin.ai/sessions/9870c25d9ff84a7d9ede1cde6f03f246\nOriginally requested by: @PeerRich",
+  "merged_at": "2026-02-19T17:02:43Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27428",
+  "additions": 899,
+  "deletions": 109,
+  "changed_files": 7,
+  "labels": [
+   "core",
+   "ready-for-e2e",
+   "size/XXL",
+   "devin-finish-pr"
+  ],
+  "author": "PeerRich"
+ },
+ "27211": {
+  "title": "feat: add multi-step download app dropdown with platform-specific options",
+  "body": "## What does this PR do?\n\nReplaces the single \"Download desktop app\" link in the user dropdown with a platform-aware download menu that shows relevant options based on the user's device.\n\n**Download behavior:**\n- **On mobile (iOS):** Single \"Download app\" menu item linking directly to iOS App Store\n- **On mobile (Android):** Single \"Download app\" menu item linking directly to Play Store\n- **On desktop (macOS/Windows/Linux):** Submenu with:\n  1. Desktop app for current OS\n  2. Browser extension for current browser (Chrome/Safari/Firefox/Edge)\n  3. iOS app\n  4. Android app\n\n**Changes:**\n- Created `useUserAgentData` hook in `packages/lib/hooks/` for detecting user's OS, browser, and mobile status\n- Migrated `UserDropdown.tsx` from Radix UI dropdown to `@coss/ui` Menu components\n- Added `DropdownMenuSub`, `DropdownMenuSubTrigger`, `DropdownMenuSubContent` components to UI library (for backwards compatibility)\n- Added i18n translations for all new download options\n- Created `DownloadIcons.tsx` with inline SVG components for all platform icons (Apple, Play Store, Chrome, Safari, Firefox, Edge, Windows, Linux)\n\n## Updates since last revision\n\n- Simplified mobile experience: no submenu on mobile, just a direct link to the relevant app store\n- Reordered desktop submenu: desktop app first, then browser extension, then mobile apps\n- Removed unused `/icons/download/*.svg` files (now inline in DownloadIcons.tsx)\n- Apple icon uses `fill-foreground` Tailwind class for dark/light mode adaptation\n- Other brand icons preserve their original colors/gradients\n- **Added comprehensive tests for `useUserAgentData` hook** (17 tests covering OS detection, browser detection, and SSR handling)\n\n## Visual Demo (For contributors especially)\n\n**Note:** Visual testing was not performed locally. Please verify the dropdown behavior, icon rendering, and theme compatibility.\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A - no documentation changes needed.\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n## How should this be tested?\n\n1. Log into the Cal.com web app on a **desktop browser**\n2. Click on the user dropdown in the sidebar\n3. Hover over \"Download app\" to open the submenu\n4. Verify on desktop:\n   - Desktop OS option appears first (MacOS/Windows/Linux based on your OS)\n   - Browser extension appears second (Chrome/Safari/Firefox/Edge based on your browser)\n   - iOS and Android options appear at the bottom\n5. **Test on mobile device or emulator:**\n   - On iOS: should see single \"Download app\" item (no submenu) linking to iOS App Store\n   - On Android: should see single \"Download app\" item (no submenu) linking to Play Store\n6. **Test dark/light mode:** Toggle between themes and verify:\n   - Apple icon adapts correctly (uses `fill-foreground`)\n   - Other brand icons remain visible with their original colors\n7. Click each link and verify correct URLs:\n   - iOS: https://go.cal.com/iOS\n   - Android: https://go.cal.com/android\n   - Chrome: https://go.cal.com/chrome\n   - Safari: https://go.cal.com/safari\n   - Firefox: https://go.cal.com/firefox\n   - Edge: https://go.cal.com/edge\n   - MacOS/Windows/Linux: https://cal.com/download\n\n## Checklist for Human Review\n\n- [ ] **Verify dropdown opens/closes correctly** - previous coss-ui migration attempt caused 500 error\n- [ ] **Verify submenu opens correctly on hover** (desktop only)\n- [ ] **Verify mobile shows direct link, not submenu** - iOS shows iOS link, Android shows Android link\n- [ ] **Verify user agent detection** - test on different browsers/OS to confirm correct options appear\n- [ ] **Verify Apple icon visibility in both light and dark modes** - uses `fill-foreground` class\n- [ ] **Verify brand icons render correctly** - Chrome, Play Store, Firefox, Edge have complex gradients\n- [ ] **Review `useUserAgentData` hook** - new hook created for this PR, verify regex patterns handle edge cases\n\n---\n\nLink to Devin run: https://app.devin.ai/sessions/ff6f0652f3d84c53866902c820fef8c0\nRequested by: @PeerRich",
+  "merged_at": "2026-01-26T16:17:33Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27211",
+  "additions": 1151,
+  "deletions": 161,
+  "changed_files": 8,
+  "labels": [
+   "ready-for-e2e",
+   "size/XXL"
+  ],
+  "author": "PeerRich"
+ },
+ "22024": {
+  "title": "feat: Phone based bookings for everyone (#21320)",
+  "body": "Reverts calcom/cal.com#22018\r\n\n    \n<!-- This is an auto-generated description by cubic. -->\n---\n\n## Summary by cubic\nEnabled phone-based bookings for all users, allowing bookings to be confirmed using either phone number or email.\n\n- **New Features**\n  - Added a toggle in the booking form to require either phone number or email for confirmations.\n  - Improved SMS notification logic and added tests to support phone-only bookings.\n\n<!-- End of auto-generated description by cubic. -->\n\n",
+  "merged_at": "2025-06-27T09:09:04Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/22024",
+  "additions": 444,
+  "deletions": 66,
+  "changed_files": 7,
+  "labels": [
+   "\u2728 feature",
+   "enterprise",
+   "bookings",
+   "core",
+   "ready-for-e2e"
+  ],
+  "author": "Udit-takkar"
+ },
+ "21320": {
+  "title": "feat: Phone based bookings for everyone",
+  "body": "## What does this PR do?\r\n\r\n<!-- Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change. -->\r\n\r\n- Fixes https://github.com/calcom/cal.com/issues/21204 (GitHub issue number)\r\n- Fixes https://linear.app/calcom/issue/CAL-5737/ui-improvements-for-phone-based-bookings (Linear issue number - should be visible at the bottom of the GitHub issue description)\r\n\r\n![Screenshot 2025-05-27 at 8 53 38\u202fPM](https://github.com/user-attachments/assets/59b36634-66c8-42b0-b1ff-12875a636a28)\r\n\r\n\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [x] N/A I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). If N/A, write N/A here and check the checkbox.\r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\r\n## How should this be tested?\r\n\r\n1) Go to any event type advanced settings\r\n2) Clicking on 'Phone' should make email field optional and phone number field required and visible\r\n\r\n![Screenshot 2025-05-27 at 8 54 24\u202fPM](https://github.com/user-attachments/assets/f1ffb7d2-ed4c-431f-b2ee-c29fdbe08bfc)\r\n\r\n3) Phone only books should send sms to attendee\r\n\r\n    \r\n<!-- This is an auto-generated description by mrge. -->\r\n---\r\n\r\n## Summary by mrge\r\nAdded support for phone-based bookings, allowing attendees to receive SMS confirmations if no email is provided.\r\n\r\n- **New Features**\r\n  - Added an option to enable SMS notifications for attendees using their phone number.\r\n  - Updated booking forms and system fields to support phone-only bookings.\r\n  - SMS confirmation is sent when enabled and no email is provided.\r\n\r\n<!-- End of auto-generated description by mrge. -->\r\n\r\n",
+  "merged_at": "2025-06-20T16:42:33Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/21320",
+  "additions": 432,
+  "deletions": 67,
+  "changed_files": 7,
+  "labels": [
+   "\u2728 feature",
+   "\ud83e\uddf9 Improvements",
+   "High priority",
+   "enterprise",
+   "bookings",
+   "core",
+   "ready-for-e2e"
+  ],
+  "author": "Udit-takkar"
+ },
+ "27405": {
+  "title": "feat: Write wrong assignment reports to the database",
+  "body": "## What does this PR do?\n\nPersists wrong assignment reports to the database and prevents duplicate submissions. When a user reports a wrong assignment, the report is now stored in a new `WrongAssignmentReport` table with status tracking (PENDING, REVIEWED, RESOLVED, DISMISSED).\n\n## Changes\n\n- **New Database Model**: Added `WrongAssignmentReport` model with status enum, unique constraint on `bookingUid`, and proper indexes\n- **Repository**: New `WrongAssignmentReportRepository` with `existsByBookingUid` and `createReport` methods\n- **Handler Updates**: `reportWrongAssignment` handler now persists reports to DB, returns `reportId`, and rejects duplicates\n- **UI Updates**: Dialog shows warning and disables Submit button if a report already exists for the booking\n- **New Query**: `viewer.bookings.hasWrongAssignmentReport` tRPC query for checking existing reports (with booking access validation)\n\n<img width=\"580\" height=\"837\" alt=\"image\" src=\"https://github.com/user-attachments/assets/ff39eefd-9e63-439a-b6e7-b9d027cc938d\" />\n\n## Updates since last revision\n\n**Added routing form tracking:**\n- Added `routingFormId` field to `WrongAssignmentReport` model with relation to `App_RoutingForms_Form`\n- Updated `BookingRepository.findByUidIncludeEventTypeAndTeamAndAssignmentReason` to include `routedFromRoutingFormReponse.formId`\n- Handler now extracts and persists the routing form ID from the booking\n\n**Fixed Select clearing issue:**\n- Fixed bug where clearing the team member selection in `WrongAssignmentDialog` didn't reset the form value\n- Changed `if (option) field.onChange(option.value)` to `field.onChange(option ? option.value : \"\")`\n\n**Addressed review feedback:**\n- `hasWrongAssignmentReport`: Throws `UNAUTHORIZED` when user lacks access to the booking\n- `reportWrongAssignment`: Added try-catch for Prisma P2002 unique constraint error to handle race conditions gracefully\n- `WrongAssignmentReport` model: Added `Team` relation to `teamId` field with `onDelete: SetNull`\n- `WrongAssignmentReportRepository`: Changed `findFirst` to `findUnique` since `bookingUid` is unique\n- `reportWrongAssignment`: Error messages now use i18n (`t(\"wrong_assignment_already_reported\")`)\n\n**Addressed Hariom's review feedback:**\n- Changed `reportedById` from `Int` to `Int?` (nullable) and `reportedBy` relation from `onDelete: Cascade` to `onDelete: SetNull`\n- This preserves wrong assignment reports even when the reporting user is deleted, as the data is still useful for analysis\n- Updated migration SQL to reflect these changes\n\n**Fixed unit tests:**\n- Updated `WrongAssignmentReportRepository.test.ts` mocks from `findFirst` to `findUnique` to match implementation\n- Added i18n mock to `reportWrongAssignment.handler.test.ts` for translated error messages\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A - internal feature.\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n## How should this be tested?\n\n1. Run database migrations: `yarn workspace @calcom/prisma db-migrate`\n2. Regenerate Prisma client: `yarn prisma generate`\n3. Open a booking and click \"Report wrong assignment\"\n4. Submit a report - should succeed and store in DB\n5. Try to submit again for the same booking - should see warning and Submit button disabled\n\n**Unit tests:**\n- `TZ=UTC yarn test packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts` (8 tests)\n- `TZ=UTC yarn test packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts` (17 tests)\n\n## Human Review Checklist\n\n- [ ] Verify migration SQL creates unique index on `bookingUid` (not just a regular index)\n- [ ] Test duplicate report prevention in UI\n- [ ] Verify handler returns 400 BAD_REQUEST for duplicate submissions\n- [ ] Verify `hasWrongAssignmentReport` throws UNAUTHORIZED when user lacks access\n- [ ] Test Select clearing: select a team member, then clear it, verify form value resets\n- [ ] Verify `routingFormId` is correctly extracted from bookings that came through routing forms\n- [ ] Verify `reportedById` is nullable in migration and schema (onDelete: SetNull for User relation)\n\n## Checklist\n\n- [x] I have read the [contributing guide](https://github.com/calcom/cal.com/blob/main/CONTRIBUTING.md)\n- [x] My code follows the style guidelines of this project\n- [x] I have checked if my changes generate no new warnings\n\n---\n\n\n**Link to Devin run:** https://app.devin.ai/sessions/cddf130a59a54a6e9480474188bb568e\n**Requested by:** joe@cal.com (@joeauyeung)",
+  "merged_at": "2026-02-10T11:00:01Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27405",
+  "additions": 513,
+  "deletions": 2,
+  "changed_files": 12,
+  "labels": [
+   "\u2757\ufe0f migrations",
+   "enterprise",
+   "core",
+   "ready-for-e2e",
+   "size/XL"
+  ],
+  "author": "joeauyeung"
+ },
+ "24912": {
+  "title": "feat: add booking actions into BookingDetailsSheet",
+  "body": "## What does this PR do?\n\nThis PR adds \"BookingActionsDropdown\" to \"BookingDetailsSheet\".\n\n## Visual Demo\n\n## ![Screenshot 2025-11-04 at 17.14.10.png](https://app.graphite.dev/user-attachments/assets/e492cf18-80b8-4003-9a20-e4d9f663ac1b.png)\n\n\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] N/A - I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). If N/A, write N/A here and check the checkbox.\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n## How should this be tested?\n\n<!-- Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration. Write details that help to start the tests -->\n\nRefer to https://github.com/calcom/cal.com/pull/24795 to learn how to test.\n\n## Checklist\n\n<!-- Remove bullet points below that don't apply to you -->\n\n- I haven't read the [contributing guide](https://github.com/calcom/cal.com/blob/main/CONTRIBUTING.md)\n- My code doesn't follow the style guidelines of this project\n- I haven't commented my code, particularly in hard-to-understand areas\n- I haven't checked if my changes generate no new warnings\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n<!-- This is an auto-generated description by cubic. -->\n---\n## Summary by cubic\nIntegrated booking actions into the Booking Details Sheet and reorganized booking action files into an actions subfolder for clearer structure. Improved dropdown behavior with context-aware rendering; aligns with Linear CAL-5374 by enabling actions directly within the details view.\n\n- **New Features**\n  - Added BookingActionsDropdown to the BookingDetailsSheet footer.\n  - Wrapped the sheet with BookingActionsStoreProvider for state and context.\n  - Passed logged-in user context (id, email, timezone, time format) to actions.\n  - Made the dropdown context-aware: only renders when actions exist, disables edit actions when not allowed, and skips the portal in the details sheet to avoid overlay issues.\n\n- **Refactors**\n  - Moved booking action files into components/booking/actions/.\n  - Updated import paths and types to match the new structure.\n  - Cleaned tests by removing unnecessary casts.\n\n<sup>Written for commit ad9629425a0a9f074be51d8cdc64a5e68a3bd682. Summary will update automatically on new commits.</sup>\n\n<!-- End of auto-generated description by cubic. -->\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+  "merged_at": "2025-11-11T16:14:48Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/24912",
+  "additions": 165,
+  "deletions": 99,
+  "changed_files": 10,
+  "labels": [
+   "core",
+   "consumer",
+   "ready-for-e2e",
+   "size/L"
+  ],
+  "author": "eunjae-lee"
+ },
+ "24880": {
+  "title": "feat: improve overlapping events display in weekly calendar view",
+  "body": "## What does this PR do?\r\n\r\nThis PR fixes three critical bugs in the weekly calendar component's overlapping events display:\r\n\r\n1. **Store isolation bug**: Multiple Calendar components on the same page were sharing global Zustand state, causing date/event changes in one calendar to affect all others\r\n2. **Event overflow bug**: With 10+ overlapping events, the cascading layout was causing events to bleed into adjacent day columns  \r\n3. **CSS positioning conflict**: The `inset-x-1` class was setting both left and right positioning, conflicting with inline width styles\r\n\r\n**Link to Devin run**: https://app.devin.ai/sessions/4df3fcc8688d45b0ba228ba391088626  \r\n**Requested by**: @eunjae-lee (eunjae@cal.com)\r\n\r\n## Visual Demo\r\n\r\n### Before\r\n\r\n<img width=\"169\" height=\"195\" alt=\"Screenshot 2025-11-04 at 12 20 15\" src=\"https://github.com/user-attachments/assets/df78fe84-e3af-44dc-ac95-4f87d8ba4c37\" />\r\n\r\n<img width=\"164\" height=\"185\" alt=\"Screenshot 2025-11-04 at 12 20 27\" src=\"https://github.com/user-attachments/assets/b0ab13d3-4566-4956-9559-4e80f932b8e5\" />\r\n\r\n<img width=\"170\" height=\"403\" alt=\"Screenshot 2025-11-04 at 12 20 39\" src=\"https://github.com/user-attachments/assets/97aa769f-2271-436a-b743-e1239f1487d7\" />\r\n\r\n\r\n### After\r\n\r\n<img width=\"165\" height=\"230\" alt=\"Screenshot 2025-11-04 at 12 17 57\" src=\"https://github.com/user-attachments/assets/d208284e-9fb0-47e8-b786-7d74db2d9f07\" />\r\n\r\n<img width=\"208\" height=\"239\" alt=\"Screenshot 2025-11-04 at 12 18 02\" src=\"https://github.com/user-attachments/assets/777234ee-54b9-48c6-8b55-45b9b78e6343\" />\r\n\r\n<img width=\"184\" height=\"249\" alt=\"Screenshot 2025-11-04 at 12 18 04\" src=\"https://github.com/user-attachments/assets/1c96f4d4-a807-4d06-9034-aa1aa9c80319\" />\r\n\r\n<img width=\"247\" height=\"415\" alt=\"Screenshot 2025-11-04 at 12 18 07\" src=\"https://github.com/user-attachments/assets/90b7f961-7f40-4ff4-9797-b66a721c4beb\" />\r\n\r\nhttps://github.com/user-attachments/assets/e476d242-97d1-445b-a74d-a22457f90020\r\n\r\n\r\n\r\n\r\n## Mandatory Tasks\r\n\r\n- [x] I have self-reviewed the code\r\n- [x] N/A - No documentation changes needed (internal component improvements)\r\n- [x] I confirm automated tests are in place (21 tests including overflow prevention with 20+ events)\r\n\r\n## How should this be tested?\r\n\r\n### Testing the Fixes\r\n\r\n- **Navigate to playground**: `/settings/admin/playground/weekly-calendar` (with `admin@example.com`)\r\n- other places where this `Calendar` component is used\r\n  - /availability/troubleshoot\r\n",
+  "merged_at": "2025-11-05T15:56:24Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/24880",
+  "additions": 1268,
+  "deletions": 166,
+  "changed_files": 9,
+  "labels": [
+   "\ud83d\udc1b bug",
+   "core",
+   "consumer",
+   "ready-for-e2e",
+   "size/XXL"
+  ],
+  "author": "eunjae-lee"
+ },
+ "27208": {
+  "title": "feat: add filter segment validation with useActiveFiltersValidator hook and refactor DataTableProvider",
+  "body": "## What does this PR do?\n\n- Fixes #24165\n\nThis PR addresses stale filter segment data by adding caller-level validation and refactoring DataTableProvider for better maintainability.\n\n**Background**: Filter segments store activeFilters as generic JSON. When referenced entities (users, event types, teams) are removed, the filter data becomes stale. This PR validates filters at the point of consumption and refactors the provider architecture for better separation of concerns.\n\n### Validation Feature\n\n- Add `useActiveFiltersValidator` hook in `apps/web/modules/bookings/hooks/` that validates userId, eventTypeId, and teamId filters against accessible resources\n- Add optional `validateActiveFilters` prop to DataTableProvider that filters out invalid values when a segment is applied\n- Timing fix: Delay segment filter application until validator data is loaded\n- Gate bookings query with `isValidatorPending` to prevent flash of unfiltered results\n\n### Architecture Changes\n\n- Split monolithic DataTableProvider (~500 lines) into three focused contexts:\n  - `DataTableStateContext` - raw nuqs state management (pageIndex, sorting, filters, etc.)\n  - `DataTableSegmentContext` - segment management (selection, application, validation timing)\n  - `DataTableFiltersContext` - filter manipulation (addFilter, updateFilter, removeFilter, clearAll)\n- `DataTableProvider` is now a thin composer that nests all providers\n- `DataTableContextBridge` combines all contexts into single `DataTableContextType` for backward compatibility\n- Consumers continue using `useDataTable()` unchanged\n\n### State Machine for Segment Management\n\nIntroduced a generic state machine engine (`packages/lib/stateMachine.ts`) and refactored segment context to use it:\n\n- **States**: `idle` \u2192 `waitingForSegments` \u2192 `waitingForValidator` \u2192 `applying` \u2192 `ready`\n- **Benefits**: Explicit state transitions, race-condition proof, testable pure reducer logic\n- **Files added**:\n  - `packages/lib/stateMachine.ts` - Generic state machine engine with Zustand store\n  - `packages/lib/hooks/useStateMachine.ts` - React hook for state machine\n  - `packages/features/data-table/lib/segmentStateMachine.ts` - Segment-specific machine config\n  - `packages/features/data-table/hooks/useSegmentStateMachine.ts` - Hook connecting machine to React\n\n### Bug Fix: Segment Application on Navigation\n\nFixed a non-deterministic bug where filter segments would sometimes not auto-apply when navigating back to a page. The state machine now handles this correctly through explicit state transitions.\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a documentation change. N/A - internal API change only.\n\n## How should this be tested?\n\n### Validation Feature\n1. Create a filter segment on the bookings page with a user filter containing a specific team member\n2. Remove that team member from the team\n3. Navigate to bookings page and select the saved segment\n4. **Expected**: The invalid user ID should be silently filtered out, and the segment should apply with only valid filter values\n5. **No flash**: The bookings list should not briefly show unfiltered results before showing filtered results\n\n### Segment Navigation Bug Fix\n1. Go to /bookings/upcoming with a filter segment selected (or set as preferred)\n2. Navigate away to another page (e.g., /availability)\n3. Navigate back to /bookings/upcoming\n4. **Expected**: The filter segment should be automatically applied with its filters active\n5. Repeat several times to verify it works consistently (the bug was non-deterministic)\n\n**Test configuration**: Unit tests included for `useActiveFiltersValidator` (16 tests) and `segmentStateMachine` (comprehensive state transition tests).\n\n\n## Human Review Checklist\n\n- [ ] Verify `useActiveFiltersValidator` correctly fetches and validates against accessible userIds, eventTypeIds, and teamIds\n- [ ] Verify backward compatibility: existing `useDataTable()` consumers should work unchanged\n- [ ] Confirm context nesting order is correct: State \u2192 Segment \u2192 Filters\n- [ ] **State machine**: Review `segmentMachineConfig` state transitions for correctness\n- [ ] **State machine**: Verify \"always\" transitions don't cause infinite loops\n- [ ] **Type safety**: Check the `event as Extract<...>` cast in `segmentStateMachine.ts:210` - this is a workaround for TypeScript's inability to narrow event types in generic handlers\n- [ ] Check that `prev ?? []` pattern in DataTableFiltersContext correctly handles null activeFilters\n- [ ] Verify `isValidatorPending` computation gates the bookings query correctly\n- [ ] Review effect execution timing (uses `queueMicrotask` for deferred execution)\n\n---\n\nLink to Devin run: https://app.devin.ai/sessions/a0322cfca66c4484b458e49601855fb4\nRequested by: @eunjae-lee",
+  "merged_at": "2026-02-10T09:38:12Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27208",
+  "additions": 1164,
+  "deletions": 344,
+  "changed_files": 10,
+  "labels": [
+   "\ud83d\udc1b bug",
+   "Medium priority",
+   "teams",
+   "core",
+   "consumer",
+   "ready-for-e2e",
+   "size/XXL"
+  ],
+  "author": "eunjae-lee"
+ },
+ "24207": {
+  "title": "feat: botid enabled on api/book/event api route",
+  "body": "## What does this PR do?\r\nThis PR enabled [botID](https://vercel.com/docs/botid) when triggering the api/book/event route. \r\n\r\n## How should this be tested?\r\n\r\nTo test this you should add `NEXT_PUBLIC_VERCEL_USE_BOTID_IN_BOOKER=\"1\"` in your .env\r\nYou can now add BAD-BOT to the development options to test a failed event or set to human to test a passing event. \r\n``` \r\nconst verification = await checkBotId({\r\n    developmentOptions: {\r\n      bypass: 'BAD-BOT', // default: 'HUMAN'\r\n    },\r\n  });\r\n```\r\n",
+  "merged_at": "2025-10-06T10:16:14Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/24207",
+  "additions": 340,
+  "deletions": 0,
+  "changed_files": 14,
+  "labels": [
+   "\u2728 feature",
+   "\u2757\ufe0f migrations",
+   "\u2757\ufe0f .env changes",
+   "api",
+   "core",
+   "consumer",
+   "ready-for-e2e",
+   "size/L"
+  ],
+  "author": "sean-brydon"
+ },
+ "27088": {
+  "title": "feat: make source required on EventBusyDetails for Troubleshooter display",
+  "body": "## What does this PR do?\n\nDemo - https://www.loom.com/share/7a6003cf89774d568f2db76b20d4e495\n\n\nMakes the `source` property required on `EventBusyDetails` type and ensures all busy time entries in `detailedBusyTimes` have a source set. This enables the Troubleshooter -> LargeCalendar to display user-friendly source names for all busy time entries.\n\n**Changes:**\n- Make `source` a required property on `EventBusyDetails` type (was `source?: string | null`)\n- Add `LimitSources` helper in `limitManager.ts` that returns both `title` (translation key) and `source` (debug string) for each limit type\n- Update `LimitManager.addBusyTime()` to accept an object with `title` and `source` parameters\n- Add i18n translation keys under `busy_time.*` in `common.json` for all busy time types\n- Improve type safety in `subtract()` function using generics to preserve source types\n- Add `getUserAvailabilityIncludingBusyTimesFromLimits` to properly fetch busy times from limits when not in initialData\n- Add `data-calendar-event-source` attribute to calendar events for debugging\n- Conditionally include source in response based on `withSource` parameter\n\n**Busy time sources:**\n- `busy_time.event_booking_limit` \u2192 \"Event Booking Limit\"\n- `busy_time.event_duration_limit` \u2192 \"Event Duration Limit\"\n- `busy_time.team_booking_limit` \u2192 \"Team Booking Limit\"\n- `busy_time.buffer_time` \u2192 \"Buffer Time\"\n- `busy_time.calendar` \u2192 \"Calendar\" (fallback for external calendars without source)\n- `date-override` \u2192 Date Override entries in the calendar\n\n## Updates since last revision\n\n- **Fixed `busyTimesFromLimitsBookings` overwrite bug** in `getUserAvailabilityIncludingBusyTimesFromLimits`: Previously, when pre-existing `busyTimesFromLimitsBookings` was passed via `initialData`, it was silently overwritten with `[]` because the local variable was initialized to an empty array. Now initializes from `initialData?.busyTimesFromLimitsBookings` and uses conditional spread to only include the property when it has a value.\n- **Added tests** for the `busyTimesFromLimitsBookings` preservation fix:\n  - Verifies pre-existing data is passed through to `_getUserAvailability` instead of being replaced with `[]`\n  - Verifies the property is not unnecessarily spread when `undefined` (no limits, no initialData bookings)\n- Fixed `t(\"busy\")` fallback to `t(\"busy_time.busy\")` so the translation lookup resolves correctly\n- Added missing `title` property to buffer time entries in `getBusyTimes.ts` for proper Troubleshooter display\n- Updated buffer time `source` to use descriptive debug strings following `LimitSources` convention\n- Fixed import ordering in `LargeCalendar.tsx`\n- Resolved merge conflicts with main branch\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A - internal type change only.\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n## How should this be tested?\n\n\n1. Navigate to Troubleshooter -> LargeCalendar\n2. View busy times for a user with various limit types configured (booking limits, duration limits, team booking limits)\n3. Verify each busy time entry displays the appropriate translated title\n4. Test with external calendar integrations to verify the original calendar source (e.g., \"google-calendar\") appears, not \"Calendar\"\n5. Verify that busy time titles are properly translated (e.g., \"Event Booking Limit\" instead of \"busy_time.event_booking_limit\")\n6. Verify Date Override entries appear with source \"date-override\"\n7. Verify buffer times for seated events display as \"Buffer Time\" (not \"Busy\")\n\n**Key areas to verify:**\n- Booking limits show translated title \"Event Booking Limit\" with source like `\"Event Booking Limit for User: 5 per day\"`\n- Duration limits show translated title \"Event Duration Limit\" with source like `\"Event Duration Limit for User: 120 minutes per ${unit}\"`\n- Team booking limits show translated title \"Team Booking Limit\" with source like `\"Team Booking Limit: 10 per month\"`\n- Seated event buffers show \"Buffer Time\" as title with descriptive source strings\n- External calendar busy times preserve their original source (e.g., `\"google-calendar\"`)\n- Date Override events display correctly with `source: \"date-override\"`\n\n## Checklist\n\n- [x] My code follows the style guidelines of this project\n- [x] I have commented my code, particularly in hard-to-understand areas\n- [x] I have checked if my changes generate no new warnings\n\n---\n\n### Human Review Checklist\n- [ ] **CRITICAL**: Verify `LargeCalendar.tsx` uses `t(\"busy_time.busy\")` NOT `t(\"busy\")` - the translation key must match what's in common.json\n- [ ] Verify buffer time entries in `getBusyTimes.ts` have both `title: \"busy_time.buffer_time\"` and descriptive `source` strings\n- [ ] Verify the `LimitSources` helper returns correct translation keys and debug strings for all limit types\n- [ ] Verify external calendar sources like \"google-calendar\" are preserved and not overwritten with \"busy_time.calendar\"\n- [ ] Check that `withSource=false` properly strips source from response without breaking consumers\n- [ ] Verify translation keys exist and fall back gracefully for non-translated locales\n- [ ] Verify Date Override events display correctly in the calendar with `source: \"date-override\"`\n- [ ] **Breaking change**: Confirm the required `source` property on `EventBusyDetails` doesn't affect external consumers (check if any code outside this PR depends on source being optional)\n- [ ] **NEW**: Verify `getUserAvailabilityIncludingBusyTimesFromLimits` correctly preserves pre-existing `busyTimesFromLimitsBookings` from `initialData` instead of overwriting with empty array\n- [ ] **NEW**: Verify conditional spread `...(busyTimesFromLimitsBookings ? { busyTimesFromLimitsBookings } : {})` correctly handles `undefined` (not spread) vs empty array (spread) vs populated array (spread)\n- [ ] Verify `getUserAvailabilityIncludingBusyTimesFromLimits` correctly handles edge cases (no limits, team events, reschedules)\n\n**Link to Devin run:** https://app.devin.ai/sessions/4e261a469ccd4b6e8d2d2fab5c668473\n**Requested by:** @hariombalhara\n<!-- devin-review-badge-begin -->\n\n\n---\n\n<a href=\"https://app.devin.ai/review/calcom/cal.com/pull/27088\">\n  <picture>\n    <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://static.devin.ai/assets/gh-open-in-devin-review-dark.svg?v=1\">\n    <img src=\"https://static.devin.ai/assets/gh-open-in-devin-review-light.svg?v=1\" alt=\"Open with Devin\">\n  </picture>\n</a>\n<!-- devin-review-badge-end -->",
+  "merged_at": "2026-03-06T17:53:14Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27088",
+  "additions": 722,
+  "deletions": 58,
+  "changed_files": 12,
+  "labels": [
+   "enterprise",
+   "core",
+   "ready-for-e2e",
+   "size/XL",
+   "devin-finish-pr"
+  ],
+  "author": "hariombalhara"
+ },
+ "27192": {
+  "title": "feat: display assignment reason in organizer emails and booking single view",
+  "body": "## What does this PR do?\n\nAdds display of the assignment reason in two places:\n1. **Organizer booking emails** - Shows a translated category label (e.g., \"Routed\", \"Reassigned\") followed by the detailed reason string\n2. **Booking single view page** - Shows a user-friendly badge (e.g., \"Routed\", \"Reassigned\", \"Salesforce Assigned\") plus the detailed reason when the host or team member is viewing the booking while logged in\n\nThis helps organizers understand why a particular booking was assigned to them, especially useful for round-robin and routing form scenarios.\n\n## Updates since last revision\n\n- **Added unit tests**: Added comprehensive tests for `getAssignmentReasonCategory` (7 tests covering all enum values) and `withAssignmentReason` builder method (3 tests)\n- **Added category label to emails**: Organizer emails now display the translated category (e.g., \"Routed: Language: English, Region: US\") instead of just the raw reason string\n- **Created shared utility**: Added `getAssignmentReasonCategory.ts` in `packages/features/bookings/lib/` to map `AssignmentReasonEnum` to translation keys\n- **Updated CalendarEvent type**: Changed `assignmentReason` from `string | null` to `{ category: string; details?: string | null } | null` to support both category and details\n- **Updated CalendarEventBuilder**: Now extracts `reasonEnum` and converts it to a category using the shared utility\n- **Updated BookingRepository**: Now fetches both `reasonEnum` and `reasonString` for the email builder\n\n## Type Changes\n\nThe `EventPayloadType` was modified to use `Omit<CalendarEvent, \"assignmentReason\">` because:\n- Emails need `assignmentReason` as `{ category, details }` object\n- Webhooks need `assignmentReason` as an array of objects with `reasonEnum` and `reasonString`\n\nThis allows both use cases to coexist without type conflicts.\n\n\n<img width=\"627\" height=\"956\" alt=\"image\" src=\"https://github.com/user-attachments/assets/295ba574-2e0f-48e2-82b1-04f78e431145\" />\n\n<img width=\"653\" height=\"1003\" alt=\"Screenshot From 2026-01-23 12-52-46\" src=\"https://github.com/user-attachments/assets/89620ee4-0511-4cff-9c0e-3c42597ef9c2\" />\n\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A - no documentation changes needed.\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n## How should this be tested?\n\n1. **For organizer emails:**\n   - Create a round-robin event type\n   - Have a booking made through a routing form or reassign a booking\n   - Check the organizer's email - should show \"Assignment reason: Routed: [detailed reason]\" or \"Assignment reason: Reassigned: [detailed reason]\"\n\n2. **For booking single view:**\n   - Create a booking with an assignment reason (via routing form or reassignment)\n   - Log in as the host/organizer or a team member\n   - Navigate to `/booking/[uid]`\n   - Should see a gray badge with translated label (e.g., \"Routed\") and the detailed reason text below it\n\n3. **For unit tests:**\n   - Run `yarn test packages/features/bookings/lib/getAssignmentReasonCategory.test.ts`\n   - Run `yarn test packages/features/CalendarEventBuilder.test.ts -t \"assignment reason\"`\n\n## Checklist\n\n\n- [x] I have read the [contributing guide](https://github.com/calcom/cal.com/blob/main/CONTRIBUTING.md)\n- [x] My code follows the style guidelines of this project\n- [x] I have checked if my changes generate no new warnings\n- [x] My PR is appropriately sized\n\n## Human Review Checklist\n\n- [ ] Verify translations exist for category keys: \"routed\", \"reassigned\", \"rerouted\", \"salesforce_assigned\"\n- [ ] Verify `canViewHiddenData` correctly gates assignment reason display (same pattern as UTM params)\n- [ ] Verify the `as AssignmentReasonEnum` type cast in booking single view is safe\n- [ ] Confirm the `EventPayloadType` change doesn't break existing webhook consumers\n- [ ] Verify `CalendarEventBuilder.fromBooking()` correctly extracts `reasonEnum` from the assignment reason array\n- [ ] Verify email displays correctly with the new `${t(category)}: ${details}` format\n- [ ] **Check for duplicate import**: `getAssignmentReasonCategory` appears to be imported twice in `RegularBookingService.ts` - verify this doesn't cause issues\n\n---\n\nRequested by: @joeauyeung\nLink to Devin run: https://app.devin.ai/sessions/9abb95b7a90f496c90a47a51b7f52c0e",
+  "merged_at": "2026-01-23T23:50:07Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27192",
+  "additions": 273,
+  "deletions": 29,
+  "changed_files": 12,
+  "labels": [
+   "enterprise",
+   "core",
+   "ready-for-e2e",
+   "size/L"
+  ],
+  "author": "joeauyeung"
+ },
+ "26039": {
+  "title": "feat: Hubspot write to meeting object",
+  "body": "## What does this PR do?\n\n<!-- Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change. -->\n\n- Fixes #XXXX (GitHub issue number)\n- Fixes CAL-5031 \n\nhttps://github.com/user-attachments/assets/f3ec58e6-2996-4bf6-a0c0-ac6d65ce3e78\n\n## Updates since last revision\n\n- **Resolved merge conflict** in `CrmService.ts` - merged organizer info from main branch with new write-to-meeting functionality\n- **Refactored WriteToObjectSettings.tsx** into smaller pieces per review feedback:\n  - `WriteToObjectSettings.types.ts` - interfaces, enums, type definitions\n  - `WriteToObjectSettings.utils.ts` - constants and utility functions\n- **Added comprehensive test suite** for HubSpot CRM service (`CrmService.test.ts`):\n  - 48 test cases covering all private methods\n  - Tests for `ensureFieldsExistOnMeeting`, `getTextValueFromBookingTracking`, `getTextValueFromBookingResponse`, `getDateFieldValue`, `getFieldValue`, `generateWriteToMeetingBody`, and `getContacts`\n  - Fixed unhandled promise rejections from constructor auth calls by properly mocking `getAppKeysFromSlug`\n\n## Human Review Checklist\n\n- [x] Verify placeholder detection logic handles edge cases correctly (e.g., `{utm:source}`, `Hello {name}!`, static text)\n- [x] Confirm WriteToObjectSettings imports work correctly after refactoring\n- [x] Test that HubSpot custom fields are validated via `ensureFieldsExistOnMeeting` before writing\n- [x] Verify UTM tracking extraction works with `{utm:source}`, `{utm:medium}`, etc.\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). If N/A, write N/A here and check the checkbox.\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n<!-- This is an auto-generated description by cubic. -->\n---\n## Summary by cubic\nAdds configurable \"Write to HubSpot Meeting\" support that maps booking data into HubSpot Meeting properties on create. Implements CAL-5031 so teams can capture form answers, UTM data, and key dates directly on meetings.\n\n- **New Features**\n  - App card setting to enable \"On booking\" writes and define property mappings.\n  - Supported field types: text, date, phone, checkbox, custom.\n  - Value sources: static text, booking form responses ({fieldId}), UTM params ({utm:source}), and booking dates (start, created).\n  - Validates properties against the HubSpot Meeting object and skips any missing fields.\n  - Applies mappings on meeting create; fetches UTM via a tracking repository and booking createdAt for date fields.\n\n<sup>Written for commit 55c27cbbfcdf2b748a168887b9b2c3a82b96275a. Summary will update on new commits.</sup>\n\n<!-- End of auto-generated description by cubic. -->\n\n---\n\n**Link to Devin run:** https://app.devin.ai/sessions/e0fa4291c28a467d85eb7011631ec394\n**Requested by:** amit@cal.com (@Amit91848)",
+  "merged_at": "2026-01-06T17:58:46Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/26039",
+  "additions": 1732,
+  "deletions": 1,
+  "changed_files": 13,
+  "labels": [
+   "ready-for-e2e",
+   "size/XXL"
+  ],
+  "author": "Amit91848"
+ },
+ "19997": {
+  "title": "feat: Custom Fields OR Add-Ons with a fee associated",
+  "body": "## What does this PR do?\r\n\r\nCustom Fields OR Add-Ons with a fee associated\r\n\r\n- Fixes #7075\r\n- Fixes CAL-3967\r\n\r\n/claim #7075\r\n\r\n## Visual Demo (For contributors especially)\r\n\r\n#### Video Demo (if applicable):\r\n\r\n[https://www.loom.com/share/c4fb241826874cc894837e85534cfd7d?sid=389aae54-dc26-428d-a902-6f4ae72bc25e](https://www.loom.com/share/c4fb241826874cc894837e85534cfd7d?sid=389aae54-dc26-428d-a902-6f4ae72bc25e)\r\n\r\n**Right now pricing is supported for Number, Select, MultiSelect, Checkbox, Checkbox group and Radio group input type**\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). If N/A, write N/A here and check the checkbox.\r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\r\n## How should this be tested?\r\n\r\nCheck the Video Demo\r\n\r\n",
+  "merged_at": "2025-09-16T12:33:23Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/19997",
+  "additions": 822,
+  "deletions": 40,
+  "changed_files": 14,
+  "labels": [
+   "\u2728 feature",
+   "\ud83c\udfa8 needs design",
+   "linear",
+   "Low priority",
+   "\ud83d\udc8e Bounty",
+   "Stale",
+   "bookings",
+   "event-types",
+   "\ud83d\ude4b Bounty claim",
+   "payments",
+   "community",
+   "ready-for-e2e",
+   "$20",
+   "$100",
+   "size/XL"
+  ],
+  "author": "asadath1395"
+ },
+ "26217": {
+  "title": "fix: handle existing users on invite token flow",
+  "body": " ## What does this PR do?\r\n\r\nAdds user existence validation to signup handlers when processing team/organization invite tokens. This ensures proper handling when an invited email already has an account, redirecting them to login instead of creating a duplicate flow.\r\n\r\n### Changes\r\n\r\n- Added user existence check before account creation in `calcomHandler` and `selfHostedHandler`\r\n- Return 409 status when user already exists with invite token\r\n- Refactored signup fetch logic to dedicated module with proper error handling\r\n- Added translation for user-friendly redirect message\r\n- Added E2E test coverage for invite token signup flow\r\n\r\n### How to test\r\n\r\n1. Create a user with email `test@example.com`\r\n2. Generate an org/team invite token for `test@example.com`\r\n3. Navigate to `/signup?token=<token>`\r\n4. Fill password and submit\r\n5. Should see toast message and redirect to login page\r\n6. Run E2E test: `yarn playwright test apps/web/playwright/signup.e2e.ts --grep \"org invite token\"`\r\n\r\n## Mandatory Tasks\r\n\r\n- [x] I have self-reviewed the code\r\n- [ ] **N/A** I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs)\r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.",
+  "merged_at": "2026-01-06T22:10:37Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/26217",
+  "additions": 976,
+  "deletions": 154,
+  "changed_files": 15,
+  "labels": [
+   "Stale",
+   "core",
+   "foundation",
+   "ready-for-e2e",
+   "size/XXL"
+  ],
+  "author": "pedroccastro"
+ },
+ "25556": {
+  "title": "feat: add OAuth client developer settings page with approval workflow",
+  "body": "## What does this PR do?\n\nAdds a new OAuth client management system with developer settings page and admin approval workflow.\n\n- Fixes #26469\n\n### Key Changes\n\n**Developer Settings Page** (`/settings/developer/oauth`)\n- New page for developers to create and manage their OAuth clients\n- Clients start in PENDING status and require admin approval\n- Developers can edit their clients (changes to sensitive fields trigger re-approval)\n\n**Admin Approval Workflow** (`/settings/admin/oauth`)\n- Admins can view pending, approved, and rejected OAuth clients\n- Approve/reject clients with rejection reason support\n- Email notifications sent to client owners on approval/rejection\n\n**Authorization Flow Updates**\n- OAuth authorization now validates client status (only APPROVED clients can authorize)\n- Added `redirect_uri` validation during authorization\n- Improved error handling with proper OAuth error redirects\n\n**Database Changes**\n- Added `status` field to `OAuthClient` model (PENDING, APPROVED, REJECTED)\n- Added `rejectionReason`, `purpose`, `websiteUrl` fields\n- Migration included\n\n## Visual Demo (For contributors especially)\n\nN/A - Backend/API changes with minimal UI additions\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A - internal feature\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n## How should this be tested?\n\n1. **Developer flow**: Log in as a regular user, go to Settings > Developer > OAuth, create a new OAuth client. Verify it shows as \"Pending\".\n\n2. **Admin flow**: Log in as admin, go to Settings > Admin > OAuth. Verify pending clients appear. Test approve/reject actions.\n\n3. **Authorization flow**: Try to authorize with a pending client - should fail. Approve the client, then authorization should work.\n\n4. **E2E tests**: Run `PLAYWRIGHT_HEADLESS=1 yarn e2e oauth-client-admin.e2e.ts`\n\n## Human Review Checklist\n\n- [ ] Verify OAuth authorization only allows APPROVED clients (security critical)\n- [ ] Review status transition logic in `updateClient.handler.ts` - owner edits to sensitive fields should trigger re-approval\n- [ ] Verify folder rename from `oAuth` to `oauth` is correct (fixes 404 on case-sensitive filesystems)\n- [ ] E2E test uses retry logic for admin page navigation - verify this approach is acceptable for handling session timing\n- [ ] Email notification triggers are correct (only on admin approve/reject actions)\n\n## Updates since last revision\n\n- **Fixed folder case sensitivity issue**: Renamed `admin/oAuth/` to `admin/oauth/` to fix 404 errors on case-sensitive filesystems (Linux). The code referenced `/settings/admin/oauth` (lowercase) but the folder was named `oAuth` (capital A).\n- **Improved E2E test navigation**: Added `navigateToAdminOAuthPage()` helper with retry logic that waits for the admin page content to load, handling session propagation timing issues in CI.\n\n---\n\nLink to Devin run: https://app.devin.ai/sessions/517d12a407d34bd6b0c7855993df9dc0\nRequested by: lauris@cal.com",
+  "merged_at": "2026-01-21T15:23:52Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/25556",
+  "additions": 5231,
+  "deletions": 368,
+  "changed_files": 60,
+  "labels": [
+   "\u2757\ufe0f migrations",
+   "High priority",
+   "community",
+   "ready-for-e2e",
+   "size/XXL"
+  ],
+  "author": "PeerRich"
+ },
+ "27923": {
+  "title": "fix: resolve signup watchlist review issues and auto-unlock on SIGNUP entry removal",
+  "body": "## What does this PR do?\n\nFixes three bugs in the signup watchlist review feature introduced in #27912, and adds auto-unlock behavior when SIGNUP-source watchlist entries are removed.\n\n### Bug Fixes\n\n1. **`GlobalWatchlistRepository.deleteEntry` missing `await`** \u2014 Prisma queries are lazy; without `await`, the delete was silently never executed. This caused watchlist entries to persist even after an admin unlocked a user.\n\n2. **Email verification race condition** \u2014 `sendEmailVerification` was called (fire-and-forget) BEFORE the watchlist check added the email to the blocklist. By the time `sendEmailVerification` ran its internal watchlist check, the email was already blocked, so no verification token was ever created. Fixed by moving `sendEmailVerification` to AFTER the watchlist early-return path, so it only runs for non-watchlisted signups.\n\n3. **No verification email on unlock** \u2014 After an admin unlocks a user and removes them from the watchlist, the user had no way to verify their email. Now `sendEmailVerification` is called after unlock in `lockUserAccount.handler.ts`.\n\nAdditionally, `sendEmailVerification` is now scoped to non-invite signups (`!checkoutSessionId && !token`) to prevent redundant verification emails for team invite users who already have `emailVerified` set.\n\n### New: Auto-unlock on SIGNUP watchlist entry removal\n\nWhen a watchlist entry with `source: SIGNUP` and `type: EMAIL` is deleted (single or bulk) via `AdminWatchlistOperationsService`, the associated user is automatically:\n- Unlocked (via new `UserRepository.unlockByEmail`)\n- Sent a fresh verification email\n\nThis works for both `deleteWatchlistEntry` (single) and `bulkDeleteWatchlistEntries` (bulk). Errors in the unlock/email flow are caught and logged \u2014 they do not block the deletion itself.\n\n- Fixes issues reported in #27912 review\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a documentation change. N/A\n\n## How should this be tested?\n\n1. Enable the `signup-watchlist-review` feature flag in the database\n2. Sign up a new user (non-invite flow, non-premium username)\n3. Verify the watchlist entry has `source: 'SIGNUP'` (not `'MANUAL'`)\n4. Verify no verification email is sent at signup (email is blocked by watchlist)\n5. As admin, unlock the user via the admin panel\n6. Verify the watchlist entry is deleted from the database\n7. Verify the user receives a fresh verification email after unlock\n8. Verify the verification link works\n9. **New:** As admin, remove a SIGNUP-source watchlist entry directly from the watchlist management UI\n10. Verify the associated user is automatically unlocked and receives a verification email\n11. Verify removing a MANUAL-source entry does **not** trigger auto-unlock\n\n## Human Review Checklist\n\n\u26a0\ufe0f **Important items for reviewer attention:**\n\n\n- [ ] **`sendEmailVerification` in unlock handler is `await`ed** (`lockUserAccount.handler.ts:45`): Unlike the fire-and-forget pattern in the signup handler, the unlock handler awaits the call. If the email service fails, the unlock response will also fail. Confirm this is acceptable or if it should be fire-and-forget.\n\n- [ ] **`deleteEntry` await fix** (`GlobalWatchlistRepository.ts:166`): Confirm the missing `await` was indeed the root cause of watchlist entries not being deleted on unlock.\n\n- [ ] **Order of operations in signup handler** (`calcomSignupHandler.ts:320-326`): The watchlist check + early return now happens BEFORE `sendEmailVerification`. For the watchlist review path, the handler returns at line 317, so `sendEmailVerification` at line 320 is never reached \u2014 which is the correct behavior.\n\n- [ ] **`!token` guard on `sendEmailVerification`** (`calcomSignupHandler.ts:320`): Team invite signups (token flow) already set `emailVerified` directly, so they skip verification. Confirm this guard is correct.\n\n- [ ] **Auto-unlock error handling** (`AdminWatchlistOperationsService.ts:215-227`): The `unlockSignupUser` method catches errors and logs them but does not throw. This means if unlock fails, the watchlist deletion still succeeds. Confirm this is the desired behavior (deletion should not be blocked by unlock failures).\n\n- [ ] **Non-atomic unlock** (`UserRepository.ts:1440-1459`): `unlockByEmail` uses `findFirst` + `update` (two queries). There's a theoretical race condition if the user gets locked between find and update. Low risk but worth noting.\n\n- [ ] **`findEntriesByIds` interface expansion** (`WatchlistRepository.ts:237-244`): Now returns `source`, `type`, `value` fields. Verify no other callers depend on the previous narrower return type.\n\n---\n\nLink to Devin run: https://app.devin.ai/sessions/89436f0e54694e308731b95c32036f1d\nRequested by: @alishaz-polymath",
+  "merged_at": "2026-02-13T10:13:33Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27923",
+  "additions": 542,
+  "deletions": 26,
+  "changed_files": 10,
+  "labels": [
+   "enterprise",
+   "core",
+   "ready-for-e2e",
+   "size/XL",
+   "run-ci"
+  ],
+  "author": "alishaz-polymath"
+ },
+ "25334": {
+  "title": "fix: signup",
+  "body": "## What does this PR do?\r\n\r\n<!-- Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change. -->\r\n- Moves sending verification emails to server side\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [ ] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). If N/A, write N/A here and check the checkbox.\r\n- [ ] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\r\n## How should this be tested?\r\n\r\n<!-- Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration. Write details that help to start the tests -->\r\n\r\n- Sign up with a premium username, the email should send\r\n\r\n\r\n\r\n\r\n\n\n\n\n\n\n<!-- This is an auto-generated description by cubic. -->\n---\n## Summary by cubic\nStreamlined signup verification and premium username checkout by moving Stripe handling to paymentCallback and passing email/username/paymentStatus via redirect. This removes the TRPC session lookup, prevents duplicate verification emails, and shows accurate success/failure states after checkout.\n\n- **Refactors**\n  - Handle Stripe checkout in paymentCallback: set username/premium flag, generate verification token, send verification email, and append email/username/paymentStatus to the callback URL.\n  - Simplify verify-view to read email/username/paymentStatus from URL, derive payment state, and remove the TRPC query and loader.\n  - Send verification email during signup only for non-premium flows (skip when checkoutSessionId exists).\n  - Remove publicViewer.stripeCheckoutSession endpoint and schema.\n  - Add VerificationTokenService and repository create method, with tests for paymentCallback and token handling.\n\n- **Bug Fixes**\n  - Avoid duplicate verification emails for premium signups.\n  - Show correct success/failure UI after checkout.\n  - Ensure username is set and premium flag applied on successful payment.\n\n<sup>Written for commit 8797645ac069a603cde8c2dbc414dc70fefbfb2d. Summary will update automatically on new commits.</sup>\n\n<!-- End of auto-generated description by cubic. -->\n\n\n\n\n\n\r\n\r\n\r\n\r\n",
+  "merged_at": "2025-11-21T19:51:19Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/25334",
+  "additions": 713,
+  "deletions": 103,
+  "changed_files": 12,
+  "labels": [
+   "enterprise",
+   "core",
+   "ready-for-e2e",
+   "size/XL"
+  ],
+  "author": "joeauyeung"
+ },
+ "21317": {
+  "title": "fix: Seated events and round robin - all round robin hosts are being added to the calendar event",
+  "body": "## What does this PR do?\r\n\r\n## Summary by mrge\r\nFixed an issue where all round robin hosts were added to calendar events for seated and round robin bookings. Now, only the correct hosts are included.\r\n\r\n<!-- End of auto-generated description by mrge. -->\r\n\r\n",
+  "merged_at": "2025-05-14T22:52:27Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/21317",
+  "additions": 410,
+  "deletions": 45,
+  "changed_files": 3,
+  "labels": [
+   "\ud83d\udc1b bug",
+   "High priority",
+   "teams",
+   "seats",
+   "core",
+   "ready-for-e2e"
+  ],
+  "author": "anikdhabal"
+ },
+ "25794": {
+  "title": "fix: use relative redirects in booking confirmation routes to fix localhost redirect issue",
+  "body": "## What does this PR do?\n\nFixes an issue where users are redirected to `localhost:3000` instead of the proper production URL after accepting a booking via the confirmation link in an email.\n\n- Fixes #20358\n- Fixes CAL-6897\n\n### Root Cause\n\nWhen Cal.com runs behind a reverse proxy, `request.url` may return the internal server URL (`localhost:3000`) instead of the external URL. The booking confirmation routes were using `url.origin` from `request.url` to construct redirect URLs:\n\n```typescript\nconst url = new URL(request.url);\nreturn NextResponse.redirect(`${url.origin}/booking/${bookingUid}...`);\n```\n\n### Solution\n\nChanged to use relative URLs via `new URL(path, request.url)`:\n\n```typescript\nreturn NextResponse.redirect(new URL(`/booking/${bookingUid}...`, request.url));\n```\n\nThis ensures the browser resolves the redirect against whatever domain the user actually requested, fixing the issue for self-hosted deployments behind proxies while preserving correct behavior for org subdomains and custom domains.\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A - no documentation changes needed.\n- [ ] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n## How should this be tested?\n\n1. Deploy Cal.com behind a reverse proxy (e.g., nginx, HA-Proxy)\n2. Enable booking confirmation for an event type\n3. Create a booking\n4. Click the \"Accept\" link in the confirmation email\n5. Verify you are redirected to the correct domain (not `localhost:3000`)\n\n**Expected behavior**: After clicking the confirmation link, you should be redirected to `https://your-domain.com/booking/{uid}` instead of `https://localhost:3000/booking/{uid}`\n\n## Checklist\n\n- [x] I have read the [contributing guide](https://github.com/calcom/cal.com/blob/main/CONTRIBUTING.md)\n- [x] My code follows the style guidelines of this project\n- [x] I have checked if my changes generate no new warnings\n\n---\n\n> **Link to Devin run**: https://app.devin.ai/sessions/8e09c1bbbad94fac89817433919beea6\n> **Requested by**: Volnei Munhoz (@volnei)",
+  "merged_at": "2025-12-12T13:32:54Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/25794",
+  "additions": 440,
+  "deletions": 14,
+  "changed_files": 4,
+  "labels": [
+   "\ud83d\udc1b bug",
+   "High priority",
+   "booking-page",
+   "ready-for-e2e",
+   "size/L"
+  ],
+  "author": "volnei"
+ },
+ "24465": {
+  "title": "fix: Faulty logic around `shouldServeCache`",
+  "body": "## What does this PR do?\r\n\r\n<!-- Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change. -->\r\n\r\n- Fixes a bug where `getShouldServeCache` was returning `undefined` when no `teamId` was passed\r\n- Changes a `shouldServeCache === false` check to `!shouldServeCache` to handle all falsey values\r\n",
+  "merged_at": "2025-10-15T11:20:25Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/24465",
+  "additions": 229,
+  "deletions": 2,
+  "changed_files": 4,
+  "labels": [
+   "\ud83d\udc1b bug",
+   "enterprise",
+   "core",
+   "ready-for-e2e",
+   "size/L"
+  ],
+  "author": "joeauyeung"
+ },
+ "22323": {
+  "title": "fix: Improve perceived loading speed with default loader(reverts to previous behaviour)",
+  "body": "## What does this PR do?\r\n\r\n- Fixes #21208\r\n\r\nThe default (non-skeleton) loader is now removed immediately without waiting for the slots request, improving perceived load times when there is no skeleton loader. This was the behaviour and it was accidentally changed when we introduced skeleton loader support in embed.\r\n\r\n- **Bug Fixes**\r\n  - Updated loader logic to only wait for slots request when a skeleton loader is shown.\r\n  - Adjusted tests to match new loader behavior.\r\n\r\n## Visual Demo (For contributors especially)\r\n[Before and After fix] https://www.loom.com/share/e36bef15615b4f2386ec394e0fc0a661\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). If N/A, write N/A here and check the checkbox.\r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\r\n## How should this be tested?\r\nSee the loom\r\n\r\n",
+  "merged_at": "2025-07-08T19:52:37Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/22323",
+  "additions": 144,
+  "deletions": 41,
+  "changed_files": 6,
+  "labels": [
+   "\ud83d\udc1b bug",
+   "enterprise",
+   "embed",
+   "performance",
+   "core",
+   "ready-for-e2e"
+  ],
+  "author": "hariombalhara"
+ },
+ "25513": {
+  "title": "fix: block Google Meet installation without Google Calendar dependency",
+  "body": "  ## What does this PR do?\r\n\r\nThis PR fixes a UX issue where users could install Google Meet without having Google Calendar connected, resulting in a broken experience where Google Meet would silently fallback to Daily.co video.\r\n\r\n  **Key Changes:**\r\nBlock Google Meet installation when Google Calendar dependency is not met\r\nUpdate visual feedback to show error state (red background + X icon) instead of info state\r\nFix button component to properly respect disabled state from dependency checks\r\nEnsure consistent behavior between App Store listing and app detail pages\r\n\r\n  - Fixes #25497\r\n  - Linear [CAL-6846](https://linear.app/calcom/issue/CAL-6846/bug-api-generates-dailycal-video-link-even-when-google-meet-is)\r\n\r\n  ## Visual Demo\r\n\r\n  #### Image Demo:\r\n \r\n **Before:**\r\n\r\n<img width=\"616\" height=\"282\" alt=\"before_warning\" src=\"https://github.com/user-attachments/assets/bd6288db-3d85-4af5-a43d-99b47d170693\" />\r\n\r\n  **After:**\r\n\r\n<img width=\"613\" height=\"282\" alt=\"after_blocking\" src=\"https://github.com/user-attachments/assets/ea1803e0-8f33-4425-b48b-a00be27edc79\" />\r\n\r\n\r\n**Screenshots showing:**\r\n\r\n  1. Google Meet app page with Google Calendar not installed (error state)\r\n  2. Disabled \"Install App\" button\r\n  3. Clear error message: \"Google Meet requires a connected Google Calendar account\"\r\n  4. Working flow after installing Google Calendar first\r\n\r\n  ## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n  - [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n  - [x] **N/A** I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). \r\n  - [ ] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\r\n  ## How should this be tested?\r\n\r\n  **Test Scenario 1 - Google Meet blocked without Calendar:**\r\n  1. Ensure Google Calendar app is NOT installed\r\n  2. Navigate to `/apps/google-meet`\r\n  3. Verify \"Install App\" button is disabled\r\n  4. Verify red error message appears: \"Google Meet requires a connected Google Calendar account\"\r\n  5. Verify \"Connect Google Calendar\" link works\r\n\r\n  **Test Scenario 2 - Google Meet allowed with Calendar:**\r\n  1. Install Google Calendar app first\r\n  2. Navigate to `/apps/google-meet`\r\n  3. Verify green checkmark shows \"Google Calendar is connected\"\r\n  4. Verify \"Install App\" button is enabled\r\n  5. Verify Google Meet installs successfully\r\n\r\n  **Test Scenario 3 - App Store consistency:**\r\n  1. Check `/apps` listing page\r\n  2. Verify Google Meet shows same disabled state when Calendar not installed\r\n  3. Verify consistency between listing and detail pages\r\n\r\n  **Expected:** Google Meet cannot be installed without Google Calendar dependency\r\n",
+  "merged_at": "2025-12-09T17:56:20Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/25513",
+  "additions": 290,
+  "deletions": 9,
+  "changed_files": 5,
+  "labels": [
+   "\ud83d\udc1b bug",
+   "\ud83d\udea8 urgent",
+   "ready-for-e2e",
+   "size/L",
+   "reactive\u26a1\ufe0e"
+  ],
+  "author": "pedroccastro"
+ },
+ "19605": {
+  "title": "fix: Re-instate new slot logic now it's A/B tested in production",
+  "body": "## What does this PR do?\r\n\r\n",
+  "merged_at": "2025-03-02T23:32:31Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/19605",
+  "additions": 21,
+  "deletions": 881,
+  "changed_files": 13,
+  "labels": [
+   "\ud83d\udc1b bug",
+   "core",
+   "foundation",
+   "ready-for-e2e"
+  ],
+  "author": "emrysal"
+ },
+ "24318": {
+  "title": "fix: event-type permissions",
+  "body": "## What does this PR do?\r\nThis PR ensures the correct level of \"hierarchy\" between org roles and team roles when in an PBAC is enabled and disabled \r\n\r\n## How should this be tested?\r\nCreate an organization\r\nCreate a team -> invite a member to the team -> leave team by deleting db record \r\nImpersonate member who you invited -> create an event type\r\nGo back to organization admin/owner visit event type url -> verify you have CRUD access \r\n\r\nDo the same with PBAC enabled\r\n\r\n## Checklist\r\n\r\n<!-- Remove bullet points below that don't apply to you -->\r\n\r\n- I haven't read the [contributing guide](https://github.com/calcom/cal.com/blob/main/CONTRIBUTING.md)\r\n- My code doesn't follow the style guidelines of this project\r\n- I haven't commented my code, particularly in hard-to-understand areas\r\n- I haven't checked if my changes generate no new warnings\r\n",
+  "merged_at": "2025-10-09T15:30:12Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/24318",
+  "additions": 1481,
+  "deletions": 147,
+  "changed_files": 8,
+  "labels": [
+   "event-types",
+   "core",
+   "consumer",
+   "ready-for-e2e",
+   "size/XXL"
+  ],
+  "author": "sean-brydon"
+ },
+ "20451": {
+  "title": "fix: Improves dialog window that appears when there is no availability in a month. Adding a description to clarify limits when rolling or range period types are in use.",
+  "body": "## What does this PR do?\r\n\r\n<!-- Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change. -->\r\n\r\n- Fixes #11321 \r\n- Adds a description to the dialog window that appears when their is no availability in a month if it can be determined there will not be any availability in future months.\r\n- This makes it clearer for users that new availability may open up, what conditions might be limiting them from booking in the current or future months, and avoids them needlessly searching through future months when no further options are available.\r\n- Cal.com's standard dialog ui components were implemented to conform to Cal.com's design system and figma files in favour of the adhoc dialog currently in place.\r\n- The heading tag in the DialogHeader component was changed from an `h3` to an `h2`. From my research there appears to be differences of opinion as to when / if `h1` or `h2` is the appropriate heading tag for a dialog. [There are compelling arguments made here that an `h1` would be better](https://github.com/mui/material-ui/issues/34250). I'm not aware of any reason why `h3` would make sense in this context.\r\n- The 'View Next Month' button is no longer displayed when it can be determined that there is no availability in future months.\r\n- A 'Close' button was added in all scenarios so that users can close the dialog when there are no other options or if they don't want to keep moving to future months.\r\n- The new dialog was refactored into it's own file due to the growing length of calendars/DatePicker.tsx and to facilitate testing.\r\n- The existing `calculatePeriodLimits` and `isTimeViolatingFutureLimit` functions were used to calculate availability of booking in future months. \r\n- To perform those calculations period data properties were added to `getPublicEventSelect`. The `PeriodData' type was created as a sub-type of Events to pass along PeriodData to the NoAvailabilityDialog component.\r\n- Localized text was added to describe situations of no future availability for ROLLING and RANGE period types. LLM generated translations were used to create translations from English for most other languages.\r\n\r\n\r\n## Visual Demo\r\n\r\n#### Image Demo (if applicable):\r\n![no availability before and after](https://github.com/user-attachments/assets/25679528-c37f-4424-9979-90f1b0a043dd)\r\n\r\nMessage when there is no availability in a month and the next month is outside of the period days of an event with a ROLLING period:\r\n![Screen Shot 2025-03-30 at 2 15 44 PM](https://github.com/user-attachments/assets/75596fa0-4d28-4676-818b-5cade300d0a6)\r\n\r\nMessage when there is no availability in a month and the next month is past the end date of an a event using a RANGE period type:\r\n![Screen Shot 2025-03-30 at 2 17 26 PM](https://github.com/user-attachments/assets/65526c76-6183-46f0-98f9-606e213f4521)\r\n\r\nDialog when there could be availability in future months:\r\n![Screen Shot 2025-03-30 at 2 19 22 PM](https://github.com/user-attachments/assets/e18d3e1e-82a0-4f57-a2df-db3019f27b73)\r\n\r\nDialog Heading changed to an H2:\r\n \r\n![Screen Shot 2025-03-30 at 2 20 49 PM](https://github.com/user-attachments/assets/c5027c10-c420-40ff-aff3-fbe5473641cf)\r\n\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [x] N/A  \r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\r\n## How should this be tested?\r\n\r\nTests were created in NoAvailabilityDialog.test.tsx and can be run using `yarn test packages/features/calendars/NoAvailabilityDialog.test.tsx`\r\n\r\n\u2713 Displays rolling period description and close button, when period type is ROLLING, and period ends before next month.\r\n\u2713 Displays range period description when period type is RANGE and range ends before the next month\r\n\u2713 calls nextMonthButton when 'View next month' is clicked\r\n\u2713 Displays 'View next month' and close buttons, without description, when browsing current date with rolling 30-day period\r\n\u2713 Displays 'View next month' and 'close' button when browsing current date with range periodType starting 10 days in past and ending in a future month\r\n\r\n## Checklist\r\n\r\n",
+  "merged_at": "2025-04-15T18:16:01Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/20451",
+  "additions": 334,
+  "deletions": 28,
+  "changed_files": 11,
+  "labels": [
+   "\u2705 good first issue",
+   "\ud83e\uddf9 Improvements",
+   "Low priority",
+   "bookings",
+   "i18n",
+   "ui",
+   "community",
+   "ready-for-e2e"
+  ],
+  "author": "shawnCaza"
+ },
+ "19626": {
+  "title": "fix: skip when browsing month has no available slots",
+  "body": "## What does this PR do?\r\n\r\nIf the CRM owner is given we look two weeks in the future, which causes issues for the month skipping logic as the browsingMonth may have no available slots but the next month likely does.\r\n\r\nThis fixes that by only looking at slots in the browsingMonth + a few other TS fixes.",
+  "merged_at": "2025-03-25T17:28:51Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/19626",
+  "additions": 240,
+  "deletions": 46,
+  "changed_files": 12,
+  "labels": [
+   "\ud83d\udc1b bug",
+   "bookings",
+   "core",
+   "foundation",
+   "ready-for-e2e"
+  ],
+  "author": "emrysal"
+ },
+ "27378": {
+  "title": "feat: implement webhook tasker with async/sync fallback",
+  "body": "## What does this PR do?\n\nImplements a webhook tasker with async/sync fallback architecture to fix failing E2E tests in PR #27172. The webhook producer currently uses `InternalTasker` which always queues tasks to the database. In E2E tests, the cron that processes these tasks never runs, so webhooks are never delivered.\n\nThis PR follows the `BookingEmailAndSmsTasker` and `PlatformOrganizationBillingTasker` pattern (PR #26803) to automatically select the appropriate execution mode based on environment:\n\n| Environment | `ENABLE_ASYNC_TASKER` | Tasker Used | Behavior |\n|-------------|----------------------|-------------|----------|\n| Production | `true` | WebhookTriggerTasker | Queue to Trigger.dev |\n| E2E Tests | `false` | WebhookSyncTasker | Immediate execution |\n\n**Key changes:**\n- Create `IWebhookTasker` interface for webhook delivery contract\n- Implement `WebhookSyncTasker` for immediate execution (calls `WebhookTaskConsumer` directly)\n- Implement `WebhookTriggerTasker` for queued execution (uses Trigger.dev)\n- Create Trigger.dev task files (`deliver-webhook.ts`, `config.ts`, `schema.ts`)\n- Create main `WebhookTasker` class extending `Tasker<IWebhookTasker>` for automatic mode selection\n- Add DI modules and tokens following the `bindModuleToClassOnToken` pattern\n- Update `WebhookTaskerProducerService` to use new `WebhookTasker`\n\n## Updates since last revision\n\nRefactored from InternalTasker to Trigger.dev pattern per user feedback:\n- Replaced `WebhookAsyncTasker` (InternalTasker-based) with `WebhookTriggerTasker` (Trigger.dev-based)\n- Added Trigger.dev task files in `packages/features/webhooks/lib/tasker/trigger/`\n- Updated DI modules to use `WebhookTriggerTasker` instead of `WebhookAsyncTasker`\n- Removed old `Tasker.module.ts` and `WebhookAsyncTasker.module.ts`\n\n**Latest (Cubic AI feedback):**\n- Fixed outdated comments in `WebhookProducerService.module.ts` and `WebhookTaskerProducerService.ts` to correctly reference Trigger.dev instead of InternalTasker\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A - internal architecture change only.\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n## How should this be tested?\n\n1. **Unit tests**: Run `TZ=UTC yarn test packages/features/webhooks/lib/tasker/WebhookTasker.test.ts` - all 4 tests should pass\n2. **Producer service tests**: Run `TZ=UTC yarn test packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts` - all 20 tests should pass\n3. **E2E verification**: The E2E tests from PR #27172 should now pass since `ENABLE_ASYNC_TASKER` is automatically `false` in E2E mode, causing webhooks to execute immediately via `WebhookSyncTasker`\n\n## Human Review Checklist\n\n- [ ] Verify `WebhookTriggerTasker` correctly dynamically imports and triggers the Trigger.dev task\n- [ ] Verify the Trigger.dev task (`deliver-webhook.ts`) correctly imports the DI container and calls `WebhookTaskConsumer`\n- [ ] Confirm the `Tasker<IWebhookTasker>` dispatch mechanism correctly routes to sync/trigger implementations\n- [ ] Check that the schema re-export in `trigger/schema.ts` maintains type safety with the discriminated union\n- [ ] Verify the queue configuration (concurrency: 20, retry: 3 attempts) is appropriate for webhook delivery\n\n## Checklist\n\n- [x] My code follows the style guidelines of this project\n- [x] I have commented my code, particularly in hard-to-understand areas\n- [x] I have checked if my changes generate no new warnings\n\n---\n\nLink to Devin run: https://app.devin.ai/sessions/53333c54607b4914b3d76a44a729fecf\nLink to Devin run (Cubic feedback): https://app.devin.ai/sessions/80f9e2945d3941398c758f522c22f016\nRequested by: @alishaz-polymath",
+  "merged_at": "2026-01-29T11:30:07Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27378",
+  "additions": 538,
+  "deletions": 67,
+  "changed_files": 18,
+  "labels": [
+   "enterprise",
+   "core",
+   "ready-for-e2e",
+   "size/XL",
+   "run-ci"
+  ],
+  "author": "alishaz-polymath"
+ },
+ "27909": {
+  "title": "fix: display phone numbers and localized timezone in BookingDetailsSheet",
+  "body": "## What does this PR do?\n\nAligns `BookingDetailsSheet` with the existing `bookings-single-view.tsx` in two ways:\n\n1. **WhoSection \u2013 attendee phone numbers**: Adds conditional rendering of `attendee.phoneNumber` between the attendee name and email, matching the pattern in `bookings-single-view.tsx`.\n\n2. **When section \u2013 localized timezone**: Replaces the raw IANA timezone identifier (e.g. `America/New_York`) with `formatToLocalizedTimezone()` from `@calcom/lib/dayjs`, which uses `Intl.DateTimeFormat` to produce a human-readable name (e.g. `Eastern Standard Time`), matching the existing behaviour in `bookings-single-view.tsx`. Includes a `?? timeZone` fallback for the rare case where `Intl.DateTimeFormat.formatToParts` doesn't return a `timeZoneName` part.\n\nAlso adds unit tests for `formatToLocalizedTimezone` covering various timezones, locales, and the short/long name options.\n\n## Type of change\n- Bug fix (non-breaking change which fixes an issue)\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n## How should this be tested?\n\n1. Open a booking that has an attendee with a phone number.\n2. Verify the phone number now appears in the **Who** section of the `BookingDetailsSheet`, between the attendee name and email.\n3. In the **When** section, verify the timezone is displayed as a localized name (e.g. \"Eastern Standard Time\") instead of the IANA identifier (e.g. \"America/New_York\").\n\n## Things for reviewers to verify\n\n- [ ] `DisplayTimestamp` now calls `useLocale()` (it was previously a pure render function with no hooks). Confirm this is acceptable given how the component is used.\n- [ ] Phone number display styling/placement matches expectations.\n- [ ] `attendee.phoneNumber` is available from the existing `selectAll()` query in `get.handler.ts` \u2014 no backend change was needed since `selectAll()` already includes all Attendee columns.\n\nLink to Devin run: https://app.devin.ai/sessions/4c05d1442aea431c909b8b1d6cfcb087\nRequested by: @eunjae-lee",
+  "merged_at": "2026-02-13T10:27:01Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27909",
+  "additions": 102,
+  "deletions": 1,
+  "changed_files": 2,
+  "labels": [
+   "core",
+   "consumer",
+   "ready-for-e2e",
+   "size/L"
+  ],
+  "author": "eunjae-lee"
+ },
+ "27620": {
+  "title": "fix: prevent attendee phone number from overriding organizer default app location",
+  "body": "\n\n<!-- This is an auto-generated description by cubic. -->\n## Summary by cubic\nPrevents the attendee phone number from overriding the organizer\u2019s default conferencing app location in new bookings. Ensures events keep the correct location.\n\n- **Bug Fixes**\n  - If location is OrganizerDefaultConferencingAppType, ignore optionValue and keep the default app as the location.\n\n<sup>Written for commit 36ee62972a6247fa61114b51e4729fa6e8132cf2. Summary will update on new commits.</sup>\n\n<!-- End of auto-generated description by cubic. -->\n\n",
+  "merged_at": "2026-02-04T16:55:18Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27620",
+  "additions": 234,
+  "deletions": 4,
+  "changed_files": 2,
+  "labels": [
+   "core",
+   "ready-for-e2e",
+   "size/L"
+  ],
+  "author": "anikdhabal"
+ },
+ "27574": {
+  "title": "fix: prevent video redirect when booking additional seats",
+  "body": "\r\n\n<!-- This is an auto-generated description by cubic. -->\n## Summary by cubic\nPrevents redirect to the video page when booking additional seats for seated events by limiting instant-booking logic to true instant meetings. Adds tests to cover both instant and seated booking flows.\n\n- **Bug Fixes**\n  - Enable getInstantBookingLocation query only when bookingUid exists and isInstantMeeting is true.\n  - Do not set instantVideoMeetingUrl (and thus no redirect) when isInstantMeeting is false.\n  - Added unit tests to verify query enablement and redirect behavior for both cases.\n  \n  Regression from this pr:- https://github.com/calcom/cal.com/pull/27517\n\n<sup>Written for commit 6647565a8ec9f10ed1ae97cb17bc74a427e6e55a. Summary will update on new commits.</sup>\n\n<!-- End of auto-generated description by cubic. -->\n\n\r\n\r\n",
+  "merged_at": "2026-02-03T15:36:15Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27574",
+  "additions": 317,
+  "deletions": 3,
+  "changed_files": 2,
+  "labels": [
+   "High priority",
+   "ready-for-e2e",
+   "size/L"
+  ],
+  "author": "anikdhabal"
+ },
+ "26373": {
+  "title": "fix: Custom time input for availability",
+  "body": "## What does this PR do?\r\n\r\n<!-- Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change. -->\r\n\r\n- Fixes #15763 \r\n- Fixes CAL-4526\r\n\r\n## Visual Demo (For contributors especially)\r\n\r\n#### Video Demo:\r\n\r\n- Before\r\n\r\nhttps://github.com/user-attachments/assets/63d8fdde-1f7c-4f2f-8268-fd114d124247\r\n\r\n\r\n- After\r\n\r\nhttps://github.com/user-attachments/assets/c58cb957-e947-47c0-bc87-cdd6a8b772af\r\n\r\n\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A \r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\n<!-- This is an auto-generated description by cubic. -->\n---\n## Summary by cubic\nEnable custom time entry in the availability time picker with strict 12/24-hour parsing and inline validation. This addresses CAL-4526 and fixes #15763.\n\n- **Bug Fixes**\n  - Strictly parse user input (h:mma or HH:mm) and show an inline error for invalid times.\n  - Add the typed time to the dropdown when it\u2019s not a preset, and preserve the selection on close.\n  - Update filtering to respect min/max bounds and include a temporary option for the current custom time.\n\n<sup>Written for commit 48865199158cc992f59c7b87c08230231d7c6f58. Summary will update on new commits.</sup>\n\n<!-- End of auto-generated description by cubic. -->\n\n",
+  "merged_at": "2026-01-02T18:06:01Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/26373",
+  "additions": 384,
+  "deletions": 29,
+  "changed_files": 2,
+  "labels": [
+   "\ud83e\uddf9 Improvements",
+   "Low priority",
+   "bookings",
+   "community",
+   "ready-for-e2e",
+   "size/L",
+   "run-ci"
+  ],
+  "author": "Manas-Kenge"
+ },
+ "20764": {
+  "title": "fix: improve redirect parameter handling for success page",
+  "body": "<!-- This is an auto-generated description by mrge. -->\n## Summary by mrge\nImproved redirect handling by removing the unused \"embed\" parameter before forwarding users to the success page.\n\n- **Bug Fixes**\n  - Filters out the \"embed\" query parameter to prevent it from appearing on the success page.\n  - Added a test to confirm correct parameter filtering.\n\n<!-- End of auto-generated description by mrge. -->\n\n## What does this PR do?\r\n\r\nImproved query parameter handling by removing the unused embed param before forwarding to success page\r\n\r\n- Fixes #20469\r\n\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [ ] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). If N/A, write N/A here and check the checkbox.\r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n",
+  "merged_at": "2025-07-07T18:53:38Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/20764",
+  "additions": 35,
+  "deletions": 2,
+  "changed_files": 2,
+  "labels": [
+   "\ud83d\udc1b bug",
+   "Medium priority",
+   "automated-tests",
+   "embed",
+   "community",
+   "ready-for-e2e"
+  ],
+  "author": "guptadeepak8"
+ },
+ "27634": {
+  "title": "fix: implement missing password validation",
+  "body": "## What does this PR do?\r\n\r\nThis PR implements the missing password validation that was previously marked with a TODO.\r\n\r\nIt ensures that:\r\n1.  A password field is present in the input.\r\n2. The password meets the defined validation requirements before further processing.\r\n\r\n- Fixes #27633  (GitHub issue number)\r\n- Fixes CAL-7171 (Linear issue number - should be visible at the bottom of the GitHub issue description)\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A\r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\r\n## How should this be tested?\r\n\r\n<!-- Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration. Write details that help to start the tests -->\r\n\r\n- Are there environment variables that should be set?\r\n- What are the minimal test data to have?\r\n- What is expected (happy path) to have (input and output)?\r\n- Any other important info that could help to test that PR\r\n\n<!-- devin-review-badge-begin -->\n\n---\n\n<a href=\"https://app.devin.ai/review/calcom/cal.com/pull/27634\">\n  <picture>\n    <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://static.devin.ai/assets/gh-open-in-devin-review-dark.svg?v=1\">\n    <img src=\"https://static.devin.ai/assets/gh-open-in-devin-review-light.svg?v=1\" alt=\"Open with Devin\">\n  </picture>\n</a>\n<!-- devin-review-badge-end -->\n",
+  "merged_at": "2026-06-22T05:07:10Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27634",
+  "additions": 116,
+  "deletions": 23,
+  "changed_files": 10,
+  "labels": [
+   "\ud83d\udc1b bug",
+   "Low priority",
+   "community",
+   "ready-for-e2e",
+   "size/L",
+   "run-ci"
+  ],
+  "author": "SinghaAnirban005"
+ },
+ "27894": {
+  "title": "fix: prevent BookingDetailsSheet flicker when switching bookings",
+  "body": "## What does this PR do?\r\n\r\nFixes the BookingDetailsSheet flickering (disappearing and reappearing) when clicking a different booking while the sheet is already open.\r\n\r\n**Root causes:**\r\n1. When switching bookings, `selectedBookingUid` updates immediately but the new booking may not yet be in the store's `bookings` array (due to bi-directional URL\u2194store sync timing), causing `getSelectedBooking()` to momentarily return `null` \u2192 sheet unmounts \u2192 remounts once data arrives.\r\n2. In calendar view, clicking a different event fires Radix Dialog's `onInteractOutside`. The handler only checked for `data-booking-list-item`, so calendar events triggered the sheet to close and reopen.\r\n\r\n**Fix:**\r\n- Use a `useRef` in `BookingDetailsSheet` to retain the last valid booking. During transitions where the new booking isn't resolved yet, the previous booking stays displayed instead of the sheet unmounting.\r\n- Add `data-booking-calendar-event` attribute to calendar `Event` component and update `onInteractOutside` to recognize both list items and calendar events.\r\n\r\n## Demo\r\n\r\n\u2193 This is the flicker we were seeing on the main. Now it's gone after this PR.\r\n\r\nhttps://github.com/user-attachments/assets/652cdddf-3277-4976-824e-f8dc5db75a8b\r\n\r\n\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A\r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.\r\n\r\n## How should this be tested?\r\n\r\n1. Go to `/bookings`\r\n2. Click a booking to open the `BookingDetailsSheet`\r\n3. While the sheet is open, click a **different booking** in the list\r\n4. **Expected:** The sheet content transitions smoothly to the new booking without any flicker/disappear-reappear\r\n5. Repeat step 3 from the **calendar view** \u2014 same smooth behavior expected\r\n6. Click outside the sheet (not on a booking) \u2014 sheet should close normally\r\n7. Run tests: `TZ=UTC yarn vitest run apps/web/modules/bookings/components/BookingDetailsSheet.test.tsx`\r\n\r\n## Items for reviewer attention\r\n\r\n- **Ref mutation during render** (BookingDetailsSheet.tsx lines 68-76): `lastBookingRef.current` is set during render, not inside `useEffect`. This is an intentional and common pattern for tracking \"previous value\" via refs, but worth a look to confirm comfort with this approach.\r\n- **Test coverage gap**: The tests validate the store logic and simulate the ref fallback pattern imperatively, but don't render the actual `BookingDetailsSheet` React component (it has many dependencies that would require extensive mocking). The transition logic is the same, but the ref behavior in a real React render cycle isn't directly exercised.\r\n- **Test file has unused imports** flagged by biome (e.g. `act`, `renderHook`, `React`, `beforeEach`, `vi`, `useStore`) \u2014 these should be cleaned up.\r\n\r\n## Checklist\r\n\r\n- [x] My code follows the style guidelines of this project\r\n- [x] I have checked if my changes generate no new warnings\r\n- [x] My PR is not too large\r\n\r\n---\r\n\r\nLink to Devin run: https://app.devin.ai/sessions/66a9d334a96d43a2b666f3b71052713b\r\nRequested by: @eunjae-lee",
+  "merged_at": "2026-02-13T10:53:22Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27894",
+  "additions": 165,
+  "deletions": 14,
+  "changed_files": 3,
+  "labels": [
+   "core",
+   "consumer",
+   "ready-for-e2e",
+   "size/L",
+   "devin-conflict-resolution"
+  ],
+  "author": "eunjae-lee"
+ },
+ "27042": {
+  "title": "fix: handle invalid timezones gracefully in calendar events",
+  "body": "## What does this PR do?\r\n\r\n**Root cause**: External calendar sources (like Google Calendar) can return non-standard timezone formats. Previously, these invalid timezones caused a `RangeError` in downstream code (`dayjs().tz()`), resulting in 500 errors during booking.\r\n\r\n**Fix**: \r\n- Created `timezone-conversion.ts` with `convertOffsetToIanaTimezone()` and `normalizeTimezone()` functions\r\n- Converts offset formats (`GMT\u00b1HH:MM`, `UTC\u00b1HH:MM`) to valid `Etc/GMT` timezones\r\n- Falls back to UTC only if conversion fails or timezone is completely invalid\r\n\r\n**Why convert instead of skip?** Converting preserves timezone precision for round-robin fairness calculations. A busy time at 9 AM in GMT-05:00 is correctly interpreted as 9 AM UTC-5, rather than being skipped or incorrectly treated as 9 AM UTC.\r\n\r\n**Note**: `Etc/GMT` uses inverted signs (`Etc/GMT+5` = UTC-5, `Etc/GMT-8` = UTC+8). This is per IANA spec.\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\r\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A - no documentation changes needed.\r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works.",
+  "merged_at": "2026-01-21T05:51:52Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/27042",
+  "additions": 311,
+  "deletions": 1,
+  "changed_files": 4,
+  "labels": [
+   "core",
+   "foundation",
+   "ready-for-e2e",
+   "size/L"
+  ],
+  "author": "hbjORbj"
+ },
+ "26218": {
+  "title": "fix: add await on schedule check",
+  "body": "## What does this PR do?\r\n\r\nAdds `await` to async permission check calls in schedule handlers. This aligns the implementation with the existing correct usage in `ScheduleRepository.findManyDetailedScheduleByUserId`.\r\n\r\n### Changes\r\n\r\n- Added `await` to `hasReadPermissionsForUserId` call in `getAllSchedulesByUserId.handler.ts`\r\n- Added `await` to `hasReadPermissionsForUserId` call in `ScheduleRepository.findDetailedScheduleById`\r\n- Refactored `ScheduleRepository` tests to use shared `prismaMock` with proper types\r\n- Added unit tests for `getAllSchedulesByUserIdHandler` with authorization coverage\r\n\r\n### How to test\r\n\r\n1. Login as User A (not in any team with User B)\r\n2. Call `availability/schedule.getAllSchedulesByUserId` with User B's userId\r\n3. Should receive unauthorized error\r\n4. Run unit tests:\r\nyarn vitest run packages/features/schedules/repositories/ScheduleRepository.test.ts\r\nyarn vitest run packages/trpc/server/routers/viewer/availability/schedule/getAllSchedulesByUserId.handler.test.ts\r\n\r\n## Mandatory Tasks (DO NOT REMOVE)\r\n\r\n- [x] I have self-reviewed the code\r\n- [ ] **N/A** I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs)\r\n- [x] I confirm automated tests are in place that prove my fix is effective or that my feature works",
+  "merged_at": "2025-12-29T02:47:08Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/26218",
+  "additions": 291,
+  "deletions": 67,
+  "changed_files": 4,
+  "labels": [
+   "core",
+   "foundation",
+   "ready-for-e2e",
+   "size/L"
+  ],
+  "author": "pedroccastro"
+ },
+ "25615": {
+  "title": "fix: ESC key handler only works once in embed modal",
+  "body": "## What does this PR do?\n\nFixes a bug where the ESC key handler in the embed modal only works once. The issue was that `once: true` was used in the event listener, which removes the handler after the first keypress. Since the modal element stays in DOM (only visibility changes when closing), `connectedCallback` is not called again when reopening, leaving no ESC handler.\n\nThe fix:\n- Stores the ESC handler as a class property for proper reference management\n- Removes `once: true` so the handler persists while the element is in DOM\n- Adds `disconnectedCallback()` to clean up the listener when the element is removed from DOM\n\n## Mandatory Tasks (DO NOT REMOVE)\n\n- [x] I have self-reviewed the code (A decent size PR without self-review might be rejected).\n- [x] I have updated the developer docs in /docs if this PR makes changes that would require a [documentation change](https://cal.com/docs). N/A - no documentation changes needed.\n- [ ] I confirm automated tests are in place that prove my fix is effective or that my feature works.\n\n## How should this be tested?\n\n1. Embed a Cal.com booking page using the modal embed type\n2. Open the modal\n3. Press ESC to close the modal\n4. Reopen the modal\n5. Press ESC again - **before this fix, the modal would not close on the second ESC press**\n6. Verify the modal closes correctly on subsequent ESC presses\n\n## Checklist\n\n- [x] My code follows the style guidelines of this project\n- [x] I have checked if my changes generate no new warnings\n\n---\n\n### Link to Devin run\nhttps://app.devin.ai/sessions/eaf6a47206d64cff9128daebb4314757\n\n### Requested by\nhariom@cal.com (@hariombalhara)\n\n\n\n\n\n\n\n<!-- This is an auto-generated description by cubic. -->\n---\n## Summary by cubic\nFixed the embed modal so pressing Escape closes it reliably every time it\u2019s open.\n\n- **Bug Fixes**\n  - Use a persistent keydown escHandler and remove it in disconnectedCallback.\n  - Ensure EmbedElement cleans up window listeners and RAF timers; added tests for modal lifecycle.\n\n<sup>Written for commit 15487d30a63a3998fcfd56774ea5019c45ab1f5a. Summary will update automatically on new commits.</sup>\n\n<!-- End of auto-generated description by cubic. -->\n\n\n\n\n\n\n\n",
+  "merged_at": "2025-12-22T13:06:09Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/25615",
+  "additions": 172,
+  "deletions": 13,
+  "changed_files": 4,
+  "labels": [
+   "ready-for-e2e",
+   "size/L"
+  ],
+  "author": "hariombalhara"
+ },
+ "25315": {
+  "title": "fix: access service class for editLocationHandler",
+  "body": "## What does this PR do?\r\n\r\nFixes the access control in edit location handler\r\n",
+  "merged_at": "2025-11-21T16:13:06Z",
+  "html_url": "https://github.com/calcom/cal.diy/pull/25315",
+  "additions": 467,
+  "deletions": 1,
+  "changed_files": 3,
+  "labels": [
+   "core",
+   "consumer",
+   "ready-for-e2e",
+   "size/L"
+  ],
+  "author": "sean-brydon"
+ }
+}
