@@ -1,0 +1,13 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 0.13240091700000006,
+  "revision": "a5ef1f90022c5c7744bf6cc032d3888605dd5c54",
+  "script": "viewer/scripts/validate.mjs",
+  "arguments": [
+    "run-01/graph.yaml",
+    "run-02/graph.yaml",
+    "run-03/graph.yaml"
+  ],
+  "stdout": "OK   run-01/graph.yaml  (34 nodes, 49 edges, 5 groups)\nOK   run-02/graph.yaml  (32 nodes, 42 edges, 5 groups)\nOK   run-03/graph.yaml  (33 nodes, 43 edges, 5 groups)\n",
+  "stderr": ""
+}

@@ -1,0 +1,436 @@
+{
+  "version": 1,
+  "runs_requested": 3,
+  "runs_completed": 3,
+  "graphs_valid": 3,
+  "interpretation": "Descriptive statistics for three sequential fresh sessions, not semantic accuracy or reference scores.",
+  "aggregate": {
+    "runner_elapsed_seconds": {
+      "n": 3,
+      "sum": 1511.0500000000002,
+      "mean": 503.6833333333334,
+      "median": 491.287,
+      "min": 470.966,
+      "max": 548.797,
+      "sample_standard_deviation": 40.369146019371456
+    },
+    "process_wall_seconds": {
+      "n": 3,
+      "sum": 1512.187915125,
+      "mean": 504.062638375,
+      "median": 491.6596642079999,
+      "min": 471.347218417,
+      "max": 549.1810325,
+      "sample_standard_deviation": 40.37203214871906
+    },
+    "generation_through_exit_seconds": {
+      "n": 3,
+      "sum": 1498.6818791250003,
+      "mean": 499.5606263750001,
+      "median": 486.9912369169999,
+      "min": 467.19291529200007,
+      "max": 544.497726916,
+      "sample_standard_deviation": 40.15595396159445
+    },
+    "nodes": {
+      "n": 3,
+      "sum": 99,
+      "mean": 33,
+      "median": 33,
+      "min": 32,
+      "max": 34,
+      "sample_standard_deviation": 1
+    },
+    "edges": {
+      "n": 3,
+      "sum": 134,
+      "mean": 44.666666666666664,
+      "median": 43,
+      "min": 42,
+      "max": 49,
+      "sample_standard_deviation": 3.785938897200183
+    },
+    "groups": {
+      "n": 3,
+      "sum": 15,
+      "mean": 5,
+      "median": 5,
+      "min": 5,
+      "max": 5,
+      "sample_standard_deviation": 0
+    },
+    "member_files": {
+      "n": 3,
+      "sum": 158,
+      "mean": 52.666666666666664,
+      "median": 53,
+      "min": 50,
+      "max": 55,
+      "sample_standard_deviation": 2.516611478423583
+    },
+    "tool_calls": {
+      "n": 3,
+      "sum": 470,
+      "mean": 156.66666666666666,
+      "median": 157,
+      "min": 153,
+      "max": 160,
+      "sample_standard_deviation": 3.5118845842842465
+    },
+    "source_reads": {
+      "n": 3,
+      "sum": 260,
+      "mean": 86.66666666666667,
+      "median": 88,
+      "min": 84,
+      "max": 88,
+      "sample_standard_deviation": 2.3094010767585034
+    },
+    "failed_tool_calls": {
+      "n": 3,
+      "sum": 1,
+      "mean": 0.3333333333333333,
+      "median": 0,
+      "min": 0,
+      "max": 1,
+      "sample_standard_deviation": 0.5773502691896258
+    },
+    "unique_files_read": {
+      "n": 3,
+      "sum": 172,
+      "mean": 57.333333333333336,
+      "median": 57,
+      "min": 57,
+      "max": 58,
+      "sample_standard_deviation": 0.5773502691896258
+    },
+    "input_tokens_uncached": {
+      "n": 3,
+      "sum": 327359,
+      "mean": 109119.66666666667,
+      "median": 109650,
+      "min": 105070,
+      "max": 112639,
+      "sample_standard_deviation": 3812.2670857815474
+    },
+    "output_tokens": {
+      "n": 3,
+      "sum": 50119,
+      "mean": 16706.333333333332,
+      "median": 16670,
+      "min": 16103,
+      "max": 17346,
+      "sample_standard_deviation": 622.2960174493594
+    },
+    "cache_read_tokens": {
+      "n": 3,
+      "sum": 5222784,
+      "mean": 1740928,
+      "median": 1745152,
+      "min": 1703040,
+      "max": 1774592,
+      "sample_standard_deviation": 35962.53339240716
+    },
+    "total_tokens": {
+      "n": 3,
+      "sum": 5600262,
+      "mean": 1866754,
+      "median": 1875137,
+      "min": 1824213,
+      "max": 1900912,
+      "sample_standard_deviation": 39030.63113760781
+    },
+    "estimated_cost_usd": {
+      "n": 3,
+      "sum": 11.002324,
+      "mean": 3.667441333333333,
+      "median": 3.7045920000000008,
+      "min": 3.5588900000000003,
+      "max": 3.738841999999999,
+      "sample_standard_deviation": 0.09555526987735037
+    }
+  },
+  "runs": [
+    {
+      "name": "run-01",
+      "status": "completed",
+      "session_id": "01a17b1c-6efb-7774-a02c-4ee0325c7c64",
+      "started_at": "2026-10-27T02:06:58.471Z",
+      "finished_at": "2026-10-27T02:16:07.268Z",
+      "graph_sha256": "50940ba18094586f50c3eff16231c98ec7163dd563158a8820e8214c772f6924",
+      "original_run_record_sha256": "89998bd773f56bdbd6bfe6a9954f8c5d16bfd2aa5186cf434e30f579b0e7cc54",
+      "timing": {
+        "runner_elapsed_seconds": 548.797,
+        "process": {
+          "exit_code": 0,
+          "signal": null,
+          "started_at": "2026-10-27T02:06:58.101Z",
+          "finished_at": "2026-10-27T02:16:07.276Z",
+          "wall_seconds": 549.1810325
+        },
+        "preparation_seconds": 4.683305584000001,
+        "generation_through_exit_seconds": 544.497726916,
+        "independent_verification_seconds": 0.8325460840000305,
+        "process_plus_independent_verification_seconds": 550.013578584
+      },
+      "graph": {
+        "nodes": 34,
+        "edges": 49,
+        "groups": 5,
+        "source_files": 55,
+        "member_files": 55,
+        "node_kinds": {
+          "component": 6,
+          "endpoint": 7,
+          "model": 3,
+          "page": 6,
+          "service": 12
+        },
+        "edge_kinds": {
+          "calls": 25,
+          "navigates": 2,
+          "reads": 9,
+          "renders": 4,
+          "uses": 3,
+          "writes": 6
+        },
+        "scope": {
+          "included": [
+            "Personal public event route, SSR event resolution and web booker form/query composition",
+            "Public slots RPC, host availability aggregation, busy-calendar boundary and submission-time checks",
+            "Regular booking POST, transactional creation and reschedule replacement, cancellation POST/DELETE and integration orchestration",
+            "Public booking detail change controls and reschedule redirect entrypoint",
+            "Host availability list/edit and schedule update persistence",
+            "Host event-type list/edit entrypoints and event configuration update RPC",
+            "Host booking list query and pending booking confirmation/rejection path",
+            "Prisma Booking/Attendee/BookingReference, EventType and Schedule/Availability aggregates"
+          ],
+          "excluded": [
+            "API v1 and API v2 platform controllers; team API-v2 slots branch is identified but not expanded",
+            "Full team/dynamic/hashed/embed route variants, routing forms and instant bookings",
+            "Recurring booking submission service, seated-booking internals and slot reservation implementation",
+            "Payment processing, webhook/workflow fanout, email/SMS delivery and background job implementations",
+            "Individual calendar/video/CRM providers, OAuth and host calendar-connection settings",
+            "Exhaustive event-type create/delete/duplicate paths, availability create/delete internals and host profile settings",
+            "Booking-successful redirect internals, full booking-detail SSR, audit/history and calendar list presentation",
+            "Enterprise organizations, permission internals, billing and administration"
+          ]
+        }
+      },
+      "inspection": {
+        "tool_calls": 153,
+        "failed_tool_calls": 0,
+        "source_reads": 88,
+        "unique_files_read": 57,
+        "source_lines_returned": 8166
+      },
+      "responses": 30,
+      "usage": {
+        "input": 112639,
+        "output": 17346,
+        "cacheRead": 1745152,
+        "cacheWrite": 0,
+        "totalTokens": 1875137,
+        "cost": {
+          "input": 1.1263900000000002,
+          "output": 0.8672999999999997,
+          "cacheRead": 1.745152,
+          "cacheWrite": 0,
+          "total": 3.738841999999999
+        },
+        "reasoning": 397
+      },
+      "estimated_cost_usd": 3.738841999999999,
+      "cost_usd": null,
+      "validation": {
+        "runner": true,
+        "separate_replay": true,
+        "viewer_schema_and_references": true
+      }
+    },
+    {
+      "name": "run-02",
+      "status": "completed",
+      "session_id": "01a17b24-d369-714f-8275-c772e1f31e8c",
+      "started_at": "2026-10-27T02:16:08.479Z",
+      "finished_at": "2026-10-27T02:24:19.766Z",
+      "graph_sha256": "63f8ae9956c8910d735a6d90ba7601745aedd72d8bc8fd9fd59f16f9f80409d6",
+      "original_run_record_sha256": "4cdf71af681a2673d540dd37e73b9bd2b97c52b45fac2cda54594b93ea57264b",
+      "timing": {
+        "runner_elapsed_seconds": 491.287,
+        "process": {
+          "exit_code": 0,
+          "signal": null,
+          "started_at": "2026-10-27T02:16:08.110Z",
+          "finished_at": "2026-10-27T02:24:19.772Z",
+          "wall_seconds": 491.6596642079999
+        },
+        "preparation_seconds": 4.668427291000029,
+        "generation_through_exit_seconds": 486.9912369169999,
+        "independent_verification_seconds": 0.8424904579999857,
+        "process_plus_independent_verification_seconds": 492.5021546659999
+      },
+      "graph": {
+        "nodes": 32,
+        "edges": 42,
+        "groups": 5,
+        "source_files": 53,
+        "member_files": 53,
+        "node_kinds": {
+          "component": 5,
+          "endpoint": 7,
+          "model": 3,
+          "page": 6,
+          "service": 11
+        },
+        "edge_kinds": {
+          "calls": 24,
+          "navigates": 3,
+          "reads": 6,
+          "renders": 2,
+          "uses": 2,
+          "writes": 5
+        },
+        "scope": {
+          "included": [
+            "User/type public booking entry and server event loading",
+            "Booker schedule query, public slots RPC, host availability and busy-time computation",
+            "Regular web booking submission including reschedule context and transactional replacement persistence",
+            "Booking detail, reschedule redirect and cancellation UI/HTTP/service path",
+            "Host schedule listing and editing, event-type editing, booking list and confirm/reject RPC",
+            "Booking, EventType, Schedule and Availability models and calendar integration orchestration boundaries"
+          ],
+          "excluded": [
+            "API v1 and platform API v2 controllers; team API-v2 slot transport is identified but not traced",
+            "Dedicated recurring submission endpoint, full seated booking branches, dynamic/group and hashed-link entry variants",
+            "Payment processing internals, notification delivery, webhooks and workflow workers",
+            "Individual calendar/video/CRM adapters, OAuth connection management and calendar settings UI",
+            "Event-type list/create/delete UI and exhaustive settings, team or organization administration",
+            "Booking calendar-view and detail-sheet internals, decoy and dry-run success pages, embed-specific entry variants",
+            "Tests, deployment infrastructure and exhaustive repository coverage"
+          ]
+        }
+      },
+      "inspection": {
+        "tool_calls": 160,
+        "failed_tool_calls": 1,
+        "source_reads": 88,
+        "unique_files_read": 58,
+        "source_lines_returned": 7940
+      },
+      "responses": 31,
+      "usage": {
+        "input": 109650,
+        "output": 16670,
+        "cacheRead": 1774592,
+        "cacheWrite": 0,
+        "totalTokens": 1900912,
+        "cost": {
+          "input": 1.0965,
+          "output": 0.8335,
+          "cacheRead": 1.7745920000000002,
+          "cacheWrite": 0,
+          "total": 3.7045920000000008
+        },
+        "reasoning": 438
+      },
+      "estimated_cost_usd": 3.7045920000000008,
+      "cost_usd": null,
+      "validation": {
+        "runner": true,
+        "separate_replay": true,
+        "viewer_schema_and_references": true
+      }
+    },
+    {
+      "name": "run-03",
+      "status": "completed",
+      "session_id": "01a17b2c-55df-7564-ad55-6399751643e4",
+      "started_at": "2026-10-27T02:24:20.981Z",
+      "finished_at": "2026-10-27T02:32:11.947Z",
+      "graph_sha256": "d048c83c7ba3f7386a970a5031e744dae989baa597947e8c11632eb5f2261a9e",
+      "original_run_record_sha256": "d3c76f776e6d4d0d02f886f5eb7c7066533d778758e8587d9e53c2bb2c5ef2ef",
+      "timing": {
+        "runner_elapsed_seconds": 470.966,
+        "process": {
+          "exit_code": 0,
+          "signal": null,
+          "started_at": "2026-10-27T02:24:20.616Z",
+          "finished_at": "2026-10-27T02:32:11.955Z",
+          "wall_seconds": 471.347218417
+        },
+        "preparation_seconds": 4.154303124999977,
+        "generation_through_exit_seconds": 467.19291529200007,
+        "independent_verification_seconds": 0.8506298340000212,
+        "process_plus_independent_verification_seconds": 472.19784825100004
+      },
+      "graph": {
+        "nodes": 33,
+        "edges": 43,
+        "groups": 5,
+        "source_files": 50,
+        "member_files": 50,
+        "node_kinds": {
+          "component": 5,
+          "endpoint": 6,
+          "model": 3,
+          "page": 6,
+          "service": 13
+        },
+        "edge_kinds": {
+          "calls": 24,
+          "navigates": 3,
+          "reads": 5,
+          "renders": 2,
+          "uses": 3,
+          "writes": 6
+        },
+        "scope": {
+          "included": [
+            "Individual public event page and SSR event loading, booker orchestration, conditional slot queries and regular booking submission.",
+            "Availability computation and submission-time conflict checks, Prisma booking creation and non-seated reschedule transaction, provider-event facade calls.",
+            "Booking detail cancellation UI, UID cancellation HTTP endpoint, cancellation persistence and conditional integration cleanup, reschedule redirect entry.",
+            "Host event editor and create/update RPC, schedule listing/default/update service, bookings list and confirmation/rejection/request-reschedule RPC."
+          ],
+          "excluded": [
+            "Exhaustive API v1/v2 and platform SDK topology; team API-v2 slot branch is identified but not expanded.",
+            "Recurring submission orchestration, seated-booking internals, slot-reservation endpoints and full round-robin/routing algorithms.",
+            "Notification delivery, workflow/job queues, webhooks, payments/refunds, bot detection and authentication internals beyond inspected call boundaries.",
+            "Concrete calendar/video/CRM adapters, host calendar-connection settings, profile/team/organization administration, billing, event deletion and full schedule CRUD.",
+            "Booking calendar-view internals, all booking detail SSR data retrieval, embed variants, decoy and dry-run success pages."
+          ]
+        }
+      },
+      "inspection": {
+        "tool_calls": 157,
+        "failed_tool_calls": 0,
+        "source_reads": 84,
+        "unique_files_read": 57,
+        "source_lines_returned": 6870
+      },
+      "responses": 31,
+      "usage": {
+        "input": 105070,
+        "output": 16103,
+        "cacheRead": 1703040,
+        "cacheWrite": 0,
+        "totalTokens": 1824213,
+        "cost": {
+          "input": 1.0507000000000002,
+          "output": 0.8051500000000001,
+          "cacheRead": 1.70304,
+          "cacheWrite": 0,
+          "total": 3.5588900000000003
+        },
+        "reasoning": 333
+      },
+      "estimated_cost_usd": 3.5588900000000003,
+      "cost_usd": null,
+      "validation": {
+        "runner": true,
+        "separate_replay": true,
+        "viewer_schema_and_references": true
+      }
+    }
+  ]
+}
