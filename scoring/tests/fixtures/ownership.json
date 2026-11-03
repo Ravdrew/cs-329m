@@ -1,0 +1,28 @@
+{
+ "version": "synthetic test fixture",
+ "named_nodes": {
+  "model.appointment": {"kind": "model", "names": ["Appointment"], "schema_lines": [1, 6]},
+  "model.pet": {"kind": "model", "names": ["Pet"], "schema_lines": [8, 12]},
+  "external.paypal": {"kind": "external", "names": ["PayPal", "paypal"]}
+ },
+ "files": {
+  "web/pages/home.tsx": {"owner": "page.home", "basis": "seed"},
+  "web/pages/home-hero.tsx": {"owner": "page.home", "basis": "seed"},
+  "web/pages/book.tsx": {"owner": "page.book-visit", "basis": "seed"},
+  "web/pages/book-form.tsx": {"owner": "page.book-visit", "basis": "seed"},
+  "web/pages/embed.tsx": {"owner": "out_of_scope", "basis": "manual", "reason": "Embedded pages are outside the reference scope."},
+  "api/appointments/route.ts": {"owner": "api.appointments", "basis": "seed"},
+  "api/appointments/validate.ts": {"owner": "api.appointments", "basis": "seed"},
+  "lib/scheduling/slots.ts": {"owner": "service.scheduling", "basis": "seed"},
+  "lib/scheduling/rules.ts": {"owner": "service.scheduling", "basis": "seed"},
+  "lib/scheduling/tz.ts": {"owner": "service.scheduling", "basis": "imports"},
+  "lib/billing/invoice.ts": {"owner": "service.billing", "basis": "seed"},
+  "lib/billing/charge.ts": {"owner": "service.billing", "basis": "seed"},
+  "lib/billing/paypal.ts": {"owner": "external.paypal", "basis": "seed"},
+  "jobs/reminders.ts": {"owner": "job.reminders", "basis": "seed"},
+  "lib/shared/util.ts": {"owner": "shared", "basis": "imports"},
+  "db/schema.prisma": {"owner": "shared", "basis": "manual"},
+  "admin/reports.ts": {"owner": "out_of_scope", "basis": "manual", "reason": "Admin reports are outside the reference scope."},
+  "admin/export.ts": {"owner": "out_of_scope", "basis": "manual", "reason": "Admin reports are outside the reference scope."}
+ }
+}
