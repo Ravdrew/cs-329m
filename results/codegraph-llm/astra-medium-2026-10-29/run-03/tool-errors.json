@@ -1,0 +1,6 @@
+[
+  {
+    "tool": "finalize_graph",
+    "error": "x-scope requires included/excluded string arrays"
+  }
+]

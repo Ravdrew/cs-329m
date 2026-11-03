@@ -1,0 +1,843 @@
+# Component graph for the Cal.diy booking subsystem.
+# Hand-built seed for the reference graph (CS 329M). Every file path was
+# verified against calcom/cal.diy at the commit below; evidence lines were
+# taken from `git grep` at that commit. Edges marked `inferred` are known from
+# reading the code but not yet pinned to a line.
+version: 1
+repo: calcom/cal.diy
+commit: 6bfe2df9d13c456dc9374c9e6581b36fba188728
+title: Cal.diy — booking subsystem
+description: |
+  How a visitor books a slot on a public event page, how the booking is
+  persisted, and what happens afterwards (calendar sync, emails, webhooks,
+  payments). Organizer-facing management of existing bookings is shown at the
+  bottom.
+
+groups:
+  - id: public-booking
+    label: Public booking flow
+    summary: What an attendee sees when they open someone's booking link.
+  - id: booker-ui
+    label: Booker UI
+    parent: public-booking
+    summary: The client-side booking widget and its pieces.
+  - id: api
+    label: HTTP / tRPC endpoints
+  - id: domain
+    label: Booking domain services
+  - id: availability
+    label: Availability & slots
+  - id: side-effects
+    label: Side effects after booking
+  - id: data
+    label: Data models
+  - id: organizer
+    label: Organizer dashboard
+
+nodes:
+  # ---------------------------------------------------------------- pages
+  - id: user-profile-page
+    label: User profile page
+    kind: page
+    group: public-booking
+    routes: ["/[user]"]
+    summary: Lists a user's public event types.
+    description: |
+      Public landing page for a username. Shows the user's avatar, bio and
+      the list of bookable event types; clicking one navigates to the event
+      booking page.
+    files:
+      - path: apps/web/app/(booking-page-wrapper)/[user]/page.tsx
+        role: route
+      - apps/web/modules/users/views/users-public-view.tsx
+    provenance: manual
+
+  - id: event-booking-page
+    label: Event booking page
+    kind: page
+    group: public-booking
+    routes: ["/[user]/[type]", "/d/[link]/[slug]"]
+    summary: Hosts the Booker widget for one event type.
+    description: |
+      Server-rendered page for a single event type. Loads the public event
+      data on the server, then renders the **Booker** widget. Also reached
+      through private links (`/d/[link]/[slug]`) and the embed route.
+    files:
+      - path: apps/web/app/(booking-page-wrapper)/[user]/[type]/page.tsx
+        role: route
+      - apps/web/app/(booking-page-wrapper)/[user]/[type]/embed/page.tsx
+      - apps/web/app/(booking-page-wrapper)/d/[link]/[slug]/page.tsx
+      - apps/web/modules/users/views/users-type-public-view.tsx
+      - apps/web/app/(booking-page-wrapper)/layout.tsx
+    provenance: manual
+
+  - id: booking-success-page
+    label: Booking success page
+    kind: page
+    group: public-booking
+    routes: ["/booking/[uid]", "/booking-successful/[uid]"]
+    summary: Confirmation page after a booking; also cancel/reschedule entry.
+    description: |
+      Shows the booked slot, attendees and location. From here an attendee
+      can cancel or request a reschedule, and rate the host after the meeting.
+    files:
+      - path: apps/web/app/(booking-page-wrapper)/booking/[uid]/page.tsx
+        role: route
+      - apps/web/app/(booking-page-wrapper)/booking-successful/[uid]/page.tsx
+      - apps/web/modules/bookings/views/bookings-single-view.tsx
+      - apps/web/modules/bookings/views/bookings-single-view.getServerSideProps.tsx
+      - apps/web/modules/bookings/components/BookingSuccessCard.tsx
+      - apps/web/components/booking/CancelBooking.tsx
+    provenance: manual
+
+  # ---------------------------------------------------------------- booker
+  - id: booker
+    label: Booker
+    kind: component
+    group: booker-ui
+    summary: The booking widget — layout shell that composes the pieces below.
+    description: |
+      Composes the event meta, date picker, time slots and booking form into
+      one of several layouts (month, week, column). `BookerWebWrapper` wires
+      it to Next.js routing and the tRPC client; the layout and state logic
+      live in `packages/features/bookings/Booker`.
+    files:
+      - path: apps/web/modules/bookings/components/Booker.tsx
+        role: entry
+      - apps/web/modules/bookings/components/BookerWebWrapper.tsx
+      - packages/features/bookings/Booker/config.ts
+      - packages/features/bookings/Booker/types.ts
+      - packages/features/bookings/Booker/hooks/useBookerLayout.ts
+      - packages/features/bookings/Booker/hooks/useBookerTime.ts
+      - packages/features/bookings/Booker/utils/layout.ts
+      - packages/features/bookings/Booker/utils/getBookerWrapperClasses.ts
+    provenance: manual
+
+  - id: booker-store
+    label: Booker store
+    kind: store
+    group: booker-ui
+    summary: Zustand store holding the selected date, slot, timezone and form values.
+    files:
+      - path: packages/features/bookings/Booker/store.ts
+        role: entry
+      - packages/features/bookings/Booker/BookerStoreProvider.tsx
+      - packages/features/bookings/Booker/utils/query-param.ts
+    provenance: manual
+
+  - id: event-meta
+    label: Event meta
+    kind: component
+    group: booker-ui
+    summary: Event title, duration, location, price and timezone picker.
+    files:
+      - apps/web/modules/bookings/components/EventMeta.tsx
+      - packages/features/bookings/components/event-meta/Price.tsx
+      - packages/features/bookings/components/event-meta/PayIcon.tsx
+    provenance: manual
+
+  - id: date-picker
+    label: Date picker
+    kind: component
+    group: booker-ui
+    summary: Month calendar; days without slots are disabled.
+    files:
+      - apps/web/modules/bookings/components/DatePicker.tsx
+      - packages/features/calendars/components/DatePicker.tsx
+      - packages/features/calendars/components/NoAvailabilityDialog.tsx
+    provenance: manual
+
+  - id: available-times
+    label: Available times
+    kind: component
+    group: booker-ui
+    summary: The list of bookable slots for the selected day.
+    description: |
+      Fetches the schedule for the visible month through the slots endpoint
+      and renders the slots for the selected day, honouring the attendee's
+      timezone and 12/24h preference.
+    files:
+      - apps/web/modules/bookings/components/AvailableTimes.tsx
+      - apps/web/modules/bookings/components/AvailableTimeSlots.tsx
+      - apps/web/modules/bookings/components/AvailableTimesHeader.tsx
+      - packages/features/bookings/Booker/hooks/useAvailableTimeSlots.ts
+      - packages/features/bookings/Booker/utils/isTimeslotAvailable.ts
+      - packages/features/bookings/Booker/utils/getPrefetchMonthCount.ts
+    provenance: manual
+
+  - id: book-event-form
+    label: Book event form
+    kind: component
+    group: booker-ui
+    summary: Name/email/custom questions; submits the booking.
+    description: |
+      Renders the event type's booking fields, validates them with the
+      shared responses schema, and posts to the book-event endpoint.
+    files:
+      - path: apps/web/modules/bookings/components/BookEventForm/BookEventForm.tsx
+        role: entry
+      - apps/web/modules/bookings/components/BookEventForm/BookFormAsModal.tsx
+      - apps/web/modules/bookings/components/BookEventForm/BookingFields.tsx
+      - packages/features/bookings/Booker/hooks/useBookingForm.ts
+      - packages/features/bookings/Booker/hooks/useInitialFormValues.ts
+      - packages/features/bookings/lib/client/booking-event-form/booking-to-mutation-input-mapper.tsx
+      - packages/features/bookings/lib/create-booking.ts
+    provenance: manual
+
+  - id: booking-fields-schema
+    label: Booking fields schema
+    kind: service
+    group: domain
+    summary: Zod schemas shared by the form (client) and the endpoint (server).
+    files:
+      - packages/features/bookings/lib/getBookingResponsesSchema.ts
+      - packages/features/bookings/lib/bookingCreateBodySchema.ts
+    provenance: manual
+
+  # ---------------------------------------------------------------- endpoints
+  - id: slots-endpoint
+    label: Slots endpoint
+    kind: endpoint
+    group: api
+    routes: ["trpc viewer.slots.getSchedule"]
+    summary: Returns the bookable slots for an event type over a date range.
+    files:
+      - packages/trpc/server/routers/viewer/slots/_router.tsx
+      - path: packages/trpc/server/routers/viewer/slots/getSchedule.handler.ts
+        role: handler
+      - packages/trpc/server/routers/viewer/slots/getSchedule.schema.ts
+      - packages/trpc/server/routers/viewer/slots/types.ts
+      - packages/trpc/server/routers/viewer/slots/util.ts
+      - apps/web/pages/api/trpc/slots/[trpc].ts
+    provenance: manual
+
+  - id: reserve-slot-endpoint
+    label: Reserve slot endpoint
+    kind: endpoint
+    group: api
+    routes: ["trpc viewer.slots.reserveSlot", "trpc viewer.slots.isAvailable"]
+    summary: Temporarily holds a slot while the attendee fills the form.
+    files:
+      - path: packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts
+        role: handler
+      - packages/trpc/server/routers/viewer/slots/reserveSlot.schema.ts
+      - packages/trpc/server/routers/viewer/slots/isAvailable.handler.ts
+      - packages/trpc/server/routers/viewer/slots/isAvailable.schema.ts
+      - packages/trpc/server/routers/viewer/slots/removeSelectedSlot.schema.ts
+      - packages/features/bookings/Booker/useSlotReservationId.ts
+    provenance: manual
+
+  - id: book-event-endpoint
+    label: Book event endpoint
+    kind: endpoint
+    group: api
+    routes: ["POST /api/book/event", "POST /api/book/recurring-event"]
+    summary: Creates a booking. Rate-limited and bot-checked.
+    description: |
+      Next.js API route. Resolves the session (if any), checks rate limits,
+      Turnstile and bot detection, then delegates to the regular (or
+      recurring) booking service.
+    files:
+      - path: apps/web/pages/api/book/event.ts
+        role: handler
+      - apps/web/pages/api/book/recurring-event.ts
+    provenance: manual
+
+  - id: cancel-endpoint
+    label: Cancel endpoint
+    kind: endpoint
+    group: api
+    routes: ["POST /api/cancel"]
+    summary: Cancels a booking (attendee or organizer).
+    files:
+      - path: apps/web/app/api/cancel/route.ts
+        role: handler
+    provenance: manual
+
+  - id: bookings-trpc-router
+    label: Bookings tRPC router
+    kind: endpoint
+    group: api
+    routes: ["trpc viewer.bookings.*"]
+    summary: Organizer-side booking operations (confirm, reschedule, edit location, guests).
+    files:
+      - path: packages/trpc/server/routers/viewer/bookings/_router.tsx
+        role: entry
+      - packages/trpc/server/routers/viewer/bookings/confirm.handler.ts
+      - packages/trpc/server/routers/viewer/bookings/confirm.schema.ts
+      - packages/trpc/server/routers/viewer/bookings/get.handler.ts
+      - packages/trpc/server/routers/viewer/bookings/get.schema.ts
+      - packages/trpc/server/routers/viewer/bookings/getBookingDetails.handler.ts
+      - packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+      - packages/trpc/server/routers/viewer/bookings/editLocation.handler.ts
+      - packages/trpc/server/routers/viewer/bookings/addGuests.handler.ts
+    provenance: manual
+
+  # ---------------------------------------------------------------- domain
+  - id: booking-service
+    label: Booking service
+    kind: service
+    group: domain
+    summary: The booking pipeline — validate, pick hosts, check limits, create, notify.
+    description: |
+      `RegularBookingService` (and the recurring variant) is the heart of the
+      system. In order it: loads the event type, loads and validates users,
+      checks booking/duration limits, ensures hosts are available, handles
+      seats, creates the booking row, syncs calendars/video through the
+      EventManager, takes payment if needed, and fires emails and webhooks.
+    files:
+      - path: packages/features/bookings/lib/service/RegularBookingService.ts
+        role: entry
+      - packages/features/bookings/lib/service/RecurringBookingService.ts
+      - packages/features/bookings/di/RegularBookingService.container.ts
+      - packages/features/bookings/lib/handleNewBooking/getBookingData.ts
+      - packages/features/bookings/lib/handleNewBooking/getEventType.ts
+      - packages/features/bookings/lib/handleNewBooking/loadAndValidateUsers.ts
+      - packages/features/bookings/lib/handleNewBooking/ensureAvailableUsers.ts
+      - packages/features/bookings/lib/handleNewBooking/createBooking.ts
+      - packages/features/bookings/lib/handleNewBooking/validateBookingTimeIsNotOutOfBounds.ts
+      - packages/features/bookings/lib/handleNewBooking/validateEventLength.ts
+      - packages/features/bookings/lib/handleNewBooking/getRequiresConfirmationFlags.ts
+      - packages/features/bookings/lib/handleNewBooking/scheduleNoShowTriggers.ts
+      - packages/features/bookings/lib/handleNewBooking/types.ts
+    provenance: manual
+
+  - id: booking-limits
+    label: Booking limits
+    kind: service
+    group: domain
+    summary: Per-day/week/month booking and duration caps.
+    files:
+      - packages/features/bookings/lib/handleNewBooking/checkBookingAndDurationLimits.ts
+      - packages/features/bookings/lib/checkBookingLimits.ts
+      - packages/features/bookings/lib/checkDurationLimits.ts
+      - packages/features/bookings/lib/handleNewBooking/checkActiveBookingsLimitForBooker.ts
+    provenance: manual
+
+  - id: seats-service
+    label: Seats
+    kind: service
+    group: domain
+    summary: Multi-attendee ("seated") events share one booking row.
+    files:
+      - packages/features/bookings/lib/handleSeats/handleSeats.ts
+      - packages/features/bookings/lib/handleNewBooking/getSeatedBooking.ts
+    provenance: manual
+
+  - id: cancel-service
+    label: Cancel booking service
+    kind: service
+    group: domain
+    summary: Cancels, removes calendar events, sends cancellation emails.
+    files:
+      - path: packages/features/bookings/lib/handleCancelBooking.ts
+        role: entry
+      - packages/features/bookings/lib/handleCancelBooking/types.ts
+      - packages/features/bookings/di/BookingCancelService.container.ts
+      - packages/features/bookings/lib/cancellationReason.ts
+    provenance: manual
+
+  - id: confirmation-service
+    label: Confirmation service
+    kind: service
+    group: domain
+    summary: Organizer accepts a booking that required confirmation.
+    files:
+      - packages/features/bookings/lib/handleConfirmation.ts
+    provenance: manual
+
+  # ---------------------------------------------------------------- availability
+  - id: available-slots-service
+    label: Available slots service
+    kind: service
+    group: availability
+    summary: Turns working hours minus busy times into discrete slots.
+    files:
+      - packages/features/di/containers/AvailableSlots.ts
+      - packages/features/schedules/lib/slots.ts
+      - packages/features/availability/lib/getAggregatedAvailability/getAggregatedAvailability.ts
+    provenance: manual
+
+  - id: user-availability
+    label: User availability
+    kind: service
+    group: availability
+    summary: Working hours, date overrides, busy times and limits for one user.
+    files:
+      - path: packages/features/availability/lib/getUserAvailability.ts
+        role: entry
+      - packages/features/availability/lib/detectEventTypeScheduleForUser.ts
+      - packages/features/availability/lib/findUsersForAvailabilityCheck.ts
+      - packages/features/busyTimes/services/getBusyTimes.ts
+      - packages/features/busyTimes/lib/getBusyTimesFromLimits.ts
+      - packages/features/schedules/repositories/ScheduleRepository.ts
+    provenance: manual
+
+  # ---------------------------------------------------------------- side effects
+  - id: event-manager
+    label: Event manager
+    kind: service
+    group: side-effects
+    summary: Creates/updates/deletes the calendar event and video meeting for a booking.
+    files:
+      - path: packages/features/bookings/lib/EventManager.ts
+        role: entry
+      - packages/features/calendars/lib/CalendarManager.ts
+      - packages/features/bookings/lib/getAllCredentialsForUsersOnEvent/getAllCredentials.ts
+    provenance: manual
+
+  - id: calendar-apps
+    label: Calendar & video apps
+    kind: external
+    group: side-effects
+    summary: Google/Outlook/CalDAV calendars and Cal Video/Zoom adapters from the app store.
+    files:
+      - packages/app-store/googlecalendar/lib/CalendarService.ts
+      - packages/app-store/dailyvideo/lib/VideoApiAdapter.ts
+      - packages/app-store/_utils/getCalendar.ts
+    provenance: manual
+
+  - id: email-manager
+    label: Email manager
+    kind: service
+    group: side-effects
+    summary: Sends scheduled / rescheduled / cancelled emails to organizer and attendees.
+    files:
+      - path: packages/emails/email-manager.ts
+        role: entry
+      - packages/emails/src/templates/AttendeeScheduledEmail.tsx
+      - packages/emails/src/templates/OrganizerScheduledEmail.tsx
+      - packages/emails/src/templates/AttendeeCancelledEmail.tsx
+      - packages/features/bookings/lib/BookingEmailSmsHandler.ts
+    provenance: manual
+
+  - id: webhooks
+    label: Webhooks
+    kind: service
+    group: side-effects
+    summary: BOOKING_CREATED / CANCELLED / RESCHEDULED payloads to subscribers.
+    files:
+      - packages/features/bookings/lib/handleWebhookTrigger.ts
+      - packages/features/webhooks/lib/sendPayload.ts
+    provenance: manual
+
+  - id: payments
+    label: Payments
+    kind: service
+    group: side-effects
+    summary: Collects payment (Stripe etc.) for paid event types before confirming.
+    files:
+      - packages/features/bookings/lib/handlePayment.ts
+      - packages/app-store/stripepayment/lib/PaymentService.ts
+    provenance: manual
+
+  - id: tasker
+    label: Tasker
+    kind: job
+    group: side-effects
+    summary: Background task queue used for async emails and no-show triggers.
+    files:
+      - packages/features/tasker/index.ts
+      - packages/features/tasker/internal-tasker.ts
+      - packages/features/tasker/task-processor.ts
+      - packages/features/tasker/repository.ts
+      - packages/features/bookings/lib/tasker/BookingEmailAndSmsTasker.ts
+    provenance: manual
+
+  # ---------------------------------------------------------------- data
+  - id: booking-model
+    label: Booking
+    kind: model
+    group: data
+    summary: Booking, Attendee and BookingReference tables plus the repository.
+    files:
+      - path: packages/prisma/schema.prisma
+        role: schema
+        lines: [801, 945]
+      - packages/features/bookings/repositories/BookingRepository.ts
+      - packages/features/bookings/repositories/IBookingRepository.ts
+    provenance: manual
+
+  - id: event-type-model
+    label: EventType
+    kind: model
+    group: data
+    summary: The bookable event definition (length, hosts, fields, limits).
+    files:
+      - path: packages/prisma/schema.prisma
+        role: schema
+        lines: [156, 400]
+      - packages/features/eventtypes/lib/getPublicEvent.ts
+      - packages/features/eventtypes/lib/getEventTypeById.ts
+    provenance: manual
+
+  - id: user-schedule-model
+    label: User & Schedule
+    kind: model
+    group: data
+    summary: User, Schedule and Availability tables.
+    files:
+      - path: packages/prisma/schema.prisma
+        role: schema
+        lines: [401, 1000]
+      - packages/features/users/repositories/UserRepository.ts
+    provenance: manual
+
+  - id: selected-slots-model
+    label: SelectedSlots
+    kind: model
+    group: data
+    summary: Short-lived slot reservations.
+    files:
+      - path: packages/prisma/schema.prisma
+        role: schema
+        lines: [1437, 1460]
+    provenance: manual
+
+  # ---------------------------------------------------------------- organizer
+  - id: bookings-list-page
+    label: Bookings list page
+    kind: page
+    group: organizer
+    routes: ["/bookings/[status]"]
+    summary: Upcoming / past / cancelled bookings for the signed-in user.
+    files:
+      - path: apps/web/app/(use-page-wrapper)/(main-nav)/bookings/[status]/page.tsx
+        role: route
+      - apps/web/modules/bookings/views/bookings-view.tsx
+      - apps/web/modules/bookings/components/BookingList.tsx
+      - apps/web/modules/bookings/components/BookingListContainer.tsx
+      - apps/web/components/booking/BookingListItem.tsx
+      - apps/web/modules/bookings/components/BookingDetailsSheet.tsx
+    provenance: manual
+
+  - id: booking-actions
+    label: Booking actions
+    kind: component
+    group: organizer
+    summary: Accept / reject / cancel / reschedule / edit-location menu.
+    files:
+      - apps/web/components/booking/actions/BookingActionsDropdown.tsx
+      - apps/web/components/booking/actions/bookingActions.ts
+      - apps/web/components/booking/actions/store.ts
+      - apps/web/components/booking/AcceptBookingButton.tsx
+      - apps/web/components/booking/RejectBookingButton.tsx
+      - apps/web/components/dialog/CancelBookingDialog.tsx
+      - apps/web/components/booking/hooks/useBookingConfirmation.tsx
+    provenance: manual
+
+edges:
+  # navigation
+  - from: user-profile-page
+    to: event-booking-page
+    kind: navigates
+    label: opens event type
+    provenance: inferred
+  - from: event-booking-page
+    to: booker
+    kind: renders
+    evidence:
+      - file: apps/web/modules/users/views/users-type-public-view.tsx
+        line: 6
+        symbol: BookerWebWrapper
+      - file: apps/web/modules/users/views/users-type-public-view.tsx
+        line: 33
+        symbol: <Booker
+    provenance: extracted
+  - from: event-booking-page
+    to: event-type-model
+    kind: reads
+    label: loads public event on the server
+    provenance: inferred
+  - from: book-event-form
+    to: booking-success-page
+    kind: navigates
+    label: redirect after booking
+    evidence:
+      - file: packages/features/bookings/lib/bookingSuccessRedirect.ts
+        note: builds the success URL
+    provenance: inferred
+
+  # booker composition
+  - from: booker
+    to: event-meta
+    kind: renders
+    evidence:
+      - { file: apps/web/modules/bookings/components/Booker.tsx, line: 47, symbol: EventMeta }
+    provenance: extracted
+  - from: booker
+    to: date-picker
+    kind: renders
+    evidence:
+      - { file: apps/web/modules/bookings/components/Booker.tsx, line: 45, symbol: DatePicker }
+    provenance: extracted
+  - from: booker
+    to: available-times
+    kind: renders
+    evidence:
+      - { file: apps/web/modules/bookings/components/Booker.tsx, line: 42, symbol: AvailableTimeSlots }
+    provenance: extracted
+  - from: booker
+    to: book-event-form
+    kind: renders
+    evidence:
+      - { file: apps/web/modules/bookings/components/Booker.tsx, line: 43, symbol: BookEventForm }
+      - { file: apps/web/modules/bookings/components/Booker.tsx, line: 44, symbol: BookFormAsModal }
+    provenance: extracted
+  - from: booker
+    to: booker-store
+    kind: uses
+    evidence:
+      - { file: apps/web/modules/bookings/components/Booker.tsx, line: 7, symbol: useBookerStoreContext }
+    provenance: extracted
+  - from: book-event-form
+    to: booker-store
+    kind: reads
+    evidence:
+      - { file: apps/web/modules/bookings/components/BookEventForm/BookEventForm.tsx, line: 71, symbol: setFormValues }
+      - { file: packages/features/bookings/Booker/hooks/useBookingForm.ts, line: 40, symbol: useBookerStore }
+    provenance: extracted
+  - from: book-event-form
+    to: booking-fields-schema
+    kind: uses
+    label: validates responses
+    evidence:
+      - { file: packages/features/bookings/Booker/hooks/useBookingForm.ts, line: 48, symbol: getBookingResponsesSchema }
+    provenance: extracted
+
+  # client → endpoints
+  - from: available-times
+    to: slots-endpoint
+    kind: calls
+    label: getSchedule for the visible month
+    evidence:
+      - file: packages/features/bookings/Booker/hooks/useAvailableTimeSlots.ts
+        note: consumes the schedule query result
+    provenance: inferred
+  - from: book-event-form
+    to: reserve-slot-endpoint
+    kind: calls
+    label: holds the slot while the form is open
+    evidence:
+      - { file: packages/features/bookings/Booker/useSlotReservationId.ts }
+    provenance: inferred
+  - from: book-event-form
+    to: book-event-endpoint
+    kind: calls
+    label: POST /api/book/event
+    evidence:
+      - { file: packages/features/bookings/lib/create-booking.ts, line: 13, symbol: "/api/book/event" }
+    provenance: extracted
+  - from: booking-success-page
+    to: cancel-endpoint
+    kind: calls
+    label: attendee cancels
+    evidence:
+      - { file: apps/web/modules/bookings/views/bookings-single-view.tsx, line: 925, symbol: <CancelBooking }
+    provenance: extracted
+  - from: booking-success-page
+    to: booking-model
+    kind: reads
+    evidence:
+      - { file: apps/web/modules/bookings/views/bookings-single-view.getServerSideProps.tsx, line: 79, symbol: new BookingRepository(prisma) }
+    provenance: extracted
+
+  # endpoints → services
+  - from: slots-endpoint
+    to: available-slots-service
+    kind: calls
+    evidence:
+      - { file: packages/trpc/server/routers/viewer/slots/getSchedule.handler.ts, line: 6, symbol: getAvailableSlotsService }
+    provenance: extracted
+  - from: available-slots-service
+    to: user-availability
+    kind: calls
+    provenance: inferred
+  - from: user-availability
+    to: user-schedule-model
+    kind: reads
+    label: working hours & overrides
+    provenance: inferred
+  - from: user-availability
+    to: booking-model
+    kind: reads
+    label: existing bookings as busy times
+    evidence:
+      - { file: packages/features/availability/lib/getUserAvailability.ts, line: 9, symbol: getBusyTimesService }
+    provenance: extracted
+  - from: user-availability
+    to: booking-limits
+    kind: calls
+    evidence:
+      - { file: packages/features/availability/lib/getUserAvailability.ts, line: 6, symbol: getBusyTimesFromLimits }
+    provenance: extracted
+  - from: user-availability
+    to: calendar-apps
+    kind: calls
+    label: fetches busy times from connected calendars
+    provenance: inferred
+  - from: reserve-slot-endpoint
+    to: selected-slots-model
+    kind: writes
+    evidence:
+      - { file: packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts, line: 6, symbol: PrismaSelectedSlotRepository }
+    provenance: extracted
+  - from: book-event-endpoint
+    to: booking-service
+    kind: calls
+    evidence:
+      - { file: apps/web/pages/api/book/event.ts, line: 3, symbol: getRegularBookingService }
+    provenance: extracted
+  - from: cancel-endpoint
+    to: cancel-service
+    kind: calls
+    provenance: inferred
+  - from: bookings-trpc-router
+    to: confirmation-service
+    kind: calls
+    evidence:
+      - { file: packages/trpc/server/routers/viewer/bookings/confirm.handler.ts }
+    provenance: inferred
+  - from: bookings-trpc-router
+    to: booking-model
+    kind: reads
+    provenance: inferred
+
+  # booking pipeline
+  - from: booking-service
+    to: booking-fields-schema
+    kind: uses
+    label: validates request body
+    provenance: inferred
+  - from: booking-service
+    to: event-type-model
+    kind: reads
+    evidence:
+      - { file: packages/features/bookings/lib/service/RegularBookingService.ts, line: 523, symbol: getEventType }
+    provenance: extracted
+  - from: booking-service
+    to: user-availability
+    kind: calls
+    label: ensureAvailableUsers
+    evidence:
+      - { file: packages/features/bookings/lib/service/RegularBookingService.ts, line: 902, symbol: ensureAvailableUsers }
+    provenance: extracted
+  - from: booking-service
+    to: booking-limits
+    kind: calls
+    evidence:
+      - { file: packages/features/bookings/lib/service/RegularBookingService.ts, line: 817, symbol: checkBookingAndDurationLimits }
+    provenance: extracted
+  - from: booking-service
+    to: seats-service
+    kind: calls
+    evidence:
+      - { file: packages/features/bookings/lib/service/RegularBookingService.ts, line: 1586, symbol: handleSeats }
+    provenance: extracted
+  - from: booking-service
+    to: booking-model
+    kind: writes
+    evidence:
+      - { file: packages/features/bookings/lib/service/RegularBookingService.ts, line: 1707, symbol: createBooking }
+      - { file: packages/features/bookings/lib/service/RegularBookingService.ts, line: 684, symbol: bookingRepository.getValidBookingFromEventTypeForAttendee }
+    provenance: extracted
+  - from: booking-service
+    to: event-manager
+    kind: calls
+    evidence:
+      - { file: packages/features/bookings/lib/service/RegularBookingService.ts, line: 1835, symbol: new EventManager }
+    provenance: extracted
+  - from: booking-service
+    to: payments
+    kind: calls
+    evidence:
+      - { file: packages/features/bookings/lib/service/RegularBookingService.ts, line: 27, symbol: handlePayment }
+    provenance: extracted
+  - from: booking-service
+    to: webhooks
+    kind: emits
+    label: BOOKING_CREATED
+    evidence:
+      - { file: packages/features/bookings/lib/service/RegularBookingService.ts, line: 28, symbol: handleWebhookTrigger }
+    provenance: extracted
+  - from: booking-service
+    to: tasker
+    kind: emits
+    label: queues emails / no-show triggers
+    evidence:
+      - { file: packages/features/bookings/lib/service/RegularBookingService.ts, line: 30, symbol: BookingEmailAndSmsTasker }
+    provenance: extracted
+  - from: tasker
+    to: email-manager
+    kind: calls
+    provenance: inferred
+  - from: event-manager
+    to: calendar-apps
+    kind: calls
+    evidence:
+      - { file: packages/features/bookings/lib/EventManager.ts, line: 10, symbol: createEvent }
+      - { file: packages/features/bookings/lib/EventManager.ts, line: 11, symbol: createMeeting }
+      - { file: packages/features/bookings/lib/EventManager.ts, line: 884, symbol: "createEvent(credential, event)" }
+    provenance: extracted
+  - from: event-manager
+    to: booking-model
+    kind: writes
+    label: stores BookingReference rows
+    provenance: inferred
+
+  # cancel / confirm
+  - from: cancel-service
+    to: booking-model
+    kind: writes
+    evidence:
+      - { file: packages/features/bookings/lib/handleCancelBooking.ts, line: 41, symbol: BookingRepository }
+    provenance: extracted
+  - from: cancel-service
+    to: event-manager
+    kind: calls
+    evidence:
+      - { file: packages/features/bookings/lib/handleCancelBooking.ts, line: 7, symbol: EventManager }
+    provenance: extracted
+  - from: cancel-service
+    to: email-manager
+    kind: calls
+    evidence:
+      - { file: packages/features/bookings/lib/handleCancelBooking.ts, line: 5, symbol: sendCancelledEmailsAndSMS }
+    provenance: extracted
+  - from: cancel-service
+    to: webhooks
+    kind: emits
+    label: BOOKING_CANCELLED
+    provenance: inferred
+  - from: confirmation-service
+    to: event-manager
+    kind: calls
+    evidence:
+      - { file: packages/features/bookings/lib/handleConfirmation.ts, line: 78, symbol: new EventManager }
+    provenance: extracted
+  - from: confirmation-service
+    to: email-manager
+    kind: calls
+    evidence:
+      - { file: packages/features/bookings/lib/handleConfirmation.ts, line: 108, symbol: sendScheduledEmailsAndSMS }
+    provenance: extracted
+
+  # organizer
+  - from: bookings-list-page
+    to: booking-actions
+    kind: renders
+    provenance: inferred
+  - from: bookings-list-page
+    to: bookings-trpc-router
+    kind: calls
+    label: viewer.bookings.get
+    provenance: inferred
+  - from: booking-actions
+    to: bookings-trpc-router
+    kind: calls
+    label: confirm / requestReschedule / editLocation
+    provenance: inferred
+  - from: booking-actions
+    to: cancel-endpoint
+    kind: calls
+    provenance: inferred

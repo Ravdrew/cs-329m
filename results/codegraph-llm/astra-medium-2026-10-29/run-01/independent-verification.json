@@ -1,0 +1,20 @@
+{
+  "valid": true,
+  "variant": "codegraph-llm",
+  "commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+  "nodes": 34,
+  "edges": 315,
+  "groups": 0,
+  "source_files": 738,
+  "graph_sha256": "a67d98efa3d17a66afbcabfe849537fc4e5797c2adc6ad5d5ec0c04736edaa04",
+  "static_input_sha256": "1ad7ebd9a23a434aeadc32a5281c8d003b1f16ade6b5b0c487cde753bbc88969",
+  "membership_sha256": "fc95f8c9011bbf733ce4e4ed1f5556e57476fbd43b26693d24ffc588bf37eb6d",
+  "aggregation_sha256": "4a2aa5ad1626cd034824e09c4f0a4fe35ea6ec2e8ea37c76004bf2ea15e3a0ee",
+  "static_edge_accounting": {
+    "total": 20363,
+    "containment": 10769,
+    "unassigned": 0,
+    "internal": 6699,
+    "aggregated": 2895
+  }
+}

@@ -4,6 +4,135 @@ CS 329M (Machine Programming) project, Fall 2026: Andres Garcia, Nathan Cho, Ren
 
 We build a component-level graph of a real TypeScript app (starting with [Cal.com](https://github.com/calcom/cal.com)), let developers express intent by editing the graph, and measure whether that helps coding agents and people compared with prose alone.
 
+## Layout
+
+```
+targets/calcom.env       pinned Cal.com commit and Node version
+scripts/                 setup and test scripts for target apps
+results/baselines/       committed test baselines at the pinned commit
+results/runs/            raw test runs (git-ignored)
+work/                    target app checkouts and local database data (git-ignored)
+```
+
+## Prerequisites
+
+- git and bash. **Windows: use WSL2 (Ubuntu)**; Cal.com's scripts don't run in PowerShell or cmd.
+- Node 20, which Cal.com's CI uses. With [nvm](https://github.com/nvm-sh/nvm): `nvm install 20 && nvm use` (this repo has an `.nvmrc`).
+- About 10 GB free disk for one Cal.com checkout with dependencies.
+- For the database-backed tests only: [Docker Desktop](https://www.docker.com/products/docker-desktop/), or Postgres and Redis installed locally (macOS: `brew install postgresql@18 redis`).
+
+You don't need to install Yarn: Cal.com includes its own copy (4.12), and the scripts run it through `corepack`, which comes with Node.
+
+## Cal.com setup
+
+```bash
+nvm use
+scripts/setup_calcom.sh            # clones into work/calcom at the pinned commit, installs deps
+scripts/run_calcom_tests.sh        # full unit suite (TZ=UTC), results in results/runs/
+```
+
+To run only some tests, pass the files: `scripts/run_calcom_tests.sh packages/features/bookings/lib/foo.test.ts`.
+`--mode timezone` runs the timezone-dependent tests the way Cal.com CI does.
+To compare runs and spot flaky tests, use `node scripts/summarize_results.mjs results/runs/*.json`.
+
+To check out a different commit, use `scripts/setup_calcom.sh <sha>`. To put the checkout elsewhere (e.g. `/scratch/users/$USER/calcom` on FarmShare), set `CALCOM_DIR`.
+
+### Baseline at the pinned commit
+
+At `54343aa` on an M-series MacBook Pro (Node 20.20, 2026-10-14), setup took about 3 minutes and used 4.9 GB. The unit suite passed **4,087 tests, failed 0, and skipped 50**, identically on 3 runs (no flaky tests), in about 95 s per run. The timezone suite passed 62. Per-test statuses are in `results/baselines/`.
+
+Note that Cal.com CI runs Vitest with `--no-isolate`. That made about 560 tests fail locally from state leaking between test files, so our script runs with isolation (Vitest's default).
+
+### Database-backed tests
+
+Some tests need a real database: Cal.com's integration tests (`*.integration-test.ts`, Vitest) and the API v2 end-to-end tests (`apps/api/v2/**/*.e2e-spec.ts`, Jest, which also need Redis). Several candidate PRs, such as new API endpoints, are only covered by these.
+
+```bash
+scripts/db.sh up                                   # start Postgres (port 5450) and Redis, migrate and seed
+scripts/run_calcom_tests.sh --mode integration     # all integration tests
+scripts/run_calcom_tests.sh --mode api-e2e apps/api/v2/src/platform/bookings/2024-08-13/controllers/e2e/seated-bookings.e2e-spec.ts
+scripts/db.sh down                                 # stop them when you're done
+```
+
+`db.sh` uses Docker when its daemon is running and otherwise the Postgres and Redis installed on your machine (`DB_BACKEND=docker|native` forces one). Ports and credentials match Cal.com's own defaults, so nothing goes in a `.env` file. Both backends use port 5450, so stop one (`db.sh down`) before starting the other.
+
+On a Mac without Docker Desktop, [Colima](https://github.com/abiosoft/colima) works:
+
+```bash
+brew install colima docker docker-compose
+# let `docker compose` find the plugin (only if you have no Docker config yet)
+mkdir -p ~/.docker
+[ -e ~/.docker/config.json ] || echo '{"cliPluginsExtraDirs":["/opt/homebrew/lib/docker/cli-plugins"]}' > ~/.docker/config.json
+colima start --cpu 4 --memory 6
+```
+
+If you already have `~/.docker/config.json`, add `"cliPluginsExtraDirs": ["/opt/homebrew/lib/docker/cli-plugins"]` to it by hand instead.
+
+For the native backend instead: `brew install postgresql@18 redis`.
+
+The first `up` for a Cal.com commit applies the migrations, runs Cal.com's seed script (test users such as `free`/`free` and `pro`/`pro`), and saves a snapshot in `work/db/snapshots/`. Every database-backed test run then restores that snapshot first, so each run starts from the same state no matter what earlier runs wrote; `--no-reset` skips this. The first `api-e2e` run also builds the platform packages the API imports, once per commit.
+
+`scripts/db.sh status` shows what's running, and `scripts/db.sh nuke` deletes the database and snapshots.
+
+`--mode api-e2e` runs Jest the way Cal.com CI does in one shard: `CI=true` and 4 workers. With `CI=true`, Cal.com's `test/jest.setup-e2e.ts` retries each failed test up to 2 times, and Jest runs the retries after the rest of the file. So a test can pass in CI only because the file's later tests changed the database. The summarizer lists these tests as "passed only on a retry", and baselines record them under `passedOnRetry`. One differs from CI: the default Jest timeout is raised from 5 s to 30 s, because each file's `beforeAll` boots the whole Nest app, which sometimes took longer than 5 s on a laptop and failed the whole file.
+
+### Database-backed baseline
+
+At `54343aa` on a 10-core M-series MacBook Pro with 16 GB (Node 22.17, Docker via Colima with 4 CPUs and 6 GB, 2026-10-18), each suite run 3 times:
+
+| Suite | Files | Passed | Failed | Skipped | Time per run |
+|---|---|---|---|---|---|
+| integration | 15 | 114 | 0 | 1 | 7–9 s |
+| api-e2e | 42 (2 fully skipped) | 522 | 0 | 30 | 68–78 s |
+
+These runs used Node 22.17, while Cal.com CI and the unit baseline use Node 20, so rerun them on Node 20 before relying on exact counts (`run_calcom_tests.sh` now warns when the Node version differs). Results were identical across the 3 runs (no flaky tests), and they match Cal.com CI's integration job (114 passed, 1 skipped). The 30 skipped api-e2e tests are `.skip`ped in Cal.com's source (calendars, Google Calendar and two others). One-time costs: the first `db.sh up` (migrations and seed) took 67 s with Docker, including pulling the images, and 41 s native. Restoring the snapshot takes 1–2 s. The first `api-e2e` run builds the platform packages in about 85 s.
+
+Tests that passed only on a retry:
+- `seated-bookings.e2e-spec.ts` › "should not be able to reschedule seated booking if seatUid is not provided", in every run. It sends an unauthenticated reschedule for a booking that still has seats, and the API answers 500 (`No auth user found`) before it reaches the 400 the test expects. It passes on the retry because by then later tests in the file have moved the seats. Cal.com CI logs show the same 500 followed by a pass. Keep this in mind when grading PRs that touch seated bookings, such as calcom/cal.diy#26786.
+- `app.e2e-spec.ts` › rate limiting with multiple limits, and `booking-access-auth.e2e-spec.ts` › organizer can access transcripts, in 1 of 3 runs each.
+
+**Scope:** we use Cal.com's Vitest unit and integration tests and the API v2 end-to-end tests as graders. We don't run the Playwright browser tests.
+
 ## Workflow
 
 Open a pull request for changes; don't push directly to `master`.
+
+## CodeGraph component baseline
+
+For **Astra-authored components hot-started from CodeGraph**, see
+[the Pi/Astra runner](tools/codegraph-llm/README.md). It supplies the raw booking
+structural graph to a fresh Pi session; Astra chooses memberships, names and
+summaries, and the host derives all component edges from the static dependencies.
+Run `bash scripts/run_codegraph_llm_graph.sh --source work/calcom` after installing
+the runner and configuring Pi authentication. Its completed `graph.yaml` opens
+in the existing viewer. The saved baseline below uses deterministic path rules.
+
+[Three verified Pi/Astra hotstart runs](results/codegraph-llm/astra-medium-2026-10-29/README.md)
+include frozen graphs, timing and usage summaries, test logs and a replay verifier.
+
+For a booking-scoped variant at `54343aa`, see
+[the booking baseline and viewer instructions](graphs/codegraph-booking/README.md).
+Reproduce it with `bash scripts/build_booking_graph.sh` after installing the
+CodeGraph CLI. It includes both a structural graph export and a smaller graph in
+the shared format.
+
+This branch includes a lean Cal.com component graph and a standalone interactive
+visualization. From the repository root on macOS:
+
+```bash
+open graphs/codegraph-calcom/visualization.html
+```
+
+No dependencies or Cal.com setup are needed to view the saved graph. Select a node
+to explore its dependencies. See [viewing instructions and graph data](graphs/codegraph-calcom/README.md)
+and [CodeGraph setup and component generation](tools/codegraph/README.md).
+## Graph viewer
+
+| Path | What |
+|---|---|
+| `viewer/` | React graph viewer with editing (`cd viewer && npm install && npm run dev`); see `viewer/README.md` |
+| `viewer/public/graphs/` | Sample graphs: the Cal.com booking subsystem (34 nodes / 50 edges) and a developer-edit variant |
+| `schema/graph.schema.json` | JSON Schema for the graph file format (`cd viewer && npm run validate`) |
+
+To view the generated CodeGraph baseline, run the viewer and use **Open…** to
+select `graphs/codegraph-calcom/components.json` from this repository.
