@@ -1,6 +1,6 @@
 # CodeGraph baseline
 
-This branch uses [colbymchenry/codegraph](https://github.com/colbymchenry/codegraph),
+This repository uses [colbymchenry/codegraph](https://github.com/colbymchenry/codegraph),
 pinned to version **1.6.2** in `package.json` and `package-lock.json`.
 The CLI is installed locally; `node_modules/` is ignored by Git.
 

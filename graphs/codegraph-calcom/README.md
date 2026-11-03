@@ -24,7 +24,7 @@ cp graphs/codegraph-calcom/components.json viewer/public/graphs/codegraph-calcom
 
 ### Standalone snapshot
 
-The standalone [visualization.html](visualization.html) is included in this branch.
+The standalone [visualization.html](visualization.html) is included in this repository.
 After checking out `codegraph-baseline`, open it in a browser. No installation,
 Cal.com checkout, database, or local server is needed to view this saved snapshot.
 Terminal chat interfaces do not display the interactive graph inline.

@@ -4,24 +4,63 @@ CS 329M (Machine Programming) project, Fall 2026: Andres Garcia, Nathan Cho, Ren
 
 We build a component-level graph of a real TypeScript app (starting with [Cal.com](https://github.com/calcom/cal.com)), let developers express intent by editing the graph, and measure whether that helps coding agents and people compared with prose alone.
 
+## Workflow
+
+Open a pull request for changes; don't push directly to `master`. Keep large generated runs
+(`results/runs/`, `work/`, `scoring/out/`) out of Git; the `.gitignore` already covers them.
+
 ## Layout
 
-```
-targets/calcom.env       pinned Cal.com commit and Node version
-experiments/llm-only/    LLM-only booking graph, provenance and review tools
-tools/llm-only/           automated LLM-only construction runner
-scripts/                 setup and test scripts for target apps
-results/baselines/       committed test baselines at the pinned commit
-results/llm-only/        timed graph-generation trials and validation records
-results/runs/            raw test runs (git-ignored)
-work/                    target app checkouts and local database data (git-ignored)
-```
+| Path | What | Details |
+|---|---|---|
+| `schema/graph.schema.json` | The shared graph file format (YAML or JSON): groups, nodes, edges, files, evidence, provenance | [docs/graph-format-proposal.md](docs/graph-format-proposal.md); validate with `cd viewer && npm run validate` |
+| `viewer/` | React graph viewer and editor; `?graph=<url>` or **Open…** loads any graph in the shared format | [viewer/README.md](viewer/README.md) |
+| `viewer/public/graphs/` | Sample graphs: the hand-built booking subsystem (34 nodes / 50 edges) and a developer-edit variant, plus snapshots of the CodeGraph baselines | |
+| `targets/calcom.env` | The pinned Cal.com commit (`54343aa`) and Node version | |
+| `scripts/` | Cal.com setup, database and test scripts; the three graph builders' launchers | this file, below |
+| `results/baselines/` | Cal.com test baselines at the pin (unit, timezone, integration, API e2e) | this file, below |
+| `tools/codegraph/`, `graphs/` | **Static baseline**: CodeGraph 1.6.2 index projected to components by path rules | [tools/codegraph/README.md](tools/codegraph/README.md), [graphs/codegraph-booking/README.md](graphs/codegraph-booking/README.md), [graphs/codegraph-calcom/README.md](graphs/codegraph-calcom/README.md) |
+| `tools/llm-only/`, `experiments/llm-only/`, `results/llm-only/` | **LLM-only builder**: a fresh Pi/Astra session reads source and authors the whole graph; the first graph and three timed runs | [tools/llm-only/README.md](tools/llm-only/README.md), [experiments/llm-only/README.md](experiments/llm-only/README.md), [results/llm-only/astra-medium-2026-10-26/README.md](results/llm-only/astra-medium-2026-10-26/README.md) |
+| `tools/codegraph-llm/`, `results/codegraph-llm/` | **Hot-started builder**: Astra groups the raw CodeGraph graph into components; the host derives edges from static dependencies; three verified runs | [tools/codegraph-llm/README.md](tools/codegraph-llm/README.md), [results/codegraph-llm/astra-medium-2026-10-29/README.md](results/codegraph-llm/astra-medium-2026-10-29/README.md) |
+| `scoring/` | **Q1 scorer**: compares candidate graphs with the withheld reference graph (file ownership, localization F2, questions) | [scoring/README.md](scoring/README.md) |
+| `benchmark/`, `docs/benchmark-pr-audit.md` | **Benchmark tasks**: 37 verified fail-to-pass Cal.com PRs mined SWE-bench style, with the recommended 20 | [benchmark/README.md](benchmark/README.md) |
+| `q2q3-tools/` | **Q2/Q3 harness**: runs a coding agent on a benchmark task, grades it with the PR's hidden tests; the 20 interface specs agents receive | [q2q3-tools/README.md](q2q3-tools/README.md) |
+| `docs/screenshots/` | Viewer screenshots used in the checkpoint deck | |
 
-The [LLM-only booking graph](experiments/llm-only/README.md) was built in a separate clean Cal.com checkout at the shared pin. Load [graph.yaml](experiments/llm-only/graph.yaml) in the viewer; it uses the shared format in [schema/graph.schema.json](schema/graph.schema.json). Its 36 components and 62 relationships include source evidence, a Mermaid view and validation tools. Set `CALCOM_DIR` to the pinned checkout to validate, export or render it; graph review does not require Cal.com's dependencies or a database.
+Two Cal.com commits appear in this repo. Everything under `targets/`, `scripts/`, `results/`,
+`graphs/`, `tools/` and `scoring/` uses the team pin **`54343aa`**. The viewer's hand-built sample
+graphs and the benchmark audit were made against **`6bfe2df9`**; they are unchanged and still validate.
 
-For **automated independent construction**, see [tools/llm-only](tools/llm-only/README.md). After installing its dependencies and configuring Pi authentication, run `bash scripts/run_llm_only_graph.sh`. It starts a fresh Pi agent using `openai/gpt-6-astra` with restricted source tools in a separate pinned checkout, validates the shared YAML and evidence, and saves the prediction and run logs outside this repository.
+## Graph builders
 
-The [three fresh Astra-medium trials from October 26](results/llm-only/astra-medium-2026-10-26/README.md) include frozen graphs, timing and token statistics, source-read transcripts, and replayable validation. All three graphs validated; the harness passed 32 tests. Mean construction time was 8m 23.7s at the same Cal.com pin.
+Three ways to produce a graph in the shared format, all at the team pin. Each writes to a run
+directory outside the repo and validates against the schema; the two Pi/Astra builders need a Pi
+OpenAI login (`~/.pi/agent/auth.json`) or `OPENAI_API_KEY`, and Node 22.19+.
+
+| Builder | Who decides nodes | Who decides edges | Run |
+|---|---|---|---|
+| Static CodeGraph baseline | path rules in `tools/codegraph/*.config.json` | CodeGraph dependencies, pruned and mapped to `uses`/`calls`/`navigates` | `npm ci --prefix tools/codegraph && bash scripts/build_booking_graph.sh` |
+| LLM-only | Astra, from source reads with cited evidence | Astra, any schema kind, with cited evidence | `npm ci --prefix tools/llm-only && bash scripts/run_llm_only_graph.sh` |
+| Hot-started | Astra, by assigning every CodeGraph node to a component | host aggregation of CodeGraph dependencies (no pruning) | `npm ci --prefix tools/codegraph-llm && bash scripts/run_codegraph_llm_graph.sh --source work/calcom` |
+
+Load any resulting `graph.yaml` in the viewer with **Open…**, or copy it into `viewer/public/graphs/`
+and open `http://localhost:5173/?graph=/graphs/<file>`. The saved static baseline is at
+`viewer/public/graphs/codegraph-calcom-components.json`; a dependency-free view of it is
+`graphs/codegraph-calcom/visualization.html`.
+
+## Evaluation
+
+- **Q1 (graph quality)**: `scoring/score_graph.py` scores candidates against the reference graph. The
+  reference, its file ownership, adjudications, questions and all scores are answer-key material: keep
+  them, and `--out-dir`, outside this repo. Tests: `python3 -m pytest scoring/tests -q`.
+- **Benchmark tasks**: `benchmark/tasks.json` lists 37 verified fail-to-pass instances (base and merge
+  commits, test files, FAIL_TO_PASS and PASS_TO_PASS ids, test command). How they were mined and which
+  20 are recommended is in `docs/benchmark-pr-audit.md`.
+- **Q2/Q3 (does the graph help an agent)**: `q2q3-tools/harness.py` prepares a task, runs an agent,
+  and grades it with the hidden tests plus a regression check. `q2q3-tools/specs-final/` holds the
+  interface specs every agent gets.
+
+## Cal.com target
 
 ## Prerequisites
 
@@ -101,47 +140,3 @@ Tests that passed only on a retry:
 - `app.e2e-spec.ts` › rate limiting with multiple limits, and `booking-access-auth.e2e-spec.ts` › organizer can access transcripts, in 1 of 3 runs each.
 
 **Scope:** we use Cal.com's Vitest unit and integration tests and the API v2 end-to-end tests as graders. We don't run the Playwright browser tests.
-
-## Workflow
-
-Open a pull request for changes; don't push directly to `master`.
-
-## CodeGraph component baseline
-
-For **Astra-authored components hot-started from CodeGraph**, see
-[the Pi/Astra runner](tools/codegraph-llm/README.md). It supplies the raw booking
-structural graph to a fresh Pi session; Astra chooses memberships, names and
-summaries, and the host derives all component edges from the static dependencies.
-Run `bash scripts/run_codegraph_llm_graph.sh --source work/calcom` after installing
-the runner and configuring Pi authentication. Its completed `graph.yaml` opens
-in the existing viewer. The saved baseline below uses deterministic path rules.
-
-[Three verified Pi/Astra hotstart runs](results/codegraph-llm/astra-medium-2026-10-29/README.md)
-include frozen graphs, timing and usage summaries, test logs and a replay verifier.
-
-For a booking-scoped variant at `54343aa`, see
-[the booking baseline and viewer instructions](graphs/codegraph-booking/README.md).
-Reproduce it with `bash scripts/build_booking_graph.sh` after installing the
-CodeGraph CLI. It includes both a structural graph export and a smaller graph in
-the shared format.
-
-This branch includes a lean Cal.com component graph and a standalone interactive
-visualization. From the repository root on macOS:
-
-```bash
-open graphs/codegraph-calcom/visualization.html
-```
-
-No dependencies or Cal.com setup are needed to view the saved graph. Select a node
-to explore its dependencies. See [viewing instructions and graph data](graphs/codegraph-calcom/README.md)
-and [CodeGraph setup and component generation](tools/codegraph/README.md).
-## Graph viewer
-
-| Path | What |
-|---|---|
-| `viewer/` | React graph viewer with editing (`cd viewer && npm install && npm run dev`); see `viewer/README.md` |
-| `viewer/public/graphs/` | Sample graphs: the Cal.com booking subsystem (34 nodes / 50 edges) and a developer-edit variant |
-| `schema/graph.schema.json` | JSON Schema for the graph file format (`cd viewer && npm run validate`) |
-
-To view the generated CodeGraph baseline, run the viewer and use **Open…** to
-select `graphs/codegraph-calcom/components.json` from this repository.
