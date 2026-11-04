@@ -33,7 +33,7 @@ python3 -m unittest discover -s experiments/llm-only -p 'test_*.py' -v
 python3 experiments/llm-only/render_graph.py
 ```
 
-Without `CALCOM_DIR`, validation, rendering and tests use `work/calcom`, matching the shared setup scripts. All three CLI tools also accept `--repo /absolute/path/to/pinned/calcom`. Graph construction takes place in a separate clean upstream checkout; this branch packages the already frozen result for review.
+Without `CALCOM_DIR`, validation, rendering and tests use `work/calcom`, matching the shared setup scripts. All three CLI tools also accept `--repo /absolute/path/to/pinned/calcom`. Graph construction takes place in a separate clean upstream checkout; this folder packages the already frozen result for review.
 
 Run `python3 experiments/llm-only/export_graph.py` to regenerate `graph.yaml` from the frozen snapshot. `--check` validates the existing YAML against the exact shared schema, checks unique IDs, references and acyclic group parents, and verifies that its contents match the documented conversion. It also revalidates the frozen snapshot against the source checkout. Regeneration replaces the baseline YAML; export developer edits from the viewer to a separate file.
 
@@ -41,9 +41,9 @@ The validator rejects a different checkout commit, modified tracked source, malf
 
 `inspect_source.py` is retained as the original construction helper. Its paths assume it is copied into `experiments/llm-only/` inside a fresh upstream checkout. For a new construction run, copy only that helper; keep prior graphs, logs and the team repository outside the construction agent's context. The included exploration logs are the frozen historical record.
 
-## Branch and frozen prediction
+## History and frozen prediction
 
-`codegraph-llm-only` branches from shared setup commit `16449ab34e7849926ddf285a0b0cf4aec482f43d` (`calcom-postgres`, PR #2). It includes the LLM-only artifacts after source exploration and graph construction were complete. Graph contents, evidence, logs and the original run record are preserved; packaging only adds portable source-checkout selection to the review tools and updates these instructions.
+This work was developed on the `codegraph-llm-only` branch (since merged), which started from shared setup commit `16449ab34e7849926ddf285a0b0cf4aec482f43d` (`calcom-postgres`, PR #2). It includes the LLM-only artifacts after source exploration and graph construction were complete. Graph contents, evidence, logs and the original run record are preserved; packaging only adds portable source-checkout selection to the review tools and updates these instructions.
 
 The frozen `graph.json` SHA-256 is `273bf829388a424363d9c3163d8af16735f78cc910bb43c1e1660b2592ac6919`.
 

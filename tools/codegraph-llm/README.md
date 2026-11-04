@@ -6,8 +6,8 @@ The host aggregates the underlying static edges after those assignments. Astra
 cannot author component edges. The output uses `schema/graph.schema.json` and
 opens in the existing viewer.
 
-The Pi SDK integration is adapted from `origin/codegraph-llm-only` at
-`f3f3854eb30c2b2eee3d0de3506f6b9b2892019d`. It uses the same pinned Pi 1.4.0 SDK,
+The Pi SDK integration is adapted from the LLM-only runner in `tools/llm-only`
+(as of commit `f3f3854eb30c2b2eee3d0de3506f6b9b2892019d`). It uses the same pinned Pi 1.4.0 SDK,
 `ModelRuntime` → `createAgentSession` → `session.prompt` agent loop, OpenAI
 Responses transport (`openai/gpt-6-astra`, medium reasoning by default), credential
 resolution, session isolation, tool/time limits and usage logging. Model requests

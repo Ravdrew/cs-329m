@@ -83,8 +83,7 @@ Outputs:
 | `components.full.json` | All aggregated edges after the documented source/confidence filters; use for completeness-sensitive evaluation |
 | `components.report.json` | Configuration, commit, coverage, exclusions, edge accounting and limitations |
 
-Both graphs conform to `schema/graph.schema.json`, copied unchanged from the
-`viewer` branch. No sample/reference graph or scorer answer key is used. The
+Both graphs conform to the shared `schema/graph.schema.json`. No sample/reference graph or scorer answer key is used. The
 schema permits the `x-codegraph` extension containing weights and provenance.
 Candidate graphs can be loaded in the team's viewer or supplied to its scorer
 after agreeing on the same target repository and commit as the evaluation.
