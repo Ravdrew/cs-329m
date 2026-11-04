@@ -1,0 +1,50 @@
+{
+ "new_files": [
+  "packages/features/bookings/services/BookingAccessService.ts",
+  "packages/lib/server/repository/bookingReport.interface.ts",
+  "packages/lib/server/repository/bookingReport.ts",
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.ts"
+ ],
+ "new_exports": {},
+ "new_methods": {
+  "packages/features/bookings/repositories/BookingRepository.ts": [
+   "findByUidIncludeReport",
+   "getActiveRecurringBookingsFromDate"
+  ]
+ },
+ "mocks": {
+  "@sentry/nextjs": {
+   "bookingReport.test.ts": [
+    "captureException"
+   ]
+  },
+  "packages/lib/server/repository/bookingReport.ts": {
+   "reportBooking.handler.test.ts": [
+    "(automocked: every export replaced)"
+   ]
+  },
+  "packages/features/bookings/lib/handleCancelBooking.ts": {
+   "reportBooking.handler.test.ts": [
+    "(automocked: every export replaced)"
+   ]
+  },
+  "packages/features/bookings/repositories/BookingRepository.ts": {
+   "reportBooking.handler.test.ts": [
+    "(automocked: every export replaced)"
+   ]
+  },
+  "packages/features/bookings/services/BookingAccessService.ts": {
+   "reportBooking.handler.test.ts": [
+    "(automocked: every export replaced)"
+   ]
+  },
+  "packages/lib/logger.ts": {
+   "reportBooking.handler.test.ts": [
+    "default",
+    "default.getSubLogger"
+   ]
+  }
+ },
+ "changed": {},
+ "schema_blocks": 6
+}

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cs329m.local/schema/graph.schema.json",
+  "title": "Component graph (draft v0)",
+  "description": "Component-level architecture graph checked into a repository. See docs/graph-format-proposal.md.",
+  "type": "object",
+  "required": ["version", "nodes", "edges"],
+  "properties": {
+    "version": { "const": 1 },
+    "repo": { "type": "string", "description": "owner/name, used to build source links" },
+    "commit": { "type": "string", "description": "commit the graph was built against" },
+    "title": { "type": "string" },
+    "description": { "type": "string", "description": "markdown" },
+    "groups": { "type": "array", "items": { "$ref": "#/$defs/group" }, "default": [] },
+    "nodes": { "type": "array", "items": { "$ref": "#/$defs/node" } },
+    "edges": { "type": "array", "items": { "$ref": "#/$defs/edge" } }
+  },
+  "patternProperties": { "^x-": {} },
+  "additionalProperties": false,
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+    "provenance": { "enum": ["extracted", "inferred", "manual"] },
+    "status": { "enum": ["existing", "new", "modify", "delete"], "default": "existing" },
+    "group": {
+      "type": "object",
+      "required": ["id", "label"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "type": "string" },
+        "parent": { "$ref": "#/$defs/id" },
+        "summary": { "type": "string" }
+      },
+      "patternProperties": { "^x-": {} },
+      "additionalProperties": false
+    },
+    "fileRef": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "required": ["path"],
+          "properties": {
+            "path": { "type": "string" },
+            "role": { "type": "string", "description": "e.g. entry, route, handler, schema" },
+            "lines": { "type": "array", "items": { "type": "integer", "minimum": 1 }, "minItems": 2, "maxItems": 2 }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["file"],
+      "properties": {
+        "file": { "type": "string" },
+        "line": { "type": "integer", "minimum": 1 },
+        "symbol": { "type": "string" },
+        "note": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "node": {
+      "type": "object",
+      "required": ["id", "label", "kind", "files"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "type": "string" },
+        "kind": { "enum": ["page", "component", "endpoint", "service", "model", "store", "job", "external", "other"] },
+        "group": { "$ref": "#/$defs/id" },
+        "summary": { "type": "string", "description": "one line" },
+        "description": { "type": "string", "description": "markdown" },
+        "files": { "type": "array", "items": { "$ref": "#/$defs/fileRef" } },
+        "routes": { "type": "array", "items": { "type": "string" } },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "status": { "$ref": "#/$defs/status" },
+        "note": { "type": "string", "description": "developer note attached with an edit" },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      },
+      "patternProperties": { "^x-": {} },
+      "additionalProperties": false
+    },
+    "edge": {
+      "type": "object",
+      "required": ["from", "to", "kind"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "from": { "$ref": "#/$defs/id" },
+        "to": { "$ref": "#/$defs/id" },
+        "kind": { "enum": ["renders", "navigates", "calls", "reads", "writes", "emits", "uses"] },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "status": { "$ref": "#/$defs/status" },
+        "note": { "type": "string" }
+      },
+      "patternProperties": { "^x-": {} },
+      "additionalProperties": false
+    }
+  }
+}

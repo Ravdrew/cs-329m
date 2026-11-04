@@ -1,0 +1,19 @@
+1.6.2
+┌  Initializing CodeGraph
+│
+◆  Initialized in <repo>/work/calcom
+│
+Scanning files...
+Parsing code...
+Resolving refs...
+Linking dynamic dispatch...
+│
+◆  Indexed 5,153 files
+│
+●  61,470 nodes, 145,411 edges in 3.5s
+│
+└  Done
+
+Built 32 components, 79 lean edges (298 before pruning) from 740 files.
+Output: <repo>/graphs/codegraph-booking
+Viewer: http://localhost:5173/?graph=/graphs/codegraph-booking-components.json

@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "runs": [
+    {
+      "run": "run-01",
+      "exit_code": 0,
+      "output": "OK   run-01/graph.yaml  (34 nodes, 315 edges, 0 groups)\nOK   run-01/graph.json  (34 nodes, 315 edges, 0 groups)"
+    },
+    {
+      "run": "run-02",
+      "exit_code": 0,
+      "output": "OK   run-02/graph.yaml  (33 nodes, 306 edges, 3 groups)\nOK   run-02/graph.json  (33 nodes, 306 edges, 3 groups)"
+    },
+    {
+      "run": "run-03",
+      "exit_code": 0,
+      "output": "OK   run-03/graph.yaml  (33 nodes, 307 edges, 5 groups)\nOK   run-03/graph.json  (33 nodes, 307 edges, 5 groups)"
+    }
+  ]
+}

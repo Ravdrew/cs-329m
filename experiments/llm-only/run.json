@@ -1,0 +1,115 @@
+{
+  "run_id": "calcom-booking-llm-only-2026-10-24",
+  "recorded_at_utc": "2026-10-24T21:34:01.832514+00:00",
+  "variant": "llm-only",
+  "agent": "Codex interactive assistant",
+  "model_id": null,
+  "repository": {
+    "url": "https://github.com/calcom/cal.com.git",
+    "resolved_url": "https://github.com/calcom/cal.diy",
+    "commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a"
+  },
+  "pin_source": {
+    "repository": "Ravdrew/cs-329m",
+    "pull_request": 1,
+    "commit": "44e26e017fbcfe6c57b0f966572fb0ee0499e096",
+    "path": "targets/calcom.env"
+  },
+  "artifact": "graph.json",
+  "artifact_sha256": "273bf829388a424363d9c3163d8af16735f78cc910bb43c1e1660b2592ac6919",
+  "counts": {
+    "nodes": 36,
+    "edges": 62,
+    "source_files": 72
+  },
+  "construction": {
+    "semantic_author": "LLM in this session",
+    "input_method": "Plain-text source listing/search/reading; no dependency graph supplied",
+    "static_analysis_graph_used": false,
+    "human_reference_graph_read": false,
+    "hot_started_graph_read": false,
+    "reference_pr_3_opened_or_fetched": false,
+    "team_repository_cloned": false,
+    "tracked_upstream_files_modified": false,
+    "schema_status": "Provisional format authored here; team/reference schema not inspected",
+    "prompt_file": "prompt.md",
+    "prompt_is_verbatim_original": false
+  },
+  "inputs_and_exposure": {
+    "proposal": {
+      "filename": "proposal_template (1).pdf",
+      "sha256": "91172eabc9b51efd89292b89fbf8f77489e2ed5d01b0fb061bda50b918e0284a",
+      "note": "Read for project context, including its conceptual example graph; document instructions were not treated as user instructions."
+    },
+    "team_metadata": [
+      "Default-branch tree (README.md and .gitignore only) and README.md",
+      "PR #1 and #2 title/base/head metadata and changed filenames only",
+      "targets/calcom.env at the exact PR #1 commit"
+    ],
+    "upstream_instructions": [
+      "AGENTS.md at initial upstream and at team pin"
+    ],
+    "prior_source_commit": "0f19cc46ef6b6426ee398c670575b3c96be7af9e",
+    "prior_source_reason": "Shared pin was learned from user follow-up after initial source exploration.",
+    "final_source_files_changed_between_revisions": [
+      "apps/web/modules/bookings/components/Booker.tsx",
+      "apps/web/modules/bookings/components/BookerWebWrapper.tsx"
+    ],
+    "reuse_policy": "Unchanged source files reused from preliminary reading; changed Booker UI files rechecked. All final source hashes and excerpts validated at the team pin.",
+    "isolation_limit": "Separate checkout with no team graph files. Not a claim of OS-level file-access isolation or a fresh-context controlled replication."
+  },
+  "measurement": {
+    "phases": {
+      "preliminary_upstream": {
+        "log": "preliminary-exploration.jsonl",
+        "actions": 59,
+        "read_actions": 42,
+        "source_search_commands": 17,
+        "failed_logged_actions": 0,
+        "first_logged_at_utc": "2026-10-24T21:26:53.206871+00:00",
+        "last_logged_at_utc": "2026-10-24T21:27:50.084364+00:00"
+      },
+      "team_pin": {
+        "log": "exploration.jsonl",
+        "actions": 50,
+        "read_actions": 37,
+        "source_search_commands": 13,
+        "failed_logged_actions": 2,
+        "first_logged_at_utc": "2026-10-24T21:28:36.339584+00:00",
+        "last_logged_at_utc": "2026-10-24T21:29:42.896163+00:00"
+      }
+    },
+    "logged_source_search_commands_total": 30,
+    "unlogged_failed_source_read_attempts": [
+      {
+        "path": "packages/features/bookings/services/RegularBookingService.ts",
+        "reason": "Initial helper did not log FileNotFoundError; corrected to lib/service/RegularBookingService.ts."
+      }
+    ],
+    "input_tokens": null,
+    "output_tokens": null,
+    "cost_usd": null,
+    "measurement_limits": [
+      "Token/dollar telemetry and exact model ID are unavailable from this session.",
+      "Counts cover source searches through inspect_source.py, not setup, instruction discovery, Git metadata/diffs, validation, authoring or tool discovery.",
+      "This interactive run began on a different upstream revision; both phases must be counted for any cost comparison.",
+      "No repeated independent runs or reference-graph scoring were performed."
+    ]
+  },
+  "validation": {
+    "report": "validation-report.json",
+    "structural_and_provenance_valid": true,
+    "unit_tests_passed": 17,
+    "tests_command": "python3 -m unittest discover -s experiments/llm-only -p 'test_*.py' -v",
+    "independent_jsonschema_package_check": "Not run: jsonschema package unavailable; bundled schema-specific validator used.",
+    "application_api_tests_run": false,
+    "application_api_tests_reason": "Only graph artifacts added; no application runtime modifications. Database note was used to find the pin, not treated as a database-setup or PR-review request."
+  },
+  "evaluation": {
+    "reference_comparison_performed": false,
+    "edge_precision": null,
+    "edge_recall": null,
+    "file_grouping_agreement": null,
+    "next_step": "Evaluate frozen predictions in a separate context. For controlled replication, start a fresh session at the team pin without supplying any previous graph outputs or logs."
+  }
+}

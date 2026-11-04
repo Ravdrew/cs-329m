@@ -1,0 +1,2296 @@
+{
+  "schema_version": "1.0",
+  "graph_id": "calcom-booking-llm-only",
+  "variant": "llm-only",
+  "repository": {
+    "url": "https://github.com/calcom/cal.com.git",
+    "resolved_url": "https://github.com/calcom/cal.diy",
+    "commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a"
+  },
+  "scope": {
+    "name": "Booking subsystem: public booking, availability, creation, rescheduling, cancellation and selected host management",
+    "coverage": "Scoped source-based baseline, not an exhaustive graph of the repository or every booking branch.",
+    "entrypoints": [
+      "/[user]/[type]",
+      "/booking/[uid]",
+      "/reschedule/[uid]",
+      "/bookings/[status]",
+      "/api/book/event",
+      "/api/book/recurring-event",
+      "/api/cancel",
+      "viewer.public.event",
+      "viewer.slots.getSchedule",
+      "viewer.slots.reserveSlot",
+      "viewer.slots.removeSelectedSlotMark",
+      "viewer.bookings.get",
+      "viewer.bookings.getBookingDetails",
+      "viewer.bookings.confirm"
+    ],
+    "excluded": [
+      "API v1/v2 server internals and platform atoms",
+      "Team/organization, routing-form, hashed-link and embed entrypoint variants",
+      "Payment flows, anti-abuse internals, dry-run and decoy success branches",
+      "Provider, task-queue, workflow, authentication and email-verification internals",
+      "Calendar-overlay UI, host calendar presentation, editing location, adding guests and request-reschedule actions",
+      "Exhaustive seated/round-robin/recurring conditional subgraphs and every source helper"
+    ],
+    "grouping_policy": "Component membership is explicit and may overlap for shared router/schema/helper files. Evidence spans disambiguate shared files. Only inspected members are listed; membership does not claim exhaustive ownership.",
+    "edge_policy": "Directed relationships between grouped components. calls may cross helpers within a component; reads includes documented in-memory model reads. Conditional behavior is stated in descriptions. No transitive relationship is silently treated as a direct call."
+  },
+  "nodes": [
+    {
+      "id": "public-page",
+      "label": "Public booking page",
+      "type": "page",
+      "group": "Public booking",
+      "summary": "The /[user]/[type] route loads public event data and existing booking context, then renders the booking view. This node includes its route adapter and server-side loader.",
+      "files": [
+        "apps/web/app/(booking-page-wrapper)/[user]/[type]/page.tsx",
+        "apps/web/modules/users/views/users-type-public-view.tsx",
+        "apps/web/server/lib/[user]/[type]/getServerSideProps.ts"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/app/(booking-page-wrapper)/[user]/[type]/page.tsx",
+          "start_line": 15,
+          "end_line": 33,
+          "excerpt": "const getData: (ctx: ReturnType<typeof buildLegacyCtx>) => Promise<LegacyPageProps> =\n  withAppDirSsr<LegacyPageProps>(getServerSideProps);\n\nconst ServerPage = async ({ params, searchParams }: PageProps): Promise<JSX.Element> => {\n  const legacyCtx = buildLegacyCtx(await headers(), await cookies(), await params, await searchParams);\n  const props = await getData(legacyCtx);\n\n  const locale = props.eventData?.interfaceLanguage;\n  if (locale) {\n    const ns = \"common\";\n    const translations = await loadTranslations(locale, ns);\n    return (\n      <CustomI18nProvider translations={translations} locale={locale} ns={ns}>\n        <LegacyPage {...props} />\n      </CustomI18nProvider>\n    );\n  }\n\n  return <LegacyPage {...props} />;"
+        },
+        {
+          "path": "apps/web/modules/users/views/users-type-public-view.tsx",
+          "start_line": 27,
+          "end_line": 40,
+          "excerpt": "function Type({ slug, user, isEmbed, booking, isBrandingHidden, eventData, orgBannerUrl }: PageProps) {\n  const searchParams = useSearchParams();\n\n  return (\n    <BookingPageErrorBoundary>\n      <main className={getBookerWrapperClasses({ isEmbed: !!isEmbed })}>\n        <Booker\n          username={user}\n          eventSlug={slug}\n          bookingData={booking}\n          hideBranding={isBrandingHidden}\n          eventData={eventData}\n          entity={{ ...eventData.entity, eventTypeId: eventData?.id }}\n          durationConfig={eventData.metadata?.multipleDuration}"
+        },
+        {
+          "path": "apps/web/server/lib/[user]/[type]/getServerSideProps.ts",
+          "start_line": 149,
+          "end_line": 160,
+          "excerpt": "  // We use this to both prefetch the query on the server,\n  // as well as to check if the event exist, so we c an show a 404 otherwise.\n\n  const eventData = await EventRepository.getPublicEvent(\n    {\n      username: usernames.join(\"+\"),\n      eventSlug: slug,\n      org,\n      fromRedirectOfNonOrgLink: context.query.orgRedirection === \"true\",\n    },\n    session?.user?.id\n  );"
+        }
+      ]
+    },
+    {
+      "id": "public-event",
+      "label": "Public event lookup",
+      "type": "service",
+      "group": "Public booking",
+      "summary": "Resolves a public event by username and slug and shapes event configuration for the booker; reused by SSR and the public tRPC query.",
+      "files": [
+        "packages/features/eventtypes/lib/getPublicEvent.ts",
+        "packages/features/eventtypes/repositories/EventRepository.ts"
+      ],
+      "evidence": [
+        {
+          "path": "packages/features/eventtypes/repositories/EventRepository.ts",
+          "start_line": 12,
+          "end_line": 24,
+          "excerpt": "export class EventRepository {\n  static async getPublicEvent(input: GetPublicEventInput, userId?: number) {\n    const event = await getPublicEvent(\n      input.username,\n      input.eventSlug,\n      input.isTeamEvent,\n      input.org,\n      prisma,\n      input.fromRedirectOfNonOrgLink,\n      userId\n    );\n    return event;\n  }"
+        },
+        {
+          "path": "packages/features/eventtypes/lib/getPublicEvent.ts",
+          "start_line": 437,
+          "end_line": 444,
+          "excerpt": "  // In case it's not a group event, it's either a single user or a team, and we query that data.\n  let event = await prisma.eventType.findFirst({\n    where: {\n      slug: eventSlug,\n      ...usersOrTeamQuery,\n    },\n    select: getPublicEventSelect(fetchAllUsers),\n  });"
+        }
+      ]
+    },
+    {
+      "id": "booker",
+      "label": "Booker composition",
+      "type": "ui_component",
+      "group": "Public booking",
+      "summary": "Coordinates event data, availability, reservation and booking hooks and renders event details, date/time selection and the attendee form.",
+      "files": [
+        "apps/web/modules/bookings/components/Booker.tsx",
+        "apps/web/modules/bookings/components/BookerWebWrapper.tsx"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/components/BookerWebWrapper.tsx",
+          "start_line": 131,
+          "end_line": 159,
+          "excerpt": "  const slots = useSlots(event?.data ? { id: event.data.id, length: event.data.length } : null);\n\n  const isEmbed = useIsEmbed();\n\n  /**\n   * Prioritize dateSchedule load\n   * Component will render but use data already fetched from here, and no duplicate requests will be made\n   * */\n  const schedule = useScheduleForEvent({\n    eventId: props.entity.eventTypeId ?? event.data?.id,\n    username: props.username,\n    dayCount,\n    eventSlug: props.eventSlug,\n    month: props.month,\n    duration: props.duration,\n    selectedDate,\n    teamMemberEmail: props.teamMemberEmail,\n    fromRedirectOfNonOrgLink: props.entity.fromRedirectOfNonOrgLink,\n    isTeamEvent: props.isTeamEvent ?? !!event.data?.team,\n    useApiV2: props.useApiV2,\n    bookerLayout,\n    ...(props.entity.orgSlug ? { orgSlug: props.entity.orgSlug } : {}),\n  });\n  const bookings = useBookings({\n    event,\n    hashedLink: props.hashedLink,\n    bookingForm: bookerForm.bookingForm,\n    metadata: metadata ?? {},\n    teamMemberEmail: props.teamMemberEmail,"
+        },
+        {
+          "path": "apps/web/modules/bookings/components/Booker.tsx",
+          "start_line": 248,
+          "end_line": 258,
+          "excerpt": "    renderConfirmNotVerifyEmailButtonCond ? handleBookEvent(timeSlot) : handleVerifyEmail();\n\n  const EventBooker = useMemo(() => {\n    if (bookerState !== \"booking\") {\n      return null;\n    }\n\n    return (\n      <BookEventForm\n        key={key}\n        timeslot={selectedTimeslot}"
+        }
+      ]
+    },
+    {
+      "id": "event-summary",
+      "label": "Event summary",
+      "type": "ui_component",
+      "group": "Public booking",
+      "summary": "Displays event metadata such as title, duration, organizer, location and price within the booker.",
+      "files": [
+        "apps/web/modules/bookings/components/EventMeta.tsx"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/components/EventMeta.tsx",
+          "start_line": 46,
+          "end_line": 61,
+          "excerpt": "export const EventMeta = ({\n  event,\n  isPending,\n  isPlatform = true,\n  isPrivateLink,\n  classNames,\n  locale,\n  timeZones,\n  children,\n  selectedTimeslot,\n  roundRobinHideOrgAndTeam,\n  hideOrgTeamAvatar,\n  hideEventTypeDetails = false,\n}: {\n  event?: Pick<\n    BookerEvent,"
+        }
+      ]
+    },
+    {
+      "id": "date-slots",
+      "label": "Date and time selection",
+      "type": "ui_component",
+      "group": "Public booking",
+      "summary": "Presents dates and available time slots and handles selecting or submitting a slot.",
+      "files": [
+        "apps/web/modules/bookings/components/AvailableTimeSlots.tsx",
+        "apps/web/modules/bookings/components/DatePicker.tsx"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/components/DatePicker.tsx",
+          "start_line": 55,
+          "end_line": 68,
+          "excerpt": "export const DatePicker = ({\n  event,\n  slots = {},\n  isLoading,\n  classNames,\n  scrollToTimeSlots,\n  showNoAvailabilityDialog,\n  onDateChange,\n}: {\n  event: {\n    data?: {\n      subsetOfUsers: Pick<User, \"weekStart\">[];\n      periodType?: PeriodData[\"periodType\"];\n      periodStartDate?: PeriodData[\"periodStartDate\"];"
+        },
+        {
+          "path": "apps/web/modules/bookings/components/AvailableTimeSlots.tsx",
+          "start_line": 149,
+          "end_line": 164,
+          "excerpt": "          seatsPerTimeSlot,\n          attendees,\n          bookingUid,\n          showAvailableSeatsCount,\n        });\n      }\n\n      onAvailableTimeSlotSelect(time);\n\n      const isTimeSlotAvailable = !unavailableTimeSlots.includes(time);\n      if (skipConfirmStep && isTimeSlotAvailable) {\n        onSubmit(time);\n      }\n      return;\n    },\n    ["
+        }
+      ]
+    },
+    {
+      "id": "booking-form",
+      "label": "Attendee booking form",
+      "type": "ui_component",
+      "group": "Public booking",
+      "summary": "Renders booking fields and submits through callbacks supplied by the Booker composition.",
+      "files": [
+        "apps/web/modules/bookings/components/BookEventForm/BookEventForm.tsx"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/components/BookEventForm/BookEventForm.tsx",
+          "start_line": 46,
+          "end_line": 63,
+          "excerpt": "export const BookEventForm = ({\n  onCancel,\n  eventQuery,\n  onSubmit,\n  errorRef,\n  errors,\n  loadingStates,\n  renderConfirmNotVerifyEmailButtonCond,\n  bookingForm,\n  extraOptions,\n  isVerificationCodeSending,\n  isPlatform = false,\n  isTimeslotUnavailable,\n  shouldRenderCaptcha,\n  confirmButtonDisabled,\n  classNames,\n  timeslot,\n}: Omit<BookEventFormProps, \"event\"> & {"
+        },
+        {
+          "path": "apps/web/modules/bookings/components/BookEventForm/BookEventForm.tsx",
+          "start_line": 120,
+          "end_line": 135,
+          "excerpt": "          const values = bookingForm.getValues();\n          setFormValues(values);\n        }}\n        form={bookingForm}\n        handleSubmit={onSubmit}\n        noValidate>\n        <BookingFields\n          isDynamicGroupBooking={!!(username && username.indexOf(\"+\") > -1)}\n          fields={eventType.bookingFields}\n          locations={eventType.locations}\n          rescheduleUid={rescheduleUid || undefined}\n          bookingData={bookingData}\n          isPaidEvent={isPaidEvent}\n          paymentCurrency={paymentCurrency}\n        />\n        {errors.hasFormErrors || errors.hasDataErrors ? ("
+        }
+      ]
+    },
+    {
+      "id": "availability-client",
+      "label": "Availability and reservation hooks",
+      "type": "service",
+      "group": "Availability",
+      "summary": "Loads public events, queries time slots and reserves/releases selected slots. The conditional team API v2 branch is outside the modeled server boundary.",
+      "files": [
+        "apps/web/modules/bookings/hooks/useSlots.ts",
+        "apps/web/modules/schedules/hooks/useEvent.ts",
+        "apps/web/modules/schedules/hooks/useSchedule.ts"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/modules/schedules/hooks/useEvent.ts",
+          "start_line": 21,
+          "end_line": 39,
+          "excerpt": "export const useEvent = (props?: { fromRedirectOfNonOrgLink?: boolean; disabled?: boolean }) => {\n  const [username, eventSlug, isTeamEvent, org] = useBookerStoreContext(\n    (state) => [state.username, state.eventSlug, state.isTeamEvent, state.org],\n    shallow\n  );\n\n  const event = trpc.viewer.public.event.useQuery(\n    {\n      username: username ?? \"\",\n      eventSlug: eventSlug ?? \"\",\n      isTeamEvent,\n      org: org ?? null,\n      fromRedirectOfNonOrgLink: props?.fromRedirectOfNonOrgLink,\n    },\n    {\n      refetchOnWindowFocus: false,\n      enabled: !props?.disabled && Boolean(username) && Boolean(eventSlug),\n    }\n  );"
+        },
+        {
+          "path": "apps/web/modules/schedules/hooks/useSchedule.ts",
+          "start_line": 138,
+          "end_line": 154,
+          "excerpt": "  const isCallingApiV2Slots = useApiV2 && Boolean(isTeamEvent) && options.enabled;\n\n  // API V2 query for team events\n  const teamScheduleV2 = useApiV2AvailableSlots({\n    ...input,\n    enabled: isCallingApiV2Slots,\n    duration: input.duration ? Number(input.duration) : undefined,\n    routedTeamMemberIds: input.routedTeamMemberIds ?? undefined,\n    teamMemberEmail: input.teamMemberEmail ?? undefined,\n    eventTypeId: eventId ?? undefined,\n  });\n\n  const schedule = trpc.viewer.slots.getSchedule.useQuery(input, {\n    ...options,\n    // Only enable if we're not using API V2\n    enabled: options.enabled && !isCallingApiV2Slots,\n  });"
+        },
+        {
+          "path": "apps/web/modules/bookings/hooks/useSlots.ts",
+          "start_line": 90,
+          "end_line": 108,
+          "excerpt": "  const [slotReservationId, setSlotReservationId] = useSlotReservationId();\n  const reserveSlotMutation = trpc.viewer.slots.reserveSlot.useMutation({\n    trpc: {\n      context: {\n        skipBatch: true,\n      },\n    },\n    onSuccess: (data) => {\n      setSlotReservationId(data.uid);\n    },\n  });\n  const removeSelectedSlot = trpc.viewer.slots.removeSelectedSlotMark.useMutation({\n    trpc: { context: { skipBatch: true } },\n  });\n\n  const handleRemoveSlot = () => {\n    if (event?.id && slotReservationId) {\n      removeSelectedSlot.mutate({ uid: slotReservationId });\n    }"
+        }
+      ]
+    },
+    {
+      "id": "public-event-api",
+      "label": "Public event tRPC API",
+      "type": "api_endpoint",
+      "group": "Availability",
+      "summary": "Public viewer.event procedure, exposed through the public tRPC route, delegates to public event lookup.",
+      "files": [
+        "apps/web/pages/api/trpc/public/[trpc].ts",
+        "packages/trpc/server/routers/publicViewer/_router.tsx",
+        "packages/trpc/server/routers/publicViewer/event.handler.ts",
+        "packages/trpc/server/routers/publicViewer/procedures/event.ts"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/pages/api/trpc/public/[trpc].ts",
+          "start_line": 1,
+          "end_line": 4,
+          "excerpt": "import { createNextApiHandler } from \"@calcom/trpc/server/createNextApiHandler\";\nimport { publicViewerRouter } from \"@calcom/trpc/server/routers/publicViewer/_router\";\n\nexport default createNextApiHandler(publicViewerRouter, true);"
+        },
+        {
+          "path": "packages/trpc/server/routers/publicViewer/_router.tsx",
+          "start_line": 22,
+          "end_line": 22,
+          "excerpt": "  event,"
+        },
+        {
+          "path": "packages/trpc/server/routers/publicViewer/procedures/event.ts",
+          "start_line": 5,
+          "end_line": 10,
+          "excerpt": "export const event = publicProcedure.input(ZEventInputSchema).query(async (opts) => {\n  const session = await getSession(opts.ctx);\n  const userId = session?.user?.id;\n  const { default: handler } = await import(\"../event.handler\");\n  return handler({ input: opts.input, userId });\n});"
+        },
+        {
+          "path": "packages/trpc/server/routers/publicViewer/event.handler.ts",
+          "start_line": 10,
+          "end_line": 14,
+          "excerpt": "export const eventHandler = async ({ input, userId }: EventHandlerOptions) => {\n  return await EventRepository.getPublicEvent(input, userId);\n};\n\nexport default eventHandler;"
+        }
+      ]
+    },
+    {
+      "id": "slots-api",
+      "label": "Slot schedule tRPC API",
+      "type": "api_endpoint",
+      "group": "Availability",
+      "summary": "viewer.slots.getSchedule validates public query input and delegates to AvailableSlotsService.",
+      "files": [
+        "apps/web/pages/api/trpc/slots/[trpc].ts",
+        "packages/trpc/server/routers/viewer/slots/_router.tsx",
+        "packages/trpc/server/routers/viewer/slots/getSchedule.handler.ts"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/pages/api/trpc/slots/[trpc].ts",
+          "start_line": 1,
+          "end_line": 4,
+          "excerpt": "import { createNextApiHandler } from \"@calcom/trpc/server/createNextApiHandler\";\nimport { slotsRouter } from \"@calcom/trpc/server/routers/viewer/slots/_router\";\n\nexport default createNextApiHandler(slotsRouter);"
+        },
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/_router.tsx",
+          "start_line": 16,
+          "end_line": 25,
+          "excerpt": "/** This should be called getAvailableSlots */\nexport const slotsRouter = router({\n  getSchedule: publicProcedure.input(ZGetScheduleInputSchema).query(async ({ input, ctx }) => {\n    const { getScheduleHandler } = await import(\"./getSchedule.handler\");\n\n    return getScheduleHandler({\n      ctx,\n      input,\n    });\n  }),"
+        },
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/getSchedule.handler.ts",
+          "start_line": 1,
+          "end_line": 8,
+          "excerpt": "import { getAvailableSlotsService } from \"@calcom/features/di/containers/AvailableSlots\";\n\nimport type { GetScheduleOptions } from \"./types\";\n\nexport const getScheduleHandler = async ({ ctx, input }: GetScheduleOptions) => {\n  const availableSlotsService = getAvailableSlotsService();\n  return await availableSlotsService.getAvailableSlots({ ctx, input });\n};"
+        }
+      ]
+    },
+    {
+      "id": "reservations-api",
+      "label": "Slot reservation tRPC API",
+      "type": "api_endpoint",
+      "group": "Availability",
+      "summary": "viewer.slots.reserveSlot and removeSelectedSlotMark manage expiring slot holds using a booker UID. Seated-event behavior is conditional.",
+      "files": [
+        "packages/trpc/server/routers/viewer/slots/_router.tsx",
+        "packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts"
+      ],
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/_router.tsx",
+          "start_line": 26,
+          "end_line": 33,
+          "excerpt": "  reserveSlot: publicProcedure.input(ZReserveSlotInputSchema).mutation(async ({ input, ctx }) => {\n    const { reserveSlotHandler } = await import(\"./reserveSlot.handler\");\n\n    return reserveSlotHandler({\n      ctx: { ...ctx, req: ctx.req as NextApiRequest, res: ctx.res as NextApiResponse },\n      input,\n    });\n  }),"
+        },
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/_router.tsx",
+          "start_line": 45,
+          "end_line": 55,
+          "excerpt": "  // This endpoint has no dependencies, it doesn't need its own file\n  removeSelectedSlotMark: publicProcedure\n    .input(ZRemoveSelectedSlotInputSchema)\n    .mutation(async ({ input, ctx }) => {\n      const { req, prisma } = ctx;\n      const uid = req?.cookies?.uid || input.uid;\n      if (uid) {\n        await prisma.selectedSlots.deleteMany({ where: { uid: { equals: uid } } });\n      }\n      return;\n    }),"
+        },
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts",
+          "start_line": 77,
+          "end_line": 101,
+          "excerpt": "  if (eventType && shouldReserveSlot && !reservedBySomeoneElse && !_isDryRun) {\n    try {\n      await Promise.all(\n        // FIXME: In case of team event, users doesn't have assignees, those are in hosts. users just have the creator of the event which is wrong.\n        // Also, we must not block all the users' slots, we must use routedTeamMemberIds if set like we do in getSchedule.\n        // We could even improve it by identifying the next person being booked now that we have a queue of assignees.\n        eventType.users.map((user) =>\n          prisma.selectedSlots.upsert({\n            where: { selectedSlotUnique: { userId: user.id, slotUtcStartDate, slotUtcEndDate, uid } },\n            update: {\n              slotUtcStartDate,\n              slotUtcEndDate,\n              releaseAt,\n              eventTypeId,\n            },\n            create: {\n              userId: user.id,\n              eventTypeId,\n              slotUtcStartDate,\n              slotUtcEndDate,\n              uid,\n              releaseAt,\n              isSeat: eventType.seatsPerTimeSlot !== null,\n            },\n          })"
+        }
+      ]
+    },
+    {
+      "id": "slot-engine",
+      "label": "Available slot computation",
+      "type": "service",
+      "group": "Availability",
+      "summary": "Combines event configuration, existing bookings, host availability, schedule restrictions and temporary holds into bookable slots. Repository helpers are grouped with this service.",
+      "files": [
+        "packages/features/eventtypes/repositories/eventTypeRepository.ts",
+        "packages/features/schedules/lib/slots.ts",
+        "packages/features/schedules/repositories/ScheduleRepository.ts",
+        "packages/features/selectedSlots/repositories/PrismaSelectedSlotRepository.ts",
+        "packages/trpc/server/routers/viewer/slots/util.ts"
+      ],
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/util.ts",
+          "start_line": 807,
+          "end_line": 829,
+          "excerpt": "    const premappedUsersAvailability = await this.dependencies.userAvailabilityService.getUsersAvailability({\n      users,\n      query: {\n        dateFrom: startTime.format(),\n        dateTo: endTime.format(),\n        eventTypeId: eventType.id,\n        afterEventBuffer: eventType.afterEventBuffer,\n        beforeEventBuffer: eventType.beforeEventBuffer,\n        duration: input.duration || 0,\n        returnDateOverrides: false,\n        bypassBusyCalendarTimes,\n        silentlyHandleCalendarFailures: silentCalendarFailures,\n        mode,\n      },\n      initialData: {\n        eventType,\n        currentSeats,\n        rescheduleUid: input.rescheduleUid,\n        busyTimesFromLimitsBookings: busyTimesFromLimitsBookingsAllUsers,\n        busyTimesFromLimits: busyTimesFromLimitsMap,\n        eventTypeForLimits: eventType && (bookingLimits || durationLimits) ? eventType : null,\n      },\n    });"
+        },
+        {
+          "path": "packages/features/schedules/lib/slots.ts",
+          "start_line": 232,
+          "end_line": 246,
+          "excerpt": "const getSlots = ({\n  inviteeDate,\n  frequency,\n  minimumBookingNotice,\n  dateRanges,\n  eventLength,\n  offsetStart = 0,\n  datesOutOfOffice,\n  showOptimizedSlots,\n  datesOutOfOfficeTimeZone,\n}: GetSlots): {\n  time: Dayjs;\n  userIds?: number[];\n  away?: boolean;\n  fromUser?: IFromUser;"
+        },
+        {
+          "path": "packages/features/schedules/repositories/ScheduleRepository.ts",
+          "start_line": 22,
+          "end_line": 35,
+          "excerpt": "  async findScheduleByIdForBuildDateRanges({ scheduleId }: { scheduleId: number }) {\n    const schedule = await this.prismaClient.schedule.findUnique({\n      where: { id: scheduleId },\n      select: {\n        id: true,\n        timeZone: true,\n        userId: true,\n        availability: {\n          select: {\n            days: true,\n            startTime: true,\n            endTime: true,\n            date: true,\n          },"
+        },
+        {
+          "path": "packages/features/selectedSlots/repositories/PrismaSelectedSlotRepository.ts",
+          "start_line": 61,
+          "end_line": 75,
+          "excerpt": "    return this.prismaClient.selectedSlots.findMany({\n      where: {\n        userId: { in: userIds },\n        releaseAt: { gt: currentTimeInUtc },\n      },\n      select: {\n        id: true,\n        slotUtcStartDate: true,\n        slotUtcEndDate: true,\n        userId: true,\n        isSeat: true,\n        eventTypeId: true,\n        uid: true,\n      },\n    });"
+        },
+        {
+          "path": "packages/features/eventtypes/repositories/eventTypeRepository.ts",
+          "start_line": 1243,
+          "end_line": 1253,
+          "excerpt": "  async findForSlots({ id }: { id: number }) {\n    const eventType = await this.prismaClient.eventType.findUnique({\n      where: {\n        id,\n      },\n      select: {\n        id: true,\n        userId: true,\n        slug: true,\n        minimumBookingNotice: true,\n        length: true,"
+        }
+      ]
+    },
+    {
+      "id": "user-availability",
+      "label": "User availability rules",
+      "type": "service",
+      "group": "Availability",
+      "summary": "Builds availability from schedules, date overrides, timezones, buffers and busy periods; used both when showing slots and validating a booking.",
+      "files": [
+        "packages/features/availability/lib/getUserAvailability.ts"
+      ],
+      "evidence": [
+        {
+          "path": "packages/features/availability/lib/getUserAvailability.ts",
+          "start_line": 395,
+          "end_line": 419,
+          "excerpt": "    current bookings with a seats event type and display them on the calendar, even if they are full */\n    let currentSeats: CurrentSeats | null = initialData?.currentSeats || null;\n    if (!currentSeats && eventType?.seatsPerTimeSlot) {\n      currentSeats = await this.getCurrentSeats(eventType, dateFrom, dateTo);\n    }\n\n    const { isDefaultSchedule, isTimezoneSet, schedule } = detectEventTypeScheduleForUser({\n      eventType,\n      user,\n    });\n\n    if (\n      !(\n        schedule?.availability ||\n        (eventType?.availability.length ? eventType.availability : user.availability)\n      )\n    ) {\n      throw new HttpError({ statusCode: 400, message: ErrorCode.AvailabilityNotFoundInSchedule });\n    }\n\n    const availability = (\n      schedule?.availability || (eventType?.availability.length ? eventType.availability : user.availability)\n    ).map((a) => ({\n      ...a,\n      userId: user.id,"
+        },
+        {
+          "path": "packages/features/availability/lib/getUserAvailability.ts",
+          "start_line": 584,
+          "end_line": 603,
+          "excerpt": "    let busyTimes = [];\n    try {\n      const busyTimesService = getBusyTimesService();\n      busyTimes = await busyTimesService.getBusyTimes({\n        credentials: user.credentials,\n        startTime: getBusyTimesStart,\n        endTime: getBusyTimesEnd,\n        eventTypeId,\n        userId: user.id,\n        userEmail: user.email,\n        username: `${user.username}`,\n        beforeEventBuffer,\n        afterEventBuffer,\n        selectedCalendars,\n        seatedEvent: !!eventType?.seatsPerTimeSlot,\n        rescheduleUid: initialData?.rescheduleUid || null,\n        duration,\n        currentBookings: initialData?.currentBookings,\n        bypassBusyCalendarTimes,\n        silentlyHandleCalendarFailures,"
+        }
+      ]
+    },
+    {
+      "id": "busy-times",
+      "label": "Busy-time aggregation",
+      "type": "service",
+      "group": "Availability",
+      "summary": "Combines existing bookings and connected-calendar busy periods, including inputs for booking-limit checks.",
+      "files": [
+        "packages/features/busyTimes/services/getBusyTimes.ts"
+      ],
+      "evidence": [
+        {
+          "path": "packages/features/busyTimes/services/getBusyTimes.ts",
+          "start_line": 121,
+          "end_line": 134,
+          "excerpt": "      const bookingRepo = this.dependencies.bookingRepo;\n      bookings = await bookingRepo.findAllExistingBookingsForEventTypeBetween({\n        userIdAndEmailMap: new Map([[userId, userEmail]]),\n        eventTypeId,\n        startDate: startTimeAdjustedWithMaxBuffer,\n        endDate: endTimeAdjustedWithMaxBuffer,\n        seatedEvent,\n      });\n    }\n\n    const bookingSeatCountMap: { [x: string]: number } = {};\n    const busyTimes = bookings.reduce((aggregate: EventBusyDetails[], booking) => {\n      const { id, startTime, endTime, eventType, title, ...rest } = booking;\n"
+        },
+        {
+          "path": "packages/features/busyTimes/services/getBusyTimes.ts",
+          "start_line": 193,
+          "end_line": 204,
+          "excerpt": "    performance.measure(`prisma booking get took $1'`, \"prismaBookingGetStart\", \"prismaBookingGetEnd\");\n    if (credentials?.length > 0 && !bypassBusyCalendarTimes) {\n      const startConnectedCalendarsGet = performance.now();\n\n      const calendarBusyTimesQuery = await getBusyCalendarTimes(\n        credentials,\n        startTime,\n        endTime,\n        selectedCalendars,\n        mode\n      );\n"
+        }
+      ]
+    },
+    {
+      "id": "calendar-integrations",
+      "label": "Calendar and meeting integrations",
+      "type": "service",
+      "group": "Side effects",
+      "summary": "CalendarManager reads provider busy times and creates, updates or deletes calendar events; EventManager coordinates booking creation, rescheduling and cancellation with integrations. Provider internals are not expanded.",
+      "files": [
+        "packages/features/bookings/lib/EventManager.ts",
+        "packages/features/calendars/lib/CalendarManager.ts"
+      ],
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/EventManager.ts",
+          "start_line": 287,
+          "end_line": 303,
+          "excerpt": "  public async create(\n    event: CalendarEvent,\n    options?: { skipCalendarEvent?: boolean }\n  ): Promise<CreateUpdateResult> {\n    const { skipCalendarEvent = false } = options ?? {};\n    // TODO this method shouldn't be modifying the event object that's passed in\n    const evt = processLocation(event);\n\n    // Fallback to cal video if no location is set\n    if (!evt.location) {\n      // See if cal video is enabled & has keys\n      const calVideo = await prisma.app.findUnique({\n        where: {\n          slug: \"daily-video\",\n        },\n        select: {\n          keys: true,"
+        },
+        {
+          "path": "packages/features/bookings/lib/EventManager.ts",
+          "start_line": 777,
+          "end_line": 791,
+          "excerpt": "  public async cancelEvent(\n    event: CalendarEvent,\n    bookingReferences: Pick<\n      BookingReference,\n      \"uid\" | \"type\" | \"externalCalendarId\" | \"credentialId\" | \"thirdPartyRecurringEventId\"\n    >[],\n    isBookingInRecurringSeries?: boolean\n  ) {\n    await this.deleteEventsAndMeetings({\n      event,\n      bookingReferences,\n      isBookingInRecurringSeries,\n    });\n  }\n"
+        },
+        {
+          "path": "packages/features/calendars/lib/CalendarManager.ts",
+          "start_line": 296,
+          "end_line": 310,
+          "excerpt": "export const getBusyCalendarTimes = async (\n  /**\n   * withCredentials can possibly have duplicate credential in case DelegationCredential is enabled.\n   * There is no way to deduplicate that at the moment because a `credential` doesn't directly know to which external_id(or email it is connected to).\n   * So, there could be multiple credentials for the same user.\n   * 1. Delegated Credential - that fetches events for john@acme.com\n   * 2. Regular Credential - that fetches events for john@personal.com\n   *\n   */\n  withCredentials: CredentialForCalendarService[],\n  dateFrom: string,\n  dateTo: string,\n  selectedCalendars: SelectedCalendar[],\n  mode?: CalendarFetchMode,\n  includeTimeZone?: boolean"
+        },
+        {
+          "path": "packages/features/calendars/lib/CalendarManager.ts",
+          "start_line": 360,
+          "end_line": 370,
+          "excerpt": "export const createEvent = async (\n  credential: CredentialForCalendarService,\n  originalEvent: CalendarEvent,\n  externalId?: string\n): Promise<EventResult<NewCalendarEventType>> => {\n  // Some calendar libraries may edit the original event so let's clone it\n  const formattedEvent = formatCalEvent(originalEvent);\n  const uid: string = getUid(formattedEvent.uid);\n  const calendar = await getCalendar(credential, \"booking\");\n  let success = true;\n  let calError: string | undefined;"
+        }
+      ]
+    },
+    {
+      "id": "booking-client",
+      "label": "Booking submission and redirect",
+      "type": "service",
+      "group": "Creation",
+      "summary": "Client mutations submit ordinary or recurring bookings and navigate to the normal booking detail page. Payment, dry-run, custom redirect and decoy paths are separate conditional outcomes outside this graph.",
+      "files": [
+        "apps/web/modules/bookings/hooks/useBookings.ts",
+        "packages/features/bookings/lib/bookingSuccessRedirect.ts",
+        "packages/features/bookings/lib/create-booking.ts",
+        "packages/features/bookings/lib/create-recurring-booking.ts"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/hooks/useBookings.ts",
+          "start_line": 136,
+          "end_line": 138,
+          "excerpt": "  const createBookingMutation = useMutation({\n    mutationFn: createBooking,\n    onSuccess: (booking) => {"
+        },
+        {
+          "path": "packages/features/bookings/lib/create-booking.ts",
+          "start_line": 5,
+          "end_line": 15,
+          "excerpt": "export const createBooking = async (data: BookingCreateBody) => {\n  const response = await post<\n    BookingCreateBody,\n    // fetch response can't have a Date type, it must be a string\n    Omit<BookingResponse, \"startTime\" | \"endTime\"> & {\n      startTime: string;\n      endTime: string;\n    }\n  >(\"/api/book/event\", data);\n  return response;\n};"
+        },
+        {
+          "path": "packages/features/bookings/lib/create-recurring-booking.ts",
+          "start_line": 5,
+          "end_line": 15,
+          "excerpt": "export const createRecurringBooking = async (data: RecurringBookingCreateBody[]) => {\n  const response = await post<\n    RecurringBookingCreateBody[],\n    // fetch response can't have a Date type, it must be a string\n    (Omit<BookingResponse, \"startTime\" | \"endTime\"> & {\n      startTime: string;\n      endTime: string;\n    })[]\n  >(\"/api/book/recurring-event\", data);\n  return response;\n};"
+        },
+        {
+          "path": "packages/features/bookings/lib/bookingSuccessRedirect.ts",
+          "start_line": 241,
+          "end_line": 249,
+          "excerpt": "    // We don't want to forward all search params, as they could possibly break the booking page.\n    const newSearchParams = getNewSearchParams({\n      query,\n      searchParams: new URLSearchParams(headersRelatedSearchParams),\n    });\n    return router.push(`/booking/${booking.uid}${isEmbed ? \"/embed\" : \"\"}?${newSearchParams.toString()}`);\n  };\n\n  return bookingSuccessRedirect;"
+        }
+      ]
+    },
+    {
+      "id": "create-api",
+      "label": "Create booking HTTP API",
+      "type": "api_endpoint",
+      "group": "Creation",
+      "summary": "/api/book/event checks bot/rate limits, obtains session context and invokes RegularBookingService.",
+      "files": [
+        "apps/web/pages/api/book/event.ts"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/pages/api/book/event.ts",
+          "start_line": 49,
+          "end_line": 63,
+          "excerpt": "  const regularBookingService = getRegularBookingService();\n  const booking = await regularBookingService.createBooking({\n    bookingData: req.body,\n    bookingMeta: {\n      userId: session?.user?.id || -1,\n      hostname: req.headers.host || \"\",\n      forcedSlug: req.headers[\"x-cal-force-slug\"] as string | undefined,\n      traceContext: req.traceContext,\n    },\n  });\n\n  return booking;\n}\n\nexport default defaultResponder(handler, \"/api/book/event\");"
+        }
+      ]
+    },
+    {
+      "id": "recurring-api",
+      "label": "Create recurring booking HTTP API",
+      "type": "api_endpoint",
+      "group": "Creation",
+      "summary": "/api/book/recurring-event supplies session and platform metadata to RecurringBookingService.",
+      "files": [
+        "apps/web/pages/api/book/recurring-event.ts"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/pages/api/book/recurring-event.ts",
+          "start_line": 43,
+          "end_line": 59,
+          "excerpt": "  const session = await getServerSession({ req });\n  /* To mimic API behavior and comply with types */\n\n  const recurringBookingService = getRecurringBookingService();\n  const createdBookings: BookingResponse[] = await recurringBookingService.createBooking({\n    bookingData: req.body,\n    bookingMeta: {\n      userId: session?.user?.id || -1,\n      platformClientId: req.platformClientId,\n      platformCancelUrl: req.platformCancelUrl,\n      platformBookingUrl: req.platformBookingUrl,\n      platformRescheduleUrl: req.platformRescheduleUrl,\n      platformBookingLocation: req.platformBookingLocation,\n      noEmail: req.noEmail,\n    },\n    creationSource: \"WEBAPP\",\n  });"
+        }
+      ]
+    },
+    {
+      "id": "regular-booking",
+      "label": "Regular booking orchestration",
+      "type": "service",
+      "group": "Creation",
+      "summary": "Validates event and host availability, creates or reschedules a booking, and coordinates calendar, notification and webhook effects. Includes the directly inspected validation/event-loading helpers.",
+      "files": [
+        "packages/features/bookings/lib/handleNewBooking/ensureAvailableUsers.ts",
+        "packages/features/bookings/lib/handleNewBooking/getEventType.ts",
+        "packages/features/bookings/lib/handleNewBooking/getEventTypesFromDB.ts",
+        "packages/features/bookings/lib/service/RegularBookingService.ts"
+      ],
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/service/RegularBookingService.ts",
+          "start_line": 2653,
+          "end_line": 2670,
+          "excerpt": "  async createBooking(input: { bookingData: CreateRegularBookingData; bookingMeta?: CreateBookingMeta }) {\n    return handler.bind(this)(\n      {\n        bookingData: input.bookingData,\n        ...input.bookingMeta,\n      },\n      this.deps\n    );\n  }\n\n  async rescheduleBooking(input: { bookingData: CreateRegularBookingData; bookingMeta?: CreateBookingMeta }) {\n    return handler.bind(this)(\n      {\n        bookingData: input.bookingData,\n        ...input.bookingMeta,\n      },\n      this.deps\n    );"
+        },
+        {
+          "path": "packages/features/bookings/lib/handleNewBooking/ensureAvailableUsers.ts",
+          "start_line": 94,
+          "end_line": 105,
+          "excerpt": "  const usersAvailability = await userAvailabilityService.getUsersAvailability({\n    users: eventType.users,\n    query: {\n      ...input,\n      eventTypeId: eventType.id,\n      duration: originalBookingDuration,\n      returnDateOverrides: false,\n      dateFrom: startDateTimeUtc.format(),\n      dateTo: endDateTimeUtc.format(),\n      beforeEventBuffer: eventType.beforeEventBuffer,\n      afterEventBuffer: eventType.afterEventBuffer,\n      bypassBusyCalendarTimes: false,"
+        },
+        {
+          "path": "packages/features/bookings/lib/handleNewBooking/getEventType.ts",
+          "start_line": 19,
+          "end_line": 28,
+          "excerpt": "  // handle dynamic user\n  const eventType =\n    !eventTypeId && !!eventTypeSlug ? getDefaultEvent(eventTypeSlug) : await getEventTypesFromDB(eventTypeId);\n\n  const isOrgTeamEvent = !!eventType?.team && !!eventType?.team?.parentId;\n\n  return {\n    ...eventType,\n    bookingFields: getBookingFieldsWithSystemFields({ ...eventType, isOrgTeamEvent }),\n  };"
+        },
+        {
+          "path": "packages/features/bookings/lib/handleNewBooking/getEventTypesFromDB.ts",
+          "start_line": 204,
+          "end_line": 214,
+          "excerpt": "  const eventType = await prisma.eventType.findUniqueOrThrow({\n    where: {\n      id: eventTypeId,\n    },\n    select: getEventTypesFromDBSelect,\n  });\n\n  if (!eventType) {\n    throw new Error(ErrorCode.EventTypeNotFound);\n  }\n"
+        }
+      ]
+    },
+    {
+      "id": "recurring-booking",
+      "label": "Recurring booking orchestration",
+      "type": "service",
+      "group": "Creation",
+      "summary": "Builds the recurring series by invoking the regular booking service for individual occurrences with recurring metadata.",
+      "files": [
+        "packages/features/bookings/lib/service/RecurringBookingService.ts"
+      ],
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/service/RecurringBookingService.ts",
+          "start_line": 94,
+          "end_line": 117,
+          "excerpt": "    const recurringEventData = {\n      ...booking,\n      appsStatus,\n      allRecurringDates,\n      isFirstRecurringSlot: key == 0,\n      thirdPartyRecurringEventId,\n      numSlotsToCheckForAvailability,\n      currentRecurringIndex: key,\n      noEmail: input.noEmail !== undefined ? input.noEmail : key !== 0,\n      luckyUsers,\n    };\n\n    const promiseEachRecurringBooking = regularBookingService.createBooking({\n      bookingData: recurringEventData,\n      bookingMeta: {\n        hostname: input.hostname || \"\",\n        forcedSlug: input.forcedSlug as string | undefined,\n        ...handleBookingMeta,\n      },\n    });\n\n    const eachRecurringBooking = await promiseEachRecurringBooking;\n\n    createdBookings.push(eachRecurringBooking);"
+        }
+      ]
+    },
+    {
+      "id": "booking-persistence",
+      "label": "Booking persistence",
+      "type": "service",
+      "group": "Data",
+      "summary": "Transactional creation also cancels the original record on reschedule; BookingRepository supplies shared booking queries and updates.",
+      "files": [
+        "packages/features/bookings/lib/handleNewBooking/createBooking.ts",
+        "packages/features/bookings/repositories/BookingRepository.ts"
+      ],
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/handleNewBooking/createBooking.ts",
+          "start_line": 139,
+          "end_line": 147,
+          "excerpt": "  return prisma.$transaction(async (tx) => {\n    if (originalBookingUpdateDataForCancellation) {\n      await tx.booking.update(originalBookingUpdateDataForCancellation);\n    }\n\n    const booking = await tx.booking.create(createBookingObj);\n\n    return { ...booking, userUuid: booking.user?.uuid ?? null };\n  });"
+        },
+        {
+          "path": "packages/features/bookings/repositories/BookingRepository.ts",
+          "start_line": 737,
+          "end_line": 754,
+          "excerpt": "    const currentBookingsAllUsersQueryOne = this.prismaClient.booking.findMany({\n      where: {\n        ...sharedQuery,\n        userId: {\n          in: Array.from(userIdAndEmailMap.keys()),\n        },\n      },\n      select: bookingsSelect,\n    });\n\n    const currentBookingsAllUsersQueryTwo = this.prismaClient.booking.findMany({\n      where: {\n        ...sharedQuery,\n        attendees: {\n          some: {\n            email: {\n              in: Array.from(userIdAndEmailMap.values()),\n            },"
+        },
+        {
+          "path": "packages/features/bookings/repositories/BookingRepository.ts",
+          "start_line": 1550,
+          "end_line": 1564,
+          "excerpt": "  async updateMany({ where, data }: { where: BookingWhereInput; data: BookingUpdateData }) {\n    return await this.prismaClient.booking.updateMany({\n      where: where,\n      data,\n    });\n  }\n\n  async update({ where, data }: { where: BookingWhereUniqueInput; data: BookingUpdateData }) {\n    return await this.prismaClient.booking.update({\n      where,\n      data,\n    });\n  }\n\n  async updateNoShowHost({"
+        }
+      ]
+    },
+    {
+      "id": "notifications",
+      "label": "Booking email and SMS",
+      "type": "service",
+      "group": "Side effects",
+      "summary": "Dispatches requested, confirmed, rescheduled and cancelled booking notifications. Delivery providers and asynchronous task infrastructure are boundary dependencies.",
+      "files": [
+        "packages/emails/email-manager.ts",
+        "packages/features/bookings/lib/BookingEmailSmsHandler.ts"
+      ],
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/BookingEmailSmsHandler.ts",
+          "start_line": 94,
+          "end_line": 105,
+          "excerpt": "  public async send(payload: EmailsAndSmsSideEffectsPayload) {\n    const { action, data } = payload;\n\n    if (action === BookingActionMap.rescheduled) {\n      if (data.eventType.schedulingType === \"ROUND_ROBIN\") return this._handleRoundRobinRescheduled(data);\n      return this._handleRescheduled(data);\n    }\n\n    if (action === BookingActionMap.confirmed) return this._handleConfirmed(data);\n    if (action === BookingActionMap.requested) return this._handleRequested(data);\n\n    this.log.warn(\"Unknown email/SMS action requested.\", { action });"
+        },
+        {
+          "path": "packages/emails/email-manager.ts",
+          "start_line": 130,
+          "end_line": 133,
+          "excerpt": "export const sendScheduledEmailsAndSMS = withReporting(\n  _sendScheduledEmailsAndSMS,\n  \"sendScheduledEmailsAndSMS\"\n);"
+        },
+        {
+          "path": "packages/emails/email-manager.ts",
+          "start_line": 501,
+          "end_line": 514,
+          "excerpt": "export const sendCancelledEmailsAndSMS = async (\n  calEvent: CalendarEvent,\n  eventNameObject: Pick<EventNameObjectType, \"eventName\">,\n  eventTypeMetadata?: EventTypeMetadata\n) => {\n  const calendarEvent = formatCalEvent(calEvent);\n  const emailsToSend: Promise<unknown>[] = [];\n  const calEventLength = calendarEvent.length;\n  const eventDuration = dayjs(calEvent.endTime).diff(calEvent.startTime, \"minutes\");\n  const organizationSettings = await fetchOrganizationEmailSettings(calEvent.organizationId);\n\n  if (typeof calEventLength !== \"number\") {\n    logger.error(\n      \"`calEventLength` is not a number\","
+        }
+      ]
+    },
+    {
+      "id": "webhooks",
+      "label": "Booking webhook dispatch",
+      "type": "service",
+      "group": "Side effects",
+      "summary": "Resolves webhook subscribers and sends or schedules booking event payloads. Downstream subscribers and task execution are outside scope.",
+      "files": [
+        "packages/features/bookings/lib/handleWebhookTrigger.ts",
+        "packages/features/webhooks/lib/sendOrSchedulePayload.ts"
+      ],
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/handleWebhookTrigger.ts",
+          "start_line": 23,
+          "end_line": 39,
+          "excerpt": "    if (args.isDryRun) return;\n\n    const subscribers = await getWebhooks(args.subscriberOptions);\n\n    const promises = subscribers.map((sub) =>\n      sendPayload(sub.secret, args.eventTrigger, new Date().toISOString(), sub, args.webhookData).catch(\n        (e) => {\n          if (isEventPayload(args.webhookData)) {\n            tracingLogger.error(\n              `Error executing webhook for event: ${args.eventTrigger}, URL: ${sub.subscriberUrl}, booking id: ${args.webhookData.bookingId}, booking uid: ${args.webhookData.uid}`,\n              safeStringify(e)\n            );\n          }\n        }\n      )\n    );\n    await Promise.all(promises);"
+        },
+        {
+          "path": "packages/features/webhooks/lib/sendOrSchedulePayload.ts",
+          "start_line": 1,
+          "end_line": 12,
+          "excerpt": "import schedulePayload from \"./schedulePayload\";\nimport sendPayload from \"./sendPayload\";\n\ntype SendOrSchedulePayload = typeof sendPayload;\n\nconst sendOrSchedulePayload: SendOrSchedulePayload = async (...args) => {\n  // If Tasker is enabled, schedule the payload instead of sending it immediately\n  if (process.env.TASKER_ENABLE_WEBHOOKS === \"1\") return schedulePayload(...args);\n  return sendPayload(...args);\n};\n\nexport default sendOrSchedulePayload;"
+        }
+      ]
+    },
+    {
+      "id": "detail-page",
+      "label": "Booking detail and success route",
+      "type": "page",
+      "group": "Manage booking",
+      "summary": "/booking/[uid] is the normal confirmation/detail route; its loader retrieves the booking, related event configuration and reschedule context.",
+      "files": [
+        "apps/web/app/(booking-page-wrapper)/booking/[uid]/page.tsx",
+        "apps/web/modules/bookings/views/bookings-single-view.getServerSideProps.tsx",
+        "packages/features/bookings/lib/getBookingInfo.ts",
+        "packages/features/bookings/lib/getUserBooking.ts"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/app/(booking-page-wrapper)/booking/[uid]/page.tsx",
+          "start_line": 42,
+          "end_line": 58,
+          "excerpt": "const ServerPage = async ({ params, searchParams }: _PageProps) => {\n  const context = buildLegacyCtx(await headers(), await cookies(), await params, await searchParams);\n  const props = await getData(context);\n\n  const eventLocale = props.eventType?.interfaceLanguage;\n  if (eventLocale) {\n    const ns = \"common\";\n    const translations = await loadTranslations(eventLocale, ns);\n    return (\n      <CustomI18nProvider translations={translations} locale={eventLocale} ns={ns}>\n        <OldPage {...props} />\n      </CustomI18nProvider>\n    );\n  }\n\n  return <OldPage {...props} />;\n};"
+        },
+        {
+          "path": "apps/web/modules/bookings/views/bookings-single-view.getServerSideProps.tsx",
+          "start_line": 65,
+          "end_line": 83,
+          "excerpt": "  const maybeBookingUidFromSeat = await maybeGetBookingUidFromSeat(prisma, uid);\n  if (maybeBookingUidFromSeat.uid) uid = maybeBookingUidFromSeat.uid;\n  if (maybeBookingUidFromSeat.seatReferenceUid) seatReferenceUid = maybeBookingUidFromSeat.seatReferenceUid;\n\n  const { bookingInfoRaw, bookingInfo } = await getBookingInfo(uid);\n\n  if (!bookingInfoRaw) {\n    return {\n      notFound: true,\n    } as const;\n  }\n\n  let rescheduledToUid: string | null = null;\n  if (bookingInfo.rescheduled) {\n    const bookingRepo = new BookingRepository(prisma);\n    const rescheduledTo = await bookingRepo.findFirstBookingByReschedule({\n      originalBookingUid: bookingInfo.uid,\n    });\n    rescheduledToUid = rescheduledTo?.uid ?? null;"
+        },
+        {
+          "path": "packages/features/bookings/lib/getBookingInfo.ts",
+          "start_line": 5,
+          "end_line": 14,
+          "excerpt": "const getBookingInfo = async (uid: string) => {\n  const bookingInfoRaw = await getUserBooking(uid);\n\n  if (!bookingInfoRaw) {\n    return { bookingInfoRaw: undefined, bookingInfo: undefined };\n  }\n\n  const bookingInfo = getBookingWithResponses(bookingInfoRaw);\n\n  return { bookingInfoRaw, bookingInfo };"
+        },
+        {
+          "path": "packages/features/bookings/lib/getUserBooking.ts",
+          "start_line": 3,
+          "end_line": 19,
+          "excerpt": "const getUserBooking = async (uid: string) => {\n  const bookingInfo = await prisma.booking.findUnique({\n    where: {\n      uid: uid,\n    },\n    select: {\n      title: true,\n      id: true,\n      uid: true,\n      description: true,\n      customInputs: true,\n      smsReminderNumber: true,\n      recurringEventId: true,\n      startTime: true,\n      endTime: true,\n      location: true,\n      status: true,"
+        }
+      ]
+    },
+    {
+      "id": "detail-ui",
+      "label": "Booking detail view",
+      "type": "ui_component",
+      "group": "Manage booking",
+      "summary": "Displays the booking result and status and exposes reschedule and cancellation controls according to event/booking conditions.",
+      "files": [
+        "apps/web/modules/bookings/views/bookings-single-view.tsx"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/views/bookings-single-view.tsx",
+          "start_line": 882,
+          "end_line": 899,
+          "excerpt": "                                </span>\n\n                                <>\n                                  {!props.recurringBookings &&\n                                    (!isBookingInPast || eventType.allowReschedulingPastBookings) &&\n                                    canReschedule &&\n                                    !isRescheduleDisabled && (\n                                      <span className=\"text-default inline\">\n                                        <Link\n                                          href={`/reschedule/${seatReferenceUid || bookingInfo?.uid}${\n                                            currentUserEmail\n                                              ? `?rescheduledBy=${encodeURIComponent(currentUserEmail)}`\n                                              : \"\"\n                                          }`}\n                                          className=\"underline\"\n                                          data-testid=\"reschedule-link\">\n                                          {t(\"reschedule\")}\n                                        </Link>"
+        },
+        {
+          "path": "apps/web/modules/bookings/views/bookings-single-view.tsx",
+          "start_line": 925,
+          "end_line": 939,
+          "excerpt": "                          <CancelBooking\n                            booking={{\n                              uid: bookingInfo?.uid,\n                              title: bookingInfo?.title,\n                              id: bookingInfo?.id,\n                              startTime: bookingInfo?.startTime,\n                              payment: props.paymentStatus,\n                            }}\n                            eventTypeMetadata={eventType.metadata}\n                            requiresCancellationReason={eventType.requiresCancellationReason}\n                            profile={{ name: props.profile.name, slug: props.profile.slug }}\n                            recurringEvent={eventType.recurringEvent}\n                            team={eventType?.team?.name}\n                            teamId={eventType?.team?.id}\n                            setIsCancellationMode={setIsCancellationMode}"
+        }
+      ]
+    },
+    {
+      "id": "reschedule-page",
+      "label": "Reschedule redirect route",
+      "type": "route",
+      "group": "Manage booking",
+      "summary": "/reschedule/[uid] reads the original booking, enforces restrictions and redirects to its event URL with rescheduleUid. The normal booking flow then submits the replacement.",
+      "files": [
+        "apps/web/app/reschedule/[uid]/page.tsx",
+        "apps/web/lib/reschedule/[uid]/getServerSideProps.ts",
+        "packages/features/bookings/lib/buildEventUrlFromBooking.ts"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/app/reschedule/[uid]/page.tsx",
+          "start_line": 8,
+          "end_line": 18,
+          "excerpt": "const getData = withAppDirSsr(getServerSideProps);\n\nconst Page = async ({ params, searchParams }: PageProps) => {\n  const legacyCtx = buildLegacyCtx(await headers(), await cookies(), await params, await searchParams);\n\n  await getData(legacyCtx);\n\n  return null;\n};\n\nexport default Page;"
+        },
+        {
+          "path": "apps/web/lib/reschedule/[uid]/getServerSideProps.ts",
+          "start_line": 181,
+          "end_line": 207,
+          "excerpt": "  const destinationUrlSearchParams = new URLSearchParams();\n\n  destinationUrlSearchParams.set(\"rescheduleUid\", seatReferenceUid || bookingUid);\n\n  if (allowRescheduleForCancelledBooking) {\n    destinationUrlSearchParams.set(\"allowRescheduleForCancelledBooking\", \"true\");\n  }\n\n  // TODO: I think we should just forward all the query params here including coep flag\n  if (coepFlag) {\n    destinationUrlSearchParams.set(\"flag.coep\", coepFlag as string);\n  }\n\n  const currentUserEmail = rescheduledBy ?? session?.user?.email;\n\n  if (currentUserEmail) {\n    destinationUrlSearchParams.set(\"rescheduledBy\", currentUserEmail);\n  }\n\n  return {\n    redirect: {\n      destination: `${eventUrl}?${destinationUrlSearchParams.toString()}${\n        eventType.seatsPerTimeSlot ? \"&bookingUid=null\" : \"\"\n      }`,\n      permanent: false,\n    },\n  };"
+        },
+        {
+          "path": "packages/features/bookings/lib/buildEventUrlFromBooking.ts",
+          "start_line": 38,
+          "end_line": 54,
+          "excerpt": "  const bookingOrganizationId = getOrganizationIdOfBooking({ eventType, profileEnrichedBookingUser });\n\n  const bookerUrl = WEBAPP_URL;\n  if (dynamicGroupSlugRef) {\n    return `${bookerUrl}/${dynamicGroupSlugRef}/${eventSlug}`;\n  }\n\n  if (eventTeam?.slug) {\n    return `${bookerUrl}/team/${eventTeam.slug}/${eventSlug}`;\n  }\n\n  const username = profileEnrichedBookingUser?.profile?.username;\n  if (!username) {\n    logger.error(\"No username found for booking user.\", safeStringify({ profileEnrichedBookingUser }));\n    throw new Error(\"No username found for booking user.\");\n  }\n  return `${bookerUrl}/${username}/${eventSlug}`;"
+        }
+      ]
+    },
+    {
+      "id": "cancel-ui",
+      "label": "Cancellation form",
+      "type": "ui_component",
+      "group": "Manage booking",
+      "summary": "Collects the cancellation reason and series/seat options, fetches a CSRF token and posts cancellation by UID.",
+      "files": [
+        "apps/web/components/booking/CancelBooking.tsx"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/components/booking/CancelBooking.tsx",
+          "start_line": 280,
+          "end_line": 301,
+          "excerpt": "                onClick={async () => {\n                  setLoading(true);\n\n                  const response = await fetch(\"/api/csrf?sameSite=none\", { cache: \"no-store\" });\n                  const { csrfToken } = await response.json();\n\n                  const res = await fetch(\"/api/cancel\", {\n                    body: JSON.stringify({\n                      uid: booking?.uid,\n                      cancellationReason: cancellationReason,\n                      allRemainingBookings,\n                      // @NOTE: very important this shouldn't cancel with number ID use uid instead\n                      seatReferenceUid,\n                      cancelledBy: currentUserEmail,\n                      internalNote: internalNote,\n                      csrfToken,\n                    }),\n                    headers: {\n                      \"Content-Type\": \"application/json\",\n                    },\n                    method: \"POST\",\n                  });"
+        }
+      ]
+    },
+    {
+      "id": "cancel-api",
+      "label": "Cancellation HTTP API",
+      "type": "api_endpoint",
+      "group": "Manage booking",
+      "summary": "/api/cancel supports POST and DELETE, validates CSRF and UID input, applies rate limiting and calls the cancellation handler.",
+      "files": [
+        "apps/web/app/api/cancel/route.ts"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/app/api/cancel/route.ts",
+          "start_line": 23,
+          "end_line": 36,
+          "excerpt": "  const bookingData = bookingCancelWithCsrfSchema.parse(appDirRequestBody);\n\n  // Integer IDs are sequential/guessable \u2014 only accept high-entropy UIDs on this route\n  if (!bookingData.uid) {\n    return NextResponse.json(\n      { success: false, message: \"uid is required for booking cancellation\" },\n      { status: 400 }\n    );\n  }\n\n  const csrfError = await validateCsrfToken(bookingData.csrfToken);\n  if (csrfError) {\n    return csrfError;\n  }"
+        },
+        {
+          "path": "apps/web/app/api/cancel/route.ts",
+          "start_line": 49,
+          "end_line": 71,
+          "excerpt": "  // Strip integer id to ensure lookup is always by uid\n  const { id: _id, ...safeBookingData } = bookingData;\n\n  const result = await handleCancelBooking({\n    bookingData: safeBookingData,\n    userId: session?.user?.id || -1,\n  });\n\n  // const bookingCancelService = getBookingCancelService();\n  // const result = await bookingCancelService.cancelBooking({\n  //   bookingData: bookingData,\n  //   bookingMeta: {\n  //     userId: session?.user?.id || -1,\n  //   },\n  // });\n\n  const statusCode = result.success ? 200 : 400;\n\n  return NextResponse.json(result, { status: statusCode });\n}\n\nexport const DELETE = defaultResponderForAppDir(handler);\nexport const POST = defaultResponderForAppDir(handler);"
+        }
+      ]
+    },
+    {
+      "id": "cancel-booking",
+      "label": "Booking cancellation",
+      "type": "service",
+      "group": "Manage booking",
+      "summary": "Cancels individual, recurring or seated bookings and coordinates repository changes, integration cleanup, email/SMS and webhook effects.",
+      "files": [
+        "packages/features/bookings/lib/handleCancelBooking.ts"
+      ],
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/handleCancelBooking.ts",
+          "start_line": 81,
+          "end_line": 104,
+          "excerpt": "async function handler(input: CancelBookingInput, dependencies?: Dependencies) {\n  const prismaClient = prisma;\n  const {\n    userRepository,\n    bookingRepository,\n    bookingReferenceRepository,\n    attendeeRepository,\n  } = dependencies || {\n    userRepository: new UserRepository(prismaClient),\n    bookingRepository: new BookingRepository(prismaClient),\n    bookingReferenceRepository: new BookingReferenceRepository({ prismaClient }),\n    attendeeRepository: new PrismaBookingAttendeeRepository(prismaClient),\n  };\n  const body = input.bookingData;\n  const {\n    id,\n    uid,\n    allRemainingBookings,\n    cancellationReason,\n    seatReferenceUid,\n    cancelledBy,\n    cancelSubsequentBookings,\n    skipCancellationReasonValidation = false,\n    skipCalendarSyncTaskCancellation = false,"
+        },
+        {
+          "path": "packages/features/bookings/lib/handleCancelBooking.ts",
+          "start_line": 394,
+          "end_line": 405,
+          "excerpt": "    const updatedBooking = await bookingRepository.updateIncludeReferences({\n      where: {\n        uid: bookingToDelete.uid,\n      },\n      data: {\n        status: BookingStatus.CANCELLED,\n        cancellationReason: cancellationReason,\n        cancelledBy: cancelledBy,\n        // Assume that canceling the booking is the last action\n        iCalSequence: evt.iCalSequence || 100,\n      },\n    });"
+        }
+      ]
+    },
+    {
+      "id": "host-page",
+      "label": "Host bookings route",
+      "type": "page",
+      "group": "Host management",
+      "summary": "/bookings/[status] checks the authenticated session, validates the status and renders the host bookings view.",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/(main-nav)/bookings/[status]/page.tsx"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/app/(use-page-wrapper)/(main-nav)/bookings/[status]/page.tsx",
+          "start_line": 27,
+          "end_line": 37,
+          "excerpt": "const Page = async ({ params }: PageProps) => {\n  const parsed = querySchema.safeParse(await params);\n  if (!parsed.success) {\n    redirect(\"/bookings/upcoming\");\n  }\n  const t = await getTranslate();\n  const session = await getServerSession({ req: buildLegacyRequest(await headers(), await cookies()) });\n\n  if (!session?.user?.id) {\n    return redirect(\"/auth/login\");\n  }"
+        },
+        {
+          "path": "apps/web/app/(use-page-wrapper)/(main-nav)/bookings/[status]/page.tsx",
+          "start_line": 58,
+          "end_line": 64,
+          "excerpt": "      <BookingsList\n        status={parsed.data.status}\n        userId={userId}\n        permissions={{ canReadOthersBookings }}\n        bookingsV3Enabled={bookingsV3Enabled}\n        bookingAuditEnabled={bookingAuditEnabled}\n      />"
+        }
+      ]
+    },
+    {
+      "id": "host-ui",
+      "label": "Host booking list and actions",
+      "type": "ui_component",
+      "group": "Host management",
+      "summary": "Lists bookings, opens a detail sheet and invokes confirmation/rejection actions. The alternate calendar list presentation and other action internals are not expanded.",
+      "files": [
+        "apps/web/components/booking/actions/BookingActionsDropdown.tsx",
+        "apps/web/components/booking/hooks/useBookingConfirmation.tsx",
+        "apps/web/modules/bookings/components/BookingDetailsSheet.tsx",
+        "apps/web/modules/bookings/components/BookingListContainer.tsx",
+        "apps/web/modules/bookings/views/bookings-view.tsx"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/views/bookings-view.tsx",
+          "start_line": 78,
+          "end_line": 96,
+          "excerpt": "function BookingsContent({ status, permissions, bookingsV3Enabled, bookingAuditEnabled }: BookingsProps) {\n  const [view] = useBookingsView({ bookingsV3Enabled });\n\n  return (\n    <div className={classNames(view === \"calendar\" && \"-mb-8\")}>\n      {view === \"list\" && (\n        <BookingListContainer\n          status={status}\n          permissions={permissions}\n          bookingsV3Enabled={bookingsV3Enabled}\n          bookingAuditEnabled={bookingAuditEnabled}\n        />\n      )}\n      {bookingsV3Enabled && view === \"calendar\" && (\n        <BookingCalendarContainer\n          status={status}\n          permissions={permissions}\n          bookingsV3Enabled={bookingsV3Enabled}\n        />"
+        },
+        {
+          "path": "apps/web/modules/bookings/components/BookingListContainer.tsx",
+          "start_line": 269,
+          "end_line": 279,
+          "excerpt": "  );\n\n  const query = trpc.viewer.bookings.get.useQuery(queryInput, {\n    staleTime: 5 * 60 * 1000, // 5 minutes - data is considered fresh\n    gcTime: 30 * 60 * 1000, // 30 minutes - cache retention time\n    enabled: !isValidatorPending, // Wait for validator to be ready before fetching\n  });\n\n  const bookings = useMemo(() => query.data?.bookings ?? [], [query.data?.bookings]);\n\n  // Always call the hook and provide navigation capabilities"
+        },
+        {
+          "path": "apps/web/modules/bookings/components/BookingDetailsSheet.tsx",
+          "start_line": 153,
+          "end_line": 164,
+          "excerpt": "  // Fetch additional booking details for reschedule information\n  const { data: bookingDetails } =\n    trpc.viewer.bookings.getBookingDetails.useQuery(\n      { uid: booking.uid },\n      {\n        // Keep data fresh but don't refetch too aggressively\n        staleTime: 5 * 60 * 1000, // 5 minutes\n      }\n    );\n\n  // Get navigation state from the store in a single selector\n  const navigation = useBookingDetailsSheetStore((state) => {"
+        },
+        {
+          "path": "apps/web/components/booking/actions/BookingActionsDropdown.tsx",
+          "start_line": 78,
+          "end_line": 89,
+          "excerpt": "  const {\n    bookingConfirm,\n    handleReject,\n    rejectionDialogIsOpen,\n    setRejectionDialogIsOpen,\n    isPending: isConfirmPending,\n  } = useBookingConfirmation({\n    isRecurring,\n    isTabRecurring,\n    isTabUnconfirmed,\n  });\n"
+        },
+        {
+          "path": "apps/web/components/booking/hooks/useBookingConfirmation.tsx",
+          "start_line": 28,
+          "end_line": 43,
+          "excerpt": "  const mutation = trpc.viewer.bookings.confirm.useMutation({\n    onSuccess: (data) => {\n      if (data?.status === BookingStatus.REJECTED) {\n        setRejectionDialogIsOpen(false);\n        showToast(t(\"booking_rejection_success\"), \"success\");\n      } else {\n        showToast(t(\"booking_confirmation_success\"), \"success\");\n      }\n      utils.viewer.bookings.invalidate();\n      utils.viewer.me.bookingUnconfirmedCount.invalidate();\n    },\n    onError: (error) => {\n      showToast(error.message || t(\"booking_confirmation_failed\"), \"error\");\n      utils.viewer.bookings.invalidate();\n    },\n  });"
+        }
+      ]
+    },
+    {
+      "id": "host-api",
+      "label": "Host bookings tRPC API",
+      "type": "api_endpoint",
+      "group": "Host management",
+      "summary": "Authenticated get/getBookingDetails queries and confirm mutation. Confirmation delegates to the confirmation service; rejection updates booking status in the handler. Other procedures in the same router are outside the modeled subset.",
+      "files": [
+        "apps/web/pages/api/trpc/bookings/[trpc].ts",
+        "packages/trpc/server/routers/viewer/bookings/_router.tsx",
+        "packages/trpc/server/routers/viewer/bookings/confirm.handler.ts",
+        "packages/trpc/server/routers/viewer/bookings/get.handler.ts",
+        "packages/trpc/server/routers/viewer/bookings/getBookingDetails.handler.ts"
+      ],
+      "evidence": [
+        {
+          "path": "apps/web/pages/api/trpc/bookings/[trpc].ts",
+          "start_line": 1,
+          "end_line": 4,
+          "excerpt": "import { createNextApiHandler } from \"@calcom/trpc/server/createNextApiHandler\";\nimport { bookingsRouter } from \"@calcom/trpc/server/routers/viewer/bookings/_router\";\n\nexport default createNextApiHandler(bookingsRouter);"
+        },
+        {
+          "path": "packages/trpc/server/routers/viewer/bookings/_router.tsx",
+          "start_line": 22,
+          "end_line": 30,
+          "excerpt": "export const bookingsRouter = router({\n  get: authedProcedure.input(ZGetInputSchema).query(async ({ input, ctx }) => {\n    const { getHandler } = await import(\"./get.handler\");\n\n    return getHandler({\n      ctx,\n      input,\n    });\n  }),"
+        },
+        {
+          "path": "packages/trpc/server/routers/viewer/bookings/_router.tsx",
+          "start_line": 62,
+          "end_line": 69,
+          "excerpt": "  confirm: authedProcedure.input(ZConfirmInputSchema).mutation(async ({ input, ctx }) => {\n    const { confirmHandler } = await import(\"./confirm.handler\");\n\n    return confirmHandler({\n      ctx,\n      input,\n    });\n  }),"
+        },
+        {
+          "path": "packages/trpc/server/routers/viewer/bookings/get.handler.ts",
+          "start_line": 658,
+          "end_line": 671,
+          "excerpt": "    prisma.booking.groupBy({\n      by: [\"recurringEventId\"],\n      _min: {\n        startTime: true,\n      },\n      _count: {\n        recurringEventId: true,\n      },\n      where: {\n        recurringEventId: {\n          not: { equals: null },\n        },\n        userId: user.id,\n      },"
+        },
+        {
+          "path": "packages/trpc/server/routers/viewer/bookings/getBookingDetails.handler.ts",
+          "start_line": 14,
+          "end_line": 21,
+          "excerpt": "export const getBookingDetailsHandler = async ({ ctx, input }: GetBookingDetailsOptions) => {\n  const bookingDetailsService = new BookingDetailsService(prisma);\n\n  return await bookingDetailsService.getBookingDetails({\n    userId: ctx.user.id,\n    bookingUid: input.uid,\n  });\n};"
+        },
+        {
+          "path": "packages/trpc/server/routers/viewer/bookings/confirm.handler.ts",
+          "start_line": 62,
+          "end_line": 76,
+          "excerpt": "  const booking = await prisma.booking.findUniqueOrThrow({\n    where: {\n      id: bookingId,\n    },\n    select: {\n      title: true,\n      description: true,\n      customInputs: true,\n      startTime: true,\n      endTime: true,\n      attendees: true,\n      eventTypeId: true,\n      responses: true,\n      metadata: true,\n      userPrimaryEmail: true,"
+        }
+      ]
+    },
+    {
+      "id": "confirmation",
+      "label": "Booking confirmation",
+      "type": "service",
+      "group": "Host management",
+      "summary": "Creates meeting/calendar references, marks pending bookings accepted and sends confirmation notifications and webhooks.",
+      "files": [
+        "packages/features/bookings/lib/handleConfirmation.ts"
+      ],
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/handleConfirmation.ts",
+          "start_line": 75,
+          "end_line": 80,
+          "excerpt": "  const eventType = booking.eventType;\n  const eventTypeMetadata = EventTypeMetaDataSchema.parse(eventType?.metadata || {});\n  const apps = eventTypeAppMetadataOptionalSchema.parse(eventTypeMetadata?.apps);\n  const eventManager = new EventManager(user, apps);\n  const areCalendarEventsEnabled = platformClientParams?.areCalendarEventsEnabled ?? true;\n  const scheduleResult = await eventManager.create(evt, { skipCalendarEvent: !areCalendarEventsEnabled });"
+        },
+        {
+          "path": "packages/features/bookings/lib/handleConfirmation.ts",
+          "start_line": 245,
+          "end_line": 258,
+          "excerpt": "    const updatedBooking = await prisma.booking.update({\n      where: {\n        id: bookingId,\n      },\n      data: {\n        status: BookingStatus.ACCEPTED,\n        references: {\n          create: scheduleResult.referencesToCreate,\n        },\n        metadata: {\n          ...(typeof booking.metadata === \"object\" ? booking.metadata : {}),\n          videoCallUrl: meetingUrl,\n        },\n      },"
+        }
+      ]
+    },
+    {
+      "id": "booking-records",
+      "label": "Booking records",
+      "type": "data_model",
+      "group": "Data",
+      "summary": "Prisma Booking and associated attendee, provider-reference and seat records. This node owns only these model spans in the shared schema file.",
+      "files": [
+        "packages/prisma/schema.prisma"
+      ],
+      "evidence": [
+        {
+          "path": "packages/prisma/schema.prisma",
+          "start_line": 851,
+          "end_line": 875,
+          "excerpt": "model Booking {\n  id                     Int                        @id @default(autoincrement())\n  uid                    String                     @unique\n  // (optional) UID based on slot start/end time & email against duplicates\n  idempotencyKey         String?                    @unique\n  user                   User?                      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId                 Int?\n  // User's email at the time of booking\n  /// @zod.import([\"import { emailSchema } from '../../zod-utils'\"]).custom.use(emailSchema)\n  userPrimaryEmail       String?\n  references             BookingReference[]\n  eventType              EventType?                 @relation(fields: [eventTypeId], references: [id])\n  eventTypeId            Int?\n  title                  String\n  description            String?\n  customInputs           Json?\n  /// @zod.import([\"import { bookingResponses } from '../../zod-utils'\"]).custom.use(bookingResponses)\n  responses              Json?\n  startTime              DateTime\n  endTime                DateTime\n  attendees              Attendee[]\n  location               String?\n  createdAt              DateTime                   @default(now())\n  updatedAt              DateTime?                  @updatedAt\n  status                 BookingStatus              @default(ACCEPTED)"
+        },
+        {
+          "path": "packages/prisma/schema.prisma",
+          "start_line": 801,
+          "end_line": 818,
+          "excerpt": "model BookingReference {\n  id                         Int      @id @default(autoincrement())\n  /// @zod.string.min(1)\n  type                       String\n  /// @zod.string.min(1)\n  uid                        String\n  meetingId                  String?\n  thirdPartyRecurringEventId String?\n  meetingPassword            String?\n  meetingUrl                 String?\n  booking                    Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)\n  bookingId                  Int?\n  externalCalendarId         String?\n  deleted                    Boolean?\n\n  credential             Credential?           @relation(fields: [credentialId], references: [id], onDelete: SetNull)\n  credentialId           Int?\n  delegationCredential   DelegationCredential? @relation(fields: [delegationCredentialId], references: [id], onDelete: SetNull)"
+        },
+        {
+          "path": "packages/prisma/schema.prisma",
+          "start_line": 826,
+          "end_line": 840,
+          "excerpt": "model Attendee {\n  id          Int          @id @default(autoincrement())\n  email       String\n  name        String\n  timeZone    String\n  phoneNumber String?\n  locale      String?      @default(\"en\")\n  booking     Booking?     @relation(fields: [bookingId], references: [id], onDelete: Cascade)\n  bookingId   Int?\n  bookingSeat BookingSeat?\n  noShow      Boolean?     @default(false)\n\n  @@index([email])\n  @@index([bookingId])\n  @@index([email, bookingId])"
+        },
+        {
+          "path": "packages/prisma/schema.prisma",
+          "start_line": 1330,
+          "end_line": 1344,
+          "excerpt": "model BookingSeat {\n  id           Int      @id @default(autoincrement())\n  referenceUid String   @unique\n  bookingId    Int\n  booking      Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)\n  attendeeId   Int      @unique\n  attendee     Attendee @relation(fields: [attendeeId], references: [id], onDelete: Cascade)\n  /// @zod.import([\"import { bookingSeatDataSchema } from '../../zod-utils'\"]).custom.use(bookingSeatDataSchema)\n  data         Json?\n  metadata     Json?\n\n  @@index([bookingId])\n  @@index([attendeeId])\n}\n"
+        }
+      ]
+    },
+    {
+      "id": "event-types",
+      "label": "Event type configuration",
+      "type": "data_model",
+      "group": "Data",
+      "summary": "Prisma EventType holds the event slug, duration, participants and booking/scheduling policy. Shares schema.prisma with other model nodes.",
+      "files": [
+        "packages/prisma/schema.prisma"
+      ],
+      "evidence": [
+        {
+          "path": "packages/prisma/schema.prisma",
+          "start_line": 156,
+          "end_line": 183,
+          "excerpt": "model EventType {\n  id                Int     @id @default(autoincrement())\n  /// @zod.string.min(1)\n  title             String\n  /// @zod.import([\"import { eventTypeSlug } from '../../zod-utils'\"]).custom.use(eventTypeSlug)\n  slug              String\n  description       String?\n  interfaceLanguage String?\n  position          Int     @default(0)\n  /// @zod.import([\"import { eventTypeLocations } from '../../zod-utils'\"]).custom.use(eventTypeLocations)\n  locations         Json?\n  /// @zod.number.min(1)\n  length            Int\n  offsetStart       Int     @default(0)\n  hidden            Boolean @default(false)\n  hosts             Host[]\n\n  users  User[] @relation(\"user_eventtype\")\n  owner  User?  @relation(\"owner\", fields: [userId], references: [id], onDelete: Cascade)\n  userId Int?\n\n  profileId Int?\n  profile   Profile? @relation(fields: [profileId], references: [id])\n\n  team                               Team?                  @relation(fields: [teamId], references: [id], onDelete: Cascade)\n  teamId                             Int?\n  hashedLink                         HashedLink[]\n  bookings                           Booking[]"
+        }
+      ]
+    },
+    {
+      "id": "schedules",
+      "label": "Schedule and availability rules",
+      "type": "data_model",
+      "group": "Data",
+      "summary": "Prisma Schedule and Availability encode timezone, recurring working hours and date-specific rules.",
+      "files": [
+        "packages/prisma/schema.prisma"
+      ],
+      "evidence": [
+        {
+          "path": "packages/prisma/schema.prisma",
+          "start_line": 945,
+          "end_line": 975,
+          "excerpt": "model Schedule {\n  id                   Int            @id @default(autoincrement())\n  user                 User           @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId               Int\n  eventType            EventType[]\n  instantMeetingEvents EventType[]    @relation(\"InstantMeetingSchedule\")\n  restrictionSchedule  EventType[]    @relation(\"restrictionSchedule\")\n  name                 String\n  timeZone             String?\n  availability         Availability[]\n  Host                 Host[]\n\n  @@index([userId])\n}\n\nmodel Availability {\n  id          Int        @id @default(autoincrement())\n  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId      Int?\n  eventType   EventType? @relation(fields: [eventTypeId], references: [id])\n  eventTypeId Int?\n  days        Int[]\n  startTime   DateTime   @db.Time\n  endTime     DateTime   @db.Time\n  date        DateTime?  @db.Date\n  Schedule    Schedule?  @relation(fields: [scheduleId], references: [id])\n  scheduleId  Int?\n\n  @@index([userId])\n  @@index([eventTypeId])\n  @@index([scheduleId])"
+        }
+      ]
+    },
+    {
+      "id": "slot-holds",
+      "label": "Temporary slot holds",
+      "type": "data_model",
+      "group": "Data",
+      "summary": "Prisma SelectedSlots records a booker UID, slot range and expiry time; these are reservations rather than completed bookings.",
+      "files": [
+        "packages/prisma/schema.prisma"
+      ],
+      "evidence": [
+        {
+          "path": "packages/prisma/schema.prisma",
+          "start_line": 1437,
+          "end_line": 1448,
+          "excerpt": "model SelectedSlots {\n  id               Int      @id @default(autoincrement())\n  eventTypeId      Int\n  userId           Int\n  slotUtcStartDate DateTime\n  slotUtcEndDate   DateTime\n  uid              String\n  releaseAt        DateTime\n  isSeat           Boolean  @default(false)\n\n  @@unique(fields: [userId, slotUtcStartDate, slotUtcEndDate, uid], name: \"selectedSlotUnique\")\n}"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "public-page--calls--public-event",
+      "source": "public-page",
+      "target": "public-event",
+      "type": "calls",
+      "label": "load event",
+      "description": "The SSR loader calls EventRepository.getPublicEvent.",
+      "evidence": [
+        {
+          "path": "apps/web/server/lib/[user]/[type]/getServerSideProps.ts",
+          "start_line": 149,
+          "end_line": 160,
+          "excerpt": "  // We use this to both prefetch the query on the server,\n  // as well as to check if the event exist, so we c an show a 404 otherwise.\n\n  const eventData = await EventRepository.getPublicEvent(\n    {\n      username: usernames.join(\"+\"),\n      eventSlug: slug,\n      org,\n      fromRedirectOfNonOrgLink: context.query.orgRedirection === \"true\",\n    },\n    session?.user?.id\n  );"
+        }
+      ]
+    },
+    {
+      "id": "public-page--renders--booker",
+      "source": "public-page",
+      "target": "booker",
+      "type": "renders",
+      "label": "render booker",
+      "description": "The public view imports BookerWebWrapper as Booker and renders it.",
+      "evidence": [
+        {
+          "path": "apps/web/modules/users/views/users-type-public-view.tsx",
+          "start_line": 6,
+          "end_line": 6,
+          "excerpt": "import { BookerWebWrapper as Booker } from \"@calcom/web/modules/bookings/components/BookerWebWrapper\";"
+        },
+        {
+          "path": "apps/web/modules/users/views/users-type-public-view.tsx",
+          "start_line": 30,
+          "end_line": 39,
+          "excerpt": "  return (\n    <BookingPageErrorBoundary>\n      <main className={getBookerWrapperClasses({ isEmbed: !!isEmbed })}>\n        <Booker\n          username={user}\n          eventSlug={slug}\n          bookingData={booking}\n          hideBranding={isBrandingHidden}\n          eventData={eventData}\n          entity={{ ...eventData.entity, eventTypeId: eventData?.id }}"
+        }
+      ]
+    },
+    {
+      "id": "public-event--reads--event-types",
+      "source": "public-event",
+      "target": "event-types",
+      "type": "reads",
+      "label": "read event configuration",
+      "description": "Public event lookup reads eventType by slug and owner/team conditions.",
+      "evidence": [
+        {
+          "path": "packages/features/eventtypes/lib/getPublicEvent.ts",
+          "start_line": 437,
+          "end_line": 444,
+          "excerpt": "  // In case it's not a group event, it's either a single user or a team, and we query that data.\n  let event = await prisma.eventType.findFirst({\n    where: {\n      slug: eventSlug,\n      ...usersOrTeamQuery,\n    },\n    select: getPublicEventSelect(fetchAllUsers),\n  });"
+        }
+      ]
+    },
+    {
+      "id": "booker--renders--event-summary",
+      "source": "booker",
+      "target": "event-summary",
+      "type": "renders",
+      "label": "show event details",
+      "description": "Booker composes EventMeta.",
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/components/Booker.tsx",
+          "start_line": 409,
+          "end_line": 422,
+          "excerpt": "                )}\n                {!hideEventTypeDetails && (\n                  <EventMeta\n                    selectedTimeslot={selectedTimeslot}\n                    classNames={{\n                      eventMetaContainer: customClassNames?.eventMetaCustomClassNames?.eventMetaContainer,\n                      eventMetaTitle: customClassNames?.eventMetaCustomClassNames?.eventMetaTitle,\n                      eventMetaTimezoneSelect:\n                        customClassNames?.eventMetaCustomClassNames?.eventMetaTimezoneSelect,\n                    }}\n                    event={event.data}\n                    isPending={event.isPending}\n                    isPlatform={isPlatform}\n                    isPrivateLink={!!hashedLink}"
+        }
+      ]
+    },
+    {
+      "id": "booker--renders--date-slots",
+      "source": "booker",
+      "target": "date-slots",
+      "type": "renders",
+      "label": "show dates and slots",
+      "description": "Booker composes date and available-time controls.",
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/components/Booker.tsx",
+          "start_line": 469,
+          "end_line": 480,
+          "excerpt": "                hideEventTypeDetails ? \"\" : \"md:border-l\"\n              )}>\n              <DatePicker\n                classNames={customClassNames?.datePickerCustomClassNames}\n                event={event}\n                slots={schedule?.data?.slots}\n                isLoading={schedule.isPending}\n                scrollToTimeSlots={scrollToTimeSlots}\n                showNoAvailabilityDialog={showNoAvailabilityDialog}\n              />\n            </BookerSection>\n"
+        },
+        {
+          "path": "apps/web/modules/bookings/components/Booker.tsx",
+          "start_line": 509,
+          "end_line": 525,
+          "excerpt": "              ref={timeslotsRef}\n              {...fadeInLeft}>\n              <AvailableTimeSlots\n                onAvailableTimeSlotSelect={onAvailableTimeSlotSelect}\n                customClassNames={customClassNames?.availableTimeSlotsCustomClassNames}\n                extraDays={extraDays}\n                limitHeight={layout === BookerLayouts.MONTH_VIEW}\n                schedule={schedule}\n                isLoading={schedule.isPending}\n                seatsPerTimeSlot={event.data?.seatsPerTimeSlot}\n                unavailableTimeSlots={unavailableTimeSlots}\n                showAvailableSeatsCount={event.data?.seatsShowAvailabilityCount}\n                event={event}\n                loadingStates={loadingStates}\n                renderConfirmNotVerifyEmailButtonCond={renderConfirmNotVerifyEmailButtonCond}\n                isVerificationCodeSending={isVerificationCodeSending}\n                onSubmit={onSubmit}"
+        }
+      ]
+    },
+    {
+      "id": "booker--renders--booking-form",
+      "source": "booker",
+      "target": "booking-form",
+      "type": "renders",
+      "label": "show attendee form",
+      "description": "The booking state renders BookEventForm with its submit callback.",
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/components/Booker.tsx",
+          "start_line": 250,
+          "end_line": 258,
+          "excerpt": "  const EventBooker = useMemo(() => {\n    if (bookerState !== \"booking\") {\n      return null;\n    }\n\n    return (\n      <BookEventForm\n        key={key}\n        timeslot={selectedTimeslot}"
+        },
+        {
+          "path": "apps/web/modules/bookings/components/Booker.tsx",
+          "start_line": 275,
+          "end_line": 283,
+          "excerpt": "        onSubmit={() => (renderConfirmNotVerifyEmailButtonCond ? handleBookEvent() : handleVerifyEmail())}\n        errorRef={bookerFormErrorRef}\n        errors={{ ...formErrors, ...errors }}\n        isTimeslotUnavailable={unavailableTimeSlots.includes(selectedTimeslot || \"\")}\n        loadingStates={loadingStates}\n        renderConfirmNotVerifyEmailButtonCond={renderConfirmNotVerifyEmailButtonCond}\n        bookingForm={bookingForm}\n        eventQuery={event}\n        extraOptions={extraOptions}"
+        }
+      ]
+    },
+    {
+      "id": "booker--calls--availability-client",
+      "source": "booker",
+      "target": "availability-client",
+      "type": "calls",
+      "label": "load slots and hold selection",
+      "description": "BookerWebWrapper initializes slot reservation and schedule hooks.",
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/components/BookerWebWrapper.tsx",
+          "start_line": 131,
+          "end_line": 153,
+          "excerpt": "  const slots = useSlots(event?.data ? { id: event.data.id, length: event.data.length } : null);\n\n  const isEmbed = useIsEmbed();\n\n  /**\n   * Prioritize dateSchedule load\n   * Component will render but use data already fetched from here, and no duplicate requests will be made\n   * */\n  const schedule = useScheduleForEvent({\n    eventId: props.entity.eventTypeId ?? event.data?.id,\n    username: props.username,\n    dayCount,\n    eventSlug: props.eventSlug,\n    month: props.month,\n    duration: props.duration,\n    selectedDate,\n    teamMemberEmail: props.teamMemberEmail,\n    fromRedirectOfNonOrgLink: props.entity.fromRedirectOfNonOrgLink,\n    isTeamEvent: props.isTeamEvent ?? !!event.data?.team,\n    useApiV2: props.useApiV2,\n    bookerLayout,\n    ...(props.entity.orgSlug ? { orgSlug: props.entity.orgSlug } : {}),\n  });"
+        }
+      ]
+    },
+    {
+      "id": "booker--calls--booking-client",
+      "source": "booker",
+      "target": "booking-client",
+      "type": "calls",
+      "label": "initialize submission",
+      "description": "BookerWebWrapper initializes useBookings and supplies its result to the presentation component.",
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/components/BookerWebWrapper.tsx",
+          "start_line": 154,
+          "end_line": 160,
+          "excerpt": "  const bookings = useBookings({\n    event,\n    hashedLink: props.hashedLink,\n    bookingForm: bookerForm.bookingForm,\n    metadata: metadata ?? {},\n    teamMemberEmail: props.teamMemberEmail,\n  });"
+        }
+      ]
+    },
+    {
+      "id": "availability-client--calls--public-event-api",
+      "source": "availability-client",
+      "target": "public-event-api",
+      "type": "calls",
+      "label": "query public event",
+      "description": "useEvent calls viewer.public.event unless SSR data disables the query.",
+      "evidence": [
+        {
+          "path": "apps/web/modules/schedules/hooks/useEvent.ts",
+          "start_line": 27,
+          "end_line": 38,
+          "excerpt": "  const event = trpc.viewer.public.event.useQuery(\n    {\n      username: username ?? \"\",\n      eventSlug: eventSlug ?? \"\",\n      isTeamEvent,\n      org: org ?? null,\n      fromRedirectOfNonOrgLink: props?.fromRedirectOfNonOrgLink,\n    },\n    {\n      refetchOnWindowFocus: false,\n      enabled: !props?.disabled && Boolean(username) && Boolean(eventSlug),\n    }"
+        }
+      ]
+    },
+    {
+      "id": "public-event-api--calls--public-event",
+      "source": "public-event-api",
+      "target": "public-event",
+      "type": "calls",
+      "label": "lookup event",
+      "description": "The public event handler delegates to EventRepository.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/publicViewer/event.handler.ts",
+          "start_line": 10,
+          "end_line": 12,
+          "excerpt": "export const eventHandler = async ({ input, userId }: EventHandlerOptions) => {\n  return await EventRepository.getPublicEvent(input, userId);\n};"
+        }
+      ]
+    },
+    {
+      "id": "availability-client--calls--slots-api",
+      "source": "availability-client",
+      "target": "slots-api",
+      "type": "calls",
+      "label": "query available slots",
+      "description": "useSchedule calls viewer.slots.getSchedule when the API v2 branch is not selected.",
+      "evidence": [
+        {
+          "path": "apps/web/modules/schedules/hooks/useSchedule.ts",
+          "start_line": 138,
+          "end_line": 154,
+          "excerpt": "  const isCallingApiV2Slots = useApiV2 && Boolean(isTeamEvent) && options.enabled;\n\n  // API V2 query for team events\n  const teamScheduleV2 = useApiV2AvailableSlots({\n    ...input,\n    enabled: isCallingApiV2Slots,\n    duration: input.duration ? Number(input.duration) : undefined,\n    routedTeamMemberIds: input.routedTeamMemberIds ?? undefined,\n    teamMemberEmail: input.teamMemberEmail ?? undefined,\n    eventTypeId: eventId ?? undefined,\n  });\n\n  const schedule = trpc.viewer.slots.getSchedule.useQuery(input, {\n    ...options,\n    // Only enable if we're not using API V2\n    enabled: options.enabled && !isCallingApiV2Slots,\n  });"
+        }
+      ]
+    },
+    {
+      "id": "availability-client--calls--reservations-api",
+      "source": "availability-client",
+      "target": "reservations-api",
+      "type": "calls",
+      "label": "reserve and release slot",
+      "description": "useSlots calls reserveSlot and removeSelectedSlotMark.",
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/hooks/useSlots.ts",
+          "start_line": 90,
+          "end_line": 108,
+          "excerpt": "  const [slotReservationId, setSlotReservationId] = useSlotReservationId();\n  const reserveSlotMutation = trpc.viewer.slots.reserveSlot.useMutation({\n    trpc: {\n      context: {\n        skipBatch: true,\n      },\n    },\n    onSuccess: (data) => {\n      setSlotReservationId(data.uid);\n    },\n  });\n  const removeSelectedSlot = trpc.viewer.slots.removeSelectedSlotMark.useMutation({\n    trpc: { context: { skipBatch: true } },\n  });\n\n  const handleRemoveSlot = () => {\n    if (event?.id && slotReservationId) {\n      removeSelectedSlot.mutate({ uid: slotReservationId });\n    }"
+        },
+        {
+          "path": "apps/web/modules/bookings/hooks/useSlots.ts",
+          "start_line": 129,
+          "end_line": 136,
+          "excerpt": "  const handleReserveSlot = () => {\n    if (eventTypeId && timeSlotToBeBooked && eventDuration) {\n      reserveSlotMutation.mutate({\n        slotUtcStartDate: dayjs(timeSlotToBeBooked).utc().toISOString(),\n        eventTypeId,\n        slotUtcEndDate: dayjs(timeSlotToBeBooked).utc().add(eventDuration, \"minutes\").toISOString(),\n        _isDryRun: isBookingDryRun(searchParams),\n      });"
+        }
+      ]
+    },
+    {
+      "id": "slots-api--calls--slot-engine",
+      "source": "slots-api",
+      "target": "slot-engine",
+      "type": "calls",
+      "label": "compute available slots",
+      "description": "getScheduleHandler obtains the service and invokes getAvailableSlots.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/getSchedule.handler.ts",
+          "start_line": 1,
+          "end_line": 8,
+          "excerpt": "import { getAvailableSlotsService } from \"@calcom/features/di/containers/AvailableSlots\";\n\nimport type { GetScheduleOptions } from \"./types\";\n\nexport const getScheduleHandler = async ({ ctx, input }: GetScheduleOptions) => {\n  const availableSlotsService = getAvailableSlotsService();\n  return await availableSlotsService.getAvailableSlots({ ctx, input });\n};"
+        }
+      ]
+    },
+    {
+      "id": "slot-engine--calls--user-availability",
+      "source": "slot-engine",
+      "target": "user-availability",
+      "type": "calls",
+      "label": "calculate host availability",
+      "description": "The slot engine asks for users availability with buffers and booking-limit context.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/util.ts",
+          "start_line": 807,
+          "end_line": 829,
+          "excerpt": "    const premappedUsersAvailability = await this.dependencies.userAvailabilityService.getUsersAvailability({\n      users,\n      query: {\n        dateFrom: startTime.format(),\n        dateTo: endTime.format(),\n        eventTypeId: eventType.id,\n        afterEventBuffer: eventType.afterEventBuffer,\n        beforeEventBuffer: eventType.beforeEventBuffer,\n        duration: input.duration || 0,\n        returnDateOverrides: false,\n        bypassBusyCalendarTimes,\n        silentlyHandleCalendarFailures: silentCalendarFailures,\n        mode,\n      },\n      initialData: {\n        eventType,\n        currentSeats,\n        rescheduleUid: input.rescheduleUid,\n        busyTimesFromLimitsBookings: busyTimesFromLimitsBookingsAllUsers,\n        busyTimesFromLimits: busyTimesFromLimitsMap,\n        eventTypeForLimits: eventType && (bookingLimits || durationLimits) ? eventType : null,\n      },\n    });"
+        }
+      ]
+    },
+    {
+      "id": "slot-engine--calls--busy-times",
+      "source": "slot-engine",
+      "target": "busy-times",
+      "type": "calls",
+      "label": "check booking limits",
+      "description": "The slot engine obtains busy times used for limit checks.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/util.ts",
+          "start_line": 754,
+          "end_line": 769,
+          "excerpt": "    let busyTimesFromLimitsBookingsAllUsers: Awaited<\n      ReturnType<typeof getBusyTimesService.prototype.getBusyTimesForLimitChecks>\n    > = [];\n\n    if (eventType && (bookingLimits || durationLimits)) {\n      busyTimesFromLimitsBookingsAllUsers =\n        await this.dependencies.busyTimesService.getBusyTimesForLimitChecks({\n          userIds: allUserIds,\n          eventTypeId: eventType.id,\n          startDate: startTime.format(),\n          endDate: endTime.format(),\n          rescheduleUid: input.rescheduleUid,\n          bookingLimits,\n          durationLimits,\n        });\n    }"
+        }
+      ]
+    },
+    {
+      "id": "slot-engine--calls--booking-persistence",
+      "source": "slot-engine",
+      "target": "booking-persistence",
+      "type": "calls",
+      "label": "load existing bookings",
+      "description": "Availability excludes bookings already present in the time window.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/util.ts",
+          "start_line": 728,
+          "end_line": 739,
+          "excerpt": "    const bookingRepo = this.dependencies.bookingRepo;\n    const [currentBookingsAllUsers, outOfOfficeDaysAllUsers] = await Promise.all([\n      bookingRepo.findAllExistingBookingsForEventTypeBetween({\n        startDate: startTimeDate,\n        endDate: endTimeDate,\n        eventTypeId: eventType.id,\n        seatedEvent: Boolean(eventType.seatsPerTimeSlot),\n        userIdAndEmailMap,\n      }),\n      this.getOOODates(startTimeDate, endTimeDate, allUserIds),\n    ]);\n"
+        }
+      ]
+    },
+    {
+      "id": "slot-engine--reads--event-types",
+      "source": "slot-engine",
+      "target": "event-types",
+      "type": "reads",
+      "label": "load event policy",
+      "description": "AvailableSlotsService resolves the EventType repository query before slot computation.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/util.ts",
+          "start_line": 258,
+          "end_line": 259,
+          "excerpt": "    const eventTypeRepo = this.dependencies.eventTypeRepo;\n    return await eventTypeRepo.findForSlots({ id: eventTypeId });"
+        },
+        {
+          "path": "packages/features/eventtypes/repositories/eventTypeRepository.ts",
+          "start_line": 1243,
+          "end_line": 1253,
+          "excerpt": "  async findForSlots({ id }: { id: number }) {\n    const eventType = await this.prismaClient.eventType.findUnique({\n      where: {\n        id,\n      },\n      select: {\n        id: true,\n        userId: true,\n        slug: true,\n        minimumBookingNotice: true,\n        length: true,"
+        }
+      ]
+    },
+    {
+      "id": "slot-engine--reads--schedules",
+      "source": "slot-engine",
+      "target": "schedules",
+      "type": "reads",
+      "label": "apply restriction schedule",
+      "description": "When configured and enabled, a restriction schedule is loaded with availability rules.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/util.ts",
+          "start_line": 1103,
+          "end_line": 1111,
+          "excerpt": "    let availableTimeSlots: typeof timeSlots = [];\n    const bookerClientUid = ctx?.req?.cookies?.uid;\n    const isRestrictionScheduleFeatureEnabled = await this.checkRestrictionScheduleEnabled(\n      eventType.team?.id\n    );\n    if (eventType.restrictionScheduleId && isRestrictionScheduleFeatureEnabled) {\n      const restrictionSchedule = await this.dependencies.scheduleRepo.findScheduleByIdForBuildDateRanges({\n        scheduleId: eventType.restrictionScheduleId,\n      });"
+        },
+        {
+          "path": "packages/features/schedules/repositories/ScheduleRepository.ts",
+          "start_line": 22,
+          "end_line": 35,
+          "excerpt": "  async findScheduleByIdForBuildDateRanges({ scheduleId }: { scheduleId: number }) {\n    const schedule = await this.prismaClient.schedule.findUnique({\n      where: { id: scheduleId },\n      select: {\n        id: true,\n        timeZone: true,\n        userId: true,\n        availability: {\n          select: {\n            days: true,\n            startTime: true,\n            endTime: true,\n            date: true,\n          },"
+        }
+      ]
+    },
+    {
+      "id": "slot-engine--reads--slot-holds",
+      "source": "slot-engine",
+      "target": "slot-holds",
+      "type": "reads",
+      "label": "exclude other bookers holds",
+      "description": "The slot engine filters unexpired reservations belonging to other UIDs.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/util.ts",
+          "start_line": 155,
+          "end_line": 168,
+          "excerpt": "    const currentTimeInUtc = dayjs.utc().format();\n    const slotsRepo = this.dependencies.selectedSlotRepo;\n\n    const unexpiredSelectedSlots =\n      (await slotsRepo.findManyUnexpiredSlots({\n        userIds: usersWithCredentials.map((user) => user.id),\n        currentTimeInUtc,\n      })) || [];\n\n    const slotsSelectedByOtherUsers = unexpiredSelectedSlots.filter((slot) => slot.uid !== bookerClientUid);\n\n    await _cleanupExpiredSlots({ eventTypeId });\n\n    const reservedSlots = slotsSelectedByOtherUsers;"
+        },
+        {
+          "path": "packages/features/selectedSlots/repositories/PrismaSelectedSlotRepository.ts",
+          "start_line": 61,
+          "end_line": 75,
+          "excerpt": "    return this.prismaClient.selectedSlots.findMany({\n      where: {\n        userId: { in: userIds },\n        releaseAt: { gt: currentTimeInUtc },\n      },\n      select: {\n        id: true,\n        slotUtcStartDate: true,\n        slotUtcEndDate: true,\n        userId: true,\n        isSeat: true,\n        eventTypeId: true,\n        uid: true,\n      },\n    });"
+        }
+      ]
+    },
+    {
+      "id": "slot-engine--writes--slot-holds",
+      "source": "slot-engine",
+      "target": "slot-holds",
+      "type": "writes",
+      "label": "remove expired holds",
+      "description": "Slot calculation also deletes expired holds via its repository.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/util.ts",
+          "start_line": 172,
+          "end_line": 174,
+          "excerpt": "    async function _cleanupExpiredSlots({ eventTypeId }: { eventTypeId: number }) {\n      await slotsRepo.deleteManyExpiredSlots({ eventTypeId, currentTimeInUtc });\n    }"
+        },
+        {
+          "path": "packages/features/selectedSlots/repositories/PrismaSelectedSlotRepository.ts",
+          "start_line": 78,
+          "end_line": 90,
+          "excerpt": "  async deleteManyExpiredSlots({\n    eventTypeId,\n    currentTimeInUtc,\n  }: {\n    eventTypeId: number;\n    currentTimeInUtc: string;\n  }) {\n    return this.prismaClient.selectedSlots.deleteMany({\n      where: {\n        eventTypeId: { equals: eventTypeId },\n        releaseAt: { lt: currentTimeInUtc },\n      },\n    });"
+        }
+      ]
+    },
+    {
+      "id": "reservations-api--writes--slot-holds",
+      "source": "reservations-api",
+      "target": "slot-holds",
+      "type": "writes",
+      "label": "upsert or release holds",
+      "description": "Reservation upserts a UID-scoped hold; release deletes matching UID rows.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts",
+          "start_line": 77,
+          "end_line": 101,
+          "excerpt": "  if (eventType && shouldReserveSlot && !reservedBySomeoneElse && !_isDryRun) {\n    try {\n      await Promise.all(\n        // FIXME: In case of team event, users doesn't have assignees, those are in hosts. users just have the creator of the event which is wrong.\n        // Also, we must not block all the users' slots, we must use routedTeamMemberIds if set like we do in getSchedule.\n        // We could even improve it by identifying the next person being booked now that we have a queue of assignees.\n        eventType.users.map((user) =>\n          prisma.selectedSlots.upsert({\n            where: { selectedSlotUnique: { userId: user.id, slotUtcStartDate, slotUtcEndDate, uid } },\n            update: {\n              slotUtcStartDate,\n              slotUtcEndDate,\n              releaseAt,\n              eventTypeId,\n            },\n            create: {\n              userId: user.id,\n              eventTypeId,\n              slotUtcStartDate,\n              slotUtcEndDate,\n              uid,\n              releaseAt,\n              isSeat: eventType.seatsPerTimeSlot !== null,\n            },\n          })"
+        },
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/_router.tsx",
+          "start_line": 45,
+          "end_line": 53,
+          "excerpt": "  // This endpoint has no dependencies, it doesn't need its own file\n  removeSelectedSlotMark: publicProcedure\n    .input(ZRemoveSelectedSlotInputSchema)\n    .mutation(async ({ input, ctx }) => {\n      const { req, prisma } = ctx;\n      const uid = req?.cookies?.uid || input.uid;\n      if (uid) {\n        await prisma.selectedSlots.deleteMany({ where: { uid: { equals: uid } } });\n      }"
+        }
+      ]
+    },
+    {
+      "id": "reservations-api--reads--event-types",
+      "source": "reservations-api",
+      "target": "event-types",
+      "type": "reads",
+      "label": "check event and seats",
+      "description": "The reservation handler loads participating users and seat capacity.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts",
+          "start_line": 30,
+          "end_line": 33,
+          "excerpt": "  const eventType = await prisma.eventType.findUnique({\n    where: { id: eventTypeId },\n    select: { users: { select: { id: true } }, seatsPerTimeSlot: true },\n  });"
+        }
+      ]
+    },
+    {
+      "id": "reservations-api--reads--booking-records",
+      "source": "reservations-api",
+      "target": "booking-records",
+      "type": "reads",
+      "label": "check seated attendance",
+      "description": "Seated events look up an accepted booking and attendee count before holding a slot.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts",
+          "start_line": 44,
+          "end_line": 59,
+          "excerpt": "  // If this is a seated event then don't reserve a slot\n  if (eventType.seatsPerTimeSlot) {\n    // Check to see if this is the last attendee\n    const bookingWithAttendees = await prisma.booking.findFirst({\n      where: {\n        eventTypeId,\n        startTime: slotUtcStartDate,\n        endTime: slotUtcEndDate,\n        status: BookingStatus.ACCEPTED,\n      },\n      select: { attendees: true },\n    });\n    const bookingAttendeesLength = bookingWithAttendees?.attendees?.length;\n    if (bookingAttendeesLength) {\n      const seatsLeft = eventType.seatsPerTimeSlot - bookingAttendeesLength;\n      if (seatsLeft < 1) shouldReserveSlot = false;"
+        }
+      ]
+    },
+    {
+      "id": "user-availability--calls--busy-times",
+      "source": "user-availability",
+      "target": "busy-times",
+      "type": "calls",
+      "label": "subtract busy periods",
+      "description": "Availability rules query the busy-times service.",
+      "evidence": [
+        {
+          "path": "packages/features/availability/lib/getUserAvailability.ts",
+          "start_line": 584,
+          "end_line": 603,
+          "excerpt": "    let busyTimes = [];\n    try {\n      const busyTimesService = getBusyTimesService();\n      busyTimes = await busyTimesService.getBusyTimes({\n        credentials: user.credentials,\n        startTime: getBusyTimesStart,\n        endTime: getBusyTimesEnd,\n        eventTypeId,\n        userId: user.id,\n        userEmail: user.email,\n        username: `${user.username}`,\n        beforeEventBuffer,\n        afterEventBuffer,\n        selectedCalendars,\n        seatedEvent: !!eventType?.seatsPerTimeSlot,\n        rescheduleUid: initialData?.rescheduleUid || null,\n        duration,\n        currentBookings: initialData?.currentBookings,\n        bypassBusyCalendarTimes,\n        silentlyHandleCalendarFailures,"
+        }
+      ]
+    },
+    {
+      "id": "user-availability--reads--schedules",
+      "source": "user-availability",
+      "target": "schedules",
+      "type": "reads",
+      "label": "use working-hour rules",
+      "description": "Availability derives its working hours from the loaded schedule, event or user availability records; this is an in-memory read, not a claimed direct DB query.",
+      "evidence": [
+        {
+          "path": "packages/features/availability/lib/getUserAvailability.ts",
+          "start_line": 395,
+          "end_line": 419,
+          "excerpt": "    current bookings with a seats event type and display them on the calendar, even if they are full */\n    let currentSeats: CurrentSeats | null = initialData?.currentSeats || null;\n    if (!currentSeats && eventType?.seatsPerTimeSlot) {\n      currentSeats = await this.getCurrentSeats(eventType, dateFrom, dateTo);\n    }\n\n    const { isDefaultSchedule, isTimezoneSet, schedule } = detectEventTypeScheduleForUser({\n      eventType,\n      user,\n    });\n\n    if (\n      !(\n        schedule?.availability ||\n        (eventType?.availability.length ? eventType.availability : user.availability)\n      )\n    ) {\n      throw new HttpError({ statusCode: 400, message: ErrorCode.AvailabilityNotFoundInSchedule });\n    }\n\n    const availability = (\n      schedule?.availability || (eventType?.availability.length ? eventType.availability : user.availability)\n    ).map((a) => ({\n      ...a,\n      userId: user.id,"
+        }
+      ]
+    },
+    {
+      "id": "busy-times--calls--booking-persistence",
+      "source": "busy-times",
+      "target": "booking-persistence",
+      "type": "calls",
+      "label": "load occupied booking intervals",
+      "description": "BusyTimesService asks BookingRepository for existing bookings in the event time window.",
+      "evidence": [
+        {
+          "path": "packages/features/busyTimes/services/getBusyTimes.ts",
+          "start_line": 121,
+          "end_line": 134,
+          "excerpt": "      const bookingRepo = this.dependencies.bookingRepo;\n      bookings = await bookingRepo.findAllExistingBookingsForEventTypeBetween({\n        userIdAndEmailMap: new Map([[userId, userEmail]]),\n        eventTypeId,\n        startDate: startTimeAdjustedWithMaxBuffer,\n        endDate: endTimeAdjustedWithMaxBuffer,\n        seatedEvent,\n      });\n    }\n\n    const bookingSeatCountMap: { [x: string]: number } = {};\n    const busyTimes = bookings.reduce((aggregate: EventBusyDetails[], booking) => {\n      const { id, startTime, endTime, eventType, title, ...rest } = booking;\n"
+        }
+      ]
+    },
+    {
+      "id": "busy-times--calls--calendar-integrations",
+      "source": "busy-times",
+      "target": "calendar-integrations",
+      "type": "calls",
+      "label": "fetch provider busy times",
+      "description": "BusyTimesService calls CalendarManager.getBusyCalendarTimes.",
+      "evidence": [
+        {
+          "path": "packages/features/busyTimes/services/getBusyTimes.ts",
+          "start_line": 193,
+          "end_line": 204,
+          "excerpt": "    performance.measure(`prisma booking get took $1'`, \"prismaBookingGetStart\", \"prismaBookingGetEnd\");\n    if (credentials?.length > 0 && !bypassBusyCalendarTimes) {\n      const startConnectedCalendarsGet = performance.now();\n\n      const calendarBusyTimesQuery = await getBusyCalendarTimes(\n        credentials,\n        startTime,\n        endTime,\n        selectedCalendars,\n        mode\n      );\n"
+        }
+      ]
+    },
+    {
+      "id": "booking-client--calls--create-api",
+      "source": "booking-client",
+      "target": "create-api",
+      "type": "calls",
+      "label": "submit booking",
+      "description": "The client helper posts to /api/book/event.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/create-booking.ts",
+          "start_line": 5,
+          "end_line": 15,
+          "excerpt": "export const createBooking = async (data: BookingCreateBody) => {\n  const response = await post<\n    BookingCreateBody,\n    // fetch response can't have a Date type, it must be a string\n    Omit<BookingResponse, \"startTime\" | \"endTime\"> & {\n      startTime: string;\n      endTime: string;\n    }\n  >(\"/api/book/event\", data);\n  return response;\n};"
+        }
+      ]
+    },
+    {
+      "id": "booking-client--calls--recurring-api",
+      "source": "booking-client",
+      "target": "recurring-api",
+      "type": "calls",
+      "label": "submit recurring series",
+      "description": "The recurring client helper posts to /api/book/recurring-event.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/create-recurring-booking.ts",
+          "start_line": 5,
+          "end_line": 15,
+          "excerpt": "export const createRecurringBooking = async (data: RecurringBookingCreateBody[]) => {\n  const response = await post<\n    RecurringBookingCreateBody[],\n    // fetch response can't have a Date type, it must be a string\n    (Omit<BookingResponse, \"startTime\" | \"endTime\"> & {\n      startTime: string;\n      endTime: string;\n    })[]\n  >(\"/api/book/recurring-event\", data);\n  return response;\n};"
+        }
+      ]
+    },
+    {
+      "id": "booking-client--navigates-to--detail-page",
+      "source": "booking-client",
+      "target": "detail-page",
+      "type": "navigates_to",
+      "label": "open confirmation page",
+      "description": "The normal non-payment flow invokes the success redirect helper; absent a custom success URL, it navigates to /booking/UID (or its embed form).",
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/hooks/useBookings.ts",
+          "start_line": 257,
+          "end_line": 269,
+          "excerpt": "      const query = {\n        isSuccessBookingPage: true,\n        email: bookingForm.getValues(\"responses.email\"),\n        eventTypeSlug: eventSlug,\n        seatReferenceUid: \"seatReferenceUid\" in booking ? (booking.seatReferenceUid as string) : null,\n        formerTime:\n          isRescheduling && bookingData?.startTime ? dayjs(bookingData.startTime).toString() : undefined,\n        rescheduledBy, // ensure further reschedules performed on the success page are recorded correctly\n      };\n\n      bookingSuccessRedirect({\n        successRedirectUrl: event?.data?.successRedirectUrl || \"\",\n        query,"
+        },
+        {
+          "path": "packages/features/bookings/lib/bookingSuccessRedirect.ts",
+          "start_line": 241,
+          "end_line": 247,
+          "excerpt": "    // We don't want to forward all search params, as they could possibly break the booking page.\n    const newSearchParams = getNewSearchParams({\n      query,\n      searchParams: new URLSearchParams(headersRelatedSearchParams),\n    });\n    return router.push(`/booking/${booking.uid}${isEmbed ? \"/embed\" : \"\"}?${newSearchParams.toString()}`);\n  };"
+        }
+      ]
+    },
+    {
+      "id": "create-api--calls--regular-booking",
+      "source": "create-api",
+      "target": "regular-booking",
+      "type": "calls",
+      "label": "create or reschedule",
+      "description": "The HTTP handler invokes RegularBookingService.createBooking with bookingData, including rescheduleUid when supplied.",
+      "evidence": [
+        {
+          "path": "apps/web/pages/api/book/event.ts",
+          "start_line": 49,
+          "end_line": 58,
+          "excerpt": "  const regularBookingService = getRegularBookingService();\n  const booking = await regularBookingService.createBooking({\n    bookingData: req.body,\n    bookingMeta: {\n      userId: session?.user?.id || -1,\n      hostname: req.headers.host || \"\",\n      forcedSlug: req.headers[\"x-cal-force-slug\"] as string | undefined,\n      traceContext: req.traceContext,\n    },\n  });"
+        }
+      ]
+    },
+    {
+      "id": "recurring-api--calls--recurring-booking",
+      "source": "recurring-api",
+      "target": "recurring-booking",
+      "type": "calls",
+      "label": "create series",
+      "description": "The recurring endpoint invokes RecurringBookingService.createBooking.",
+      "evidence": [
+        {
+          "path": "apps/web/pages/api/book/recurring-event.ts",
+          "start_line": 46,
+          "end_line": 59,
+          "excerpt": "  const recurringBookingService = getRecurringBookingService();\n  const createdBookings: BookingResponse[] = await recurringBookingService.createBooking({\n    bookingData: req.body,\n    bookingMeta: {\n      userId: session?.user?.id || -1,\n      platformClientId: req.platformClientId,\n      platformCancelUrl: req.platformCancelUrl,\n      platformBookingUrl: req.platformBookingUrl,\n      platformRescheduleUrl: req.platformRescheduleUrl,\n      platformBookingLocation: req.platformBookingLocation,\n      noEmail: req.noEmail,\n    },\n    creationSource: \"WEBAPP\",\n  });"
+        }
+      ]
+    },
+    {
+      "id": "recurring-booking--calls--regular-booking",
+      "source": "recurring-booking",
+      "target": "regular-booking",
+      "type": "calls",
+      "label": "create occurrences",
+      "description": "Each recurring occurrence delegates to the regular booking service.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/service/RecurringBookingService.ts",
+          "start_line": 94,
+          "end_line": 117,
+          "excerpt": "    const recurringEventData = {\n      ...booking,\n      appsStatus,\n      allRecurringDates,\n      isFirstRecurringSlot: key == 0,\n      thirdPartyRecurringEventId,\n      numSlotsToCheckForAvailability,\n      currentRecurringIndex: key,\n      noEmail: input.noEmail !== undefined ? input.noEmail : key !== 0,\n      luckyUsers,\n    };\n\n    const promiseEachRecurringBooking = regularBookingService.createBooking({\n      bookingData: recurringEventData,\n      bookingMeta: {\n        hostname: input.hostname || \"\",\n        forcedSlug: input.forcedSlug as string | undefined,\n        ...handleBookingMeta,\n      },\n    });\n\n    const eachRecurringBooking = await promiseEachRecurringBooking;\n\n    createdBookings.push(eachRecurringBooking);"
+        }
+      ]
+    },
+    {
+      "id": "regular-booking--reads--event-types",
+      "source": "regular-booking",
+      "target": "event-types",
+      "type": "reads",
+      "label": "load booking policy",
+      "description": "For a stored event, getEventType resolves getEventTypesFromDB which queries Prisma EventType.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/service/RegularBookingService.ts",
+          "start_line": 523,
+          "end_line": 528,
+          "excerpt": "  const eventType = await getEventType({\n    eventTypeId: rawBookingData.eventTypeId,\n    eventTypeSlug: rawBookingData.eventTypeSlug,\n  });\n\n  // Early validation: Check reschedule restrictions if rescheduling"
+        },
+        {
+          "path": "packages/features/bookings/lib/handleNewBooking/getEventType.ts",
+          "start_line": 19,
+          "end_line": 21,
+          "excerpt": "  // handle dynamic user\n  const eventType =\n    !eventTypeId && !!eventTypeSlug ? getDefaultEvent(eventTypeSlug) : await getEventTypesFromDB(eventTypeId);"
+        },
+        {
+          "path": "packages/features/bookings/lib/handleNewBooking/getEventTypesFromDB.ts",
+          "start_line": 204,
+          "end_line": 214,
+          "excerpt": "  const eventType = await prisma.eventType.findUniqueOrThrow({\n    where: {\n      id: eventTypeId,\n    },\n    select: getEventTypesFromDBSelect,\n  });\n\n  if (!eventType) {\n    throw new Error(ErrorCode.EventTypeNotFound);\n  }\n"
+        }
+      ]
+    },
+    {
+      "id": "regular-booking--calls--user-availability",
+      "source": "regular-booking",
+      "target": "user-availability",
+      "type": "calls",
+      "label": "recheck availability",
+      "description": "The booking orchestrator calls ensureAvailableUsers; that helper queries users availability again before persistence.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/service/RegularBookingService.ts",
+          "start_line": 936,
+          "end_line": 948,
+          "excerpt": "          availableUsers = await ensureAvailableUsers(\n            { ...eventTypeWithUsers, users: [...qualifiedRRUsers, ...fixedUsers] as IsFixedAwareUser[] },\n            {\n              dateFrom: dayjs(reqBody.start).tz(reqBody.timeZone).format(),\n              dateTo: dayjs(reqBody.end).tz(reqBody.timeZone).format(),\n              timeZone: reqBody.timeZone,\n              originalRescheduledBooking,\n            },\n            tracingLogger,\n            calendarFetchMode\n          );\n        } else {\n          availableUsers = [...qualifiedRRUsers, ...fixedUsers] as IsFixedAwareUser[];"
+        },
+        {
+          "path": "packages/features/bookings/lib/handleNewBooking/ensureAvailableUsers.ts",
+          "start_line": 94,
+          "end_line": 105,
+          "excerpt": "  const usersAvailability = await userAvailabilityService.getUsersAvailability({\n    users: eventType.users,\n    query: {\n      ...input,\n      eventTypeId: eventType.id,\n      duration: originalBookingDuration,\n      returnDateOverrides: false,\n      dateFrom: startDateTimeUtc.format(),\n      dateTo: endDateTimeUtc.format(),\n      beforeEventBuffer: eventType.beforeEventBuffer,\n      afterEventBuffer: eventType.afterEventBuffer,\n      bypassBusyCalendarTimes: false,"
+        }
+      ]
+    },
+    {
+      "id": "regular-booking--calls--booking-persistence",
+      "source": "regular-booking",
+      "target": "booking-persistence",
+      "type": "calls",
+      "label": "persist booking",
+      "description": "The non-dry-run branch calls the booking creation helper.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/service/RegularBookingService.ts",
+          "start_line": 1705,
+          "end_line": 1722,
+          "excerpt": "  try {\n    if (!isDryRun) {\n      booking = await createBooking({\n        uid,\n        rescheduledBy: reqBody.rescheduledBy,\n        reqBody: {\n          user: reqBody.user,\n          metadata: reqBody.metadata,\n          recurringEventId: reqBody.recurringEventId,\n        },\n        eventType: {\n          eventTypeData: eventType,\n          id: eventTypeId,\n          slug: eventTypeSlug,\n          organizerUser,\n          isConfirmedByDefault,\n          paymentAppData,\n        },"
+        }
+      ]
+    },
+    {
+      "id": "regular-booking--calls--calendar-integrations",
+      "source": "regular-booking",
+      "target": "calendar-integrations",
+      "type": "calls",
+      "label": "create or reschedule meeting",
+      "description": "Confirmed bookings invoke EventManager create or reschedule. Pending confirmation and dry-run paths differ.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/service/RegularBookingService.ts",
+          "start_line": 1907,
+          "end_line": 1920,
+          "excerpt": "\n    const updateManager = !skipCalendarSyncTaskCreation\n      ? await eventManager.reschedule(\n          evt,\n          originalRescheduledBooking.uid,\n          undefined,\n          changedOrganizer,\n          previousHostDestinationCalendar,\n          isBookingRequestedReschedule,\n          skipDeleteEventsAndMeetings\n        )\n      : placeholderCreatedEvent;\n\n    results = updateManager.results;"
+        },
+        {
+          "path": "packages/features/bookings/lib/service/RegularBookingService.ts",
+          "start_line": 2050,
+          "end_line": 2055,
+          "excerpt": "  } else if (isConfirmedByDefault) {\n    const shouldSkipCalendarEvents = !areCalendarEventsEnabled || skipCalendarSyncTaskCreation;\n    const createManager = await eventManager.create(evt, { skipCalendarEvent: shouldSkipCalendarEvents });\n    if (evt.location) {\n      booking.location = evt.location;\n    }"
+        }
+      ]
+    },
+    {
+      "id": "regular-booking--calls--notifications",
+      "source": "regular-booking",
+      "target": "notifications",
+      "type": "calls",
+      "label": "notify participants",
+      "description": "The ordinary confirmed branch sends booking email/SMS; other branches choose requested or rescheduled actions.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/service/RegularBookingService.ts",
+          "start_line": 2151,
+          "end_line": 2166,
+          "excerpt": "      if (!noEmail) {\n        if (!isDryRun && !(eventType.seatsPerTimeSlot && rescheduleUid)) {\n          await emailsAndSmsHandler.send({\n            action: BookingActionMap.confirmed,\n            data: {\n              eventType: {\n                metadata: eventType.metadata,\n                schedulingType: eventType.schedulingType,\n              },\n              eventNameObject,\n              evt,\n              additionalInformation,\n              additionalNotes,\n              customInputs,\n            },\n          });"
+        }
+      ]
+    },
+    {
+      "id": "regular-booking--calls--webhooks",
+      "source": "regular-booking",
+      "target": "webhooks",
+      "type": "calls",
+      "label": "emit booking event",
+      "description": "The booking orchestrator dispatches created/rescheduled webhook data and passes the dry-run flag.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/service/RegularBookingService.ts",
+          "start_line": 2432,
+          "end_line": 2439,
+          "excerpt": "    // Send Webhook call if hooked to BOOKING_CREATED & BOOKING_RESCHEDULED\n    await handleWebhookTrigger({\n      subscriberOptions,\n      eventTrigger,\n      webhookData,\n      isDryRun,\n      traceContext,\n    });"
+        }
+      ]
+    },
+    {
+      "id": "booking-persistence--writes--booking-records",
+      "source": "booking-persistence",
+      "target": "booking-records",
+      "type": "writes",
+      "label": "create and update records",
+      "description": "A transaction updates the original booking for a reschedule, then creates the replacement; shared repository update methods also write bookings.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/handleNewBooking/createBooking.ts",
+          "start_line": 139,
+          "end_line": 147,
+          "excerpt": "  return prisma.$transaction(async (tx) => {\n    if (originalBookingUpdateDataForCancellation) {\n      await tx.booking.update(originalBookingUpdateDataForCancellation);\n    }\n\n    const booking = await tx.booking.create(createBookingObj);\n\n    return { ...booking, userUuid: booking.user?.uuid ?? null };\n  });"
+        },
+        {
+          "path": "packages/features/bookings/repositories/BookingRepository.ts",
+          "start_line": 1550,
+          "end_line": 1564,
+          "excerpt": "  async updateMany({ where, data }: { where: BookingWhereInput; data: BookingUpdateData }) {\n    return await this.prismaClient.booking.updateMany({\n      where: where,\n      data,\n    });\n  }\n\n  async update({ where, data }: { where: BookingWhereUniqueInput; data: BookingUpdateData }) {\n    return await this.prismaClient.booking.update({\n      where,\n      data,\n    });\n  }\n\n  async updateNoShowHost({"
+        }
+      ]
+    },
+    {
+      "id": "booking-persistence--reads--booking-records",
+      "source": "booking-persistence",
+      "target": "booking-records",
+      "type": "reads",
+      "label": "query existing records",
+      "description": "BookingRepository queries the bookings table for current user/attendee bookings.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/repositories/BookingRepository.ts",
+          "start_line": 737,
+          "end_line": 754,
+          "excerpt": "    const currentBookingsAllUsersQueryOne = this.prismaClient.booking.findMany({\n      where: {\n        ...sharedQuery,\n        userId: {\n          in: Array.from(userIdAndEmailMap.keys()),\n        },\n      },\n      select: bookingsSelect,\n    });\n\n    const currentBookingsAllUsersQueryTwo = this.prismaClient.booking.findMany({\n      where: {\n        ...sharedQuery,\n        attendees: {\n          some: {\n            email: {\n              in: Array.from(userIdAndEmailMap.values()),\n            },"
+        }
+      ]
+    },
+    {
+      "id": "detail-page--reads--booking-records",
+      "source": "detail-page",
+      "target": "booking-records",
+      "type": "reads",
+      "label": "load booking by UID",
+      "description": "The detail loader calls getBookingInfo, which calls getUserBooking and its Prisma query.",
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/views/bookings-single-view.getServerSideProps.tsx",
+          "start_line": 65,
+          "end_line": 69,
+          "excerpt": "  const maybeBookingUidFromSeat = await maybeGetBookingUidFromSeat(prisma, uid);\n  if (maybeBookingUidFromSeat.uid) uid = maybeBookingUidFromSeat.uid;\n  if (maybeBookingUidFromSeat.seatReferenceUid) seatReferenceUid = maybeBookingUidFromSeat.seatReferenceUid;\n\n  const { bookingInfoRaw, bookingInfo } = await getBookingInfo(uid);"
+        },
+        {
+          "path": "packages/features/bookings/lib/getBookingInfo.ts",
+          "start_line": 5,
+          "end_line": 12,
+          "excerpt": "const getBookingInfo = async (uid: string) => {\n  const bookingInfoRaw = await getUserBooking(uid);\n\n  if (!bookingInfoRaw) {\n    return { bookingInfoRaw: undefined, bookingInfo: undefined };\n  }\n\n  const bookingInfo = getBookingWithResponses(bookingInfoRaw);"
+        },
+        {
+          "path": "packages/features/bookings/lib/getUserBooking.ts",
+          "start_line": 3,
+          "end_line": 19,
+          "excerpt": "const getUserBooking = async (uid: string) => {\n  const bookingInfo = await prisma.booking.findUnique({\n    where: {\n      uid: uid,\n    },\n    select: {\n      title: true,\n      id: true,\n      uid: true,\n      description: true,\n      customInputs: true,\n      smsReminderNumber: true,\n      recurringEventId: true,\n      startTime: true,\n      endTime: true,\n      location: true,\n      status: true,"
+        }
+      ]
+    },
+    {
+      "id": "detail-page--renders--detail-ui",
+      "source": "detail-page",
+      "target": "detail-ui",
+      "type": "renders",
+      "label": "render booking details",
+      "description": "The route renders bookings-single-view using its server-loaded props.",
+      "evidence": [
+        {
+          "path": "apps/web/app/(booking-page-wrapper)/booking/[uid]/page.tsx",
+          "start_line": 9,
+          "end_line": 13,
+          "excerpt": "import OldPage from \"~/bookings/views/bookings-single-view\";\nimport {\n  type PageProps as ClientPageProps,\n  getServerSideProps,\n} from \"~/bookings/views/bookings-single-view.getServerSideProps\";"
+        },
+        {
+          "path": "apps/web/app/(booking-page-wrapper)/booking/[uid]/page.tsx",
+          "start_line": 42,
+          "end_line": 58,
+          "excerpt": "const ServerPage = async ({ params, searchParams }: _PageProps) => {\n  const context = buildLegacyCtx(await headers(), await cookies(), await params, await searchParams);\n  const props = await getData(context);\n\n  const eventLocale = props.eventType?.interfaceLanguage;\n  if (eventLocale) {\n    const ns = \"common\";\n    const translations = await loadTranslations(eventLocale, ns);\n    return (\n      <CustomI18nProvider translations={translations} locale={eventLocale} ns={ns}>\n        <OldPage {...props} />\n      </CustomI18nProvider>\n    );\n  }\n\n  return <OldPage {...props} />;\n};"
+        }
+      ]
+    },
+    {
+      "id": "detail-ui--navigates-to--reschedule-page",
+      "source": "detail-ui",
+      "target": "reschedule-page",
+      "type": "navigates_to",
+      "label": "reschedule booking",
+      "description": "The view links to /reschedule using a seat-reference UID or booking UID when rescheduling is allowed.",
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/views/bookings-single-view.tsx",
+          "start_line": 882,
+          "end_line": 899,
+          "excerpt": "                                </span>\n\n                                <>\n                                  {!props.recurringBookings &&\n                                    (!isBookingInPast || eventType.allowReschedulingPastBookings) &&\n                                    canReschedule &&\n                                    !isRescheduleDisabled && (\n                                      <span className=\"text-default inline\">\n                                        <Link\n                                          href={`/reschedule/${seatReferenceUid || bookingInfo?.uid}${\n                                            currentUserEmail\n                                              ? `?rescheduledBy=${encodeURIComponent(currentUserEmail)}`\n                                              : \"\"\n                                          }`}\n                                          className=\"underline\"\n                                          data-testid=\"reschedule-link\">\n                                          {t(\"reschedule\")}\n                                        </Link>"
+        }
+      ]
+    },
+    {
+      "id": "detail-ui--renders--cancel-ui",
+      "source": "detail-ui",
+      "target": "cancel-ui",
+      "type": "renders",
+      "label": "show cancellation form",
+      "description": "Cancellation mode renders CancelBooking with booking and policy options.",
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/views/bookings-single-view.tsx",
+          "start_line": 925,
+          "end_line": 939,
+          "excerpt": "                          <CancelBooking\n                            booking={{\n                              uid: bookingInfo?.uid,\n                              title: bookingInfo?.title,\n                              id: bookingInfo?.id,\n                              startTime: bookingInfo?.startTime,\n                              payment: props.paymentStatus,\n                            }}\n                            eventTypeMetadata={eventType.metadata}\n                            requiresCancellationReason={eventType.requiresCancellationReason}\n                            profile={{ name: props.profile.name, slug: props.profile.slug }}\n                            recurringEvent={eventType.recurringEvent}\n                            team={eventType?.team?.name}\n                            teamId={eventType?.team?.id}\n                            setIsCancellationMode={setIsCancellationMode}"
+        }
+      ]
+    },
+    {
+      "id": "reschedule-page--reads--booking-records",
+      "source": "reschedule-page",
+      "target": "booking-records",
+      "type": "reads",
+      "label": "load original booking",
+      "description": "The redirect loader looks up the original booking using its UID.",
+      "evidence": [
+        {
+          "path": "apps/web/lib/reschedule/[uid]/getServerSideProps.ts",
+          "start_line": 44,
+          "end_line": 59,
+          "excerpt": "  const booking = await prisma.booking.findUnique({\n    where: {\n      uid,\n    },\n    select: {\n      ...bookingMinimalSelect,\n      userId: true,\n      responses: true,\n      eventType: {\n        select: {\n          users: {\n            select: {\n              username: true,\n            },\n          },\n          slug: true,"
+        }
+      ]
+    },
+    {
+      "id": "reschedule-page--navigates-to--public-page",
+      "source": "reschedule-page",
+      "target": "public-page",
+      "type": "navigates_to",
+      "label": "return to event with reschedule UID",
+      "description": "For an individual event the URL builder returns the public event route; the redirect appends rescheduleUid after permission checks. Team/dynamic variants are not independently expanded.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/buildEventUrlFromBooking.ts",
+          "start_line": 38,
+          "end_line": 54,
+          "excerpt": "  const bookingOrganizationId = getOrganizationIdOfBooking({ eventType, profileEnrichedBookingUser });\n\n  const bookerUrl = WEBAPP_URL;\n  if (dynamicGroupSlugRef) {\n    return `${bookerUrl}/${dynamicGroupSlugRef}/${eventSlug}`;\n  }\n\n  if (eventTeam?.slug) {\n    return `${bookerUrl}/team/${eventTeam.slug}/${eventSlug}`;\n  }\n\n  const username = profileEnrichedBookingUser?.profile?.username;\n  if (!username) {\n    logger.error(\"No username found for booking user.\", safeStringify({ profileEnrichedBookingUser }));\n    throw new Error(\"No username found for booking user.\");\n  }\n  return `${bookerUrl}/${username}/${eventSlug}`;"
+        },
+        {
+          "path": "apps/web/lib/reschedule/[uid]/getServerSideProps.ts",
+          "start_line": 181,
+          "end_line": 207,
+          "excerpt": "  const destinationUrlSearchParams = new URLSearchParams();\n\n  destinationUrlSearchParams.set(\"rescheduleUid\", seatReferenceUid || bookingUid);\n\n  if (allowRescheduleForCancelledBooking) {\n    destinationUrlSearchParams.set(\"allowRescheduleForCancelledBooking\", \"true\");\n  }\n\n  // TODO: I think we should just forward all the query params here including coep flag\n  if (coepFlag) {\n    destinationUrlSearchParams.set(\"flag.coep\", coepFlag as string);\n  }\n\n  const currentUserEmail = rescheduledBy ?? session?.user?.email;\n\n  if (currentUserEmail) {\n    destinationUrlSearchParams.set(\"rescheduledBy\", currentUserEmail);\n  }\n\n  return {\n    redirect: {\n      destination: `${eventUrl}?${destinationUrlSearchParams.toString()}${\n        eventType.seatsPerTimeSlot ? \"&bookingUid=null\" : \"\"\n      }`,\n      permanent: false,\n    },\n  };"
+        }
+      ]
+    },
+    {
+      "id": "cancel-ui--calls--cancel-api",
+      "source": "cancel-ui",
+      "target": "cancel-api",
+      "type": "calls",
+      "label": "POST cancellation",
+      "description": "The form fetches a CSRF token and posts the UID and cancellation options to /api/cancel.",
+      "evidence": [
+        {
+          "path": "apps/web/components/booking/CancelBooking.tsx",
+          "start_line": 280,
+          "end_line": 301,
+          "excerpt": "                onClick={async () => {\n                  setLoading(true);\n\n                  const response = await fetch(\"/api/csrf?sameSite=none\", { cache: \"no-store\" });\n                  const { csrfToken } = await response.json();\n\n                  const res = await fetch(\"/api/cancel\", {\n                    body: JSON.stringify({\n                      uid: booking?.uid,\n                      cancellationReason: cancellationReason,\n                      allRemainingBookings,\n                      // @NOTE: very important this shouldn't cancel with number ID use uid instead\n                      seatReferenceUid,\n                      cancelledBy: currentUserEmail,\n                      internalNote: internalNote,\n                      csrfToken,\n                    }),\n                    headers: {\n                      \"Content-Type\": \"application/json\",\n                    },\n                    method: \"POST\",\n                  });"
+        }
+      ]
+    },
+    {
+      "id": "cancel-api--calls--cancel-booking",
+      "source": "cancel-api",
+      "target": "cancel-booking",
+      "type": "calls",
+      "label": "cancel by UID",
+      "description": "The API strips integer ID input and calls handleCancelBooking using session user context.",
+      "evidence": [
+        {
+          "path": "apps/web/app/api/cancel/route.ts",
+          "start_line": 49,
+          "end_line": 55,
+          "excerpt": "  // Strip integer id to ensure lookup is always by uid\n  const { id: _id, ...safeBookingData } = bookingData;\n\n  const result = await handleCancelBooking({\n    bookingData: safeBookingData,\n    userId: session?.user?.id || -1,\n  });"
+        }
+      ]
+    },
+    {
+      "id": "cancel-booking--calls--booking-persistence",
+      "source": "cancel-booking",
+      "target": "booking-persistence",
+      "type": "calls",
+      "label": "mark cancelled",
+      "description": "The ordinary cancellation branch updates status through BookingRepository.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/handleCancelBooking.ts",
+          "start_line": 394,
+          "end_line": 405,
+          "excerpt": "    const updatedBooking = await bookingRepository.updateIncludeReferences({\n      where: {\n        uid: bookingToDelete.uid,\n      },\n      data: {\n        status: BookingStatus.CANCELLED,\n        cancellationReason: cancellationReason,\n        cancelledBy: cancelledBy,\n        // Assume that canceling the booking is the last action\n        iCalSequence: evt.iCalSequence || 100,\n      },\n    });"
+        }
+      ]
+    },
+    {
+      "id": "cancel-booking--calls--calendar-integrations",
+      "source": "cancel-booking",
+      "target": "calendar-integrations",
+      "type": "calls",
+      "label": "cancel provider events",
+      "description": "Cancellation invokes EventManager.cancelEvent unless calendar-sync task cancellation is skipped.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/handleCancelBooking.ts",
+          "start_line": 444,
+          "end_line": 447,
+          "excerpt": "  // Skip calendar event deletion when cancellation comes from a calendar subscription webhook\n  // to avoid infinite loops (Google/Office365 \u2192 Cal.diy \u2192 Google/Office365 \u2192 ...)\n  if (!skipCalendarSyncTaskCancellation) {\n    try {"
+        },
+        {
+          "path": "packages/features/bookings/lib/handleCancelBooking.ts",
+          "start_line": 467,
+          "end_line": 472,
+          "excerpt": "      const eventManager = new EventManager(\n        { ...bookingToDelete.user, credentials },\n        bookingToDeleteEventTypeMetadata?.apps\n      );\n\n      await eventManager.cancelEvent(evt, bookingToDelete.references, isBookingInRecurringSeries);"
+        }
+      ]
+    },
+    {
+      "id": "cancel-booking--calls--notifications",
+      "source": "cancel-booking",
+      "target": "notifications",
+      "type": "calls",
+      "label": "send cancellation notice",
+      "description": "Cancellation invokes sendCancelledEmailsAndSMS when enabled for the calling platform.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/handleCancelBooking.ts",
+          "start_line": 506,
+          "end_line": 513,
+          "excerpt": "  try {\n    // TODO: if emails fail try to requeue them\n    if (!platformClientId || (platformClientId && arePlatformEmailsEnabled))\n      await sendCancelledEmailsAndSMS(\n        evt,\n        { eventName: bookingToDelete?.eventType?.eventName },\n        bookingToDelete?.eventType?.metadata as EventTypeMetadata\n      );"
+        }
+      ]
+    },
+    {
+      "id": "cancel-booking--calls--webhooks",
+      "source": "cancel-booking",
+      "target": "webhooks",
+      "type": "calls",
+      "label": "send cancellation webhook",
+      "description": "The imported sendOrSchedulePayload function sends cancellation data to subscribers.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/handleCancelBooking.ts",
+          "start_line": 22,
+          "end_line": 23,
+          "excerpt": "import sendPayload from \"@calcom/features/webhooks/lib/sendOrSchedulePayload\";\nimport type { EventTypeInfo } from \"@calcom/features/webhooks/lib/sendPayload\";"
+        },
+        {
+          "path": "packages/features/bookings/lib/handleCancelBooking.ts",
+          "start_line": 327,
+          "end_line": 335,
+          "excerpt": "  const promises = webhooks.map((webhook) =>\n    sendPayload(webhook.secret, eventTrigger, new Date().toISOString(), webhook, {\n      ...evt,\n      ...eventTypeInfo,\n      status: \"CANCELLED\",\n      smsReminderNumber: bookingToDelete.smsReminderNumber || undefined,\n      cancelledBy: cancelledBy,\n      requestReschedule: false,\n    }).catch((e) => {"
+        }
+      ]
+    },
+    {
+      "id": "host-page--renders--host-ui",
+      "source": "host-page",
+      "target": "host-ui",
+      "type": "renders",
+      "label": "show host bookings",
+      "description": "The authenticated route renders BookingsList from bookings-view.",
+      "evidence": [
+        {
+          "path": "apps/web/app/(use-page-wrapper)/(main-nav)/bookings/[status]/page.tsx",
+          "start_line": 12,
+          "end_line": 12,
+          "excerpt": "import BookingsList from \"~/bookings/views/bookings-view\";"
+        },
+        {
+          "path": "apps/web/app/(use-page-wrapper)/(main-nav)/bookings/[status]/page.tsx",
+          "start_line": 58,
+          "end_line": 64,
+          "excerpt": "      <BookingsList\n        status={parsed.data.status}\n        userId={userId}\n        permissions={{ canReadOthersBookings }}\n        bookingsV3Enabled={bookingsV3Enabled}\n        bookingAuditEnabled={bookingAuditEnabled}\n      />"
+        }
+      ]
+    },
+    {
+      "id": "host-ui--calls--host-api",
+      "source": "host-ui",
+      "target": "host-api",
+      "type": "calls",
+      "label": "list inspect and confirm",
+      "description": "The host UI queries get/getBookingDetails and mutates confirm for confirmation or rejection.",
+      "evidence": [
+        {
+          "path": "apps/web/modules/bookings/components/BookingListContainer.tsx",
+          "start_line": 269,
+          "end_line": 279,
+          "excerpt": "  );\n\n  const query = trpc.viewer.bookings.get.useQuery(queryInput, {\n    staleTime: 5 * 60 * 1000, // 5 minutes - data is considered fresh\n    gcTime: 30 * 60 * 1000, // 30 minutes - cache retention time\n    enabled: !isValidatorPending, // Wait for validator to be ready before fetching\n  });\n\n  const bookings = useMemo(() => query.data?.bookings ?? [], [query.data?.bookings]);\n\n  // Always call the hook and provide navigation capabilities"
+        },
+        {
+          "path": "apps/web/modules/bookings/components/BookingDetailsSheet.tsx",
+          "start_line": 153,
+          "end_line": 164,
+          "excerpt": "  // Fetch additional booking details for reschedule information\n  const { data: bookingDetails } =\n    trpc.viewer.bookings.getBookingDetails.useQuery(\n      { uid: booking.uid },\n      {\n        // Keep data fresh but don't refetch too aggressively\n        staleTime: 5 * 60 * 1000, // 5 minutes\n      }\n    );\n\n  // Get navigation state from the store in a single selector\n  const navigation = useBookingDetailsSheetStore((state) => {"
+        },
+        {
+          "path": "apps/web/components/booking/hooks/useBookingConfirmation.tsx",
+          "start_line": 28,
+          "end_line": 43,
+          "excerpt": "  const mutation = trpc.viewer.bookings.confirm.useMutation({\n    onSuccess: (data) => {\n      if (data?.status === BookingStatus.REJECTED) {\n        setRejectionDialogIsOpen(false);\n        showToast(t(\"booking_rejection_success\"), \"success\");\n      } else {\n        showToast(t(\"booking_confirmation_success\"), \"success\");\n      }\n      utils.viewer.bookings.invalidate();\n      utils.viewer.me.bookingUnconfirmedCount.invalidate();\n    },\n    onError: (error) => {\n      showToast(error.message || t(\"booking_confirmation_failed\"), \"error\");\n      utils.viewer.bookings.invalidate();\n    },\n  });"
+        }
+      ]
+    },
+    {
+      "id": "host-api--reads--booking-records",
+      "source": "host-api",
+      "target": "booking-records",
+      "type": "reads",
+      "label": "load booking and series counts",
+      "description": "The confirmation handler reads a booking and the list handler groups existing bookings to obtain recurring-series counts.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/bookings/confirm.handler.ts",
+          "start_line": 62,
+          "end_line": 76,
+          "excerpt": "  const booking = await prisma.booking.findUniqueOrThrow({\n    where: {\n      id: bookingId,\n    },\n    select: {\n      title: true,\n      description: true,\n      customInputs: true,\n      startTime: true,\n      endTime: true,\n      attendees: true,\n      eventTypeId: true,\n      responses: true,\n      metadata: true,\n      userPrimaryEmail: true,"
+        },
+        {
+          "path": "packages/trpc/server/routers/viewer/bookings/get.handler.ts",
+          "start_line": 658,
+          "end_line": 671,
+          "excerpt": "    prisma.booking.groupBy({\n      by: [\"recurringEventId\"],\n      _min: {\n        startTime: true,\n      },\n      _count: {\n        recurringEventId: true,\n      },\n      where: {\n        recurringEventId: {\n          not: { equals: null },\n        },\n        userId: user.id,\n      },"
+        }
+      ]
+    },
+    {
+      "id": "host-api--writes--booking-records",
+      "source": "host-api",
+      "target": "booking-records",
+      "type": "writes",
+      "label": "reject booking",
+      "description": "The rejection branch marks the selected booking rejected.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/bookings/confirm.handler.ts",
+          "start_line": 422,
+          "end_line": 432,
+          "excerpt": "      await prisma.booking.update({\n        where: {\n          id: bookingId,\n        },\n        data: {\n          status: BookingStatus.REJECTED,\n          rejectionReason,\n        },\n      });\n\n      rejectedBookings = ["
+        }
+      ]
+    },
+    {
+      "id": "host-api--calls--confirmation",
+      "source": "host-api",
+      "target": "confirmation",
+      "type": "calls",
+      "label": "confirm pending booking",
+      "description": "The confirmed branch delegates to handleConfirmation.",
+      "evidence": [
+        {
+          "path": "packages/trpc/server/routers/viewer/bookings/confirm.handler.ts",
+          "start_line": 363,
+          "end_line": 378,
+          "excerpt": "\n    await handleConfirmation({\n      user: { ...user, credentials: allCredentials },\n      evt,\n      recurringEventId,\n      prisma,\n      bookingId,\n      booking,\n      emailsEnabled,\n      platformClientParams,\n      traceContext,\n    });\n  } else {\n    evt.rejectionReason = rejectionReason;\n    let rejectedBookings: {\n      uid: string;"
+        }
+      ]
+    },
+    {
+      "id": "confirmation--writes--booking-records",
+      "source": "confirmation",
+      "target": "booking-records",
+      "type": "writes",
+      "label": "accept and save references",
+      "description": "Confirmation sets ACCEPTED and stores provider references.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/handleConfirmation.ts",
+          "start_line": 245,
+          "end_line": 258,
+          "excerpt": "    const updatedBooking = await prisma.booking.update({\n      where: {\n        id: bookingId,\n      },\n      data: {\n        status: BookingStatus.ACCEPTED,\n        references: {\n          create: scheduleResult.referencesToCreate,\n        },\n        metadata: {\n          ...(typeof booking.metadata === \"object\" ? booking.metadata : {}),\n          videoCallUrl: meetingUrl,\n        },\n      },"
+        }
+      ]
+    },
+    {
+      "id": "confirmation--calls--calendar-integrations",
+      "source": "confirmation",
+      "target": "calendar-integrations",
+      "type": "calls",
+      "label": "create confirmed meeting",
+      "description": "Confirmation instantiates EventManager and creates calendar events subject to platform settings.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/handleConfirmation.ts",
+          "start_line": 75,
+          "end_line": 80,
+          "excerpt": "  const eventType = booking.eventType;\n  const eventTypeMetadata = EventTypeMetaDataSchema.parse(eventType?.metadata || {});\n  const apps = eventTypeAppMetadataOptionalSchema.parse(eventTypeMetadata?.apps);\n  const eventManager = new EventManager(user, apps);\n  const areCalendarEventsEnabled = platformClientParams?.areCalendarEventsEnabled ?? true;\n  const scheduleResult = await eventManager.create(evt, { skipCalendarEvent: !areCalendarEventsEnabled });"
+        }
+      ]
+    },
+    {
+      "id": "confirmation--calls--notifications",
+      "source": "confirmation",
+      "target": "notifications",
+      "type": "calls",
+      "label": "send confirmed notice",
+      "description": "When emailsEnabled, confirmation calls sendScheduledEmailsAndSMS.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/handleConfirmation.ts",
+          "start_line": 101,
+          "end_line": 114,
+          "excerpt": "    try {\n      const isHostConfirmationEmailsDisabled =\n        eventTypeMetadata?.disableStandardEmails?.confirmation?.host || false;\n      const isAttendeeConfirmationEmailDisabled =\n        eventTypeMetadata?.disableStandardEmails?.confirmation?.attendee || false;\n\n      if (emailsEnabled) {\n        await sendScheduledEmailsAndSMS(\n          { ...evt, additionalInformation: metadata },\n          undefined,\n          isHostConfirmationEmailsDisabled,\n          isAttendeeConfirmationEmailDisabled,\n          eventTypeMetadata\n        );"
+        }
+      ]
+    },
+    {
+      "id": "confirmation--calls--webhooks",
+      "source": "confirmation",
+      "target": "webhooks",
+      "type": "calls",
+      "label": "send confirmation webhook",
+      "description": "Confirmation sends the booking-created payload through sendOrSchedulePayload.",
+      "evidence": [
+        {
+          "path": "packages/features/bookings/lib/handleConfirmation.ts",
+          "start_line": 7,
+          "end_line": 8,
+          "excerpt": "import sendPayload from \"@calcom/features/webhooks/lib/sendOrSchedulePayload\";\nimport type { EventPayloadType, EventTypeInfo } from \"@calcom/features/webhooks/lib/sendPayload\";"
+        },
+        {
+          "path": "packages/features/bookings/lib/handleConfirmation.ts",
+          "start_line": 412,
+          "end_line": 425,
+          "excerpt": "    };\n\n    const promises = subscribersBookingCreated.map((sub) =>\n      sendPayload(\n        sub.secret,\n        WebhookTriggerEvents.BOOKING_CREATED,\n        new Date().toISOString(),\n        sub,\n        payload\n      ).catch((e) => {\n        tracingLogger.error(\n          `Error executing webhook for event: ${WebhookTriggerEvents.BOOKING_CREATED}, URL: ${sub.subscriberUrl}, bookingId: ${evt.bookingId}, bookingUid: ${evt.uid}, platformClientId: ${platformClientParams?.platformClientId}`,\n          safeStringify(e)\n        );"
+        }
+      ]
+    }
+  ],
+  "source_files": {
+    "apps/web/app/(booking-page-wrapper)/[user]/[type]/page.tsx": "142db54a2894ccd92e0a2c5ea072458c3ea19f27a06bef51d87d18d66b15874e",
+    "apps/web/app/(booking-page-wrapper)/booking/[uid]/page.tsx": "3311b365bc2cdda7cb5d8fdc315e75124fc0dbfdd2b37ecc393f72ca6efb15a7",
+    "apps/web/app/(use-page-wrapper)/(main-nav)/bookings/[status]/page.tsx": "232c9d747c6d5549c3d82880625402fdd6ba489a593f89769fe51fc167189f4f",
+    "apps/web/app/api/cancel/route.ts": "d8295acabf853d253b7ae78a9a072389f3de4f9e03910e28492278904c07a3f9",
+    "apps/web/app/reschedule/[uid]/page.tsx": "8fc617b0cfedee3e14725aaadbe98986ba2afe49803a203cbe18763881d89cbb",
+    "apps/web/components/booking/CancelBooking.tsx": "48731185b5f137e49d19b4ab3799cba0fa86eaa8d324b29bc45d16d9af026187",
+    "apps/web/components/booking/actions/BookingActionsDropdown.tsx": "d2e31f4f08e9c3f09fa2c05aca29d97ad14ff69a87800054c4254a7e34dfbad0",
+    "apps/web/components/booking/hooks/useBookingConfirmation.tsx": "8ccc7208a8f2ca5f7108d3842a04967102bae046f5ae345cea8df9c9cd77a192",
+    "apps/web/lib/reschedule/[uid]/getServerSideProps.ts": "7f356f9aafdae9b0035bff72d3ad56f6246a9181ec5cb204f1a46ba87357a39e",
+    "apps/web/modules/bookings/components/AvailableTimeSlots.tsx": "343d2dc6d979b04f09acc86cc8d97faaf33734375df35ecc91e2549d629f0aa8",
+    "apps/web/modules/bookings/components/BookEventForm/BookEventForm.tsx": "7ef4e8a90f0fae5514fcec423dd109d68903bc30872133e472bb876bd36e3c2b",
+    "apps/web/modules/bookings/components/Booker.tsx": "568ca2af4f206121c41b976b7374dca547b49e21192dd69d7529dac014c771b7",
+    "apps/web/modules/bookings/components/BookerWebWrapper.tsx": "8c73529ce6e0507425929d3c92e180b5ffac8606b4f01715ff6ea38ebfaa3fda",
+    "apps/web/modules/bookings/components/BookingDetailsSheet.tsx": "33c67746b8921e808c202e8912c171b41a50e8aaadd799fa1d76be343e937dd5",
+    "apps/web/modules/bookings/components/BookingListContainer.tsx": "ca8627816d74da8b8f791d1dbceab7b9026b6b22958e11d47b23282505d8d080",
+    "apps/web/modules/bookings/components/DatePicker.tsx": "8acb0f6353c660d7f8b23a0d0718690c79a551b587f387e7d780218b5e7dd7f9",
+    "apps/web/modules/bookings/components/EventMeta.tsx": "ef8de1a16a6f555c737c422dad52eee5971fcc8e9fef4c6bfe045078643a420e",
+    "apps/web/modules/bookings/hooks/useBookings.ts": "f02bbea1f8b7497c8d580bcc502dbb6cda0375b40a6c946318c40eec0bf91741",
+    "apps/web/modules/bookings/hooks/useSlots.ts": "b3992f9f91cb8fa3441a420be54027aca5c9c48544694e5fad37660e4dcf726c",
+    "apps/web/modules/bookings/views/bookings-single-view.getServerSideProps.tsx": "f24b08177ec8d5365d3c7b02fa3198dbacbece3c0a82dfff3deedaca9b2cce9e",
+    "apps/web/modules/bookings/views/bookings-single-view.tsx": "79f58c704f2c0f11d7d8dca85e6caa2e0f809790d19d7da27eb68d19eaea9163",
+    "apps/web/modules/bookings/views/bookings-view.tsx": "4879dcc7934189ef9c1f8d48b4f8005b3ab770d03f64343e693a735b1a9ee24a",
+    "apps/web/modules/schedules/hooks/useEvent.ts": "23f6bc7eb315a59fd3ebb9764d2a7207318f679fe5aacd841b4f8dbc6db51970",
+    "apps/web/modules/schedules/hooks/useSchedule.ts": "73b6ce4c9b0f75917c66e1c00dab7304d00c011278d4f35a4a2565b22e23d8c5",
+    "apps/web/modules/users/views/users-type-public-view.tsx": "fdc2ae031f8d3c86329073cbee31e5542d96306cea3e73c17bf115aed16ba2db",
+    "apps/web/pages/api/book/event.ts": "c23ccfb9bc1d70fff60cdc4f9856ec72f632ed42fb1c24485b1b3db908915951",
+    "apps/web/pages/api/book/recurring-event.ts": "dd6010dd909e1c5f5abdffef995759ce51621e4c30d98b300921491e83f6ff04",
+    "apps/web/pages/api/trpc/bookings/[trpc].ts": "970dc6e3f4ad31315225bad00fc9b7a9c53bc25195a4f0d846e96d567dba64c4",
+    "apps/web/pages/api/trpc/public/[trpc].ts": "234a130f522f947fe571092115e5b0d890233502fb9a3eab6a0ce1b72249eb63",
+    "apps/web/pages/api/trpc/slots/[trpc].ts": "46a36076907d954bfc058f6af7d1f9d2a5cce421e8796a93d70946345e48823a",
+    "apps/web/server/lib/[user]/[type]/getServerSideProps.ts": "628156a2d71cfdf7a693b470335bd3adaca0570aef419c973ed4839a5840e9d7",
+    "packages/emails/email-manager.ts": "a56cf29a15575205c7fcf9537da9e1ba338a390d3678da71dd5a05f9f4651e9e",
+    "packages/features/availability/lib/getUserAvailability.ts": "b21331aba754771bbb9a051e2168df0fdf8dfd09aeba4ab8f1c8b99a018a1581",
+    "packages/features/bookings/lib/BookingEmailSmsHandler.ts": "bf38ee1f8b17623a3f215a7a0f4b07efba12ebe675c72d783faa120212079197",
+    "packages/features/bookings/lib/EventManager.ts": "3486ad55b99f588d42665eeb01b7c2ea7ea378d355e553f78bb47a14dd0ff11b",
+    "packages/features/bookings/lib/bookingSuccessRedirect.ts": "92c1bc7a772bfe646219ab408a9072cb1fb7a3e4f9c5d209d4ea5b0e803743bd",
+    "packages/features/bookings/lib/buildEventUrlFromBooking.ts": "e3e0e04cefbba552f6ab84337decd68bf1bfd9e614d7f46ba08cbde0d64cd5e1",
+    "packages/features/bookings/lib/create-booking.ts": "83232e9eb904b80396182a386ca590dee1a8f9f849170fde5d7b4bda12b27b1e",
+    "packages/features/bookings/lib/create-recurring-booking.ts": "71be8c55c3bb435936bccfa566a66c56ed21f4f4ce5be200e7ce29ec3e364815",
+    "packages/features/bookings/lib/getBookingInfo.ts": "bcbaa5ea0dc027d4e57052e57d03bffbf8c75772529a7a75c39fda9f4c9f7973",
+    "packages/features/bookings/lib/getUserBooking.ts": "7061c23c3de61617838d6b6999983d06c929f1af6fb303463adf718c48a64c93",
+    "packages/features/bookings/lib/handleCancelBooking.ts": "4933dbd345606b485660731ca44c307bd5122ec3633b1db3d6e0fa7bc8e637ca",
+    "packages/features/bookings/lib/handleConfirmation.ts": "8103b5848ba03a0a75ba1c3bdc2893e5c7809235587477ec7af203626fdf09e0",
+    "packages/features/bookings/lib/handleNewBooking/createBooking.ts": "7764cd6143604f059f412e46b16def964f0cd654dc4118cb6b33e576c186b332",
+    "packages/features/bookings/lib/handleNewBooking/ensureAvailableUsers.ts": "d66b31fb1547be13a25cf971868ab8de0ecaefe43d07d54f86de537f5920d4ee",
+    "packages/features/bookings/lib/handleNewBooking/getEventType.ts": "272ec1c267e2c3d1d93fc55a13479973c429eef88f6b1eb504221052dd8ffc73",
+    "packages/features/bookings/lib/handleNewBooking/getEventTypesFromDB.ts": "2bd9539f72a835537a4b9dd8894c8962f2dbbb556d8cce60a6a35486ff744463",
+    "packages/features/bookings/lib/handleWebhookTrigger.ts": "2f12dcc1199ade12fa0ba8f9a4ae91edc49cb301e9d60f9827697df3e1812aa2",
+    "packages/features/bookings/lib/service/RecurringBookingService.ts": "41de35aaf6da912ac1b3d92650e2ca48edd86b8121757d92fe3690a4afdb739a",
+    "packages/features/bookings/lib/service/RegularBookingService.ts": "42d6cf33680ddaae206a16b5644641e32050dfda2ad6500a7506ac9ea664b842",
+    "packages/features/bookings/repositories/BookingRepository.ts": "6ba7a3f52de490b529745d0b13040ac69171eced04108ad67e4e24b3ecdbefec",
+    "packages/features/busyTimes/services/getBusyTimes.ts": "dc68ee5ac5a09fde83887952ef5fb744dfeb46b114b1c5b8eb719303894dee3d",
+    "packages/features/calendars/lib/CalendarManager.ts": "0fc40d5881e875654bec3b6b099cd4e42e3c4f8a6e5400103d3ca1480a0666c2",
+    "packages/features/eventtypes/lib/getPublicEvent.ts": "4b236fd304380f9e3d9033518618bfa3de3b76a37c73f7fd8ca0b0967936bde8",
+    "packages/features/eventtypes/repositories/EventRepository.ts": "495d1eeecbbfd0eb32722fcf436911cea73c4ee98aa45fd5e264b85222e834ca",
+    "packages/features/eventtypes/repositories/eventTypeRepository.ts": "a068cdc0939f38cb3da52ce964400a8d5a5659e031742030a40484edaa83a859",
+    "packages/features/schedules/lib/slots.ts": "629b5e7ab88bb69ef8a626dddf6abe3144d1265795238586c34d2420036da8c9",
+    "packages/features/schedules/repositories/ScheduleRepository.ts": "f50dafb0f4f51a0b4ad359f480848ce8947f294c3e3fd3748a5c65449d262396",
+    "packages/features/selectedSlots/repositories/PrismaSelectedSlotRepository.ts": "61faaa7fbe7d318b73a610de7e1360bf39f13acc751e2dd3e1deb940d80c95c5",
+    "packages/features/webhooks/lib/sendOrSchedulePayload.ts": "fbab2673fe25e5340f63d30e37503dce12c8b4c8b914f455ea7ebe537ab16e35",
+    "packages/prisma/schema.prisma": "95064d27e842e8a9a417f6f42f4527e5eb4060d3bed1585ab592219ce24b4e55",
+    "packages/trpc/server/routers/publicViewer/_router.tsx": "6e85fd5ddee16aeee42122b43763f3c9cb4647a82b536fb6a2ab9390e69eeba6",
+    "packages/trpc/server/routers/publicViewer/event.handler.ts": "0626676b513541ccdc77462f19afd3016df921b55a55ab75df51318c6247b74d",
+    "packages/trpc/server/routers/publicViewer/procedures/event.ts": "c2b027c0cd362fa390b594aebd2cc69cbf4a1f7c729e5827dd65138db8c67376",
+    "packages/trpc/server/routers/viewer/bookings/_router.tsx": "fdf8b141c10791769e6cc6f4c8af0ff5d543c325e8d0a87b473337dbc448bf23",
+    "packages/trpc/server/routers/viewer/bookings/confirm.handler.ts": "fd01a60907725c5e1ec133ed5947ffd75b1ae92aa1ed9b88b12a39d332e16d40",
+    "packages/trpc/server/routers/viewer/bookings/get.handler.ts": "71d1d898b57ab7853a90fec78ed89a5cb3be58404a33a95d323d01f1edde2fd7",
+    "packages/trpc/server/routers/viewer/bookings/getBookingDetails.handler.ts": "d123ce2dc06cd4d3d1d1de3881976a7ca855763af73fe68e6528bc0ba903ccf7",
+    "packages/trpc/server/routers/viewer/slots/_router.tsx": "d138b3c19392ac1b0a9110945600b21b678c328aa55da5a4966e1a85732f9642",
+    "packages/trpc/server/routers/viewer/slots/getSchedule.handler.ts": "169d67dbf92ea4ed5527e6615b778e0276212155f3f40552ea13b114d939ea49",
+    "packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts": "a8b3297767bc1b3079da6e4fe46600931372389edcec660f4cfe706eef2c1923",
+    "packages/trpc/server/routers/viewer/slots/util.ts": "e56322cc3398d09c74ae6f9e9b9d8a7589efb45b5c4fd8bdfff97da4cca42886"
+  }
+}

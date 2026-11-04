@@ -1,0 +1,18 @@
+{
+ "new_files": [
+  "packages/embeds/embed-core/src/EmbedElement.ts",
+  "packages/embeds/embed-core/src/ui-utils.ts"
+ ],
+ "new_exports": {
+  "packages/embeds/embed-core/src/Inline/inlineHtml.ts": [
+   "getSkeletonData"
+  ],
+  "packages/embeds/embed-core/src/utils.ts": [
+   "generateDataAttributes"
+  ]
+ },
+ "new_methods": {},
+ "mocks": {},
+ "changed": {},
+ "schema_blocks": 0
+}

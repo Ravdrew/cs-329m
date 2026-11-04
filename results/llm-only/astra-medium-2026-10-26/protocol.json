@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "local_date": "2026-10-26",
+  "timezone": "America/Los_Angeles",
+  "batch": {
+    "started_at": "2026-10-27T02:06:58.062Z",
+    "finished_at": "2026-10-27T02:32:12.806Z",
+    "wall_seconds": 1514.717828584,
+    "execution_order": "sequential",
+    "attempts": 3,
+    "completed": 3
+  },
+  "variant": "llm-only",
+  "target": {
+    "remote": "https://github.com/calcom/cal.com.git",
+    "commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+    "repo": "calcom/cal.diy"
+  },
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "backend": "pi-sdk",
+  "pi_version": "1.4.0",
+  "runtime": {
+    "node": "v22.22.3",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "limits": {
+    "max_tool_calls": 600,
+    "max_minutes_per_run": 45
+  },
+  "runner_revision": "f3f3854eb30c2b2eee3d0de3506f6b9b2892019d",
+  "runner_files": {
+    "package-lock.json": "f52c9f82a4df9b7a10e0c290cdf45f01d7a34c6d069710d1e7489c1f2bcb1eb4",
+    "source.mjs": "f350b7995739dd59ca56e729e130a7f892f757473a11316734c15b0906383346",
+    "graph.mjs": "c09ec9d0bf78ac1d3e36904c33d06c8aa6c5d8becc34aeef2274742e51167796",
+    "source-server.mjs": "dc482bd2e01378b8b7a425dc6373e8b13aca87f2fad119e014abb1a7fae84354",
+    "pi.mjs": "839a06b24af2e15d887560be0ea7507ceb91b7b67bab9a36e964c6c84a4f5a03",
+    "runner.mjs": "00599eacc06cf199adafc7a34c9b3532650d039bb5f3e59e9bb2be2c64655cb5",
+    "cli.mjs": "60d6099ddd2d507356b35501df71755cc5be6a4d4c25639da0beae8a268223bc"
+  },
+  "instruction_sha256": "7882574d0cc90dcd7254a310a1fa65b8ca6392f5b2a7ec9ddc6150aa19e10ea9",
+  "schema_sha256": "c91cef3657b8c081f2d81c2c94b2b6257a6fd8aeeb69308c4ea9a78e89b4f155",
+  "source_manifest_sha256": "d1d93468065213b623621d18b915cae9879ac0eaba38c46d68fa7f4c8ae53e95",
+  "source_file_count": 7695,
+  "isolation": {
+    "fresh_session": true,
+    "fresh_checkout": true,
+    "source_access": "tracked-regular-files-only custom tools",
+    "shell": false,
+    "web": false,
+    "plugins": false,
+    "prior_graphs_supplied": false,
+    "inherited_project_instructions": false,
+    "os_container": false
+  },
+  "checkout_materialization": "Each standalone git init fetches only the pinned commit from the same local Cal.com object cache. Working-tree and untracked files are not copied. OS filesystem caches are not reset.",
+  "sessions": [
+    {
+      "run": "run-01",
+      "session_id": "01a17b1c-6efb-7774-a02c-4ee0325c7c64"
+    },
+    {
+      "run": "run-02",
+      "session_id": "01a17b24-d369-714f-8275-c772e1f31e8c"
+    },
+    {
+      "run": "run-03",
+      "session_id": "01a17b2c-55df-7564-ad55-6399751643e4"
+    }
+  ],
+  "source_checks": {
+    "same_pin": true,
+    "distinct_standalone_git_directories": true,
+    "clean_after_each_run": true,
+    "same_source_manifest": true
+  },
+  "provider_cache": "Fresh sessions and disabled cache warming do not guarantee a cold provider prefix cache; cache-read token usage is reported.",
+  "effective_prompt": "Identical recorded instructions; Pi additionally appends each run's unique checkout path as cwd.",
+  "auth": {
+    "mode": "configured Pi OAuth login",
+    "credentials_published": false
+  },
+  "timings": {
+    "runner_elapsed_seconds": "Runner wall time including authentication, checkout preparation, model/tool loop and internal verification; excludes the separate verification process.",
+    "process_wall_seconds": "Monotonic CLI launch-to-exit wall time, including process startup and shutdown.",
+    "preparation_seconds": "Monotonic time from CLI launch to its running event.",
+    "generation_through_exit_seconds": "CLI wall time minus preparation; includes model/tool loop plus internal verification and shutdown. Not model-only latency.",
+    "independent_verification_seconds": "Separate CLI --verify process wall time.",
+    "batch_wall_seconds": "All three sequential CLI processes and their separate verification passes; excludes harness preflight and viewer validation."
+  },
+  "usage": {
+    "source": "Sum of provider usage returned by Pi, once per completed assistant response.",
+    "total_tokens": "input + output + cacheRead + cacheWrite; reasoning, when present, is a subset of output.",
+    "cost": "Pi catalog estimate only; cost_usd remains null. This does not measure billed charges or ChatGPT plan allowance consumption."
+  },
+  "checks": {
+    "harness_tests": {
+      "tests": 32,
+      "suites": 0,
+      "pass": 32,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "duration_ms": 23614.94675
+    },
+    "harness_elapsed_seconds": 23.64564775,
+    "separate_replay": "3/3 passed",
+    "viewer_schema_and_references": "3/3 passed"
+  },
+  "excluded_checks": [
+    "reference scoring",
+    "semantic correctness grading",
+    "Cal.com API tests"
+  ],
+  "publication": {
+    "frozen_graphs": "Copied byte-for-byte; original SHA-256 values retained.",
+    "run_records": "run_directory changed to .; original_run_id added. All measured fields retained. Original raw run-record hash recorded in statistics.json.",
+    "test_logs": "Local repo and Node executable paths replaced by <repo> and <node>. Initial incorrect-cwd attempt retained separately.",
+    "transcripts": "Exact source-tool JSONL, losslessly gzipped. Full model event streams, source checkouts and credentials are not published."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "repo": "calcom/cal.com",
+  "title": "Cal.com — component dependency baseline",
+  "components": 48,
+  "split_roots": [
+    "packages/features",
+    "packages/platform",
+    "apps/web/modules",
+    "apps/api/v2/src/modules",
+    "apps/api/v2/src/platform"
+  ],
+  "min_component_files": 8,
+  "top_dependencies": 3,
+  "min_file_pairs": 2,
+  "min_confidence": 0.8
+}

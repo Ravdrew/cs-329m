@@ -1,0 +1,6 @@
+{
+  "tests": 10,
+  "passed": true,
+  "log": "components-tests.log",
+  "command": "python3 -m unittest discover -s tools/codegraph -p 'test_*.py' -v"
+}

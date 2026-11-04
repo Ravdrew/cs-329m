@@ -1,0 +1,10 @@
+[
+  {
+    "tool": "update_graph",
+    "error": "File F0413 assigned to both booking-inputs and webhook-delivery"
+  },
+  {
+    "tool": "finalize_graph",
+    "error": "x-scope requires included/excluded string arrays"
+  }
+]

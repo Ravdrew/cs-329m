@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "variant": "llm-only",
+  "backend": "pi-sdk",
+  "status": "completed",
+  "started_at": "2026-10-27T02:24:20.981Z",
+  "target": {
+    "remote": "https://github.com/calcom/cal.com.git",
+    "commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+    "repo": "calcom/cal.diy"
+  },
+  "run_directory": ".",
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "limits": {
+    "max_tool_calls": 600,
+    "max_minutes": 45
+  },
+  "isolation": {
+    "fresh_session": true,
+    "fresh_checkout": true,
+    "source_access": "tracked-regular-files-only custom tools",
+    "shell": false,
+    "web": false,
+    "plugins": false,
+    "prior_graphs_supplied": false,
+    "inherited_project_instructions": false,
+    "os_container": false
+  },
+  "usage": {
+    "input": 105070,
+    "output": 16103,
+    "cacheRead": 1703040,
+    "cacheWrite": 0,
+    "totalTokens": 1824213,
+    "cost": {
+      "input": 1.0507000000000002,
+      "output": 0.8051500000000001,
+      "cacheRead": 1.70304,
+      "cacheWrite": 0,
+      "total": 3.5588900000000003
+    },
+    "reasoning": 333
+  },
+  "cost_usd": null,
+  "estimated_cost_usd": 3.5588900000000003,
+  "graph_sha256": "d048c83c7ba3f7386a970a5031e744dae989baa597947e8c11632eb5f2261a9e",
+  "pi": {
+    "version": "1.4.0",
+    "provider": "openai",
+    "model": "gpt-6-astra",
+    "api": "openai-responses",
+    "reasoning_effort": "medium"
+  },
+  "prompt_sha256": "7882574d0cc90dcd7254a310a1fa65b8ca6392f5b2a7ec9ddc6150aa19e10ea9",
+  "schema_sha256": "c91cef3657b8c081f2d81c2c94b2b6257a6fd8aeeb69308c4ea9a78e89b4f155",
+  "source_manifest_sha256": "d1d93468065213b623621d18b915cae9879ac0eaba38c46d68fa7f4c8ae53e95",
+  "runner_revision": "f3f3854eb30c2b2eee3d0de3506f6b9b2892019d",
+  "runner_files": {
+    "package-lock.json": "f52c9f82a4df9b7a10e0c290cdf45f01d7a34c6d069710d1e7489c1f2bcb1eb4",
+    "source.mjs": "f350b7995739dd59ca56e729e130a7f892f757473a11316734c15b0906383346",
+    "graph.mjs": "c09ec9d0bf78ac1d3e36904c33d06c8aa6c5d8becc34aeef2274742e51167796",
+    "source-server.mjs": "dc482bd2e01378b8b7a425dc6373e8b13aca87f2fad119e014abb1a7fae84354",
+    "pi.mjs": "839a06b24af2e15d887560be0ea7507ceb91b7b67bab9a36e964c6c84a4f5a03",
+    "runner.mjs": "00599eacc06cf199adafc7a34c9b3532650d039bb5f3e59e9bb2be2c64655cb5",
+    "cli.mjs": "60d6099ddd2d507356b35501df71755cc5be6a4d4c25639da0beae8a268223bc"
+  },
+  "source_file_count": 7695,
+  "execution": {
+    "code": 0,
+    "signal": null,
+    "stopReason": "Graph frozen; stopped after finalization",
+    "lastError": null,
+    "usage": {
+      "input": 105070,
+      "output": 16103,
+      "cacheRead": 1703040,
+      "cacheWrite": 0,
+      "totalTokens": 1824213,
+      "cost": {
+        "input": 1.0507000000000002,
+        "output": 0.8051500000000001,
+        "cacheRead": 1.70304,
+        "cacheWrite": 0,
+        "total": 3.5588900000000003
+      },
+      "reasoning": 333
+    },
+    "responses": 31,
+    "toolAttempts": 157
+  },
+  "counts": {
+    "nodes": 33,
+    "edges": 43,
+    "groups": 5,
+    "source_files": 50
+  },
+  "inspection": {
+    "tool_calls": 157,
+    "failed_tool_calls": 0,
+    "source_reads": 84,
+    "unique_files_read": 57,
+    "source_lines_returned": 6870
+  },
+  "tool_transcript_sha256": "92c4b6b7c92fb8bd6c708578471206e9ca8de6cc6b6dcf37b2c7d5a372d085a6",
+  "finished_at": "2026-10-27T02:32:11.947Z",
+  "elapsed_seconds": 470.966,
+  "original_run_id": "2026-10-27T02-24-21.017Z-bMZexT"
+}

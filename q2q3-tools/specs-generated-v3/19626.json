@@ -1,0 +1,22 @@
+{
+ "new_files": [],
+ "new_exports": {
+  "packages/features/calendars/DatePicker.tsx": [
+   "DatePicker"
+  ]
+ },
+ "new_methods": {},
+ "mocks": {
+  "packages/features/calendars/DatePicker.tsx": {
+   "DatePicker.test.tsx": [
+    "DatePicker"
+   ]
+  }
+ },
+ "changed": {
+  "packages/features/bookings/Booker/components/DatePicker.tsx": [
+   "DatePicker"
+  ]
+ },
+ "schema_blocks": 0
+}

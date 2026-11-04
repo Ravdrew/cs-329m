@@ -1,0 +1,10 @@
+{
+ "new_files": [
+  "packages/features/calendars/weeklyview/utils/overlap.ts"
+ ],
+ "new_exports": {},
+ "new_methods": {},
+ "mocks": {},
+ "changed": {},
+ "schema_blocks": 0
+}

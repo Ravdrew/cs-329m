@@ -1,0 +1,12 @@
+{
+  "tests": 30,
+  "pass": 30,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0,
+  "duration_ms": 26210.34225,
+  "passed": true,
+  "log": "harness.tap",
+  "command": "npm test --prefix tools/codegraph-llm"
+}

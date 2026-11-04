@@ -1,0 +1,15 @@
+test_aggregation_preserves_direction_and_evidence_and_filters_noise (test_components.ComponentGraphTests.test_aggregation_preserves_direction_and_evidence_and_filters_noise) ... ok
+test_budget_does_not_silently_merge_unrelated_packages (test_components.ComponentGraphTests.test_budget_does_not_silently_merge_unrelated_packages) ... ok
+test_excludes_tests_without_excluding_production_test_named_features (test_components.ComponentGraphTests.test_excludes_tests_without_excluding_production_test_named_features) ... ok
+test_ids_distinguish_path_collisions (test_components.ComponentGraphTests.test_ids_distinguish_path_collisions) ... ok
+test_lean_filter_preserves_incoming_link_without_inventing_edges (test_components.ComponentGraphTests.test_lean_filter_preserves_incoming_link_without_inventing_edges) ... ok
+test_missing_index_is_not_created (test_components.ComponentGraphTests.test_missing_index_is_not_created) ... ok
+test_partition_preserves_unique_ownership_and_budget (test_components.ComponentGraphTests.test_partition_preserves_unique_ownership_and_budget) ... ok
+test_scope_fails_for_empty_components_and_reports_missing_paths (test_components.ComponentGraphTests.test_scope_fails_for_empty_components_and_reports_missing_paths) ... ok
+test_scope_rejects_duplicate_and_ambiguous_rules (test_components.ComponentGraphTests.test_scope_rejects_duplicate_and_ambiguous_rules) ... ok
+test_scope_uses_longest_literal_prefix_and_drops_unrelated_files (test_components.ComponentGraphTests.test_scope_uses_longest_literal_prefix_and_drops_unrelated_files) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.002s
+
+OK

@@ -1,0 +1,220 @@
+TAP version 13
+# Subtest: fresh checkout excludes cache artifacts, symlinks and Git internals
+ok 1 - fresh checkout excludes cache artifacts, symlinks and Git internals
+  ---
+  duration_ms: 401.170083
+  type: 'test'
+  ...
+# Subtest: rejects placing experimental runs inside any team checkout
+ok 2 - rejects placing experimental runs inside any team checkout
+  ---
+  duration_ms: 35.746084
+  type: 'test'
+  ...
+# Subtest: source search is literal and paginated, including directory prefixes
+ok 3 - source search is literal and paginated, including directory prefixes
+  ---
+  duration_ms: 548.092875
+  type: 'test'
+  ...
+# Subtest: read ranges, gaps, modified paths and the pin are enforced
+ok 4 - read ranges, gaps, modified paths and the pin are enforced
+  ---
+  duration_ms: 493.2115
+  type: 'test'
+  ...
+# Subtest: incremental graph validation adds exact evidence and hashes without changing topology
+ok 5 - incremental graph validation adds exact evidence and hashes without changing topology
+  ---
+  duration_ms: 495.995666
+  type: 'test'
+  ...
+# Subtest: schema, graph consistency and source errors remain repairable
+    # Subtest: unknown field
+    ok 1 - unknown field
+      ---
+      duration_ms: 467.243709
+      type: 'test'
+      ...
+    # Subtest: bad kind
+    ok 2 - bad kind
+      ---
+      duration_ms: 461.91975
+      type: 'test'
+      ...
+    # Subtest: missing endpoint
+    ok 3 - missing endpoint
+      ---
+      duration_ms: 458.930958
+      type: 'test'
+      ...
+    # Subtest: global duplicate ID
+    ok 4 - global duplicate ID
+      ---
+      duration_ms: 459.736542
+      type: 'test'
+      ...
+    # Subtest: parent cycle
+    ok 5 - parent cycle
+      ---
+      duration_ms: 467.989709
+      type: 'test'
+      ...
+    # Subtest: missing parent
+    ok 6 - missing parent
+      ---
+      duration_ms: 454.091
+      type: 'test'
+      ...
+    # Subtest: missing member evidence
+    ok 7 - missing member evidence
+      ---
+      duration_ms: 463.106584
+      type: 'test'
+      ...
+    # Subtest: false excerpt
+    ok 8 - false excerpt
+      ---
+      duration_ms: 453.350875
+      type: 'test'
+      ...
+    # Subtest: source range
+    ok 9 - source range
+      ---
+      duration_ms: 458.049
+      type: 'test'
+      ...
+    # Subtest: source provenance
+    ok 10 - source provenance
+      ---
+      duration_ms: 452.925792
+      type: 'test'
+      ...
+    # Subtest: standard citation mismatch
+    ok 11 - standard citation mismatch
+      ---
+      duration_ms: 455.665
+      type: 'test'
+      ...
+    # Subtest: unknown group
+    ok 12 - unknown group
+      ---
+      duration_ms: 451.3645
+      type: 'test'
+      ...
+    # Subtest: duplicate edge
+    ok 13 - duplicate edge
+      ---
+      duration_ms: 456.312292
+      type: 'test'
+      ...
+    1..13
+ok 6 - schema, graph consistency and source errors remain repairable
+  ---
+  duration_ms: 5961.95825
+  type: 'test'
+  ...
+# Subtest: citations require actual reads, not searches, and validation can be repaired
+ok 7 - citations require actual reads, not searches, and validation can be repaired
+  ---
+  duration_ms: 577.665833
+  type: 'test'
+  ...
+# Subtest: malformed YAML, aliases, duplicate batch IDs and pin changes are rejected atomically
+ok 8 - malformed YAML, aliases, duplicate batch IDs and pin changes are rejected atomically
+  ---
+  duration_ms: 383.566125
+  type: 'test'
+  ...
+# Subtest: MCP tools freeze output and enforce the tool-call budget
+ok 9 - MCP tools freeze output and enforce the tool-call budget
+  ---
+  duration_ms: 1756.753417
+  type: 'test'
+  ...
+# Subtest: stdio MCP initializes and returns only the six allowlisted tools
+not ok 10 - stdio MCP initializes and returns only the six allowlisted tools
+  ---
+  duration_ms: 404.326667
+  type: 'test'
+  location: '<repo>/tools/llm-only/test/runner.test.mjs:182:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    0 !== 3
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 3
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file://<repo>/tools/llm-only/test/runner.test.mjs:193:10)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: orchestration: fresh prepare, full mock generation, repeat isolation and tamper detection
+ok 11 - orchestration: fresh prepare, full mock generation, repeat isolation and tamper detection
+  ---
+  duration_ms: 2502.857
+  type: 'test'
+  ...
+# Subtest: failed runs preserve metadata and drafts but never claim a prediction
+ok 12 - failed runs preserve metadata and drafts but never claim a prediction
+  ---
+  duration_ms: 565.683666
+  type: 'test'
+  ...
+# Subtest: Pi subprocess records events/usage and enforces host timeout
+ok 13 - Pi subprocess records events/usage and enforces host timeout
+  ---
+  duration_ms: 4126.784625
+  type: 'test'
+  ...
+# Subtest: truncated tool logs do not mask the original run failure
+ok 14 - truncated tool logs do not mask the original run failure
+  ---
+  duration_ms: 457.204167
+  type: 'test'
+  ...
+# Subtest: real Pi session isolates resources, repairs rejected evidence and freezes a valid graph
+ok 15 - real Pi session isolates resources, repairs rejected evidence and freezes a valid graph
+  ---
+  duration_ms: 860.609708
+  type: 'test'
+  ...
+# Subtest: Pi checks the exact Astra model and effort without silently falling back
+ok 16 - Pi checks the exact Astra model and effort without silently falling back
+  ---
+  duration_ms: 2.551125
+  type: 'test'
+  ...
+# Subtest: real Pi session counts failed tool attempts and blocks unexpected tools
+ok 17 - real Pi session counts failed tool attempts and blocks unexpected tools
+  ---
+  duration_ms: 1019.309542
+  type: 'test'
+  ...
+# Subtest: actual Pi worker reports missing auth without a model fallback
+ok 18 - actual Pi worker reports missing auth without a model fallback
+  ---
+  duration_ms: 791.571375
+  type: 'test'
+  ...
+# Subtest: Pi orchestration records Astra selection, actual SDK usage and estimated cost
+ok 19 - Pi orchestration records Astra selection, actual SDK usage and estimated cost
+  ---
+  duration_ms: 1033.037459
+  type: 'test'
+  ...
+1..19
+# tests 32
+# suites 0
+# pass 31
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 23160.691875

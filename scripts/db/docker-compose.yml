@@ -1,0 +1,32 @@
+# Postgres and Redis for Cal.com's database-backed tests.
+# Used by scripts/db.sh when Docker is available; don't run it directly.
+#
+# Ports and credentials match Cal.com's own defaults (.env.example and
+# apps/api/v2/test/setEnvVars.ts): postgres with no password on port 5450,
+# database "calendso", Redis on 6379. Postgres 18 is what Cal.com CI uses.
+name: cs329m-db
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: calendso
+    ports:
+      - "${CALCOM_DB_PORT:-5450}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:7
+    ports:
+      - "${CALCOM_REDIS_PORT:-6379}:6379"
+
+volumes:
+  pgdata:

@@ -1,0 +1,34 @@
+{
+ "new_files": [],
+ "new_exports": {},
+ "new_methods": {
+  "packages/features/availability/lib/getUserAvailability.ts": [
+   "getUserAvailabilityIncludingBusyTimesFromLimits"
+  ]
+ },
+ "mocks": {
+  "packages/features/di/containers/BusyTimes.ts": {
+   "getUserAvailabilityIncludingBusyTimesFromLimits.test.ts": [
+    "getBusyTimesService"
+   ]
+  },
+  "packages/features/busyTimes/lib/getBusyTimesFromLimits.ts": {
+   "getUserAvailabilityIncludingBusyTimesFromLimits.test.ts": [
+    "getBusyTimesFromLimits",
+    "getBusyTimesFromTeamLimits"
+   ]
+  },
+  "packages/app-store/_utils/getCalendar.ts": {
+   "getUserAvailabilityIncludingBusyTimesFromLimits.test.ts": [
+    "getCalendar"
+   ]
+  },
+  "packages/lib/holidays/index.ts": {
+   "getUserAvailabilityIncludingBusyTimesFromLimits.test.ts": [
+    "getHolidayService"
+   ]
+  }
+ },
+ "changed": {},
+ "schema_blocks": 0
+}

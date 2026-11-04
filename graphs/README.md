@@ -1,0 +1,36 @@
+# Graphs
+
+Every component graph the project has produced, one file each, all in the shared format
+(`schema/graph.schema.json`). The viewer serves this folder at `http://localhost:5173/?graph=/graphs/<file>`
+and opens `booking-handmade.yaml` by default. Validate everything here with `cd viewer && npm run validate`.
+
+File names are `<scope>-<builder>[-<date>][-<run>]`. Scope is `booking` (the Cal.com booking subsystem)
+or `calcom` (the whole repository). The date is the day the graph was generated.
+
+| File | Title in the file | Built by | Cal.com pin | Nodes / edges / groups | Source of truth |
+|---|---|---|---|---|---|
+| `booking-handmade.yaml` | Cal.diy — booking subsystem | Hand-built by Andres, verified against source | `6bfe2df9` | 34 / 50 / 8 | this file |
+| `booking-handmade-edit.yaml` | Cal.diy — booking subsystem (developer edit: Booked Appointments page) | The hand-built graph after a developer adds a page; demonstrates `status: new/modify` | `6bfe2df9` | 36 / 55 / 8 | this file |
+| `booking-codegraph-static.json` | Cal.com booking subsystem — CodeGraph baseline | CodeGraph 1.6.2 index projected by path rules (`tools/codegraph/booking.config.json`) | `54343aa` | 32 / 79 / 5 | `codegraph-booking/components.json`, rebuilt by `scripts/build_booking_graph.sh` |
+| `calcom-codegraph-static.json` | Cal.com — component dependency baseline | CodeGraph 1.6.2 index of the whole repository projected by path rules | `54343aa` | 48 / 144 / 4 | `codegraph-calcom/components.json` |
+| `booking-llm-only-2026-10-24.yaml` | Cal.com booking subsystem — LLM-only | First LLM-only graph: Astra read source in a clean checkout and authored nodes and edges | `54343aa` | 36 / 62 / 7 | `experiments/llm-only/graph.yaml` |
+| `booking-llm-only-2026-10-26-run01.yaml` | Public scheduling and host management in Cal.diy | LLM-only runner (`tools/llm-only`), gpt-6-astra medium, run 1 of 3 | `54343aa` | 34 / 49 / 5 | `results/llm-only/astra-medium-2026-10-26/run-01/graph.yaml` |
+| `booking-llm-only-2026-10-26-run02.yaml` | Cal.diy public booking and host management | LLM-only runner, run 2 of 3 | `54343aa` | 32 / 42 / 5 | `results/llm-only/astra-medium-2026-10-26/run-02/graph.yaml` |
+| `booking-llm-only-2026-10-26-run03.yaml` | Public booking and host management in Cal.diy | LLM-only runner, run 3 of 3 | `54343aa` | 33 / 43 / 5 | `results/llm-only/astra-medium-2026-10-26/run-03/graph.yaml` |
+| `booking-hotstart-2026-10-29-run01.yaml` | Cal.com booking subsystem components | Hot-started runner (`tools/codegraph-llm`): Astra grouped the CodeGraph graph, host derived edges; run 1 of 3 | `54343aa` | 34 / 315 / 0 | `results/codegraph-llm/astra-medium-2026-10-29/run-01/graph.yaml` |
+| `booking-hotstart-2026-10-29-run02.yaml` | Cal.com booking subsystem components | Hot-started runner, run 2 of 3 | `54343aa` | 33 / 306 / 3 | `results/codegraph-llm/astra-medium-2026-10-29/run-02/graph.yaml` |
+| `booking-hotstart-2026-10-29-run03.yaml` | Cal.com booking subsystem components | Hot-started runner, run 3 of 3 | `54343aa` | 33 / 307 / 5 | `results/codegraph-llm/astra-medium-2026-10-29/run-03/graph.yaml` |
+
+The two hand-built graphs target an earlier Cal.com commit than everything else; see the top-level README.
+
+## Folders
+
+- `codegraph-booking/`, `codegraph-calcom/`: the CodeGraph build outputs (full structural export summary,
+  report, standalone visualization) with their own READMEs. The `components.json` in each is what the
+  matching `*-codegraph-static.json` above is copied from.
+
+## Adding a graph
+
+Copy the frozen `graph.yaml` here under the naming scheme, add a row above with the file's own `title`,
+and keep the original where its run bundle or build script puts it. The copies here are for browsing and
+the viewer; the run bundles under `results/` carry the checksums and replay verifiers.

@@ -1,0 +1,26 @@
+{
+ "new_files": [
+  "packages/features/bot-detection/BotDetectionService.ts"
+ ],
+ "new_exports": {},
+ "new_methods": {
+  "packages/lib/server/repository/eventTypeRepository.ts": [
+   "getTeamIdByEventTypeId"
+  ]
+ },
+ "mocks": {
+  "botid/server": {
+   "BotDetectionService.test.ts": [
+    "checkBotId"
+   ]
+  },
+  "packages/lib/logger.ts": {
+   "BotDetectionService.test.ts": [
+    "default",
+    "default.getSubLogger"
+   ]
+  }
+ },
+ "changed": {},
+ "schema_blocks": 0
+}

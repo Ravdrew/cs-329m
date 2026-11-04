@@ -1,0 +1,55 @@
+{
+ "new_files": [],
+ "new_exports": {
+  "packages/features/calendar-subscription/lib/sync/CalendarSyncService.ts": [
+   "BookingWithEventType",
+   "buildMetadataFromCalendarEvent",
+   "buildRescheduleBookingData",
+   "extractBookingResponses",
+   "hasStartTimeChanged",
+   "mergeBookingResponsesWithEventData"
+  ]
+ },
+ "new_methods": {},
+ "mocks": {
+  "packages/features/bookings/lib/handleCancelBooking.ts": {
+   "CalendarSyncService.integration.test.ts": [
+    "default"
+   ],
+   "CalendarSyncService.test.ts": [
+    "default"
+   ]
+  },
+  "packages/features/bookings/di/RegularBookingService.container.ts": {
+   "CalendarSyncService.integration.test.ts": [
+    "getRegularBookingService"
+   ],
+   "CalendarSyncService.test.ts": [
+    "getRegularBookingService"
+   ]
+  },
+  "packages/lib/idempotencyKey/idempotencyKeyService.ts": {
+   "CalendarSyncService.integration.test.ts": [
+    "IdempotencyKeyService"
+   ],
+   "CalendarSyncService.test.ts": [
+    "IdempotencyKeyService"
+   ]
+  },
+  "@sentry/nextjs": {
+   "CalendarSyncService.integration.test.ts": [
+    "metrics"
+   ],
+   "CalendarSyncService.test.ts": [
+    "metrics"
+   ]
+  }
+ },
+ "changed": {
+  "packages/features/calendar-subscription/lib/sync/CalendarSyncService.ts": [
+   "CalendarSyncService.cancelBooking",
+   "CalendarSyncService.rescheduleBooking"
+  ]
+ },
+ "schema_blocks": 0
+}

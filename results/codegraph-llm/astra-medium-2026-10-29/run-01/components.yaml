@@ -1,0 +1,660 @@
+version: 1
+repo: calcom/cal.com
+commit: 54343aa685ae8f33159d2f485ec4a57bad5c574a
+x-variant: codegraph-llm
+groups: []
+nodes:
+  - id: public-routes
+    label: Public booking route assembly
+    kind: page
+    summary: Loads public event pages and adapts route context for booking and rescheduling.
+    description: Next route entry points, embed variants, SSR data loading and the public event view connect URL context and metadata to the booker.
+    file_ids:
+      - F0001
+      - F0002
+      - F0003
+      - F0004
+      - F0009
+      - F0010
+      - F0014
+      - F0015
+      - F0121
+      - F0125
+    x-source-evidence:
+      - path: apps/web/app/(booking-page-wrapper)/[user]/[type]/page.tsx
+        start_line: 1
+        end_line: 72
+  - id: booker-ui
+    label: Booking selection and form UI
+    kind: component
+    summary: Presents dates, slots, event details, overlays and attendee booking forms.
+    description: The web booker advances through date selection, time selection and submission, with verification and dry-run support. Web hooks adapt event and slot queries to this experience.
+    file_ids:
+      - F0028
+      - F0029
+      - F0030
+      - F0031
+      - F0032
+      - F0033
+      - F0034
+      - F0035
+      - F0036
+      - F0037
+      - F0045
+      - F0047
+      - F0048
+      - F0049
+      - F0051
+      - F0052
+      - F0053
+      - F0054
+      - F0055
+      - F0056
+      - F0057
+      - F0058
+      - F0059
+      - F0060
+      - F0062
+      - F0064
+      - F0065
+      - F0066
+      - F0067
+      - F0068
+      - F0069
+      - F0070
+      - F0071
+      - F0072
+      - F0073
+      - F0074
+      - F0084
+      - F0089
+      - F0091
+      - F0094
+      - F0099
+      - F0103
+      - F0104
+      - F0106
+      - F0107
+      - F0114
+      - F0119
+      - F0120
+    file_prefixes:
+      - packages/features/bookings/components/
+    x-source-evidence:
+      - path: apps/web/modules/bookings/components/Booker.tsx
+        start_line: 190
+        end_line: 260
+  - id: booker-state
+    label: Booker state and client contracts
+    kind: store
+    summary: Maintains selections, form values, timezone and URL-synchronized state.
+    description: Shared store, providers, hooks, layout helpers and client input mapping support reusable booking interactions independently of web page composition.
+    file_prefixes:
+      - packages/features/bookings/Booker/
+      - packages/features/bookings/hooks/
+      - packages/features/bookings/lib/client/
+    file_ids:
+      - F0497
+      - F0498
+      - F0499
+    x-source-evidence:
+      - path: packages/features/bookings/Booker/store.ts
+        start_line: 400
+        end_line: 470
+  - id: booking-management-ui
+    label: Organizer booking workspace
+    kind: page
+    summary: Lists and filters bookings with calendar navigation, detail sheets and actions.
+    description: Organizer list and calendar views share selection state, status filters, navigation hooks and action controls. Includes the indexed audit-log route entry.
+    file_prefixes:
+      - apps/web/components/booking/
+    file_ids:
+      - F0011
+      - F0012
+      - F0027
+      - F0038
+      - F0039
+      - F0040
+      - F0041
+      - F0042
+      - F0044
+      - F0061
+      - F0063
+      - F0076
+      - F0077
+      - F0078
+      - F0079
+      - F0080
+      - F0081
+      - F0082
+      - F0083
+      - F0085
+      - F0086
+      - F0087
+      - F0088
+      - F0090
+      - F0092
+      - F0093
+      - F0095
+      - F0096
+      - F0097
+      - F0098
+      - F0101
+      - F0102
+      - F0105
+      - F0108
+      - F0109
+      - F0110
+      - F0111
+      - F0112
+      - F0113
+      - F0118
+    x-source-evidence:
+      - path: apps/web/modules/bookings/components/BookingListContainer.tsx
+        start_line: 60
+        end_line: 140
+  - id: booking-result-ui
+    label: Booking result and self-service view
+    kind: page
+    summary: Displays confirmation, payment status and attendee self-service context.
+    description: Success and single-booking routes assemble booking information, cancellation and reschedule context, feedback state, joining controls and dry-run results.
+    file_ids:
+      - F0005
+      - F0006
+      - F0007
+      - F0008
+      - F0043
+      - F0046
+      - F0050
+      - F0075
+      - F0100
+      - F0115
+      - F0116
+      - F0117
+      - F0390
+      - F0391
+      - F0418
+    x-source-evidence:
+      - path: apps/web/modules/bookings/views/bookings-single-view.tsx
+        start_line: 100
+        end_line: 180
+  - id: booking-http
+    label: Booking HTTP entry points
+    kind: endpoint
+    summary: Adapts web requests to regular, recurring and cancellation services.
+    description: HTTP handlers supply session and request metadata, enforce entry-point checks and delegate lifecycle operations; includes the booking tRPC HTTP adapter.
+    file_ids:
+      - F0013
+      - F0122
+      - F0123
+      - F0124
+    x-source-evidence:
+      - path: apps/web/pages/api/book/event.ts
+        start_line: 1
+        end_line: 63
+  - id: public-api
+    label: Public viewer API
+    kind: endpoint
+    summary: Exposes event discovery, locale context, verification requirements and feedback.
+    description: Public procedures and schemas provide event data, country and timezone helpers, rating and host-no-show submissions.
+    file_prefixes:
+      - packages/trpc/server/routers/publicViewer/
+    x-source-evidence:
+      - path: packages/trpc/server/routers/publicViewer/_router.tsx
+        start_line: 1
+        end_line: 30
+  - id: management-api
+    label: Booking management API
+    kind: endpoint
+    summary: Serves booking lists and details and exposes management mutations.
+    description: Router procedures, input schemas and handlers cover confirmation, guests, location changes, reschedule requests, history and assignment reporting.
+    file_prefixes:
+      - packages/trpc/server/routers/viewer/bookings/
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/bookings/_router.tsx
+        start_line: 1
+        end_line: 95
+  - id: slots-api
+    label: Available slots and reservation API
+    kind: service
+    summary: Computes bookable slots across hosts and supports slot reservations.
+    description: Slot router and AvailableSlotsService coordinate host eligibility, aggregated availability, fallback hosts, schedule ranges and reservations. The computation remains with its closely coupled API schemas.
+    file_prefixes:
+      - packages/trpc/server/routers/viewer/slots/
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/util.ts
+        start_line: 1000
+        end_line: 1070
+  - id: availability
+    label: User and collective availability
+    kind: service
+    summary: Resolves user schedules and aggregates availability ranges across hosts.
+    description: Services combine schedule selection, calendar timezone context and availability data with range merging and redundancy filtering. Includes the indexed availability placeholder UI.
+    file_prefixes:
+      - packages/features/availability/
+    x-source-evidence:
+      - path: packages/features/availability/lib/getUserAvailability.ts
+        start_line: 200
+        end_line: 270
+  - id: busy-limits
+    label: Busy-time and booking-limit checks
+    kind: service
+    summary: Computes blocked intervals and enforces booking and duration constraints.
+    description: Busy-time services account for bookings, buffers and calendar conflicts. Booking and duration checks share this constraint responsibility rather than UI settings.
+    file_prefixes:
+      - packages/features/busyTimes/
+      - packages/features/bookings/lib/conflictChecker/
+    file_ids:
+      - F0393
+      - F0394
+    x-source-evidence:
+      - path: packages/features/busyTimes/services/getBusyTimes.ts
+        start_line: 40
+        end_line: 110
+      - path: packages/features/bookings/lib/checkBookingLimits.ts
+        start_line: 1
+        end_line: 75
+  - id: booking-create
+    label: Booking creation and rescheduling
+    kind: service
+    summary: Orchestrates regular and recurring bookings with host selection and validation.
+    description: Services coordinate input preparation, host selection, persistence, integrations and post-booking events. Includes creation helpers, round-robin selection, reschedule policy and dependency wiring.
+    file_prefixes:
+      - packages/features/bookings/lib/handleNewBooking/
+      - packages/features/bookings/lib/service/
+      - packages/features/bookings/lib/onBookingEvents/
+      - packages/features/bookings/lib/reschedule/
+    file_ids:
+      - F0366
+      - F0367
+      - F0369
+      - F0370
+      - F0371
+      - F0372
+      - F0382
+      - F0398
+      - F0399
+      - F0400
+      - F0410
+      - F0421
+      - F0424
+      - F0465
+      - F0467
+      - F0468
+      - F0469
+      - F0481
+    x-source-evidence:
+      - path: packages/features/bookings/lib/service/RegularBookingService.ts
+        start_line: 2585
+        end_line: 2690
+  - id: booking-cancel
+    label: Booking cancellation and confirmation
+    kind: service
+    summary: Validates booking transitions and cancellation policy.
+    description: Cancellation checks state, organizer context and required reasons before coordinating cleanup. Confirmation and internal-note handlers and contracts are adjacent lifecycle operations.
+    file_ids:
+      - F0362
+      - F0363
+      - F0392
+      - F0401
+      - F0416
+      - F0425
+      - F0426
+      - F0427
+      - F0428
+      - F0466
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleCancelBooking.ts
+        start_line: 90
+        end_line: 160
+  - id: booking-seats
+    label: Seated booking lifecycle
+    kind: service
+    summary: Adds, cancels and reschedules attendee seats within shared bookings.
+    description: Seat operations find shared bookings, prevent duplicate attendance and distinguish attendee reschedules from owner moves or merges. Includes seat persistence.
+    file_prefixes:
+      - packages/features/bookings/lib/handleSeats/
+    file_ids:
+      - F0503
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleSeats/handleSeats.ts
+        start_line: 1
+        end_line: 100
+  - id: booking-payments
+    label: Booking payment policy
+    kind: service
+    summary: Handles payment initiation, refunds and cancellation no-show fees.
+    description: Helpers apply payment metadata and refund windows, coordinate provider-facing actions and persist payment records through booking payment repositories.
+    file_prefixes:
+      - packages/features/bookings/lib/payment/
+    file_ids:
+      - F0453
+      - F0501
+      - F0507
+    x-source-evidence:
+      - path: packages/features/bookings/lib/payment/processPaymentRefund.ts
+        start_line: 1
+        end_line: 90
+  - id: booking-contracts
+    label: Booking fields and data contracts
+    kind: model
+    summary: Defines booking inputs, responses and shared data shapes.
+    description: Response schemas preprocess and validate fields; creation schemas, DTOs and types provide contracts across client and lifecycle code. These are TypeScript contracts, not invented database entities.
+    file_ids:
+      - F0389
+      - F0403
+      - F0404
+      - F0411
+      - F0412
+      - F0413
+      - F0415
+      - F0417
+      - F0419
+      - F0420
+      - F0516
+      - F0517
+    x-source-evidence:
+      - path: packages/features/bookings/lib/getBookingResponsesSchema.ts
+        start_line: 1
+        end_line: 85
+  - id: booking-persistence
+    label: Booking records and lookup adapters
+    kind: store
+    summary: Provides booking, attendee, tracking and integration-reference persistence access.
+    description: Repositories and lookup helpers centralize booking retrieval shapes and related records. Includes reference repositories and dependency modules without implying read/write labels on edges.
+    file_prefixes:
+      - packages/features/bookingReference/
+    file_ids:
+      - F0356
+      - F0357
+      - F0368
+      - F0402
+      - F0405
+      - F0409
+      - F0414
+      - F0422
+      - F0500
+      - F0502
+      - F0504
+      - F0505
+      - F0506
+      - F0508
+      - F0509
+      - F0510
+    x-source-evidence:
+      - path: packages/features/bookings/repositories/BookingRepository.ts
+        start_line: 60
+        end_line: 120
+      - path: packages/features/bookings/repositories/BookingRepository.ts
+        start_line: 250
+        end_line: 300
+  - id: booking-support-services
+    label: Booking access and attendee management
+    kind: service
+    summary: Provides access, details, attendee changes and assignment reporting services.
+    description: Services mediate attendee retrieval and changes with permission validation and supply detail/access and wrong-assignment operations. Includes rating helpers and wiring.
+    file_prefixes:
+      - packages/features/bookings/services/
+    file_ids:
+      - F0358
+      - F0359
+      - F0360
+      - F0361
+      - F0480
+    x-source-evidence:
+      - path: packages/features/bookings/services/BookingAttendeesService.ts
+        start_line: 35
+        end_line: 110
+  - id: booking-audit
+    label: Booking audit and history
+    kind: service
+    summary: Records lifecycle changes and assembles actor-enriched history.
+    description: Audit producers and consumers route typed changes through action services and repositories; viewer services apply access checks and enrich history. Includes audit dependency containers.
+    file_prefixes:
+      - packages/features/booking-audit/
+    x-source-evidence:
+      - path: packages/features/booking-audit/lib/service/BookingAuditTaskConsumer.ts
+        start_line: 40
+        end_line: 105
+  - id: event-integrations
+    label: Booking integration event manager
+    kind: service
+    summary: Coordinates credentials and integration events for booked meetings.
+    description: EventManager organizes calendar, video and CRM credentials and transforms integration locations. Credential gathering and refresh helpers support this lifecycle.
+    file_prefixes:
+      - packages/features/bookings/lib/getAllCredentialsForUsersOnEvent/
+    file_ids:
+      - F0388
+    x-source-evidence:
+      - path: packages/features/bookings/lib/EventManager.ts
+        start_line: 80
+        end_line: 150
+  - id: booking-notifications
+    label: Booking notification tasks
+    kind: job
+    summary: Dispatches booking email and SMS synchronously or through task runners.
+    description: An action handler selects confirmed, requested and rescheduled behavior including round-robin variants. Task services, triggers and dependency wiring package the work for execution.
+    file_prefixes:
+      - packages/features/bookings/di/tasker/
+      - packages/features/bookings/lib/tasker/
+    file_ids:
+      - F0364
+      - F0365
+      - F0387
+    x-source-evidence:
+      - path: packages/features/bookings/lib/BookingEmailSmsHandler.ts
+        start_line: 70
+        end_line: 140
+  - id: calendar-services
+    label: Calendar event and destination coordination
+    kind: service
+    summary: Prepares calendar events and resolves connected and destination calendars.
+    description: CalendarManager shapes descriptions and attendee visibility and exposes credential-backed access. Connected-calendar lookup and destination persistence support this layer.
+    file_ids:
+      - F0530
+      - F0532
+      - F0533
+      - F0543
+      - F0544
+    x-source-evidence:
+      - path: packages/features/calendars/lib/CalendarManager.ts
+        start_line: 30
+        end_line: 95
+  - id: calendar-tasks
+    label: Default calendar provisioning tasks
+    kind: job
+    summary: Ensures default calendars through synchronous or queued execution.
+    description: Services load selected calendars and invoke default-calendar reconciliation. Includes task adapters, trigger entry points and dependency composition.
+    file_prefixes:
+      - packages/features/calendars/di/
+      - packages/features/calendars/lib/tasker/
+    x-source-evidence:
+      - path: packages/features/calendars/lib/tasker/CalendarsTaskService.ts
+        start_line: 1
+        end_line: 58
+  - id: calendar-ui
+    label: Calendar presentation and layout
+    kind: component
+    summary: Provides pickers, destination selection and weekly event layout state.
+    description: Calendar UI and weekly-view types, state and overlap algorithms support booking calendars. Retains indexed storybook data and timezone/date presentation utilities.
+    file_prefixes:
+      - packages/features/calendars/components/
+      - packages/features/calendars/weeklyview/
+    file_ids:
+      - F0531
+      - F0542
+    x-source-evidence:
+      - path: packages/features/calendars/weeklyview/utils/overlap.ts
+        start_line: 1
+        end_line: 75
+  - id: event-settings-ui
+    label: Event-type configuration controls
+    kind: component
+    summary: Configures hosts, booking limits, recurrence and managed event settings.
+    description: Forms and dialogs provide team assignment and scheduling policy controls, including translation between stored booking-window modes and UI settings.
+    file_prefixes:
+      - packages/features/eventtypes/components/
+    x-source-evidence:
+      - path: packages/features/eventtypes/components/tabs/limits/EventLimitsTab.tsx
+        start_line: 65
+        end_line: 120
+  - id: event-catalog
+    label: Event-type catalog and policy data
+    kind: service
+    summary: Resolves public and managed event types and booking policy contracts.
+    description: Repositories and public/viewer helpers assemble event settings, hosts and profile data. Shared event schemas, naming, fields and branding policy support booking and availability.
+    file_prefixes:
+      - packages/features/eventtypes/di/
+      - packages/features/eventtypes/lib/
+      - packages/features/eventtypes/repositories/
+      - packages/features/eventtypes/service/
+    file_ids:
+      - F0569
+    x-source-evidence:
+      - path: packages/features/eventtypes/service/EventTypeService.ts
+        start_line: 1
+        end_line: 55
+      - path: packages/features/eventtypes/lib/getPublicEvent.ts
+        start_line: 45
+        end_line: 100
+  - id: schedules
+    label: Schedule editing and time-range construction
+    kind: service
+    summary: Maintains working schedules and date overrides and constructs time ranges.
+    description: Service and repository validate ownership and persist availability definitions. Editor controls, hooks and slot/date-range utilities share this schedule-definition boundary.
+    file_prefixes:
+      - packages/features/schedules/
+    x-source-evidence:
+      - path: packages/features/schedules/services/ScheduleService.ts
+        start_line: 1
+        end_line: 90
+  - id: email-dispatch
+    label: Email notification orchestration
+    kind: service
+    summary: Selects recipients and templates for booking and supporting product notifications.
+    description: Email managers apply preferences and dispatch attendee and organizer messages. Related auth, billing, organization, workflow and integration services remain from the indexed supporting package scope.
+    file_ids:
+      - F0126
+      - F0127
+      - F0128
+      - F0129
+      - F0130
+      - F0131
+      - F0140
+      - F0141
+      - F0142
+      - F0264
+    x-source-evidence:
+      - path: packages/emails/email-manager.ts
+        start_line: 90
+        end_line: 165
+  - id: email-payloads
+    label: Email payloads and calendar attachments
+    kind: service
+    summary: Builds recipient-specific mail payloads, text bodies and calendar attachments.
+    description: Template classes prepare mailer headers and bodies and bridge to React rendering. Shared ICS generation, formatting and email types belong with these payloads.
+    file_prefixes:
+      - packages/emails/templates/
+      - packages/emails/lib/
+    x-source-evidence:
+      - path: packages/emails/templates/attendee-scheduled-email.ts
+        start_line: 30
+        end_line: 105
+  - id: email-presentation
+    label: Email HTML presentation
+    kind: component
+    summary: Renders localized email templates with shared message layout components.
+    description: React templates compose meeting details, management links, branding and recipient-local dates. Includes indexed non-booking message presentations and the render adapter.
+    file_prefixes:
+      - packages/emails/src/
+    x-source-evidence:
+      - path: packages/emails/src/templates/BaseScheduledEmail.tsx
+        start_line: 1
+        end_line: 85
+  - id: sms
+    label: Attendee SMS messages
+    kind: service
+    summary: Formats SMS messages and applies phone-only recipient and rate-limit checks.
+    description: SMSManager and event subclasses hold calendar context and localized formatting. The inspected sending path gates phone-only attendees and invokes rate limiting; it does not demonstrate a provider transport implementation.
+    file_prefixes:
+      - packages/sms/
+    x-source-evidence:
+      - path: packages/sms/sms-manager.ts
+        start_line: 1
+        end_line: 72
+  - id: webhook-payloads
+    label: Versioned webhook payload construction
+    kind: service
+    summary: Maps event DTOs into version-specific webhook payloads.
+    description: Factories select booking, meeting, recording and out-of-office builders by category and version. DTO and mapping contracts belong with construction.
+    file_prefixes:
+      - packages/features/webhooks/lib/factory/
+      - packages/features/webhooks/lib/dto/
+      - packages/features/webhooks/lib/infrastructure/
+    x-source-evidence:
+      - path: packages/features/webhooks/lib/factory/versioned/PayloadBuilderFactory.ts
+        start_line: 40
+        end_line: 110
+  - id: webhooks
+    label: Webhook orchestration and delivery
+    kind: service
+    summary: Finds subscribers and emits, schedules and delivers webhook notifications.
+    description: Domain services build notification requests, repositories scope destinations and task adapters coordinate delivery. Legacy send/schedule helpers and booking-side adapters remain alongside supporting non-booking webhook operations.
+    file_prefixes:
+      - packages/features/webhooks/lib/service/
+      - packages/features/webhooks/lib/interface/
+      - packages/features/webhooks/lib/repository/
+      - packages/features/webhooks/lib/tasker/
+      - packages/features/webhooks/lib/types/
+      - packages/features/webhooks/lib/facade/
+    file_ids:
+      - F0423
+      - F0464
+      - F0594
+      - F0595
+      - F0612
+      - F0613
+      - F0614
+      - F0616
+      - F0625
+      - F0626
+      - F0627
+      - F0628
+      - F0641
+      - F0649
+      - F0652
+    x-source-evidence:
+      - path: packages/features/webhooks/lib/service/BookingWebhookService.ts
+        start_line: 33
+        end_line: 100
+      - path: packages/features/webhooks/lib/sendPayload.ts
+        start_line: 180
+        end_line: 260
+  - id: prisma
+    label: Database client and shared persistence schemas
+    kind: store
+    summary: Configures Prisma access, safety extensions, selectors and validation schemas.
+    description: Client setup supplies PostgreSQL adapters and extensions for idempotency, unsafe mutations and visibility constraints. Includes indexed selectors, zod utilities, enum-generation and maintenance scripts; unindexed generated models are not added.
+    file_prefixes:
+      - packages/prisma/
+    x-source-evidence:
+      - path: packages/prisma/index.ts
+        start_line: 1
+        end_line: 95
+title: Cal.com booking subsystem components
+description: Responsibility-oriented grouping of the pinned structural input, grounded in implementation and static coupling. Edges are derived by the host.
+x-scope:
+  repo: calcom/cal.com
+  commit: 54343aa685ae8f33159d2f485ec4a57bad5c574a
+  input: 738 indexed files and 11525 structural nodes in the fixed booking-scoped subgraph.
+  included:
+    - Web public booking, embed, result and management UI.
+    - Web HTTP and tRPC booking and slot APIs, availability and booking lifecycle services.
+    - Indexed persistence adapters, calendar coordination, email, SMS and webhook code.
+    - Supporting packages include indexed non-booking-exclusive utilities, maintenance scripts and templates.
+  excluded:
+    - API v2.
+    - Generic UI and authentication utilities outside the indexed boundary.
+    - Provider-specific app-store implementations.
+    - All other unindexed repository code and generated models not present in the input.
+  limits: Static links do not prove runtime workflows. Calls and navigation are retained and other dependency kinds become uses; the graph does not distinguish reads, writes or renders. Low and unknown confidence links are retained. Component boundaries are inferred, not established by schema validation.
