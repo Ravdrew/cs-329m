@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "validate": "node scripts/validate.mjs public/graphs/*.yaml"
+    "validate": "node scripts/validate.mjs ../graphs/*.yaml ../graphs/*.json"
   },
   "dependencies": {
     "@xyflow/react": "^12.12.0",

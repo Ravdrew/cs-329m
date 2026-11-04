@@ -30,5 +30,5 @@ bash "$ROOT/scripts/codegraph.sh" components "$SOURCE" \
   --raw-out "$ROOT/work/calcom-booking-structural.json" \
   --out "$ROOT/graphs/codegraph-booking"
 cp "$ROOT/graphs/codegraph-booking/components.json" \
-  "$ROOT/viewer/public/graphs/codegraph-booking-components.json"
-echo "Viewer: http://localhost:5173/?graph=/graphs/codegraph-booking-components.json"
+  "$ROOT/graphs/booking-codegraph-static.json"
+echo "Viewer: http://localhost:5173/?graph=/graphs/booking-codegraph-static.json"

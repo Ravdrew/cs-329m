@@ -20,7 +20,7 @@ flat groups, no line numbers, and a closed schema). Details in §2.
 
 A working viewer that loads this format is in `viewer/`; a hand-built
 34-node graph of the Cal.diy booking subsystem that uses every feature of
-the format is in `viewer/public/graphs/cal-diy-booking.yaml`.
+the format is in `graphs/booking-handmade.yaml`.
 
 ## 1. What the file has to do
 

@@ -14,18 +14,17 @@ Open a pull request for changes; don't push directly to `master`. Keep large gen
 | Path | What | Details |
 |---|---|---|
 | `schema/graph.schema.json` | The shared graph file format (YAML or JSON): groups, nodes, edges, files, evidence, provenance | [docs/graph-format-proposal.md](docs/graph-format-proposal.md); validate with `cd viewer && npm run validate` |
-| `viewer/` | React graph viewer and editor; `?graph=<url>` or **Open…** loads any graph in the shared format | [viewer/README.md](viewer/README.md) |
-| `viewer/public/graphs/` | Sample graphs: the hand-built booking subsystem (34 nodes / 50 edges) and a developer-edit variant, plus snapshots of the CodeGraph baselines | |
+| `graphs/` | **Every graph we have produced**, one file each with a descriptive name, plus the CodeGraph build folders | [graphs/README.md](graphs/README.md) |
+| `viewer/` | React graph viewer and editor; serves `graphs/` at `/graphs/`, and `?graph=<url>` or **Open…** loads any other file in the shared format | [viewer/README.md](viewer/README.md) |
 | `targets/calcom.env` | The pinned Cal.com commit (`54343aa`) and Node version | |
 | `scripts/` | Cal.com setup, database and test scripts; the three graph builders' launchers | this file, below |
 | `results/baselines/` | Cal.com test baselines at the pin (unit, timezone, integration, API e2e) | this file, below |
-| `tools/codegraph/`, `graphs/` | **Static baseline**: CodeGraph 1.6.2 index projected to components by path rules | [tools/codegraph/README.md](tools/codegraph/README.md), [graphs/codegraph-booking/README.md](graphs/codegraph-booking/README.md), [graphs/codegraph-calcom/README.md](graphs/codegraph-calcom/README.md) |
+| `tools/codegraph/`, `graphs/codegraph-*/` | **Static baseline**: CodeGraph 1.6.2 index projected to components by path rules | [tools/codegraph/README.md](tools/codegraph/README.md), [graphs/codegraph-booking/README.md](graphs/codegraph-booking/README.md), [graphs/codegraph-calcom/README.md](graphs/codegraph-calcom/README.md) |
 | `tools/llm-only/`, `experiments/llm-only/`, `results/llm-only/` | **LLM-only builder**: a fresh Pi/Astra session reads source and authors the whole graph; the first graph and three timed runs | [tools/llm-only/README.md](tools/llm-only/README.md), [experiments/llm-only/README.md](experiments/llm-only/README.md), [results/llm-only/astra-medium-2026-10-26/README.md](results/llm-only/astra-medium-2026-10-26/README.md) |
 | `tools/codegraph-llm/`, `results/codegraph-llm/` | **Hot-started builder**: Astra groups the raw CodeGraph graph into components; the host derives edges from static dependencies; three verified runs | [tools/codegraph-llm/README.md](tools/codegraph-llm/README.md), [results/codegraph-llm/astra-medium-2026-10-29/README.md](results/codegraph-llm/astra-medium-2026-10-29/README.md) |
 | `scoring/` | **Q1 scorer**: compares candidate graphs with the withheld reference graph (file ownership, localization F2, questions) | [scoring/README.md](scoring/README.md) |
 | `benchmark/`, `docs/benchmark-pr-audit.md` | **Benchmark tasks**: 37 verified fail-to-pass Cal.com PRs mined SWE-bench style, with the recommended 20 | [benchmark/README.md](benchmark/README.md) |
 | `q2q3-tools/` | **Q2/Q3 harness**: runs a coding agent on a benchmark task, grades it with the PR's hidden tests; the 20 interface specs agents receive | [q2q3-tools/README.md](q2q3-tools/README.md) |
-| `docs/screenshots/` | Viewer screenshots used in the checkpoint deck | |
 
 Two Cal.com commits appear in this repo. Everything under `targets/`, `scripts/`, `results/`,
 `graphs/`, `tools/` and `scoring/` uses the team pin **`54343aa`**. The viewer's hand-built sample
@@ -43,10 +42,10 @@ OpenAI login (`~/.pi/agent/auth.json`) or `OPENAI_API_KEY`, and Node 22.19+.
 | LLM-only | Astra, from source reads with cited evidence | Astra, any schema kind, with cited evidence | `npm ci --prefix tools/llm-only && bash scripts/run_llm_only_graph.sh` |
 | Hot-started | Astra, by assigning every CodeGraph node to a component | host aggregation of CodeGraph dependencies (no pruning) | `npm ci --prefix tools/codegraph-llm && bash scripts/run_codegraph_llm_graph.sh --source work/calcom` |
 
-Load any resulting `graph.yaml` in the viewer with **Open…**, or copy it into `viewer/public/graphs/`
-and open `http://localhost:5173/?graph=/graphs/<file>`. The saved static baseline is at
-`viewer/public/graphs/codegraph-calcom-components.json`; a dependency-free view of it is
-`graphs/codegraph-calcom/visualization.html`.
+Load any resulting `graph.yaml` in the viewer with **Open…**. To keep a graph, copy it into
+`graphs/` under a descriptive name, add a row to `graphs/README.md`, and open it at
+`http://localhost:5173/?graph=/graphs/<file>`. A dependency-free view of the whole-repository static
+baseline is `graphs/codegraph-calcom/visualization.html`.
 
 ## Evaluation
 

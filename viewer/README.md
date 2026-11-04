@@ -14,7 +14,7 @@ npm run build      # static bundle in dist/
 
 ## What it does
 
-- Loads `public/graphs/cal-diy-booking.yaml` by default; `?graph=<url>`
+- Loads `graphs/booking-handmade.yaml` from the repository's `graphs/` folder by default (the dev server serves that folder at `/graphs/`); `?graph=<url>`
   loads another file; the **Open…** button or drag-and-drop loads a local
   `.yaml`/`.json`.
 - Lays the graph out automatically with ELK (layered, top-down or

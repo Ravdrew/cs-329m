@@ -17,7 +17,7 @@ import DetailPanel, { type Selection } from "./components/DetailPanel";
 import Toolbar from "./components/Toolbar";
 import ChangesPanel from "./components/ChangesPanel";
 
-const DEFAULT_GRAPH = "graphs/cal-diy-booking.yaml";
+const DEFAULT_GRAPH = "graphs/booking-handmade.yaml";
 const EMPTY_BASELINE: Baseline = { nodes: new Map(), edges: new Map() };
 const NEW_NODE_LABEL = "New node";
 

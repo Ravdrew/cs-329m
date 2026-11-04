@@ -92,7 +92,7 @@ bash scripts/codegraph.sh components work/calcom \
   --config tools/codegraph/booking.config.json \
   --raw-out work/calcom-booking-structural.json \
   --out graphs/codegraph-booking
-cp graphs/codegraph-booking/components.json viewer/public/graphs/codegraph-booking-components.json
+cp graphs/codegraph-booking/components.json graphs/booking-codegraph-static.json
 ```
 
 ## View
@@ -102,7 +102,7 @@ npm ci --prefix viewer
 npm run dev --prefix viewer
 ```
 
-Open http://localhost:5173/?graph=/graphs/codegraph-booking-components.json
+Open http://localhost:5173/?graph=/graphs/booking-codegraph-static.json
 (use Vite's printed port if it differs). Use **Open…** to inspect
 `graphs/codegraph-booking/components.full.json` instead.
 
