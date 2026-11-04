@@ -34,6 +34,7 @@ export function verifyRun(runDir) {
       if (canonical(actual) !== canonical(event.result)) throw new Error('Read transcript differs from pinned source');
     }
     if (event.name === 'update_graph') draft.update(event.args.yaml, event.args.remove_ids);
+    if (event.name === 'update_edges') draft.updateEdges(event.args.yaml);
     if (event.name === 'finalize_graph') frozen = draft.finalize();
   }
   if (!frozen) throw new Error('Transcript did not finalize a graph');
@@ -47,9 +48,15 @@ export function verifyRun(runDir) {
     if (readFileSync(join(runDir, file), 'utf8') !== actual) throw new Error(`${file} differs from replayed model decisions/static aggregation`);
   }
   const report = JSON.parse(readFileSync(join(runDir, 'validation.json'), 'utf8'));
+  // Runs recorded before edge operations existed have no edge-ops.yaml and no edge_ops field.
+  // They verify as before, provided the transcript contains no edge operations.
+  const legacy = report.edge_ops === undefined;
+  if (legacy && (existsSync(join(runDir, 'edge-ops.yaml')) || draft.edgeOps.length)) throw new Error('Run predates edge operations but contains them');
+  if (!legacy && readFileSync(join(runDir, 'edge-ops.yaml'), 'utf8') !== yaml(draft.edgeOps)) throw new Error('edge-ops.yaml differs from replayed model decisions/static aggregation');
   if (report.graph_sha256 !== sha256(content)) throw new Error('Frozen graph checksum mismatch');
   if (report.valid !== true || report.commit !== config.commit || report.nodes !== verified.nodes.length ||
       report.edges !== verified.edges.length || report.groups !== verified.groups.length ||
+      (!legacy && (report.host_edges !== Object.keys(draft.aggregation.host_edges ?? draft.aggregation.edges).length || report.edge_ops !== draft.edgeOps.length)) ||
       report.source_files !== verified['x-source-files'].length || report.static_input_sha256 !== config.staticInputHash ||
       report.membership_sha256 !== verified['x-codegraph'].membership_sha256 ||
       report.aggregation_sha256 !== verified['x-codegraph'].aggregation_sha256 ||
@@ -75,6 +82,7 @@ export async function runExperiment(options, dependencies = {}) {
     target, run_directory: runDir, provider: config.provider, model: config.model, reasoning_effort: config.effort,
     limits: { max_tool_calls: config.maxTools, max_minutes: config.maxMinutes },
     isolation: { fresh_session: true, fresh_checkout: true, source_access: 'tracked-regular-files-only custom tools', shell: false, web: false, plugins: false, static_graph_supplied: true, prior_component_graphs_supplied: false, inherited_project_instructions: false, os_container: false },
+    edge_policy: 'host-aggregated static edges; model may retype or consolidate them, never add, delete or re-point',
     usage: null, cost_usd: null, estimated_cost_usd: null, graph_sha256: null,
   };
   const report = () => json(join(runDir, 'run.json'), metadata);
@@ -118,7 +126,8 @@ export async function runExperiment(options, dependencies = {}) {
     if (!existsSync(join(runDir, 'validation.json'))) throw new Error(execution.lastError ?? `Agent did not finalize a valid graph (exit ${execution.code}); see logs`);
     const validation = verifyRun(runDir);
     metadata.graph_sha256 = validation.graph_sha256;
-    metadata.counts = { nodes: validation.nodes, edges: validation.edges, groups: validation.groups, source_files: validation.source_files };
+    metadata.counts = { nodes: validation.nodes, edges: validation.edges, groups: validation.groups, source_files: validation.source_files,
+      host_edges: validation.host_edges, edge_ops: validation.edge_ops };
     metadata.status = 'completed';
     return { runDir, metadata };
   } catch (error) {

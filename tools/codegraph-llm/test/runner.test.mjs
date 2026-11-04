@@ -151,6 +151,144 @@ test('Astra owns membership, may split a shared file, and cannot author or prune
   assert.deepEqual(member.files[0], { path: 'src/page.ts', lines: [2, 4] });
 });
 
+test('Astra may retype a host edge, with source evidence when the kind is a new semantic claim', () => {
+  const { graph } = validDraft();
+  const host = graph.inspectEdges({});
+  assert.equal(host.total_edges, 2);
+  const uses = host.edges.find(e => e.kind === 'uses');
+  const calls = host.edges.find(e => e.kind === 'calls');
+  assert.throws(() => graph.updateEdges(yaml({ retype: [{ id: uses.id, kind: 'reads' }] })), /needs x-source-evidence/);
+  assert.throws(() => graph.updateEdges(yaml({ retype: [{ id: uses.id, kind: 'reads', 'x-source-evidence': [{ path: 'AGENTS.md', start_line: 1, end_line: 1 }] }] })), /not a member file/);
+  assert.throws(() => graph.updateEdges(yaml({ retype: [{ id: 'missing', kind: 'calls' }] })), /unknown host edge/);
+  assert.throws(() => graph.updateEdges(yaml({ retype: [{ id: uses.id, kind: 'made-up' }] })), /kind must be one of/);
+  assert.throws(() => graph.updateEdges(yaml({ retype: [{ id: uses.id, kind: 'calls', from: 'service' }] })), /unsupported field/);
+  assert.throws(() => graph.updateEdges(yaml({ edges: [] })), /accepts only/);
+  assert.throws(() => graph.update('edges: []'), /update_edges/);
+  assert.equal(graph.edgeOps.length, 0);
+  // Same-pair member file with a range read in this run.
+  const result = graph.updateEdges(yaml({ retype: [{ id: uses.id, kind: 'renders', label: 'renders booking result', description: 'The page renders the booking.', 'x-source-evidence': [{ path: 'src/page.ts', start_line: 2, end_line: 4 }] }] }));
+  assert.equal(result.edge_ops, 1);
+  const output = graph.finalize();
+  assert.equal(output.edges.length, 2);
+  const retyped = output.edges.find(e => e.id === uses.id);
+  assert.equal(retyped.kind, 'renders');
+  assert.equal(retyped.provenance, 'inferred');
+  assert.equal(retyped.label, 'renders booking result');
+  assert.deepEqual(retyped['x-codegraph'].host_kinds, { uses: 2 });
+  assert.deepEqual(retyped['x-codegraph'].raw_kinds, { imports: 1, references: 1 });
+  assert.equal(retyped['x-codegraph'].edge_op, 'retype');
+  assert.equal(retyped['x-source-evidence'][0].excerpt.includes('book()'), true);
+  assert.equal(output.edges.find(e => e.id === calls.id).provenance, 'extracted');
+  assert.deepEqual(Object.values(graph.aggregation.edges).flat().sort(), [3, 4, 5]);
+  assert.equal(graph.aggregation.edge_ops.length, 1);
+  assert.equal(output['x-codegraph'].host_edges, 2);
+  assert.equal(output['x-codegraph'].edge_ops, 1);
+  assert(!('file_pairs' in retyped['x-codegraph']));
+});
+
+test('Astra may consolidate same-pair host edges; raw edges are conserved and endpoints are fixed', () => {
+  const { graph } = validDraft();
+  const [a, b] = graph.inspectEdges({}).edges.map(e => e.id);
+  assert.throws(() => graph.updateEdges(yaml({ consolidate: [{ id: 'merged', replaces: [a], kind: 'calls', description: 'x' }] })), /at least two/);
+  assert.throws(() => graph.updateEdges(yaml({ consolidate: [{ id: 'merged', replaces: [a, b], kind: 'calls' }] })), /needs a description/);
+  assert.throws(() => graph.updateEdges(yaml({ consolidate: [{ id: a, replaces: [a, b], kind: 'calls', description: 'x' }] })), /new ID/);
+  // A kind already reported by the static analysis for these edges needs no extra evidence.
+  const result = graph.updateEdges(yaml({ consolidate: [{ id: 'page-books', replaces: [a, b], kind: 'calls', label: 'books via service', description: 'The page calls the booking service to create a booking.' }] }));
+  assert.equal(result.total_edges, 1);
+  assert.equal(result.host_edges, 2);
+  const output = graph.finalize();
+  assert.equal(output.edges.length, 1);
+  const merged = output.edges[0];
+  assert.equal(merged.id, 'page-books');
+  assert.equal(merged.kind, 'calls');
+  assert.equal(merged.from, 'page');
+  assert.equal(merged.to, 'service');
+  assert.equal(merged.provenance, 'inferred');
+  assert.equal(merged['x-codegraph'].raw_edge_count, 3);
+  assert.deepEqual(merged['x-codegraph'].host_kinds, { calls: 1, uses: 2 });
+  assert.deepEqual(merged['x-codegraph'].raw_kinds, { calls: 1, imports: 1, references: 1 });
+  assert.equal(merged['x-codegraph'].low_confidence_edges, 1);
+  assert.deepEqual(merged['x-codegraph'].replaces.sort(), [a, b].sort());
+  assert.deepEqual(graph.aggregation.edges, { 'page-books': [3, 4, 5] });
+  assert.deepEqual(Object.keys(graph.aggregation.host_edges).sort(), [a, b].sort());
+  assert.deepEqual(graph.aggregation.counts, { total: 6, containment: 2, unassigned: 0, internal: 1, aggregated: 3 });
+  assert.deepEqual(parseYaml(yaml(output)), output);
+});
+
+test('edge operations are replaced per host edge, undone with reset_ids, and dropped when membership changes', () => {
+  const { graph } = validDraft();
+  const listed = graph.inspectEdges({}).edges;
+  const a = listed.find(e => e.kind === 'uses').id, b = listed.find(e => e.kind === 'calls').id;
+  graph.updateEdges(yaml({ retype: [{ id: a, kind: 'uses', description: 'first' }] }));
+  graph.updateEdges(yaml({ consolidate: [{ id: 'merged', replaces: [a, b], kind: 'uses', description: 'second' }] }));
+  assert.equal(graph.edgeOps.length, 1, 'consolidating supersedes the earlier retype of the same host edge');
+  assert.equal(graph.edgeOps[0].id, 'merged');
+  assert.throws(() => graph.updateEdges(yaml({ retype: [{ id: a, kind: 'uses' }], consolidate: [{ id: 'merged', replaces: [a, b], kind: 'uses', description: 'dup' }] })), /affected by two operations/);
+  assert.equal(graph.edgeOps[0].id, 'merged', 'rejected batches do not mutate the operations');
+  assert.equal(graph.updateEdges(yaml({ reset_ids: ['merged'] })).total_edges, 2);
+  assert.equal(graph.edgeOps.length, 0);
+  graph.updateEdges(yaml({ consolidate: [{ id: 'merged', replaces: [a, b], kind: 'uses', description: 'again' }] }));
+  // Moving Page into the service component removes the calls edge; the consolidation no longer applies.
+  const service = prediction().nodes[1];
+  service.node_ids = ['fn:page'];
+  service['x-source-evidence'].push({ path: 'src/page.ts', start_line: 2, end_line: 4 });
+  const result = graph.update(yaml({ nodes: [service] }));
+  assert.deepEqual(result.dropped_edge_ops, ['merged']);
+  assert.equal(graph.edgeOps.length, 0);
+  const output = graph.finalize();
+  assert.equal(output.edges.length, 1);
+  assert.equal(output.edges[0].provenance, 'extracted');
+});
+
+test('runs recorded before edge operations verify unchanged, byte for byte', () => {
+  const { config } = fixture();
+  const tools = createGraphTools(config);
+  tools.call('read_source', { path: 'src/page.ts' });
+  tools.call('read_source', { path: 'src/service.ts' });
+  tools.call('update_graph', { yaml: yaml(prediction()) });
+  assert(!tools.call('finalize_graph').isError);
+  const graph = parseYaml(readFileSync(join(config.runDir, 'graph.yaml'), 'utf8'));
+  assert(!('edge_ops' in graph['x-codegraph']), 'graphs without edge operations keep the October header');
+  assert(!('edge_ops' in JSON.parse(readFileSync(join(config.runDir, 'aggregation.json'), 'utf8'))));
+  // Simulate an October run directory: no edge-ops sidecar, no edge_ops/host_edges in the report.
+  rmSync(join(config.runDir, 'edge-ops.yaml'));
+  const reportPath = join(config.runDir, 'validation.json');
+  const report = JSON.parse(readFileSync(reportPath, 'utf8'));
+  delete report.edge_ops; delete report.host_edges;
+  writeFileSync(reportPath, canonical(report));
+  assert.equal(verifyRun(config.runDir).nodes, 2);
+  writeFileSync(join(config.runDir, 'edge-ops.yaml'), '[]\n');
+  assert.throws(() => verifyRun(config.runDir), /predates/);
+});
+
+test('edge operations replay through the tool transcript and sidecar tampering is detected', () => {
+  const { config } = fixture();
+  const tools = createGraphTools(config);
+  tools.call('read_source', { path: 'src/page.ts' });
+  tools.call('read_source', { path: 'src/service.ts' });
+  assert(!tools.call('update_graph', { yaml: yaml(prediction()) }).isError);
+  const listed = JSON.parse(tools.call('inspect_edges', { kind: 'uses' }).content[0].text);
+  assert.equal(listed.total_edges, 1);
+  assert(tools.call('update_edges', { yaml: yaml({ retype: [{ id: listed.edges[0].id, kind: 'writes' }] }) }).isError, 'semantic retype without evidence is rejected');
+  assert(!tools.call('update_edges', { yaml: yaml({ retype: [{ id: listed.edges[0].id, kind: 'writes', 'x-source-evidence': [{ path: 'src/service.ts', start_line: 1, end_line: 3 }] }] }) }).isError);
+  assert(existsSync(join(config.runDir, 'edge-ops.partial.yaml')));
+  const final = JSON.parse(tools.call('finalize_graph').content[0].text);
+  assert.equal(final.edge_ops, 1);
+  assert.equal(final.host_edges, 2);
+  assert.equal(verifyRun(config.runDir).edge_ops, 1);
+  const document = parseYaml(readFileSync(join(config.runDir, 'graph.yaml'), 'utf8'));
+  assert.deepEqual(document.edges.map(e => e.kind).sort(), ['calls', 'writes']);
+  const ops = join(config.runDir, 'edge-ops.yaml'), before = readFileSync(ops);
+  writeFileSync(ops, '[]\n');
+  assert.throws(() => verifyRun(config.runDir), /edge-ops.yaml differs/);
+  writeFileSync(ops, before);
+  const graphPath = join(config.runDir, 'graph.yaml'), graphBefore = readFileSync(graphPath, 'utf8');
+  writeFileSync(graphPath, graphBefore.replace('kind: writes', 'kind: reads'));
+  assert.throws(() => verifyRun(config.runDir), /differ/);
+  writeFileSync(graphPath, graphBefore);
+  assert.equal(verifyRun(config.runDir).edges, 2);
+});
+
 test('incomplete memberships, empty components, bad groups and invented summaries remain repairable', async t => {
   for (const [name, change, expected] of [
     ['unassigned', d => delete d.nodes[0].file_ids, /unassigned/],
