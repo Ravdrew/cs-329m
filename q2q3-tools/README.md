@@ -20,6 +20,10 @@ own hidden tests, plus the interface specs every agent gets. Nothing here comes 
 | `REGRESSION.md` | Proposed regression check (full unit suite against a per-task baseline), with measured times. |
 | `results/` | Gold checks for the three tasks with test helpers, and the gold-patch regression check for #24207. |
 | `env/` | `env.sh` and the Yarn shim used on the cloud box (Node 20, bundled Yarn, Prisma engine workarounds). |
+| `graph_to_text.py` | **Text channel.** Renders a graph YAML as prose: the requested change first (nodes and edges marked `new`/`modify`/`delete`, with their notes), then every component with its files and dependencies. No code excerpts (`x-*` fields dropped, fenced code removed), evidence as `file:line` only. Deterministic. |
+| `make_prompt.py` | Builds the agent prompt for a task: the pilot's wording, PR description, `--spec`, and for the text condition `--graph` (rendered here) or `--graph-text`. Conditions differ only in the graph block; prints the prompt's sha256 for the run log. |
+| `test_graph_text.py` | Tests for both (`GRAPHS=a.yaml:b.yaml` adds real graphs to the leak and determinism checks). |
+| `text-channel-samples/` | What the agent would read: the PR #9 hot-start graph rendered (~104 KB, ~26k tokens), the hand-made edit graph (shows the requested-change section), and a full #24207 prompt. All from 54343aa graphs, so format examples only. |
 
 ## Running
 The defaults point at the cloud box layout. Override them with these env vars:
@@ -55,3 +59,16 @@ Regenerating is deterministic: the same inputs give byte-identical specs.
 - `env/yarn` handles Yarn 4's renamed CA setting (#30354's base ships Yarn 4).
 - `prepare` turns off git auto-gc and waits for any running gc before it moves `.git` aside. A background gc once
   wiped a clone mid-move.
+
+## Text channel (2026-11-04)
+```
+python3 graph_to_text.py GRAPH.yaml -o graph.md            # options: --max-files N (default 40), --edge-evidence none
+python3 make_prompt.py 24207 --spec                        # no-graph condition
+python3 make_prompt.py 24207 --spec --graph GRAPH.yaml     # text condition: same prompt plus <component_graph>
+```
+Sizes on the 54343aa graphs: hot-start ~104 KB (295 edges; ~72 KB with `--edge-evidence none`), LLM-only ~32 KB.
+Whole-repo graphs will be larger; nodes with more than 40 files are listed by directory.
+Open for the team: the graph intro sentence in `make_prompt.py` (`GRAPH_INTRO`) is neutral on purpose (no "the graph
+may be wrong" caveat, no "start from the graph" nudge); the same sentence should introduce the graph in the MCP and
+image conditions. Tested on the 9 YAML graphs in the team repo plus PR #9: no excerpt line appears in the output.
+
