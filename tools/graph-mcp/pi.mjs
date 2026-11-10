@@ -33,23 +33,34 @@ export function serverArgs(config) {
 const resolveIfPath = (key, value) => (['graph', 'run-dir'].includes(key) ? resolve(value) : value);
 
 /**
- * MCP channel: Pi's MCP extension, given exactly one server. loadConfig replaces Pi's reading of the user's and the
- * project's mcp.json, so no other server can connect. Direct exposure declares each tool to the model like a built-in
- * one (Pi's default, codemode, would hide them behind a script tool).
+ * Pi's MCP extension, given exactly these servers ({ name, config } with an mcp.json-style config). loadConfig
+ * replaces Pi's reading of the user's and the project's mcp.json, so no other server can connect. Exposure defaults
+ * to direct, which declares each tool to the model like a built-in one (Pi's default, codemode, would hide them
+ * behind a script tool).
  */
-export function graphMcpExtension(config) {
-  const entry = {
-    name: SERVER_NAME, source: '<graph-mcp>', scope: 'extension',
-    config: { command: process.execPath, args: [join(HERE, 'server.mjs'), ...serverArgs(config)], exposure: 'direct', description: DESCRIPTION },
-  };
+export function mcpExtension(servers, runDir) {
+  const entries = servers.map(({ name, config }) => ({
+    name, source: `<${name}>`, scope: 'extension', config: { exposure: 'direct', ...config },
+  }));
   return {
-    name: 'graph-mcp',
+    name: 'mcp-servers',
     factory: createMcpExtension({
-      loadConfig: () => ({ servers: [entry], autoEnableCodemode: false, errors: [] }),
-      ...(config.runDir ? { logPath: join(resolve(config.runDir), 'mcp.log') } : {}),
+      loadConfig: () => ({ servers: entries, autoEnableCodemode: false, errors: [] }),
+      ...(runDir ? { logPath: join(resolve(runDir), 'mcp.log') } : {}),
     }),
   };
 }
+
+/** The graph server as an MCP server entry. */
+export function graphServer(config) {
+  return {
+    name: SERVER_NAME,
+    config: { command: process.execPath, args: [join(HERE, 'server.mjs'), ...serverArgs(config)], description: DESCRIPTION },
+  };
+}
+
+/** MCP channel: the graph server alone. */
+export const graphMcpExtension = config => mcpExtension([graphServer(config)], config.runDir);
 
 /** Native channel: the graph tools as Pi custom tools. */
 export function graphCustomTools(config) {
@@ -87,13 +98,15 @@ export async function createModelRuntime(authFile) {
 
 /**
  * Start an isolated Pi session in `cwd` with the graph tools on the chosen channel, plus Pi's coding tools.
- * config: server config (graph, runDir, tools, maxChars, ...) plus cwd, channel ('mcp' | 'native'), provider, model,
- * effort, systemPrompt, builtinTools (default read/bash/edit/write; [] for graph tools only). Returns the session and
- * the tool names the model should see; check them with assertTools after bindExtensions.
+ * config: server config (graph, runDir, tools, maxChars, ...) plus cwd, channel ('mcp' | 'native' | 'none' for no
+ * graph tools), provider, model, effort, systemPrompt, builtinTools (default read/bash/edit/write; [] for graph tools
+ * only), extraMcpServers ([{ name, config }], e.g. CodeGraph's server). Returns the session and the tool names the
+ * model should see; check them with assertTools after the first prompt has started.
  */
 export async function createGraphSession(config, runtime) {
   const channel = config.channel ?? 'mcp';
-  if (!['mcp', 'native'].includes(channel)) throw new Error(`Unknown channel: ${channel}`);
+  if (!['mcp', 'native', 'none'].includes(channel)) throw new Error(`Unknown channel: ${channel}`);
+  if (channel !== 'none' && !config.graph) throw new Error(`Channel ${channel} needs a graph`);
   const cwd = resolve(config.cwd);
   const runDir = config.runDir ? resolve(config.runDir) : mkdtempSync(join(tmpdir(), 'graph-pi-'));
   mkdirSync(runDir, { recursive: true });
@@ -107,20 +120,24 @@ export async function createGraphSession(config, runtime) {
   const settingsManager = SettingsManager.inMemory({
     compaction: { enabled: false }, cacheWarming: 'off', retry: { enabled: false, provider: { maxRetries: 0, timeoutMs: 120_000 } },
   });
-  const graphNames = (config.tools ?? toolDefinitions.map(t => t.name)).map(piToolName);
+  const graphNames = channel === 'none' ? [] : (config.tools ?? toolDefinitions.map(t => t.name)).map(piToolName);
   const builtins = config.builtinTools ?? PI_DEFAULT_TOOLS;
+  const extra = config.extraMcpServers ?? [];
+  const servers = [...(channel === 'mcp' ? [graphServer(serverConfig)] : []), ...extra];
   const resourceLoader = await isolatedResourceLoader({
     cwd, agentDir, settingsManager, systemPrompt: config.systemPrompt,
-    extensions: channel === 'mcp' ? [graphMcpExtension(serverConfig)] : [],
+    extensions: servers.length ? [mcpExtension(servers, runDir)] : [],
   });
+  // Every tool of an extra server is allowed; their names are only known once it connects.
+  const extraPatterns = extra.map(s => `mcp__${s.name}__*`);
   const { session } = await createAgentSession({
     cwd, agentDir, modelRuntime: runtime, model, thinkingLevel: config.effort ?? 'medium',
-    tools: [...builtins, ...graphNames], sessionManager: SessionManager.inMemory(cwd), settingsManager, resourceLoader,
+    tools: [...builtins, ...graphNames, ...extraPatterns], sessionManager: SessionManager.inMemory(cwd), settingsManager, resourceLoader,
     customTools: channel === 'native' ? graphCustomTools(serverConfig) : [],
   });
-  // Emits session_start: the MCP extension connects the server here; the first prompt waits for direct tools.
+  // Emits session_start: the MCP extension connects the servers here; the first prompt waits for direct tools.
   await session.bindExtensions({});
-  return { session, runDir, channel, expectedTools: [...builtins, ...graphNames] };
+  return { session, runDir, channel, model, expectedTools: [...builtins, ...graphNames], allowedPrefixes: extra.map(s => `mcp__${s.name}__`) };
 }
 
 /**
@@ -137,12 +154,17 @@ export async function closeGraphSession(session) {
   }
 }
 
-/** Throw unless the session offers exactly the expected tools (call after the first prompt has started, for MCP). */
-export function assertTools(session, expected) {
-  const active = [...session.getActiveToolNames()].sort();
+/**
+ * Throw unless the session offers exactly the expected tools, plus any tools of the allowed extra servers (call after
+ * the first prompt has started, for MCP). Returns the active tool names.
+ */
+export function assertTools(session, expected, allowedPrefixes = []) {
+  const all = [...session.getActiveToolNames()].sort();
+  const active = all.filter(name => !allowedPrefixes.some(p => name.startsWith(p)));
   if (JSON.stringify(active) !== JSON.stringify([...expected].sort())) {
     throw new Error(`Pi session has unexpected tools: ${active.join(', ')} (expected ${[...expected].sort().join(', ')})`);
   }
+  return all;
 }
 
 // ------------------------------------------------------------------ CLI: one prompt, for pilots

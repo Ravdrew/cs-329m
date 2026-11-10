@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """Build the coding agent's prompt for one task and condition, so every condition gets identical wording.
 
-    python3 make_prompt.py PULL [--spec] [--graph GRAPH.yaml | --graph-text GRAPH.md] [-o PROMPT.md]
-                           [--workdir DIR] [--env-script PATH]
+    python3 make_prompt.py PULL [--spec] [--graph GRAPH.yaml | --graph-text GRAPH.md | --graph-tools {graph,codegraph}
+                           | --intent INTENT.md] [-o PROMPT.md] [--workdir DIR] [--env-script PATH]
 
 The template is the one the 2026-10-30 pilot used (PR description as the developer wrote it, the same work
-instructions and rules). The pieces are added in this order, and only the graph block differs between the
-no-graph condition and the text channel:
+instructions and rules). The pieces are added in this order, and only block 3 differs between conditions:
 
     1. intro and the PR description (benchmark/tasks.json `problem_statement`)
     2. the interface spec, with --spec (specs-final/PULL.md, the same in every condition)
-    3. the graph, with --graph (rendered here by graph_to_text.py with its defaults) or --graph-text (pre-rendered)
+    3. one of: the graph, with --graph (rendered here by graph_to_text.py with its defaults) or --graph-text
+       (pre-rendered); a note that the graph is available through tools, with --graph-tools (tool channel, or the
+       CodeGraph control); or the developer's intent written as prose, with --intent (the prose-intent condition)
     4. work instructions and rules
 
 The prompt is printed (or written with -o) and its sha256 goes to stderr, for the run log.
@@ -35,6 +36,20 @@ GRAPH_INTRO = ('## Component graph\n\n'
                'The developer also gave you a component graph of the codebase as it is in your checkout. '
                'If the graph marks a requested change, that is part of the task.\n\n'
                '<component_graph>\n{graph}</component_graph>')
+
+# Tool channel: the same opening as GRAPH_INTRO; the graph itself is served by tools/graph-mcp.
+TOOLS_INTRO = {
+    'graph': ('## Component graph\n\n'
+              'The developer also gave you a component graph of the codebase as it is in your checkout. '
+              'If the graph marks a requested change, that is part of the task. '
+              'Read it with the graph tools (their names start with `mcp__graph__`).'),
+    'codegraph': ('## Code graph\n\n'
+                  'A code graph of the repository as it is in your checkout is available through the CodeGraph '
+                  'tools (their names start with `mcp__codegraph__`).'),
+}
+
+INTENT_INTRO = ('## What the developer intends\n\n'
+                'The developer also described how the change should fit into the codebase:\n\n{intent}')
 
 WORK = ('Implement this change in the repository. Work the way you normally would on an unfamiliar codebase: find '
         'the relevant code, make the change, and add or update unit tests where it makes sense.')
@@ -61,7 +76,8 @@ def load_task(pull):
     raise SystemExit(f'task {pull} not in {path}')
 
 
-def build(pull, spec=False, graph=None, graph_text=None, workdir='/work/calcom', env='/work/env.sh'):
+def build(pull, spec=False, graph=None, graph_text=None, workdir='/work/calcom', env='/work/env.sh',
+          graph_tools=None, intent=None):
     task = load_task(pull)
     parts = [INTRO.format(workdir=workdir, problem=task['problem_statement'].replace('\r\n', '\n').strip())]
     if spec:
@@ -69,8 +85,8 @@ def build(pull, spec=False, graph=None, graph_text=None, workdir='/work/calcom',
         if not sp.exists():
             raise SystemExit(f'no spec for {pull}: {sp}')
         parts.append(sp.read_text().strip())
-    if graph and graph_text:
-        raise SystemExit('give --graph or --graph-text, not both')
+    if sum(x is not None for x in (graph, graph_text, graph_tools, intent)) > 1:
+        raise SystemExit('give at most one of --graph, --graph-text, --graph-tools, --intent')
     if graph:
         import yaml
         from graph_to_text import render
@@ -78,6 +94,10 @@ def build(pull, spec=False, graph=None, graph_text=None, workdir='/work/calcom',
         parts.append(GRAPH_INTRO.format(graph=text))
     elif graph_text:
         parts.append(GRAPH_INTRO.format(graph=Path(graph_text).read_text()))
+    elif graph_tools:
+        parts.append(TOOLS_INTRO[graph_tools])
+    elif intent:
+        parts.append(INTENT_INTRO.format(intent=Path(intent).read_text().strip()))
     parts.append(WORK)
     parts.append(RULES.format(workdir=workdir, env=env))
     return '\n\n'.join(parts) + '\n'
@@ -89,11 +109,13 @@ def main(argv=None):
     ap.add_argument('--spec', action='store_true', help='append specs-final/PULL.md')
     ap.add_argument('--graph', help='graph YAML to render into the prompt (text channel)')
     ap.add_argument('--graph-text', help='pre-rendered graph text to put into the prompt')
+    ap.add_argument('--graph-tools', choices=sorted(TOOLS_INTRO), help='the graph is served through tools (tool channel)')
+    ap.add_argument('--intent', help="the developer's intent as prose (prose-intent condition)")
     ap.add_argument('--workdir', default='/work/calcom')
     ap.add_argument('--env-script', default='/work/env.sh')
     ap.add_argument('-o', '--out')
     a = ap.parse_args(argv)
-    prompt = build(a.pull, a.spec, a.graph, a.graph_text, a.workdir, a.env_script)
+    prompt = build(a.pull, a.spec, a.graph, a.graph_text, a.workdir, a.env_script, a.graph_tools, a.intent)
     if a.out:
         Path(a.out).write_text(prompt)
     else:

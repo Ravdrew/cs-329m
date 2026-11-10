@@ -9,12 +9,13 @@ import json, sys
 import harness as h
 
 pull = int(sys.argv[1])
+h.TMP.mkdir(parents=True, exist_ok=True)
 t = h.task(pull)
 h.add_tests(t)
 excl = ' '.join(f"':(exclude){f}'" for f in t['test_files'] + t['support_files'])
 h.sh(h.realgit(f'diff --binary {t["base"]} {t["merge"]} -- . {excl}') +
-     f' > /tmp/gold.diff && cd {h.CALCOM} && git apply --whitespace=nowarn /tmp/gold.diff')
-schema = 'packages/prisma/schema.prisma' in open('/tmp/gold.diff').read()
+     f' > {h.TMP}/gold.diff && cd {h.CALCOM} && git apply --whitespace=nowarn {h.TMP}/gold.diff')
+schema = 'packages/prisma/schema.prisma' in open(h.TMP / 'gold.diff').read()
 if schema:
     h.regen_prisma()
 base = set(json.load(open(h.RESULTS / f'{pull}-baseline.json'))['stable_passing'])

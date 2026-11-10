@@ -125,3 +125,24 @@ def test_prompt_conditions_differ_only_in_graph_block(tmp_path, monkeypatch):
     start, end = text.index('## Component graph'), text.index('</component_graph>') + len('</component_graph>\n\n')
     assert text[:start] + text[end:] == base
     assert text.index('Interface the tests expect') < start < text.index('Implement this change')
+
+
+def test_tool_and_intent_conditions_differ_only_in_their_block(tmp_path, monkeypatch):
+    tasks = [{'pull_number': 1, 'problem_statement': 'Fix the thing.'}]
+    (tmp_path / 'tasks.json').write_text(json.dumps(tasks))
+    (tmp_path / '1.md').write_text('## Interface the tests expect\n\nNew file `x.ts`.\n')
+    (tmp_path / 'intent.md').write_text('Add a page that lists bookings.\n')
+    monkeypatch.setenv('BENCH_TASKS', str(tmp_path / 'tasks.json'))
+    monkeypatch.setenv('SPECS_DIR', str(tmp_path))
+    base = make_prompt.build(1, spec=True)
+    for kwargs, block in [({'graph_tools': 'graph'}, make_prompt.TOOLS_INTRO['graph']),
+                          ({'graph_tools': 'codegraph'}, make_prompt.TOOLS_INTRO['codegraph']),
+                          ({'intent': str(tmp_path / 'intent.md')},
+                           make_prompt.INTENT_INTRO.format(intent='Add a page that lists bookings.'))]:
+        prompt = make_prompt.build(1, spec=True, **kwargs)
+        assert prompt.replace(block + '\n\n', '', 1) == base
+        assert prompt.index('Interface the tests expect') < prompt.index(block) < prompt.index('Implement this change')
+    # The tool channel opens exactly like the text channel's graph block.
+    assert make_prompt.TOOLS_INTRO['graph'].startswith(make_prompt.GRAPH_INTRO.split('\n\n<component_graph>')[0])
+    with pytest.raises(SystemExit):
+        make_prompt.build(1, graph_tools='graph', intent=str(tmp_path / 'intent.md'))

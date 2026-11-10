@@ -7,7 +7,7 @@ own hidden tests, plus the interface specs every agent gets. Nothing here comes 
 
 | File | What it is |
 |---|---|
-| `harness.py` | One task at a time: `prepare` (check out the base commit, install, hide git history), `check` (gold patch passes, base fails), `baseline` (full unit suite twice at base), `evaluate LABEL [--regress]` (record the agent's diff, add the hidden tests, score tests and files), `restore`. |
+| `harness.py` | One task at a time: `prepare` (check out the base commit, install, hide git history), `check` (gold patch passes, base fails), `baseline` (full unit suite twice at base), `evaluate LABEL [--regress]` (record the agent's diff, add the hidden tests, score tests and files), `reset` (between agent runs: back to the prepared base snapshot without reinstalling), `restore`. Temporary files go in `PILOT_PRIVATE/tmp`, so parallel workers with their own `PILOT_DIR`/`PILOT_PRIVATE` never share them. |
 | `task_overrides.json` | Test helper files that ship with the hidden tests (#19997, #20646, #30354). |
 | `gold_regress.py` | Sanity check for the regression metric: the real PR should break no baseline test. |
 | `make_spec.py` + `ts_exports.js` | Interface-spec generator. It uses the TypeScript parser, prints signatures only, and covers changed signatures, Prisma additions and the members the tests' mocks define. |

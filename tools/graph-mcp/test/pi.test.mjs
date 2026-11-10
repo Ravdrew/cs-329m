@@ -3,11 +3,10 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
-import { createAssistantMessageEventStream, getCurrentTools, InMemoryCredentialStore } from '@earendil-works/pi-ai';
-import { ModelRuntime } from '@earendil-works/pi-coding-agent';
 import { TEAM_ROOT } from '../graph.mjs';
 import { assertTools, closeGraphSession, createGraphSession, piToolName, PI_DEFAULT_TOOLS } from '../pi.mjs';
 import { createGraphTools, toolDefinitions } from '../tools.mjs';
+import { getCurrentTools, modelFixture, toolCall } from './model-fixture.mjs';
 
 const GRAPH = join(TEAM_ROOT, 'graphs/booking-handmade-edit.yaml');
 const root = mkdtempSync(join(tmpdir(), 'graph-pi-test-'));
@@ -21,31 +20,7 @@ writeFileSync(join(checkout, '.pi/settings.json'), JSON.stringify({ customInstru
 writeFileSync(join(checkout, '.pi/extensions/canary.js'), 'throw new Error("EXTENSION_CANARY was loaded")');
 writeFileSync(join(checkout, '.pi/mcp.json'), JSON.stringify({ mcpServers: { intruder: { command: 'node', args: ['-e', 'process.exit(1)'] } } }));
 
-/** Pi's real session and tool pipeline with a scripted model in place of the provider (as tools/llm-only's tests do). */
-async function modelFixture(steps) {
-  const runtime = await ModelRuntime.create({ credentials: new InMemoryCredentialStore(), modelsPath: null, refreshOnCreate: false, allowModelNetwork: false });
-  await runtime.setRuntimeApiKey('openai', 'test-credential-never-send');
-  const requests = [];
-  runtime.streamSimple = (model, context) => {
-    const index = requests.length;
-    requests.push(structuredClone(context));
-    const stream = createAssistantMessageEventStream();
-    queueMicrotask(() => {
-      const content = steps[index] ?? [{ type: 'text', text: 'Done.' }];
-      const message = {
-        role: 'assistant', content, api: model.api, provider: model.provider, model: model.id, timestamp: Date.now(),
-        usage: { input: 10, output: 5, cacheRead: 0, cacheWrite: 0, totalTokens: 15, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } },
-        stopReason: content.some(item => item.type === 'toolCall') ? 'toolUse' : 'stop',
-      };
-      stream.push({ type: 'start', partial: message });
-      stream.push({ type: 'done', reason: message.stopReason, message });
-      stream.end();
-    });
-    return stream;
-  };
-  return { runtime, requests };
-}
-const call = (name, args = {}) => ({ type: 'toolCall', id: `${name}-${Math.random().toString(36).slice(2)}`, name: piToolName(name), arguments: args });
+const call = (name, args = {}) => toolCall(piToolName(name), args);
 
 async function runChannel(channel) {
   const { runtime, requests } = await modelFixture([

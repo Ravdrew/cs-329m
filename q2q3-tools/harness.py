@@ -5,6 +5,7 @@
   harness.py check    PULL   sanity check: PR tests fail at base, pass with the real PR's source changes
   harness.py evaluate PULL   after the agent: record its diff, add the PR's tests, run them, score files
   harness.py restore  PULL   put git history back
+  harness.py reset    PULL   between agent runs: back to the prepared base snapshot, without reinstalling
   harness.py baseline PULL   at base: run the full unit suite twice, save the tests that pass both times
   harness.py evaluate PULL LABEL --regress   also run the full suite after the agent and list baseline tests that broke
 
@@ -18,11 +19,14 @@ so it cannot read the real PR from history. The PR's test files are added only a
 import json, os, re, shutil, subprocess, sys, time
 from pathlib import Path
 
-PILOT = Path(os.environ.get('PILOT_DIR', '/home/claude/pilot'))   # holds calcom/ and env.sh
+# resolve(): Vitest reports real paths, and on macOS /tmp and /var are symlinks to /private/..., so test ids are only
+# relative to CALCOM if CALCOM is a real path too.
+PILOT = Path(os.environ.get('PILOT_DIR', '/home/claude/pilot')).resolve()   # holds calcom/ and env.sh
 CALCOM = PILOT / 'calcom'
-PRIVATE = Path(os.environ.get('PILOT_PRIVATE', '/root/pilot-private'))
+PRIVATE = Path(os.environ.get('PILOT_PRIVATE', '/root/pilot-private')).resolve()
 HIDDEN = PRIVATE / 'calcom.git-hidden'
 RESULTS = PRIVATE / 'results'
+TMP = PRIVATE / 'tmp'   # per PILOT_PRIVATE, so parallel workers never share test reports or patches
 TOOLS = Path(__file__).resolve().parent
 BENCH_TASKS = Path(os.environ.get('BENCH_TASKS', TOOLS.parent / 'benchmark' / 'tasks.json'))
 OVERRIDES = Path(os.environ.get('TASK_OVERRIDES', TOOLS / 'task_overrides.json'))
@@ -76,25 +80,57 @@ def prepare(pull):
     if HIDDEN.exists():
         raise SystemExit(f'{HIDDEN} already exists: run restore first')
     sh(f'git -C {CALCOM} config gc.auto 0 && git -C {CALCOM} config maintenance.auto false; '
-       'while ps -eo comm=,args= | awk \'$1=="git" && ($3=="gc" || $3=="maintenance" || $3=="repack")\' | grep -q .; do sleep 2; done')
+       # comm is a bare name on Linux and a full path on macOS (/usr/bin/git): compare the basename.
+       'while ps -eo comm=,args= | awk \'{c=$1; sub(/.*\\//, "", c)} c=="git" && ($3=="gc" || $3=="maintenance" || $3=="repack")\' | grep -q .; do sleep 2; done')
     shutil.move(str(CALCOM / '.git'), str(HIDDEN))
     sh(ENV + 'git init -q && git config gc.auto 0 && git add -A . >/dev/null 2>&1 && git -c user.email=pilot@x -c user.name=pilot commit -q -m base --no-verify')
+    # Ignored files present now (installs, generated clients) are part of the base; reset removes any others.
+    (PRIVATE / f'{pull}-ignored-at-base.txt').write_text(ignored_files())
     print('workspace ready, history hidden')
 
 
+def ignored_files():
+    return sh(ENV + 'git ls-files --others --ignored --exclude-standard --directory').stdout
+
+
+def reset(pull):
+    """Between agent runs on a prepared task: back to the base snapshot without reinstalling. Removes the agent's
+    changes, the hidden tests evaluate added, and ignored files created since prepare (e.g. a .env or build output),
+    and regenerates the Prisma client if the schema had changed."""
+    if not HIDDEN.exists():
+        raise SystemExit(f'{HIDDEN} does not exist: run prepare {pull} first')
+    base = PRIVATE / f'{pull}-ignored-at-base.txt'
+    if not base.exists():
+        raise SystemExit(f'{base} does not exist: run prepare {pull} again')
+    schema = sh(ENV + 'git status --porcelain -- packages/prisma/schema.prisma').stdout.strip() != ''
+    # reset --hard, not checkout: evaluate stages the agent's changes, and checkout would restore the staged copies.
+    sh(ENV + 'git reset -q --hard && git clean -q -fd -e node_modules -e "**/node_modules"')
+    keep = set(base.read_text().splitlines())
+    extra = [p for p in ignored_files().splitlines() if p not in keep]
+    for p in extra:
+        path = CALCOM / p
+        shutil.rmtree(path) if path.is_dir() else path.unlink(missing_ok=True)
+    if schema:
+        regen_prisma()
+    left = sh(ENV + 'git status --porcelain -- . ":!**/node_modules"').stdout.strip()
+    if left:
+        raise SystemExit(f'workspace not clean after reset:\n{left[:2000]}')
+    print(json.dumps({'reset': pull, 'removed_ignored': extra, 'prisma_regenerated': schema}))
+
+
 def run_tests(t):
-    r = sh(ENV + t['test_cmd'].replace('yarn vitest', 'yarn vitest --reporter=json --outputFile=/tmp/vitest.json')
+    r = sh(ENV + t['test_cmd'].replace('yarn vitest', f'yarn vitest --reporter=json --outputFile={TMP}/vitest.json')
            .replace('TZ=UTC ', ''), check=False, timeout=1800)
     res = {}
     try:
-        j = json.load(open('/tmp/vitest.json'))
+        j = json.load(open(TMP / 'vitest.json'))
         for f in j.get('testResults', []):
             name = os.path.relpath(f['name'], CALCOM)
             for a in f.get('assertionResults', []):
                 res[f"{name}::{' > '.join(a.get('ancestorTitles', []) + [a['title']])}"] = a['status']
             if not f.get('assertionResults'):
                 res[f'{name}::<file>'] = f.get('status') + ': ' + (f.get('message') or '')[:300]
-        os.remove('/tmp/vitest.json')
+        os.remove(TMP / 'vitest.json')
     except Exception as e:
         res['<error>'] = f'{e}: {r.stdout[-1500:]} {r.stderr[-1500:]}'
     f2p = {k: res.get(k, 'missing') for k in t['f2p']}
@@ -103,11 +139,11 @@ def run_tests(t):
 
 def add_tests(t):
     for f in t['test_files'] + t['support_files']:
-        sh(realgit(f'show {t["merge"]}:{f}') + f' > /tmp/testfile && mkdir -p "{CALCOM}/{os.path.dirname(f)}" && cp /tmp/testfile "{CALCOM}/{f}"')
+        sh(realgit(f'show {t["merge"]}:{f}') + f' > {TMP}/testfile && mkdir -p "{CALCOM}/{os.path.dirname(f)}" && cp {TMP}/testfile "{CALCOM}/{f}"')
 
 
 def regen_prisma():
-    sh(ENV + 'cd packages/prisma && yarn post-install > /tmp/regen.log 2>&1', check=False, timeout=900)
+    sh(ENV + f'cd packages/prisma && yarn post-install > {TMP}/regen.log 2>&1', check=False, timeout=900)
 
 
 def check(pull):
@@ -116,8 +152,8 @@ def check(pull):
     f2p, _ = run_tests(t)
     base_pass = sum(v == 'passed' for v in f2p.values())
     excl = ' '.join(f"':(exclude){f}'" for f in t['test_files'] + t['support_files'])
-    sh(realgit(f'diff --binary {t["base"]} {t["merge"]} -- . {excl}') + f' > /tmp/gold.diff && cd {CALCOM} && git apply --whitespace=nowarn /tmp/gold.diff')
-    schema = 'packages/prisma/schema.prisma' in open('/tmp/gold.diff').read()
+    sh(realgit(f'diff --binary {t["base"]} {t["merge"]} -- . {excl}') + f' > {TMP}/gold.diff && cd {CALCOM} && git apply --whitespace=nowarn {TMP}/gold.diff')
+    schema = 'packages/prisma/schema.prisma' in open(TMP / 'gold.diff').read()
     if schema:
         regen_prisma()
     f2p2, res = run_tests(t)
@@ -195,8 +231,9 @@ def restore(pull=None, quiet=False):
 
 if __name__ == '__main__':
     RESULTS.mkdir(parents=True, exist_ok=True)
+    TMP.mkdir(parents=True, exist_ok=True)
     cmd, pull = sys.argv[1], int(sys.argv[2])
     if cmd == 'evaluate':
         evaluate(pull, sys.argv[3], regress='--regress' in sys.argv[4:])
     else:
-        {'prepare': prepare, 'check': check, 'restore': restore, 'baseline': baseline}[cmd](pull)
+        {'prepare': prepare, 'check': check, 'restore': restore, 'baseline': baseline, 'reset': reset}[cmd](pull)
