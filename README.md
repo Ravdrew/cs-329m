@@ -25,6 +25,7 @@ Open a pull request for changes; don't push directly to `master`. Keep large gen
 | `scoring/` | **Q1 scorer**: compares candidate graphs with the withheld reference graph (file ownership, localization F2, questions) | [scoring/README.md](scoring/README.md) |
 | `benchmark/`, `docs/benchmark-pr-audit.md` | **Benchmark tasks**: 37 verified fail-to-pass Cal.com PRs mined SWE-bench style, with the recommended 20 | [benchmark/README.md](benchmark/README.md) |
 | `q2q3-tools/` | **Q2/Q3 harness**: runs a coding agent on a benchmark task, grades it with the PR's hidden tests; the 20 interface specs agents receive | [q2q3-tools/README.md](q2q3-tools/README.md) |
+| `tools/graph-mcp/` | **Graph tool channel (Q2)**: stdio MCP server with seven read-only graph tools; same facts and wording as the text channel | [tools/graph-mcp/README.md](tools/graph-mcp/README.md) |
 
 Two Cal.com commits appear in this repo. Everything under `targets/`, `scripts/`, `results/`,
 `graphs/`, `tools/` and `scoring/` uses the team pin **`54343aa`**. The viewer's hand-built sample
