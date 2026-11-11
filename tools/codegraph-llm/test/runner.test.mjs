@@ -8,8 +8,8 @@ import { after, test } from 'node:test';
 import { createAssistantMessageEventStream, getCurrentTools, InMemoryCredentialStore } from '@earendil-works/pi-ai';
 import { ModelRuntime } from '@earendil-works/pi-coding-agent';
 import { checkPi, DEFAULT_MODEL, executePi, runPiSession, toolNames } from '../pi.mjs';
-import { DraftGraph, parseYaml, yaml } from '../graph.mjs';
-import { runExperiment, TEAM_ROOT, verifyRun } from '../runner.mjs';
+import { codeKindHint, DraftGraph, parseYaml, yaml } from '../graph.mjs';
+import { POLICIES, REQUIRED_POLICY, runExperiment, TEAM_ROOT, verifyRun } from '../runner.mjs';
 import { createGraphTools } from '../source-server.mjs';
 import { assertOutsideRepository, git, prepareCheckout, Source, sha256 } from '../source.mjs';
 
@@ -403,6 +403,8 @@ test('orchestration: fresh prepare, full mock generation, repeat isolation and t
   const outputRoot = join(root, 'experiments');
   const prepared = await runExperiment({ staticGraph, outputRoot, source: origin, prepareOnly: true }, { target });
   assert.equal(prepared.metadata.status, 'prepared');
+  assert.deepEqual(prepared.metadata.graph_policy, REQUIRED_POLICY, 'new runs default to the required policy');
+  assert.deepEqual(JSON.parse(readFileSync(join(prepared.runDir, 'server.json'), 'utf8')).policy, REQUIRED_POLICY);
   assert(!existsSync(join(prepared.runDir, 'graph.yaml')));
   const execute = async config => {
     const tools = createGraphTools(config);
@@ -413,11 +415,11 @@ test('orchestration: fresh prepare, full mock generation, repeat isolation and t
     assert.equal(tools.call('finalize_graph').isError, false);
     return { code: 0, stopReason: null, usage: { input_tokens: 10, output_tokens: 20 } };
   };
-  const completed = await runExperiment({ staticGraph, outputRoot, source: origin, model: 'test-model' }, { target, checkPi: () => 'mock', execute });
+  const completed = await runExperiment({ staticGraph, outputRoot, source: origin, model: 'test-model', policy: POLICIES.optional }, { target, checkPi: () => 'mock', execute });
   assert.equal(completed.metadata.status, 'completed');
   assert.equal(completed.metadata.usage.output_tokens, 20);
   assert.equal(completed.metadata.cost_usd, null);
-  const second = await runExperiment({ staticGraph, outputRoot, source: origin, model: 'test-model' }, { target, checkPi: () => 'mock', execute });
+  const second = await runExperiment({ staticGraph, outputRoot, source: origin, model: 'test-model', policy: POLICIES.optional }, { target, checkPi: () => 'mock', execute });
   assert.notEqual(second.runDir, completed.runDir);
   assert.equal(second.metadata.graph_sha256, completed.metadata.graph_sha256);
   const reportPath = join(second.runDir, 'validation.json');
@@ -577,7 +579,7 @@ test('Pi orchestration records Astra selection, actual SDK usage and estimated c
     call('update_graph', { yaml: yaml(prediction()) }),
     call('finalize_graph'),
   ]]);
-  const result = await runExperiment({ staticGraph, outputRoot: join(root, 'pi-complete'), source: origin, effort: 'low' }, {
+  const result = await runExperiment({ staticGraph, outputRoot: join(root, 'pi-complete'), source: origin, effort: 'low', policy: POLICIES.optional }, {
     target, checkPi: config => checkPi(config, runtime),
     execute: config => runPiSession(config, undefined, runtime),
   });
@@ -590,4 +592,240 @@ test('Pi orchestration records Astra selection, actual SDK usage and estimated c
   assert.equal(result.metadata.execution.toolAttempts, 4);
   assert.equal(result.metadata.inspection.tool_calls, 4);
   assert.equal(verifyRun(result.runDir).nodes, 2);
+});
+
+function reviewDraft(minFilePairs) {
+  const { source } = fixture();
+  readBoth(source);
+  const input = prepareStatic(staticGraph, source, target.repo);
+  const graph = new DraftGraph(source, schema, target.repo, new StaticGraph(input), sha256(canonical(input)), { edgeReview: { min_file_pairs: minFilePairs } });
+  graph.update(yaml(prediction()));
+  return graph;
+}
+
+test('a required edge review blocks finalization until every strong pair is one described edge', () => {
+  const graph = reviewDraft(0); // The fixture's page>service pair spans one file pair, so it is required at 0.
+  const listed = graph.inspectEdges({ pending: true });
+  assert.deepEqual({ ...listed.edge_review, pending: undefined }, { min_file_pairs: 0, required_pairs: 1, pending_pairs: 1, dropped_edges: 0, pending: undefined });
+  assert.equal(listed.edge_review.pending[0].file_pairs, 1);
+  assert.equal(listed.total_edges, 2);
+  assert(listed.edges.every(e => e.review_pending));
+  assert.equal(graph.inspect().edge_review.pending_pairs, 1);
+  assert.throws(() => graph.finalize(), /1 of 1 component pairs .*page>service/);
+  const [a, b] = listed.edges.map(e => e.id);
+  // Retyping one of the pair's two host edges still leaves two edges: not reviewed.
+  graph.updateEdges(yaml({ retype: [{ id: a, kind: listed.edges[0].kind, description: 'Only half of the pair.' }] }));
+  assert.throws(() => graph.finalize(), /still need an edge review/);
+  graph.updateEdges(yaml({ consolidate: [{ id: 'page-books', replaces: [a, b], kind: 'calls', description: 'The page calls the booking service to create a booking.' }] }));
+  assert.equal(graph.inspectEdges({ pending: true }).total_edges, 0);
+  const output = graph.finalize();
+  assert.equal(output.edges.length, 1);
+  assert.deepEqual(output['x-codegraph'].edge_review, { min_file_pairs: 0, required_pairs: 1 });
+});
+
+test('pairs at or below the threshold need no review', () => {
+  const weak = reviewDraft(1);
+  assert.equal(weak.inspectEdges({}).edge_review.required_pairs, 0);
+  assert(weak.inspectEdges({}).edges.every(e => !e.review_pending));
+  assert.deepEqual(weak.finalize()['x-codegraph'].edge_review, { min_file_pairs: 1, required_pairs: 0 });
+});
+
+test('runs with a required edge review replay and verify with it, and not without it', () => {
+  const { config } = fixture();
+  config.edgeReview = { min_file_pairs: 0 };
+  writeFileSync(join(config.runDir, 'server.json'), JSON.stringify(config));
+  const tools = createGraphTools(config);
+  tools.call('read_source', { path: 'src/page.ts' });
+  tools.call('read_source', { path: 'src/service.ts' });
+  tools.call('update_graph', { yaml: yaml(prediction()) });
+  const refused = tools.call('finalize_graph');
+  assert(refused.isError);
+  assert.match(refused.content[0].text, /edge review/);
+  const ids = JSON.parse(tools.call('inspect_edges', { pending: true }).content[0].text).edges.map(e => e.id);
+  assert(!tools.call('update_edges', { yaml: yaml({ consolidate: [{ id: 'page-books', replaces: ids, kind: 'calls', description: 'The page calls the booking service.' }] }) }).isError);
+  const done = tools.call('finalize_graph');
+  assert(!done.isError, done.content[0].text);
+  assert.deepEqual(JSON.parse(done.content[0].text).edge_review, { min_file_pairs: 0, required_pairs: 1 });
+  const report = verifyRun(config.runDir);
+  assert.equal(report.edge_ops, 1);
+  assert.deepEqual(report.edge_review, { min_file_pairs: 0, required_pairs: 1 });
+  // Dropping the requirement from server.json changes the replayed graph, so verification refuses.
+  delete config.edgeReview;
+  writeFileSync(join(config.runDir, 'server.json'), JSON.stringify(config));
+  assert.throws(() => verifyRun(config.runDir), /differ/);
+});
+
+function policyDraft(policy) {
+  const { source } = fixture();
+  readBoth(source);
+  const input = prepareStatic(staticGraph, source, target.repo);
+  const graph = new DraftGraph(source, schema, target.repo, new StaticGraph(input), sha256(canonical(input)), { policy });
+  graph.update(yaml(prediction()));
+  return graph;
+}
+
+test('with pairEdges the host builds one edge per component pair, named by its strongest kind', () => {
+  const graph = policyDraft({ pairEdges: true });
+  const { edges } = graph.inspectEdges({});
+  assert.equal(edges.length, 1);
+  assert.equal(edges[0].kind, 'calls');
+  assert.deepEqual(edges[0].host_kinds, { calls: 1, uses: 2 });
+  assert.equal(edges[0].raw_edge_count, 3);
+  // Any kind in the merged mix is one the static analysis reported, so it needs no extra evidence.
+  graph.updateEdges(yaml({ retype: [{ id: edges[0].id, kind: 'uses', label: 'imports booking', description: 'The page imports the booking service.' }] }));
+  const output = graph.finalize();
+  assert.equal(output.edges.length, 1);
+  assert.deepEqual(output.edges[0]['x-codegraph'].host_kinds, { calls: 1, uses: 2 });
+  assert.deepEqual(Object.values(graph.aggregation.edges).flat().sort(), [3, 4, 5]);
+  assert.deepEqual(output['x-codegraph'].policy, { pairEdges: true });
+});
+
+test('a dropped edge leaves the graph with its reason, and its raw edges stay accounted for', () => {
+  const graph = policyDraft({ pairEdges: true, edgeDrop: true, edgeReview: { min_file_pairs: 0, labels: true } });
+  const [edge] = graph.inspectEdges({ pending: true }).edges;
+  assert.throws(() => graph.updateEdges(yaml({ drop: [{ id: edge.id }] })), /needs a reason/);
+  assert.throws(() => graph.updateEdges(yaml({ retype: [{ id: edge.id, kind: 'calls', description: 'No label.' }] })), /short label/);
+  assert.throws(() => graph.finalize(), /still need an edge review.*or drop it with a reason/);
+  graph.updateEdges(yaml({ drop: [{ id: edge.id, reason: 'Fixture noise.' }] }));
+  assert.equal(graph.inspectEdges({}).total_edges, 0);
+  assert.equal(graph.inspectEdges({}).edge_review.pending_pairs, 0);
+  assert.equal(graph.inspectEdges({ dropped: true }).edges[0].reason, 'Fixture noise.');
+  assert.equal(graph.updateEdges(yaml({ reset_ids: [edge.id] })).total_edges, 1, 'reset_ids undoes a drop');
+  graph.updateEdges(yaml({ drop: [{ id: edge.id, reason: 'Fixture noise.' }] }));
+  const output = graph.finalize();
+  assert.equal(output.edges.length, 0);
+  assert.deepEqual(output['x-codegraph'].dropped_edges.map(e => [e.id, e.raw_edge_count, e.reason]), [[edge.id, 3, 'Fixture noise.']]);
+  assert.deepEqual(graph.aggregation.dropped_edges, { [edge.id]: [3, 4, 5] });
+  // Without the policy, drop is not an operation.
+  const plain = policyDraft({});
+  assert.throws(() => plain.updateEdges(yaml({ drop: [{ id: plain.inspectEdges({}).edges[0].id, reason: 'x' }] })), /accepts only/);
+});
+
+test('above the threshold every component needs a group, and enough groups are used', () => {
+  const ungrouped = policyDraft({ groups: { min_nodes: 1, min_groups: 1 } });
+  const page = prediction().nodes[0];
+  delete page.group;
+  ungrouped.update(yaml({ nodes: [page] }));
+  assert.throws(() => ungrouped.finalize(), /every component needs a group; 1 have none: page/);
+  ungrouped.update(yaml({ nodes: [prediction().nodes[0]] }));
+  assert.equal(ungrouped.finalize().nodes.every(n => n.group === 'booking'), true);
+  assert.throws(() => policyDraft({ groups: { min_nodes: 1, min_groups: 2 } }).finalize(), /at least 2 groups; 1 are used/);
+  assert.doesNotThrow(() => policyDraft({ groups: { min_nodes: 2, min_groups: 3 } }).finalize(), 'at or below min_nodes, groups stay optional');
+});
+
+test('runs under the required policy replay and verify, and not without the policy', () => {
+  const { config } = fixture();
+  config.policy = REQUIRED_POLICY;
+  writeFileSync(join(config.runDir, 'server.json'), JSON.stringify(config));
+  const tools = createGraphTools(config);
+  tools.call('read_source', { path: 'src/page.ts' });
+  tools.call('read_source', { path: 'src/service.ts' });
+  tools.call('update_graph', { yaml: yaml(prediction()) });
+  assert.match(tools.call('finalize_graph').content[0].text, /edge review/);
+  const [edge] = JSON.parse(tools.call('inspect_edges', { pending: true }).content[0].text).edges;
+  assert.deepEqual(edge.host_kinds, { calls: 1, uses: 2 });
+  const evidence = [{ path: 'src/page.ts', start_line: 2, end_line: 4 }];
+  const update = tools.call('update_edges', { yaml: yaml({ retype: [{ id: edge.id, kind: 'renders', label: 'renders booking result', description: 'The page renders what the booking service returns.', 'x-source-evidence': evidence }] }) });
+  assert(!update.isError, update.content[0].text);
+  const done = tools.call('finalize_graph');
+  assert(!done.isError, done.content[0].text);
+  const result = JSON.parse(done.content[0].text);
+  assert.equal(result.edges, 1);
+  assert.equal(result.dropped_edges, 0);
+  const report = verifyRun(config.runDir);
+  assert.equal(report.edge_ops, 1);
+  const graph = parseYaml(readFileSync(join(config.runDir, 'graph.yaml'), 'utf8'));
+  assert.equal(graph.edges[0].kind, 'renders');
+  assert.equal(graph.edges[0].label, 'renders booking result');
+  assert.deepEqual(graph['x-codegraph'].policy, REQUIRED_POLICY);
+  delete config.policy;
+  writeFileSync(join(config.runDir, 'server.json'), JSON.stringify(config));
+  assert.throws(() => verifyRun(config.runDir));
+});
+
+test('with staticSites an edge lists its code sites, and citing one is evidence for a new kind without a read', () => {
+  const { source } = fixture(); // No read_source calls: only the code sites can justify a new kind.
+  const input = prepareStatic(staticGraph, source, target.repo);
+  const graph = new DraftGraph(source, schema, target.repo, new StaticGraph(input), sha256(canonical(input)),
+    { policy: { pairEdges: true, staticSites: true } });
+  const nodes = prediction().nodes.map(n => ({ ...n, 'x-source-evidence': undefined }));
+  graph.document.nodes = nodes; graph.document.groups = prediction().groups; // Membership only; finalize is not called here.
+  const [edge] = graph.inspectEdges({}).edges;
+  assert.deepEqual(edge.code_sites, [{ path: 'src/page.ts', line: 1, code: 'import { book } from "./service";' }, { path: 'src/page.ts', line: 3, code: 'return book();' }]);
+  const retype = evidence => yaml({ retype: [{ id: edge.id, kind: 'renders', label: 'renders result', description: 'Shows the booking result.', 'x-source-evidence': evidence }] });
+  assert.throws(() => graph.updateEdges(retype([{ path: 'src/page.ts', line: 2 }])), /not one of this edge's code sites/);
+  assert.throws(() => graph.updateEdges(retype([{ path: 'src/page.ts', start_line: 3, end_line: 3 }])), /was not read/);
+  graph.updateEdges(retype([{ path: 'src/page.ts', line: 3 }]));
+  const [retyped] = graph.applyEdgeOps(graph.aggregate(graph.ownership()).edges, graph.edgeOps, graph.ownership(), true);
+  assert.equal(retyped.kind, 'renders');
+  assert.deepEqual(retyped['x-source-evidence'], [{ path: 'src/page.ts', start_line: 3, end_line: 3, excerpt: '  return book();', basis: 'static-site' }]);
+  // Without the policy, a code-site citation is not evidence.
+  const plain = policyDraft({ pairEdges: true });
+  const [host] = plain.inspectEdges({}).edges;
+  assert.equal(host.code_sites, undefined);
+  assert.throws(() => plain.updateEdges(yaml({ retype: [{ id: host.id, kind: 'renders', 'x-source-evidence': [{ path: 'src/page.ts', line: 3 }] }] })), /Invalid evidence range/);
+});
+
+test('a finalized graph keeps code-site evidence but not the site lists', () => {
+  const graph = policyDraft({ pairEdges: true, staticSites: true });
+  const [edge] = graph.inspectEdges({}).edges;
+  graph.updateEdges(yaml({ retype: [{ id: edge.id, kind: 'reads', label: 'reads booking result', description: 'Reads what the booking service returns.', 'x-source-evidence': [{ path: 'src/page.ts', line: 3 }] }] }));
+  const output = graph.finalize();
+  assert.equal(output.edges[0].kind, 'reads');
+  assert.equal(output.edges[0]['x-source-evidence'][0].basis, 'static-site');
+  assert(output.edges.every(e => !('sites' in e['x-codegraph'])));
+});
+
+test('code-pattern kind hints read data access, sends and JSX, and skip declarations', () => {
+  const sites = lines => lines.map((code, i) => ({ site: `src/a.ts:${i + 1}`, code }));
+  assert.deepEqual(codeKindHint(sites(['import { BookingRepository } from "./repo";', 'await repo.findManyByUser(id);']), 'service', 'model', 'calls'),
+    { kind: 'reads', sites: ['src/a.ts:2'] });
+  assert.equal(codeKindHint(sites(['await repo.updateMany({', 'await repo.findFirst({', 'await prisma.$transaction([']), 'service', 'model', 'calls').kind, 'writes');
+  assert.equal(codeKindHint(sites(['const s = useBookerStoreContext((state) => state.selectedDate);']), 'component', 'store', 'calls').kind, 'reads');
+  assert.equal(codeKindHint(sites(['await sendScheduledEmailsAndSMS(evt);']), 'service', 'service', 'calls').kind, 'emits');
+  assert.equal(codeKindHint(sites(['<BookerForm onSubmit={submit} />']), 'page', 'component', 'calls').kind, 'renders');
+  assert.equal(codeKindHint(sites(['<BookerForm />']), 'service', 'component', 'calls'), null, 'renders needs UI on both ends');
+  assert.equal(codeKindHint(sites(['export type Repo = { findMany(): void };', 'import { sendEmail } from "./x";']), 'service', 'model', 'uses'), null);
+  assert.equal(codeKindHint(sites(['await repo.findMany()']), 'service', 'service', 'calls'), null, 'reads need a data component');
+  assert.equal(codeKindHint(sites(['await sendX()']), 'page', 'page', 'navigates'), null, 'navigates is kept');
+});
+
+test('with kindHints the host pre-classifies an edge; keeping the hint needs no read and records its sites', () => {
+  const graph = policyDraft({ pairEdges: true, staticSites: true, kindHints: true, edgeReview: { min_file_pairs: 0, labels: true } });
+  const plainKind = graph.inspectEdges({}).edges[0].kind;
+  assert.equal(plainKind, 'calls');
+  graph.document.nodes[1].kind = 'store';
+  graph.siteCode = site => site === 'src/page.ts:3' ? 'return useBookingStore();' : 'import { book } from "./service";';
+  const [edge] = graph.inspectEdges({}).edges;
+  assert.equal(edge.kind, 'reads');
+  assert.equal(edge.suggested_kind, 'reads');
+  assert.deepEqual(edge.code_sites[0], { path: 'src/page.ts', line: 3, code: 'return book();' });
+  assert.throws(() => graph.updateEdges(yaml({ retype: [{ id: edge.id, kind: 'writes', label: 'writes', description: 'Writes.' }] })), /needs x-source-evidence/);
+  graph.updateEdges(yaml({ retype: [{ id: edge.id, kind: 'reads', label: 'reads booking state', description: 'Reads the booking store.' }] }));
+  const output = graph.finalize();
+  assert.equal(output.edges[0].kind, 'reads');
+  assert.deepEqual(output.edges[0]['x-source-evidence'], [{ path: 'src/page.ts', start_line: 3, end_line: 3, excerpt: 'return useBookingStore();', basis: 'code-pattern' }]);
+  assert.deepEqual(output.edges[0]['x-codegraph'].kind_hint, { kind: 'reads', sites: ['src/page.ts:3'] });
+});
+
+test('with autoDrop the host drops weak uses-only edges unless the model classifies them', () => {
+  const graph = policyDraft({ pairEdges: true, edgeDrop: true, autoDrop: { max_file_pairs: 2 }, edgeReview: { min_file_pairs: 0, labels: true } });
+  // The fixture pair has calls, so nothing is dropped; make it a uses-only pair by forcing its kind.
+  assert.equal(graph.inspectEdges({}).edges.length, 1);
+  const aggregate = graph.aggregate.bind(graph);
+  graph.aggregate = o => { const r = aggregate(o); r.edges = r.edges.map(e => ({ ...e, kind: 'uses' })); return r; };
+  assert.equal(graph.inspectEdges({}).edges.length, 0);
+  const [dropped] = graph.inspectEdges({ dropped: true }).edges;
+  assert.match(dropped.reason, /^automatic: import or type reference only, across 1 file pair$/);
+  assert.equal(graph.reviewStatus().pending_pairs, 0);
+  const output = graph.finalize();
+  assert.equal(output.edges.length, 0);
+  assert.equal(output['x-codegraph'].dropped_edges.length, 1);
+  // Retyping it keeps it.
+  const kept = policyDraft({ pairEdges: true, edgeDrop: true, autoDrop: { max_file_pairs: 2 } });
+  kept.aggregate = o => { const r = Object.getPrototypeOf(kept).aggregate.call(kept, o); r.edges = r.edges.map(e => ({ ...e, kind: 'uses' })); return r; };
+  const id = kept.inspectEdges({ dropped: true }).edges[0].id;
+  kept.updateEdges(yaml({ retype: [{ id, kind: 'uses', label: 'shares booking types', description: 'Kept on purpose.' }] }));
+  assert.equal(kept.inspectEdges({}).edges.length, 1);
+  assert.equal(kept.inspectEdges({ dropped: true }).edges.length, 0);
 });

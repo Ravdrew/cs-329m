@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { parseArgs } from 'node:util';
 import { checkPi } from './pi.mjs';
-import { runExperiment, verifyRun } from './runner.mjs';
+import { POLICIES, runExperiment, verifyRun } from './runner.mjs';
 
 const HELP = `CodeGraph-hot-started LLM component construction (Pi SDK, Astra by default).
 
@@ -20,6 +20,10 @@ Options:
   --output-root PATH    New run directories here; must be outside all Git checkouts
   --max-tools N         Maximum source/graph tool calls (default: 600)
   --max-minutes N       Maximum generation time (default: 45)
+  --policy NAME         required (default): one edge per component pair, every pair
+                        classified (kind, label, description) or dropped with a reason,
+                        and groups for every component above 20 components.
+                        optional: PR #9 as first written (edge operations allowed only)
   --prepare-only        Prepare clean checkout and inputs without calling a model
   --check               Check Pi, selected model and local authentication; no generation
   --verify PATH         Revalidate a frozen graph, its evidence, transcript and checksum
@@ -32,6 +36,7 @@ try {
   const { values } = parseArgs({ options: {
     model: { type: 'string' }, provider: { type: 'string' }, effort: { type: 'string' }, 'auth-file': { type: 'string' }, source: { type: 'string' },
     'output-root': { type: 'string' }, 'static-graph': { type: 'string' }, 'max-tools': { type: 'string' }, 'max-minutes': { type: 'string' },
+    policy: { type: 'string' },
     'prepare-only': { type: 'boolean' }, check: { type: 'boolean' }, verify: { type: 'string' }, help: { type: 'boolean', short: 'h' },
   } });
   if (values.help) console.log(HELP);
@@ -49,6 +54,11 @@ try {
       outputRoot: values['output-root'], prepareOnly: values['prepare-only'],
       staticGraph: values['static-graph'],
       maxTools: positive('max-tools', 600), maxMinutes: positive('max-minutes', 45),
+      policy: (() => {
+        const name = values.policy ?? 'required';
+        if (!POLICIES[name]) throw new Error(`--policy must be one of ${Object.keys(POLICIES).join(', ')}`);
+        return POLICIES[name];
+      })(),
       progress: value => console.error(JSON.stringify(value)),
     });
     console.log(JSON.stringify({ status: result.metadata.status, run_directory: result.runDir, counts: result.metadata.counts }, null, 2));

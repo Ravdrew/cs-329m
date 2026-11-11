@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { checkPi, DEFAULT_MODEL, DEFAULT_PROVIDER, executePi } from './pi.mjs';
 import { DraftGraph, parseYaml, yaml } from './graph.mjs';
 import { StaticGraph, prepareStatic, canonical } from './static.mjs';
+import { runPolicy } from './source-server.mjs';
 import { assertOutsideRepository, git, prepareCheckout, sha256, Source } from './source.mjs';
 
 export const HERE = dirname(fileURLToPath(import.meta.url));
@@ -23,7 +24,8 @@ export function verifyRun(runDir) {
   if (sha256(inputBytes) !== config.staticInputHash) throw new Error('Static input checksum mismatch');
   const input = JSON.parse(inputBytes);
   if (input.repo !== config.repo || input.commit !== config.commit) throw new Error('Static input pin mismatch');
-  const draft = new DraftGraph(source, schema, config.repo, new StaticGraph(input), config.staticInputHash);
+  // Runs recorded before the graph policy have none in server.json and replay without it.
+  const draft = new DraftGraph(source, schema, config.repo, new StaticGraph(input), config.staticInputHash, { policy: runPolicy(config) });
   const events = readFileSync(join(runDir, 'tools.jsonl'), 'utf8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
   let frozen;
   for (const event of events) {
@@ -60,9 +62,18 @@ export function verifyRun(runDir) {
       report.source_files !== verified['x-source-files'].length || report.static_input_sha256 !== config.staticInputHash ||
       report.membership_sha256 !== verified['x-codegraph'].membership_sha256 ||
       report.aggregation_sha256 !== verified['x-codegraph'].aggregation_sha256 ||
-      canonical(report.static_edge_accounting) !== canonical(draft.aggregation.counts)) throw new Error('Validation report differs from the graph');
+      canonical(report.static_edge_accounting) !== canonical(draft.aggregation.counts) ||
+      canonical(report.edge_review ?? null) !== canonical(verified['x-codegraph'].edge_review ?? null) ||
+      (report.dropped_edges ?? null) !== (verified['x-codegraph'].dropped_edges?.length ?? null)) throw new Error('Validation report differs from the graph');
   return report;
 }
+
+// The default for new runs: one host edge per component pair; the model must classify every pair (kind, label,
+// description) or drop it with a reason, and may cite an edge's own static code sites as evidence for its kind; above
+// 20 components every component needs a group. `optional` is PR #9 as
+// first written: edge operations allowed, nothing required.
+export const REQUIRED_POLICY = Object.freeze({ edgeReview: { min_file_pairs: 0, labels: true }, pairEdges: true, edgeDrop: true, groups: { min_nodes: 20, min_groups: 3 }, staticSites: true, kindHints: true, autoDrop: { max_file_pairs: 2 } });
+export const POLICIES = { required: REQUIRED_POLICY, optional: {} };
 
 export async function runExperiment(options, dependencies = {}) {
   const started = Date.now();
@@ -76,13 +87,17 @@ export async function runExperiment(options, dependencies = {}) {
     provider: options.provider ?? DEFAULT_PROVIDER, effort: options.effort ?? 'medium',
     authFile: options.authFile ? resolve(options.authFile) : null,
     maxTools: options.maxTools ?? 600, maxMinutes: options.maxMinutes ?? 45,
+    policy: options.policy ?? REQUIRED_POLICY,
   };
   const metadata = {
     version: 1, variant: 'codegraph-llm', backend: 'pi-sdk', status: 'preparing', started_at: new Date(started).toISOString(),
     target, run_directory: runDir, provider: config.provider, model: config.model, reasoning_effort: config.effort,
     limits: { max_tool_calls: config.maxTools, max_minutes: config.maxMinutes },
     isolation: { fresh_session: true, fresh_checkout: true, source_access: 'tracked-regular-files-only custom tools', shell: false, web: false, plugins: false, static_graph_supplied: true, prior_component_graphs_supplied: false, inherited_project_instructions: false, os_container: false },
-    edge_policy: 'host-aggregated static edges; model may retype or consolidate them, never add, delete or re-point',
+    edge_policy: config.policy.edgeReview
+      ? `one host edge per component pair; the model must classify every pair linked through more than ${config.policy.edgeReview.min_file_pairs} file pairs (kind, label, description) or drop it with a reason; never add or re-point`
+      : 'host-aggregated static edges; model may retype or consolidate them, never add, delete or re-point',
+    graph_policy: config.policy,
     usage: null, cost_usd: null, estimated_cost_usd: null, graph_sha256: null,
   };
   const report = () => json(join(runDir, 'run.json'), metadata);
@@ -127,7 +142,8 @@ export async function runExperiment(options, dependencies = {}) {
     const validation = verifyRun(runDir);
     metadata.graph_sha256 = validation.graph_sha256;
     metadata.counts = { nodes: validation.nodes, edges: validation.edges, groups: validation.groups, source_files: validation.source_files,
-      host_edges: validation.host_edges, edge_ops: validation.edge_ops };
+      host_edges: validation.host_edges, edge_ops: validation.edge_ops, ...(validation.edge_review ? { edge_review: validation.edge_review } : {}),
+      ...(validation.dropped_edges !== undefined ? { dropped_edges: validation.dropped_edges } : {}) };
     metadata.status = 'completed';
     return { runDir, metadata };
   } catch (error) {
