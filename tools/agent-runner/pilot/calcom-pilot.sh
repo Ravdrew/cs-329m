@@ -16,6 +16,7 @@
 #   PYTHON=$PILOT_DIR/venv/bin/python   created with PyYAML if missing
 #   SKIP_PREPARE=1                   reuse a prepared checkout (prepare reinstalls; ~5-10 min)
 #   SKIP_CHECK=1                     skip the gold-patch sanity check
+#   PROVIDER=openai MODEL=gpt-6-astra   model for the agent runs (e.g. PROVIDER=anthropic MODEL=claude-sonnet-5-5)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
@@ -28,6 +29,8 @@ PILOT_DIR="${PILOT_DIR:-$HOME/q2q3-pilot}"
 PILOT_PRIVATE="${PILOT_PRIVATE:-$HOME/q2q3-pilot-private}"
 OUT="${OUT:-$HOME/q2q3-pilot-runs}"
 PYTHON="${PYTHON:-$PILOT_DIR/venv/bin/python}"
+PROVIDER="${PROVIDER:-openai}"
+MODEL="${MODEL:-gpt-6-astra}"
 export PILOT_DIR PILOT_PRIVATE
 
 step() { printf '\n==> %s\n' "$*"; }
@@ -81,15 +84,15 @@ if c['pass_at_base'] != 0 or c['pass_with_gold_patch'] != c['f2p']:
 EOF
 fi
 
-step "Agent runs: $CONDITIONS (one each, up to 45 min and \$10 per run)"
+step "Agent runs: $CONDITIONS with $PROVIDER/$MODEL (one each, up to 45 min and \$10 per run)"
 MATRIX="$OUT/matrix-$TASK.json"
-TASK="$TASK" CONDITIONS="$CONDITIONS" GRAPH="$GRAPH" OUT="$OUT" PYTHON="$PYTHON" MATRIX="$MATRIX" node -e '
+TASK="$TASK" CONDITIONS="$CONDITIONS" GRAPH="$GRAPH" OUT="$OUT" PYTHON="$PYTHON" MATRIX="$MATRIX" PROVIDER="$PROVIDER" MODEL="$MODEL" node -e '
 const e = process.env;
 require("fs").writeFileSync(e.MATRIX, JSON.stringify({
   out: e.OUT, tasks: [Number(e.TASK)], conditions: e.CONDITIONS.split(","), repeats: 1, seed: 329,
   inputs: { [e.TASK]: { base: e.GRAPH, edit: e.GRAPH } },
   workers: [{ pilotDir: e.PILOT_DIR, pilotPrivate: e.PILOT_PRIVATE }],
-  python: e.PYTHON, effort: "medium", maxMinutes: 45, maxToolCalls: 300, maxCostUsd: 10, skipPrepare: true,
+  python: e.PYTHON, provider: e.PROVIDER, model: e.MODEL, effort: "medium", maxMinutes: 45, maxToolCalls: 300, maxCostUsd: 10, skipPrepare: true,
 }, null, 2));'
 node "$ROOT/tools/agent-runner/batch.mjs" --matrix "$MATRIX"
 
