@@ -20,6 +20,8 @@ or `calcom` (the whole repository). The date is the day the graph was generated.
 | `booking-hotstart-2026-10-29-run01.yaml` | Cal.com booking subsystem components | Hot-started runner (`tools/codegraph-llm`): Astra grouped the CodeGraph graph, host derived edges; run 1 of 3 | `54343aa` | 34 / 315 / 0 | `results/codegraph-llm/astra-medium-2026-10-29/run-01/graph.yaml` |
 | `booking-hotstart-2026-10-29-run02.yaml` | Cal.com booking subsystem components | Hot-started runner, run 2 of 3 | `54343aa` | 33 / 306 / 3 | `results/codegraph-llm/astra-medium-2026-10-29/run-02/graph.yaml` |
 | `booking-hotstart-2026-10-29-run03.yaml` | Cal.com booking subsystem components | Hot-started runner, run 3 of 3 | `54343aa` | 33 / 307 / 5 | `results/codegraph-llm/astra-medium-2026-10-29/run-03/graph.yaml` |
+| `booking-llm-only-sonnet55-v2-2026-11-18-run01.yaml` | Cal.diy booking subsystem | LLM-only runner with the v2 prompts (`tools/prompts/shared-core.md`), claude-sonnet-5-5 medium via Pi; run 1 | `54343aa` | 38 / 77 / 8 | local run bundle `llm-only-runs/2026-11-19T00-28-17.988Z-QxIVdp` |
+| `booking-hotstart-sonnet55-v2-2026-11-18-run01.yaml` | Cal.com booking subsystem | Hot-started runner with the v2 prompts and drop rules (categories; reads/writes dropped only as mis-resolved with a code site), claude-sonnet-5-5 medium; run 1 (85 dropped) | `54343aa` | 47 / 173 / 9 | local run bundle `codegraph-llm-runs/2026-11-19T00-28-18.008Z-P2Sfla` |
 
 The two hand-built graphs target an earlier Cal.com commit than everything else; see the top-level README.
 
