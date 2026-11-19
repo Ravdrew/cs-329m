@@ -1,0 +1,202 @@
+[
+ {
+  "runner": "hotstart",
+  "file": "hotstart/1d03043c430c.md",
+  "sha256": "1d03043c430c90489dd3ba580553079c157c95c1f04a3bf17e7bba2e4aca40ac",
+  "words": 629,
+  "git": [
+   "git 462cd12 (2026-10-29) Add Pi Astra component grouping from CodeGraph baseline"
+  ],
+  "kickoffs": [
+   "Group the supplied CodeGraph structural graph for calcom/cal.com at 54343aa685ae8f33159d2f485ec4a57bad5c574a into components. Author memberships, names and summaries; do not author edges. Use the static graph and source tools, then finalize_graph. You have at most 600 tool calls and 45 minutes. Start with graph_overview."
+  ],
+  "runs": [
+   {
+    "run": "codegraph-llm-runs/2026-11-10T23-53-59.644Z-buxdAh",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   }
+  ]
+ },
+ {
+  "runner": "hotstart",
+  "file": "hotstart/c4fe9062b4c3.md",
+  "sha256": "c4fe9062b4c395281dd920332480182b73b2d15acee7be964cfb5c1016b60772",
+  "words": 1400,
+  "git": [
+   "git 5c4c6af (2026-11-11) Make hot-start graphs legible: required edge review, kind hints and drops"
+  ],
+  "kickoffs": [
+   "Group the supplied CodeGraph structural graph for calcom/cal.com at 54343aa685ae8f33159d2f485ec4a57bad5c574a into components. Author memberships, names and summaries; then review the host-derived edges with inspect_edges and retype or consolidate them with update_edges where the static kind is uninformative. You cannot add, delete or re-point edges. Use the static graph and source tools, then finalize_graph. You have at most 600 tool calls and 45 minutes. Start with graph_overview."
+  ],
+  "runs": [
+   {
+    "run": "codegraph-llm-runs/2026-11-11T20-03-24.614Z-lyVsdd",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   },
+   {
+    "run": "codegraph-llm-runs/2026-11-11T20-12-48.071Z-w01Pvs",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   },
+   {
+    "run": "codegraph-llm-runs/2026-11-12T01-00-18.764Z-DbpouJ",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   },
+   {
+    "run": "codegraph-llm-runs/2026-11-12T01-00-20.361Z-7fYtou",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   }
+  ]
+ },
+ {
+  "runner": "hotstart",
+  "file": "hotstart/8e1722a35fc8.md",
+  "sha256": "8e1722a35fc835771ed2314c7a41ee262b0ec10e0e5a64224cd7592327d31f50",
+  "words": 826,
+  "git": [
+   "git c66eff7 (2026-11-03) Let Astra retype and consolidate host-derived edges in the hot-start runner"
+  ],
+  "kickoffs": [
+   "Group the supplied CodeGraph structural graph for calcom/cal.com at 54343aa685ae8f33159d2f485ec4a57bad5c574a into components. Author memberships, names and summaries; then review the host-derived edges with inspect_edges and retype or consolidate them with update_edges where the static kind is uninformative. You cannot add, delete or re-point edges. Use the static graph and source tools, then finalize_graph. You have at most 600 tool calls and 45 minutes. Start with graph_overview."
+  ],
+  "runs": [
+   {
+    "run": "codegraph-llm-runs/2026-11-03T23-04-29.484Z-PY9yjo",
+    "model": "gpt-6-astra",
+    "status": "prepared"
+   },
+   {
+    "run": "codegraph-llm-runs/2026-11-11T01-38-02.556Z-ECIbRL",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   }
+  ]
+ },
+ {
+  "runner": "hotstart",
+  "file": "hotstart/1f2ae823c534.md",
+  "sha256": "1f2ae823c534885c2e53143a248e6824660b73fc254b1ee0033300fdd43d85fe",
+  "words": 927,
+  "git": [],
+  "kickoffs": [
+   "Group the supplied CodeGraph structural graph for calcom/cal.com at 54343aa685ae8f33159d2f485ec4a57bad5c574a into components. Author memberships, names and summaries; then review the host-derived edges with inspect_edges and retype or consolidate them with update_edges where the static kind is uninformative. You cannot add, delete or re-point edges. Use the static graph and source tools, then finalize_graph. You have at most 600 tool calls and 45 minutes. Start with graph_overview."
+  ],
+  "runs": [
+   {
+    "run": "codegraph-llm-runs/2026-11-11T02-24-18.088Z-LGNoDa",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   }
+  ]
+ },
+ {
+  "runner": "hotstart",
+  "file": "hotstart/18a3ea9a5033.md",
+  "sha256": "18a3ea9a5033e389d86b3ad49e490f935754c735041b0b1ca4fa0d691a6e3a0d",
+  "words": 1042,
+  "git": [],
+  "kickoffs": [
+   "Group the supplied CodeGraph structural graph for calcom/cal.com at 54343aa685ae8f33159d2f485ec4a57bad5c574a into components. Author memberships, names and summaries; then review the host-derived edges with inspect_edges and retype or consolidate them with update_edges where the static kind is uninformative. You cannot add, delete or re-point edges. Use the static graph and source tools, then finalize_graph. You have at most 600 tool calls and 45 minutes. Start with graph_overview."
+  ],
+  "runs": [
+   {
+    "run": "codegraph-llm-runs/2026-11-11T02-37-25.644Z-FqfGWF",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   }
+  ]
+ },
+ {
+  "runner": "hotstart",
+  "file": "hotstart/f545ea52cb25.md",
+  "sha256": "f545ea52cb25e0ef827fb56aefb930521bafe7f90de255c5ac1143f47c2fd23e",
+  "words": 1129,
+  "git": [],
+  "kickoffs": [
+   "Group the supplied CodeGraph structural graph for calcom/cal.com at 54343aa685ae8f33159d2f485ec4a57bad5c574a into components. Author memberships, names and summaries; then review the host-derived edges with inspect_edges and retype or consolidate them with update_edges where the static kind is uninformative. You cannot add, delete or re-point edges. Use the static graph and source tools, then finalize_graph. You have at most 600 tool calls and 45 minutes. Start with graph_overview."
+  ],
+  "runs": [
+   {
+    "run": "codegraph-llm-runs/2026-11-11T02-59-48.642Z-EFUaM7",
+    "model": "claude-sonnet-5-5",
+    "status": "failed"
+   },
+   {
+    "run": "codegraph-llm-runs/2026-11-11T03-03-21.708Z-1QnHrv",
+    "model": "claude-sonnet-5-5",
+    "status": "failed"
+   },
+   {
+    "run": "codegraph-llm-runs/2026-11-11T19-34-31.453Z-BLE17v",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   }
+  ]
+ },
+ {
+  "runner": "hotstart",
+  "file": "hotstart/1636b8215036.md",
+  "sha256": "1636b82150366bd0a2c71d5aff10580d0a1e28e000a5c1da97eef689d5095440",
+  "words": 1309,
+  "git": [],
+  "kickoffs": [
+   "Group the supplied CodeGraph structural graph for calcom/cal.com at 54343aa685ae8f33159d2f485ec4a57bad5c574a into components. Author memberships, names and summaries; then review the host-derived edges with inspect_edges and retype or consolidate them with update_edges where the static kind is uninformative. You cannot add, delete or re-point edges. Use the static graph and source tools, then finalize_graph. You have at most 600 tool calls and 45 minutes. Start with graph_overview."
+  ],
+  "runs": [
+   {
+    "run": "codegraph-llm-runs/2026-11-11T19-50-41.069Z-Yd5HOU",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   }
+  ]
+ },
+ {
+  "runner": "llm-only",
+  "file": "llm-only/6845416fb8b3.md",
+  "sha256": "6845416fb8b32e9ea40fa0659b208a9ef3c85d219a82777246a4b21ce960df85",
+  "words": 554,
+  "git": [
+   "git 1bed358 (2026-10-24) feat: run isolated LLM-only graphs with Pi and Astra"
+  ],
+  "kickoffs": [
+   "Construct the graph for calcom/cal.diy at 54343aa685ae8f33159d2f485ec4a57bad5c574a. Use the source tools and finalize_graph. You have at most 600 tool calls and 45 minutes. Start by discovering source files."
+  ],
+  "runs": [
+   {
+    "run": "llm-only-runs/2026-11-10T23-53-59.628Z-xQpsrG",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   },
+   {
+    "run": "llm-only-runs/2026-11-11T20-12-47.826Z-VlNONY",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   },
+   {
+    "run": "llm-only-runs/2026-11-12T01-00-18.764Z-GeTlOV",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   },
+   {
+    "run": "llm-only-runs/2026-11-12T01-00-20.357Z-AimNFB",
+    "model": "claude-sonnet-5-5",
+    "status": "completed"
+   }
+  ]
+ },
+ {
+  "runner": "llm-only",
+  "file": "llm-only/fc27940ad591.md",
+  "sha256": "fc27940ad5917d8ce51bfb555ffd087d4edf07654237d98577662482a5b18bd3",
+  "words": 555,
+  "git": [
+   "git e5a0bae (2026-10-24) feat: automate isolated LLM-only graph construction"
+  ],
+  "kickoffs": [],
+  "runs": []
+ }
+]
