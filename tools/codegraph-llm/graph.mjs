@@ -42,6 +42,8 @@ const need = (condition, message) => { if (!condition) throw new Error(typeof me
 const sorted = values => [...values].sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
 const matches = (path, prefix) => path === prefix || path.startsWith(prefix.replace(/\/$/, '') + '/');
 export const EDGE_KINDS = Object.freeze(['renders', 'navigates', 'calls', 'reads', 'writes', 'emits', 'uses']);
+// Why a host edge was dropped (policy.dropRules). Free-text reasons stay; the category makes drop rates comparable.
+export const DROP_CATEGORIES = Object.freeze(['type-only', 're-export', 'helper', 'mis-resolved', 'incidental', 'test']);
 const ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/;
 
 export class DraftGraph {
@@ -56,6 +58,8 @@ export class DraftGraph {
   //   autoDrop:   { max_file_pairs } the host drops a pair edge that is only uses (no kind hint) across at most that many
   //               file pairs, unless the model classifies it; listed with an automatic reason among the dropped edges
   //   kindHints:  the host pre-classifies each pair edge from the code at its sites (codeKindHint); the model may keep or override
+  //   dropRules:  { protectData } every drop names a category from DROP_CATEGORIES; with protectData, a reads/writes edge
+  //               can only be dropped as mis-resolved, citing at least one of its own code sites ({path, line})
   constructor(source, schema, repo, staticGraph, inputHash, options = {}) {
     this.source = source;
     this.static = staticGraph;
@@ -74,6 +78,7 @@ export class DraftGraph {
     this.staticSites = Boolean(policy.staticSites);
     this.kindHints = Boolean(policy.kindHints);
     this.autoDrop = policy.autoDrop ?? null;
+    this.dropRules = policy.dropRules ?? null;
     this.frozen = false;
   }
   update(text, remove = []) {
@@ -131,12 +136,34 @@ export class DraftGraph {
       need(item && typeof item === 'object' && typeof item.id === 'string' && ID_PATTERN.test(item.id), `${op}: entries need a valid id`);
       if (op === 'drop') {
         // Dropping removes the edge from the graph, not from the accounting: its raw edges are listed as dropped.
-        need(Object.keys(item).every(k => ['id', 'reason'].includes(k)), `${item.id}: drop takes only id and reason`);
+        const fields = ['id', 'reason', ...(this.dropRules ? ['category', 'x-source-evidence'] : [])];
+        need(Object.keys(item).every(k => fields.includes(k)), `${item.id}: drop takes only ${fields.join(', ')}`);
         need(hostEdges.has(item.id), `${item.id}: unknown host edge; use inspect_edges`);
         need(typeof item.reason === 'string' && item.reason.trim(), `${item.id}: drop needs a reason: why this edge does not help a person or agent understand the code`);
+        const extra = {};
+        if (this.dropRules) {
+          need(DROP_CATEGORIES.includes(item.category), `${item.id}: drop needs a category: one of ${DROP_CATEGORIES.join(', ')}`);
+          extra.category = item.category;
+          const host = hostEdges.get(item.id);
+          if (this.dropRules.protectData && ['reads', 'writes'].includes(host.kind)) {
+            // Data access must not vanish quietly: the only accepted reason is that the static call was mis-resolved,
+            // shown by one of the edge's own code sites.
+            need(item.category === 'mis-resolved', `${item.id}: this edge ${host.kind} data and cannot be dropped as ${item.category}; retype it, or drop it as mis-resolved if the static analysis attributed the call to the wrong component`);
+            const cited = item['x-source-evidence'];
+            need(Array.isArray(cited) && cited.length, `${item.id}: dropping a ${host.kind} edge as mis-resolved needs x-source-evidence: {path, line} code sites of this edge, as listed by inspect_edges`);
+            const sites = new Set(host['x-codegraph'].sites ?? []);
+            for (const e of cited) {
+              need(e && Object.keys(e).every(k => ['path', 'line'].includes(k)) && Number.isInteger(e.line), `${item.id}: a code-site citation is {path, line}`);
+              need(sites.has(`${e.path}:${e.line}`), `${item.id}: ${e.path}:${e.line} is not one of this edge's code sites`);
+            }
+            extra['x-source-evidence'] = cited.map(e => ({ path: e.path, line: e.line }));
+          } else {
+            need(item['x-source-evidence'] === undefined, `${item.id}: x-source-evidence on a drop is only for a reads/writes edge dropped as mis-resolved`);
+          }
+        }
         need(!touched.has(item.id), `Host edge ${item.id} is affected by two operations in this batch`); touched.add(item.id);
         ops = ops.filter(prev => prev.id !== item.id && !prev.replaces.includes(item.id));
-        ops.push({ id: item.id, op, replaces: [item.id], reason: item.reason.trim() });
+        ops.push({ id: item.id, op, replaces: [item.id], reason: item.reason.trim(), ...extra });
         continue;
       }
       const allowed = ['id', 'kind', 'label', 'description', 'x-source-evidence', ...(op === 'consolidate' ? ['replaces'] : [])];
@@ -240,15 +267,16 @@ export class DraftGraph {
     if (!this.autoDrop) return [];
     const touched = new Set(this.edgeOps.flatMap(op => op.replaces));
     return hostEdges.filter(e => e.kind === 'uses' && !e['x-codegraph'].kind_hint && !touched.has(e.id) && e['x-codegraph'].file_pair_count <= this.autoDrop.max_file_pairs)
-      .map(e => ({ id: e.id, op: 'drop', replaces: [e.id], auto: true,
+      .map(e => ({ id: e.id, op: 'drop', replaces: [e.id], auto: true, ...(this.dropRules ? { category: 'type-only' } : {}),
         reason: `automatic: import or type reference only, across ${e['x-codegraph'].file_pair_count} file pair${e['x-codegraph'].file_pair_count === 1 ? '' : 's'}` }));
   }
   ops(hostEdges) { return this.autoDrop ? [...this.edgeOps, ...this.autoDrops(hostEdges)] : this.edgeOps; }
   droppedEdges(hostEdges, ops = this.ops(hostEdges)) {
     const byId = new Map(hostEdges.map(e => [e.id, e]));
-    return ops.filter(op => op.op === 'drop').map(op => byId.get(op.id)).filter(Boolean).map(e => ({ id: e.id, from: e.from, to: e.to, kind: e.kind,
+    return ops.filter(op => op.op === 'drop' && byId.has(op.id)).map(op => { const e = byId.get(op.id); return { id: e.id, from: e.from, to: e.to, kind: e.kind,
       raw_edge_count: e['x-codegraph'].raw_edge_count, file_pair_count: e['x-codegraph'].file_pair_count,
-      reason: ops.find(op => op.id === e.id && op.op === 'drop').reason })).sort((a, b) => a.id < b.id ? -1 : 1);
+      ...(op.category ? { category: op.category, by: op.auto ? 'host' : 'model' } : {}), reason: op.reason,
+      ...(op['x-source-evidence'] ? { 'x-source-evidence': op['x-source-evidence'] } : {}) }; }).sort((a, b) => a.id < b.id ? -1 : 1);
   }
   // Required edge review. A component pair whose static links span more than min_file_pairs distinct file pairs must
   // end as ONE edge produced by an edge operation with a description (and a label, if required), or be dropped, so the

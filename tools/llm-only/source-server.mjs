@@ -23,7 +23,7 @@ export const toolDefinitions = [
 
 export function createGraphTools(config) {
   const source = new Source(config.checkout, config.commit);
-  const graph = new DraftGraph(source, JSON.parse(readFileSync(join(config.runDir, 'schema.json'), 'utf8')), config.repo);
+  const graph = new DraftGraph(source, JSON.parse(readFileSync(join(config.runDir, 'schema.json'), 'utf8')), config.repo, { groups: config.groups });
   const ajv = new Ajv({ allErrors: true });
   const validators = new Map(toolDefinitions.map(def => [def.name, ajv.compile(def.inputSchema)]));
   let calls = 0;

@@ -160,7 +160,7 @@ export async function runPiSession(config, emit = () => {}, runtime) {
     process.once('SIGINT', interrupted);
     process.once('SIGTERM', interrupted);
     monitor = setInterval(() => { if (Date.now() >= config.deadline) stop('Time limit reached'); }, 100);
-    await session.prompt(`Construct the graph for ${config.repo} at ${config.commit}. Use the source tools and finalize_graph. You have at most ${config.maxTools} tool calls and ${config.maxMinutes} minutes. Start by discovering source files.`, { expandPromptTemplates: false });
+    await session.prompt(`Build the booking component graph for ${config.repo} at ${config.commit}. You have at most ${config.maxTools} tool calls and ${config.maxMinutes} minutes. Start by discovering source files.`, { expandPromptTemplates: false });
   } catch (error) {
     lastError = error.message;
   } finally {

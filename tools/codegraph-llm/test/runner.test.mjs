@@ -808,6 +808,39 @@ test('with kindHints the host pre-classifies an edge; keeping the hint needs no 
   assert.deepEqual(output.edges[0]['x-codegraph'].kind_hint, { kind: 'reads', sites: ['src/page.ts:3'] });
 });
 
+test('with dropRules every drop has a category, and data edges are dropped only as mis-resolved with a code site', () => {
+  const policy = { pairEdges: true, edgeDrop: true, edgeReview: { min_file_pairs: 0, labels: true }, dropRules: { protectData: true } };
+  const asKind = (graph, kind) => {
+    const aggregate = Object.getPrototypeOf(graph).aggregate.bind(graph);
+    graph.aggregate = o => { const r = aggregate(o); r.edges = r.edges.map(e => ({ ...e, kind, 'x-codegraph': { ...e['x-codegraph'], sites: ['fixture/site.ts:7'] } })); return r; };
+    return graph.inspectEdges({}).edges[0].id;
+  };
+  // A plain call: any category, no evidence.
+  const calls = policyDraft(policy);
+  const callId = asKind(calls, 'calls');
+  assert.throws(() => calls.updateEdges(yaml({ drop: [{ id: callId, reason: 'x' }] })), /needs a category/);
+  assert.throws(() => calls.updateEdges(yaml({ drop: [{ id: callId, category: 'noise', reason: 'x' }] })), /needs a category/);
+  assert.throws(() => calls.updateEdges(yaml({ drop: [{ id: callId, category: 'helper', reason: 'x', 'x-source-evidence': [{ path: 'fixture/site.ts', line: 7 }] }] })), /only for a reads\/writes edge/);
+  calls.updateEdges(yaml({ drop: [{ id: callId, category: 'helper', reason: 'Formatting helper.' }] }));
+  assert.deepEqual(calls.finalize()['x-codegraph'].dropped_edges.map(e => [e.category, e.by, e.reason]), [['helper', 'model', 'Formatting helper.']]);
+  // A write: only mis-resolved, citing one of its own code sites.
+  const writes = policyDraft(policy);
+  const writeId = asKind(writes, 'writes');
+  assert.throws(() => writes.updateEdges(yaml({ drop: [{ id: writeId, category: 'incidental', reason: 'x' }] })), /writes data and cannot be dropped as incidental/);
+  assert.throws(() => writes.updateEdges(yaml({ drop: [{ id: writeId, category: 'mis-resolved', reason: 'x' }] })), /needs x-source-evidence/);
+  assert.throws(() => writes.updateEdges(yaml({ drop: [{ id: writeId, category: 'mis-resolved', reason: 'x', 'x-source-evidence': [{ path: 'fixture/site.ts', line: 8 }] }] })), /not one of this edge's code sites/);
+  writes.updateEdges(yaml({ drop: [{ id: writeId, category: 'mis-resolved', reason: 'Prisma call belongs to payments.', 'x-source-evidence': [{ path: 'fixture/site.ts', line: 7 }] }] }));
+  const [dropped] = writes.finalize()['x-codegraph'].dropped_edges;
+  assert.equal(dropped.category, 'mis-resolved');
+  assert.deepEqual(dropped['x-source-evidence'], [{ path: 'fixture/site.ts', line: 7 }]);
+  // Without dropRules, drops keep their old shape: no category field is accepted or written.
+  const old = policyDraft({ pairEdges: true, edgeDrop: true, edgeReview: { min_file_pairs: 0, labels: true } });
+  const oldId = asKind(old, 'writes');
+  assert.throws(() => old.updateEdges(yaml({ drop: [{ id: oldId, category: 'helper', reason: 'x' }] })), /drop takes only id, reason/);
+  old.updateEdges(yaml({ drop: [{ id: oldId, reason: 'x' }] }));
+  assert.deepEqual(Object.keys(old.finalize()['x-codegraph'].dropped_edges[0]), ['id', 'from', 'to', 'kind', 'raw_edge_count', 'file_pair_count', 'reason']);
+});
+
 test('with autoDrop the host drops weak uses-only edges unless the model classifies them', () => {
   const graph = policyDraft({ pairEdges: true, edgeDrop: true, autoDrop: { max_file_pairs: 2 }, edgeReview: { min_file_pairs: 0, labels: true } });
   // The fixture pair has calls, so nothing is dropped; make it a uses-only pair by forcing its kind.

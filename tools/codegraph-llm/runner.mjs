@@ -70,9 +70,10 @@ export function verifyRun(runDir) {
 
 // The default for new runs: one host edge per component pair; the model must classify every pair (kind, label,
 // description) or drop it with a reason, and may cite an edge's own static code sites as evidence for its kind; above
-// 20 components every component needs a group. `optional` is PR #9 as
-// first written: edge operations allowed, nothing required.
-export const REQUIRED_POLICY = Object.freeze({ edgeReview: { min_file_pairs: 0, labels: true }, pairEdges: true, edgeDrop: true, groups: { min_nodes: 20, min_groups: 3 }, staticSites: true, kindHints: true, autoDrop: { max_file_pairs: 2 } });
+// 20 components every component needs a group; every drop names a category, and reads/writes edges can only be
+// dropped as mis-resolved with a cited code site. `optional` is PR #9 as first written: edge operations allowed,
+// nothing required. Runs record their policy in server.json, so older runs replay without dropRules.
+export const REQUIRED_POLICY = Object.freeze({ edgeReview: { min_file_pairs: 0, labels: true }, pairEdges: true, edgeDrop: true, groups: { min_nodes: 20, min_groups: 3 }, staticSites: true, kindHints: true, autoDrop: { max_file_pairs: 2 }, dropRules: { protectData: true } });
 export const POLICIES = { required: REQUIRED_POLICY, optional: {} };
 
 export async function runExperiment(options, dependencies = {}) {
@@ -116,7 +117,10 @@ export async function runExperiment(options, dependencies = {}) {
       codegraph_version: staticInput.codegraph_version, nodes: staticInput.nodes.length, edges: staticInput.edges.length,
       files: staticInput.files.length, scope: staticInput.scope, previous_component_assignments_supplied: false };
     const schemaText = readFileSync(join(TEAM_ROOT, 'schema/graph.schema.json'), 'utf8');
-    const prompt = readFileSync(join(HERE, 'prompt.md'), 'utf8');
+    // The task, scope, quality bar and evidence rules are shared with the LLM-only runner; prompt.md says only how
+    // this condition builds the graph.
+    const sharedPrompt = readFileSync(join(TEAM_ROOT, 'tools/prompts/shared-core.md'), 'utf8');
+    const prompt = `${sharedPrompt}\n${readFileSync(join(HERE, 'prompt.md'), 'utf8')}`;
     const instructions = `${prompt}\nTarget: ${target.repo}, commit ${target.commit}.\n\nShared graph schema (format only; no example graph):\n${schemaText}`;
     writeFileSync(join(runDir, 'schema.json'), schemaText);
     writeFileSync(join(runDir, 'instructions.md'), instructions);
@@ -126,6 +130,7 @@ export async function runExperiment(options, dependencies = {}) {
     metadata.source_manifest_sha256 = sha256(readFileSync(join(runDir, 'source-manifest.json')));
     metadata.runner_revision = git(TEAM_ROOT, ['rev-parse', 'HEAD']).trim();
     metadata.runner_files = Object.fromEntries(['package-lock.json', 'prompt.md', 'static.mjs', 'source.mjs', 'graph.mjs', 'source-server.mjs', 'pi.mjs', 'runner.mjs', 'cli.mjs'].map(file => [file, sha256(readFileSync(join(HERE, file)))]));
+    metadata.runner_files['../prompts/shared-core.md'] = sha256(sharedPrompt);
     metadata.source_file_count = source.files.length;
     metadata.status = options.prepareOnly ? 'prepared' : 'running';
     config.deadline = Date.now() + config.maxMinutes * 60_000;
