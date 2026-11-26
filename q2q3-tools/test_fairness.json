@@ -1,0 +1,1631 @@
+{
+ "19626": {
+  "packages/features/bookings/Booker/components/DatePicker.test.tsx::Tests for DatePicker Component > It passes the loading prop to the DatePicker component": {
+   "label": "fair",
+   "reason": "spec names isLoading"
+  },
+  "packages/features/bookings/Booker/components/DatePicker.test.tsx::Tests for DatePicker Component > happy path, slots in current month": {
+   "label": "fair",
+   "reason": "description: month skipping uses the browsed month"
+  },
+  "packages/features/bookings/Booker/components/DatePicker.test.tsx::Tests for DatePicker Component > when there are no slots, check for infinite loop (skip only 1 month)": {
+   "label": "fair",
+   "reason": "description: month skipping logic"
+  },
+  "packages/features/bookings/Booker/components/DatePicker.test.tsx::Tests for DatePicker Component > when there are only slots in the next month, skip the current month": {
+   "label": "fair",
+   "reason": "description: month skipping logic"
+  },
+  "packages/features/calendars/DatePicker.test.tsx::Tests for DatePicker Component > Should render correctly with default date": {
+   "label": "fair",
+   "reason": "spec gives the selected-month-label <time> element"
+  },
+  "packages/features/calendars/DatePicker.test.tsx::Tests for DatePicker Component > Should render with the browsingDate date if browsingDate >= minDate": {
+   "label": "fair",
+   "reason": "spec gives the label; existing behavior"
+  },
+  "packages/features/calendars/DatePicker.test.tsx::Tests for DatePicker Component > Should render with the minimum date if browsingDate < minDate": {
+   "label": "unfair",
+   "reason": "clamping the month to minDate is one of the unmentioned \"few other TS fixes\""
+  }
+ },
+ "24207": {
+  "packages/features/bot-detection/BotDetectionService.test.ts::BotDetectionService > checkBotDetection > should check feature flag with correct teamId": {
+   "label": "fair",
+   "reason": "passes in every run under every condition"
+  },
+  "packages/features/bot-detection/BotDetectionService.test.ts::BotDetectionService > checkBotDetection > should pass when a human is detected": {
+   "label": "fair",
+   "reason": "passes in every run under every condition"
+  },
+  "packages/features/bot-detection/BotDetectionService.test.ts::BotDetectionService > checkBotDetection > should return early if BotID feature is not enabled for the team": {
+   "label": "fair",
+   "reason": "passes in every run under every condition"
+  },
+  "packages/features/bot-detection/BotDetectionService.test.ts::BotDetectionService > checkBotDetection > should return early if BotID is not enabled at instance level": {
+   "label": "fair",
+   "reason": "passes in every run under every condition"
+  },
+  "packages/features/bot-detection/BotDetectionService.test.ts::BotDetectionService > checkBotDetection > should return early if event type has no teamId": {
+   "label": "fair",
+   "reason": "passes in every run under every condition"
+  },
+  "packages/features/bot-detection/BotDetectionService.test.ts::BotDetectionService > checkBotDetection > should return early if no eventTypeId is provided": {
+   "label": "fair",
+   "reason": "passes in every run under every condition"
+  },
+  "packages/features/bot-detection/BotDetectionService.test.ts::BotDetectionService > checkBotDetection > should throw HttpError when a bot is detected": {
+   "label": "fair",
+   "reason": "passes in every run under every condition"
+  }
+ },
+ "22024": {
+  "packages/sms/test/sms-manager.test.ts::SMSManager > sendSMSToAttendee > should handle SMS sending errors": {
+   "label": "fair",
+   "reason": "base already rethrows; needs SMS for non-team events, which the description states (\"for all users\")"
+  },
+  "packages/sms/test/sms-manager.test.ts::SMSManager > sendSMSToAttendee > should send SMS only when both phone number and @sms.cal.com email are present": {
+   "label": "unfair",
+   "reason": "expects the rate-limit key \"handleSendingSMS:user:1\" and userId in the payload, invented by the PR"
+  },
+  "packages/sms/test/sms-manager.test.ts::SMSManager > sendSMSToAttendees > should send SMS only to attendees with phone number and @sms.cal.com email": {
+   "label": "fair",
+   "reason": "description: phone-based booking enabled for all users"
+  }
+ },
+ "19997": {
+  "packages/features/bookings/lib/handlePayment.test.ts::handlePayment > should calculate total amount with boolean field addon": {
+   "label": "ambiguous",
+   "reason": "field prices are in dollars while the total is in cents; the unit is not stated and keeping everything in cents is just as reasonable",
+   "kind": "convention",
+   "clarification": "A field or option `price` is in whole currency units (for example dollars), while `handlePayment` keeps the payment amount in the smallest unit (cents), so a price of 15 adds 1500 to the amount."
+  },
+  "packages/features/bookings/lib/handlePayment.test.ts::handlePayment > should calculate total amount with multiple addons": {
+   "label": "ambiguous",
+   "reason": "field prices are in dollars while the total is in cents; the unit is not stated and keeping everything in cents is just as reasonable",
+   "kind": "convention",
+   "clarification": "A field or option `price` is in whole currency units (for example dollars), while `handlePayment` keeps the payment amount in the smallest unit (cents), so a price of 15 adds 1500 to the amount."
+  },
+  "packages/features/bookings/lib/handlePayment.test.ts::handlePayment > should calculate total amount with number field addon": {
+   "label": "ambiguous",
+   "reason": "field prices are in dollars while the total is in cents; the unit is not stated and keeping everything in cents is just as reasonable",
+   "kind": "convention",
+   "clarification": "A field or option `price` is in whole currency units (for example dollars), while `handlePayment` keeps the payment amount in the smallest unit (cents), so a price of 15 adds 1500 to the amount."
+  },
+  "packages/features/bookings/lib/handlePayment.test.ts::handlePayment > should calculate total amount with radio field addon using locale": {
+   "label": "unfair",
+   "reason": "radio answers arrive as \"premium ($20.00)\", the option formatted with its price, which must be parsed back"
+  },
+  "packages/features/bookings/lib/handlePayment.test.ts::handlePayment > should calculate total amount with select field addon": {
+   "label": "ambiguous",
+   "reason": "field prices are in dollars while the total is in cents; the unit is not stated and keeping everything in cents is just as reasonable",
+   "kind": "convention",
+   "clarification": "A field or option `price` is in whole currency units (for example dollars), while `handlePayment` keeps the payment amount in the smallest unit (cents), so a price of 15 adds 1500 to the amount."
+  },
+  "packages/features/form-builder/FormBuilder.test.tsx::FormBuilder > Addon Fields Tests > Should add boolean field with price": {
+   "label": "fair",
+   "reason": "spec: price inputs are spinbuttons"
+  },
+  "packages/features/form-builder/FormBuilder.test.tsx::FormBuilder > Addon Fields Tests > Should add checkbox group field with price and options": {
+   "label": "unfair",
+   "reason": "needs a fix to an existing bug: the base options editor mutates its value in place, so a new option never renders under the test; not mentioned anywhere"
+  },
+  "packages/features/form-builder/FormBuilder.test.tsx::FormBuilder > Addon Fields Tests > Should add multiselect field with price and options": {
+   "label": "unfair",
+   "reason": "needs a fix to an existing bug: the base options editor mutates its value in place, so a new option never renders under the test; not mentioned anywhere"
+  },
+  "packages/features/form-builder/FormBuilder.test.tsx::FormBuilder > Addon Fields Tests > Should add number field with price": {
+   "label": "fair",
+   "reason": "spec: price inputs are spinbuttons"
+  },
+  "packages/features/form-builder/FormBuilder.test.tsx::FormBuilder > Addon Fields Tests > Should add radio group field with price and options": {
+   "label": "unfair",
+   "reason": "needs a fix to an existing bug: the base options editor mutates its value in place, so a new option never renders under the test; not mentioned anywhere"
+  },
+  "packages/features/form-builder/FormBuilder.test.tsx::FormBuilder > Addon Fields Tests > Should add select field with price and options": {
+   "label": "unfair",
+   "reason": "needs a fix to an existing bug: the base options editor mutates its value in place, so a new option never renders under the test; not mentioned anywhere"
+  }
+ },
+ "20646": {
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Layout Handling > should set layout from mobile to month_view when device changes its max-width from <=768px to >768px": {
+   "label": "ambiguous",
+   "reason": "switching to mobile at 768px and on resize is hinted (spec getTrueLayout/resizeHandler, the Booker uses 768px) but not stated",
+   "kind": "behavior"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Layout Handling > should set layout from month_view to mobile when device changes its max-width from >768px to <=768px": {
+   "label": "ambiguous",
+   "reason": "switching to mobile at 768px and on resize is hinted (spec getTrueLayout/resizeHandler, the Booker uses 768px) but not stated",
+   "kind": "behavior"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Layout Handling > should set layout to mobile even if month_view is provided when device matches max-width: 768px": {
+   "label": "ambiguous",
+   "reason": "switching to mobile at 768px and on resize is hinted (spec getTrueLayout/resizeHandler, the Booker uses 768px) but not stated",
+   "kind": "behavior"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Layout Handling > should set layout to month_view even if mobile is provided when device matches max-width: >768px": {
+   "label": "ambiguous",
+   "reason": "switching to mobile at 768px and on resize is hinted (spec getTrueLayout/resizeHandler, the Booker uses 768px) but not stated",
+   "kind": "behavior"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Modal Mode > should adjust skeletonContainer height correctly": {
+   "label": "unfair",
+   "reason": "exact style values after hiding (modal keeps display \"\") are unstated and differ from non-modal"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Modal Mode > should show default loader for unsupported page types": {
+   "label": "fair",
+   "reason": "description: show skeleton or default loader; display block/none follows the existing loader code"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Modal Mode > should show skeleton loader for supported page types": {
+   "label": "fair",
+   "reason": "description: show skeleton or default loader; display block/none follows the existing loader code"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Non-Modal Mode > should hide default loader when toggled off": {
+   "label": "fair",
+   "reason": "description: show skeleton or default loader; display block/none follows the existing loader code"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Non-Modal Mode > should hide skeleton loader when toggled off": {
+   "label": "fair",
+   "reason": "description: show skeleton or default loader; display block/none follows the existing loader code"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Non-Modal Mode > should show default loader for when page type is not provided": {
+   "label": "fair",
+   "reason": "description: show skeleton or default loader; display block/none follows the existing loader code"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Non-Modal Mode > should show default loader for when page type is not supported": {
+   "label": "fair",
+   "reason": "description: show skeleton or default loader; display block/none follows the existing loader code"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Non-Modal Mode > should show skeleton loader for supported page types on creation": {
+   "label": "fair",
+   "reason": "description: show skeleton or default loader; display block/none follows the existing loader code"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Non-Modal Mode > should update container height correctly": {
+   "label": "unfair",
+   "reason": "exact style values after hiding (\"\" height, display none) are unstated"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Theme Handling > should apply theme class correctly": {
+   "label": "fair",
+   "reason": "description: light/dark theme support; spec names the theme helpers and the shared MediaQueryList"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Theme Handling > should not update theme on system color scheme change when embed theme is set": {
+   "label": "fair",
+   "reason": "description: light/dark theme support; spec names the theme helpers and the shared MediaQueryList"
+  },
+  "packages/embeds/embed-core/src/EmbedElement.test.ts::EmbedElement > Loader Behavior > Theme Handling > should update theme class when system preference changes as long as embed theme is not set": {
+   "label": "fair",
+   "reason": "description: light/dark theme support; spec names the theme helpers and the shared MediaQueryList"
+  },
+  "packages/embeds/embed-core/src/__tests__/utils.test.ts::generateDataAttributes > should escape special characters in attribute values": {
+   "label": "unfair",
+   "reason": "expects one specific escaping (&#39; for quotes)"
+  },
+  "packages/embeds/embed-core/src/__tests__/utils.test.ts::generateDataAttributes > should filter out null and undefined values": {
+   "label": "ambiguous",
+   "reason": "expects keys converted to kebab-case (data-test-key); keeping them as given is also valid HTML",
+   "kind": "convention",
+   "clarification": "`generateDataAttributes` writes each key as a kebab-case `data-` attribute (`testKey` and `TestKey` both become `data-test-key`)."
+  },
+  "packages/embeds/embed-core/src/__tests__/utils.test.ts::generateDataAttributes > should handle PascalCase property names correctly": {
+   "label": "ambiguous",
+   "reason": "expects keys converted to kebab-case (data-test-key); keeping them as given is also valid HTML",
+   "kind": "convention",
+   "clarification": "`generateDataAttributes` writes each key as a kebab-case `data-` attribute (`testKey` and `TestKey` both become `data-test-key`)."
+  },
+  "packages/embeds/embed-core/src/__tests__/utils.test.ts::generateDataAttributes > should handle camelCase property names correctly": {
+   "label": "ambiguous",
+   "reason": "expects keys converted to kebab-case (data-test-key); keeping them as given is also valid HTML",
+   "kind": "convention",
+   "clarification": "`generateDataAttributes` writes each key as a kebab-case `data-` attribute (`testKey` and `TestKey` both become `data-test-key`)."
+  },
+  "packages/embeds/embed-core/src/__tests__/utils.test.ts::generateDataAttributes > should handle object with all null/undefined values": {
+   "label": "fair",
+   "reason": "follows from the signature"
+  },
+  "packages/embeds/embed-core/src/__tests__/utils.test.ts::generateDataAttributes > should return empty string for empty object": {
+   "label": "fair",
+   "reason": "follows from the signature"
+  }
+ },
+ "24124": {
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > all fields updated simultaneously from external event": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Checks responses.title/notes from summary/description (title and notes are base booking system fields, getBookingFields.ts) but also responses.location toEqual {value,label,optionValue}; cal.com responses location is normally {value, optionValue}, and the extra label key is not specified.",
+   "clarification": "mergeBookingResponsesWithEventData sets responses.title from event.summary, responses.notes from event.description and responses.location to {value, label, optionValue} all equal to event.location, each only when the event field is non-empty."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > booking without existing responses uses fallback with event overrides": {
+   "label": "unfair",
+   "reason": "Expects the fallback responses built when booking.responses is not an object to be exactly {name: booking.title, email: userPrimaryEmail ?? \"\", guests: [], notes: description ?? \"\", smsReminderNumber, location: {label,value,optionValue}}; using the booking title as the attendee name and this exact shape are not stated anywhere. Test checks responses.name === booking.title."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > description from external event overrides notes in responses": {
+   "label": "fair",
+   "reason": "Spec names mergeBookingResponsesWithEventData and RescheduleBookingData.responses; mapping event.description into the base booking system field `notes` (getBookingFields.ts) follows from that name and base conventions."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > external event data is stored in metadata as calendarSubscriptionEvent": {
+   "label": "unfair",
+   "reason": "Expects metadata to be {calendarSubscriptionEvent: JSON.stringify(...)} of the event fields; the key name and JSON-string encoding appear nowhere, and the description's review checklist even says rescheduleBooking hardcodes `metadata: {}`."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > location from external event overrides location in responses": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects responses.location toEqual {value, label, optionValue} all set to the event location string; the exact object shape (label in particular) is not stated in description or spec.",
+   "clarification": "mergeBookingResponsesWithEventData sets responses.title from event.summary, responses.notes from event.description and responses.location to {value, label, optionValue} all equal to event.location, each only when the event field is non-empty."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > null fields from external event do NOT override booking responses": {
+   "label": "fair",
+   "reason": "Only requires createBooking to be called with the booking's existing responses preserved when event summary/description/location are null; any implementation, even one not merging at all, passes."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > summary from external event overrides title in responses": {
+   "label": "fair",
+   "reason": "Mapping event.summary to responses.title (a base booking system field in getBookingFields.ts) follows from the spec's mergeBookingResponsesWithEventData name; name is preserved."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - error isolation > cancelBooking: passes correct data to handleCancelBooking": {
+   "label": "unfair",
+   "reason": "Asserts handleCancelBooking is called with exactly {userId, actionSource: \"SYSTEM\", bookingData: {uid, cancellationReason: \"Cancelled on user's calendar\", cancelledBy: userPrimaryEmail, skipCalendarSyncTaskCancellation: true}}; the cancellationReason string is invented, and actionSource SYSTEM vs WEBHOOK is not stated."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - error isolation > handleEvents: DB error on one event does not block others": {
+   "label": "fair",
+   "reason": "Description says errors are caught and logged and do not block the sync; a rejected findBookingByUidWithEventType for one event must not stop createBooking for the other."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - error isolation > handleEvents: correctly routes cancelled vs non-cancelled events": {
+   "label": "fair",
+   "reason": "Base handleEvents already routes status==='cancelled' to cancelBooking and others to rescheduleBooking; description says these call handleCancelBooking and RegularBookingService.createBooking (both spec mocks)."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - error isolation > handleEvents: failure in one event does not block others": {
+   "label": "fair",
+   "reason": "Description: errors are caught and logged, not thrown; handleCancelBooking rejecting must not make handleEvents reject, and the reschedule still calls createBooking."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - error isolation > handleEvents: non-cancelled statuses (tentative, confirmed) all route to reschedule": {
+   "label": "fair",
+   "reason": "Base routing sends any non-'cancelled' status to rescheduleBooking; with the described createBooking call, createBooking is called once."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - error isolation > rescheduleBooking: passes correct bookingMeta flags": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Asserts bookingMeta equals exactly {skipCalendarSyncTaskCreation: true, skipAvailabilityCheck: true, skipEventLimitsCheck: true}; the description mentions only skipCalendarSyncTaskCreation, so a reasonable implementation passing just that flag fails the exact-equality check."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - skip reschedule when no time change > proceeds with reschedule when start time has changed": {
+   "label": "fair",
+   "reason": "Only asserts createBooking is called when the event start moves; the description says rescheduleBooking calls RegularBookingService.createBooking with rescheduleUid."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildMetadataFromCalendarEvent > handles all-null optional fields": {
+   "label": "unfair",
+   "reason": "Expects metadata to be {calendarSubscriptionEvent: JSON.stringify(...)} of the event fields; the key name and JSON-string encoding appear nowhere, and the description's review checklist even says rescheduleBooking hardcodes `metadata: {}`. Also requires every field to be present as explicit null."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildMetadataFromCalendarEvent > serializes all event fields into calendarSubscriptionEvent": {
+   "label": "unfair",
+   "reason": "Expects metadata to be {calendarSubscriptionEvent: JSON.stringify(...)} of the event fields; the key name and JSON-string encoding appear nowhere, and the description's review checklist even says rescheduleBooking hardcodes `metadata: {}`."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildMetadataFromCalendarEvent > serializes dates as ISO strings": {
+   "label": "unfair",
+   "reason": "Expects metadata to be {calendarSubscriptionEvent: JSON.stringify(...)} of the event fields; the key name and JSON-string encoding appear nowhere, and the description's review checklist even says rescheduleBooking hardcodes `metadata: {}`. Dates must be ISO strings inside that JSON."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData - duration edge cases > booking with very long duration (8 hours)": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Description only says rescheduleBooking 'updates booking times when the calendar event is rescheduled'; preserving the original booking duration (end = event.start + booking duration) instead of using event.end is never stated, and a reasonable implementation using event.end gives a different end. Here event.end (default 2024-01-15T15:00) is not even after the new start."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData - duration edge cases > booking with very short duration (1 minute)": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Description only says rescheduleBooking 'updates booking times when the calendar event is rescheduled'; preserving the original booking duration (end = event.start + booking duration) instead of using event.end is never stated, and a reasonable implementation using event.end gives a different end."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData - duration edge cases > booking with zero duration: end equals start": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Description only says rescheduleBooking 'updates booking times when the calendar event is rescheduled'; preserving the original booking duration (end = event.start + booking duration) instead of using event.end is never stated, and a reasonable implementation using event.end gives a different end."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > falls back to booking start when event start is null": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Falling back to booking.startTime is reasonable, but the expected end 11:00 comes from preserving the booking's 60-min duration rather than event.end (15:00); Description only says rescheduleBooking 'updates booking times when the calendar event is rescheduled'; preserving the original booking duration (end = event.start + booking duration) instead of using event.end is never stated, and a reasonable implementation using event.end gives a different end."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > handles cross-day rescheduling correctly": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Description only says rescheduleBooking 'updates booking times when the calendar event is rescheduled'; preserving the original booking duration (end = event.start + booking duration) instead of using event.end is never stated, and a reasonable implementation using event.end gives a different end. Booking is 90 min, event is 60 min; test expects 90."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > preserves original 2-hour duration when event is shortened externally": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Description only says rescheduleBooking 'updates booking times when the calendar event is rescheduled'; preserving the original booking duration (end = event.start + booking duration) instead of using event.end is never stated, and a reasonable implementation using event.end gives a different end."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > preserves original 30-min duration when event is stretched to 90min externally": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Description only says rescheduleBooking 'updates booking times when the calendar event is rescheduled'; preserving the original booking duration (end = event.start + booking duration) instead of using event.end is never stated, and a reasonable implementation using event.end gives a different end."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > preserves original 60-min duration when event is moved": {
+   "label": "fair",
+   "reason": "Booking and event are both 60 min, so start=event.start ISO and end 15:00 hold whether the end comes from event.end or the preserved duration."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > sets eventTypeId from booking": {
+   "label": "fair",
+   "reason": "eventTypeId from booking is the only source; description mentions the booking.eventTypeId check before rescheduling."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > sets rescheduleUid to original booking uid": {
+   "label": "fair",
+   "reason": "Description: createBooking is called directly with rescheduleUid."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > uses event timezone, falls back to UTC": {
+   "label": "fair",
+   "reason": "Description's review checklist states `timeZone: event.timeZone ?? \"UTC\"`."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > builds fallback responses when responses is an array (invalid shape)": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Requires an array-valued responses to be treated as invalid and replaced by a fallback with name/email/guests keys; nothing says a fallback exists or that arrays count as invalid (a plain typeof === 'object' check accepts arrays)."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > builds fallback responses when responses is null": {
+   "label": "unfair",
+   "reason": "Expects the fallback responses built when booking.responses is not an object to be exactly {name: booking.title, email: userPrimaryEmail ?? \"\", guests: [], notes: description ?? \"\", smsReminderNumber, location: {label,value,optionValue}}; using the booking title as the attendee name and this exact shape are not stated anywhere."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > handles empty string location": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Expects the fallback to have location undefined when booking.location is \"\"; whether a fallback includes location (as raw string, null or omitted) is not stated."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > handles null description in fallback": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects fallback notes to be \"\" (not null/undefined) when booking.description is null; the empty-string default is not stated.",
+   "clarification": "When booking.responses is not a plain object, extractBookingResponses builds a fallback in which missing email and notes become \"\" and location is omitted unless booking.location is non-empty."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > handles null userPrimaryEmail in fallback": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects fallback email to be \"\" when userPrimaryEmail is null; the empty-string default is not stated.",
+   "clarification": "When booking.responses is not a plain object, extractBookingResponses builds a fallback in which missing email and notes become \"\" and location is omitted unless booking.location is non-empty."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > omits location from fallback when booking has no location": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Expects fallback location undefined when booking.location is null; whether the fallback carries location (e.g. null) is not stated."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > returns existing responses when present as object": {
+   "label": "fair",
+   "reason": "Returning booking.responses unchanged when it is an object follows directly from the spec name/signature extractBookingResponses(booking): Record<string, unknown>."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::hasStartTimeChanged > detects 1-second difference": {
+   "label": "fair",
+   "reason": "Follows from the spec name hasStartTimeChanged(booking, event): boolean comparing timestamps."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::hasStartTimeChanged > returns false when event start equals booking start": {
+   "label": "fair",
+   "reason": "Follows from the function name and signature."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::hasStartTimeChanged > returns false when event start is null": {
+   "label": "fair",
+   "reason": "A null event start cannot indicate a change; `false` is the natural result for a boolean change detector (and the base's null-check style)."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::hasStartTimeChanged > returns true when event start differs from booking start": {
+   "label": "fair",
+   "reason": "Follows from the function name and signature."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::hasStartTimeChanged > same timestamp in different timezone representations is equal": {
+   "label": "fair",
+   "reason": "Date objects for the same instant compare equal by getTime(); any instant comparison passes."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::iCalUID parsing > iCalUID with multiple @ signs: only first part is used as bookingUid": {
+   "label": "fair",
+   "reason": "Base cancelBooking already uses `iCalUID.split('@')[0]`; the test only additionally needs handleCancelBooking to be called, which the description states."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::mergeBookingResponsesWithEventData > does not override when event fields are null/empty": {
+   "label": "fair",
+   "reason": "Expects responses unchanged and no title when event fields are null; trivially satisfied by any merge that only overrides on present values (or no merge)."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::mergeBookingResponsesWithEventData > overrides title, notes, and location from event": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "title/notes mapping follows base system fields, but location must toEqual {value, label, optionValue}; the label key and shape are not specified.",
+   "clarification": "mergeBookingResponsesWithEventData sets responses.title from event.summary, responses.notes from event.description and responses.location to {value, label, optionValue} all equal to event.location, each only when the event field is non-empty."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::mergeBookingResponsesWithEventData > partially overrides \u2014 only summary changed": {
+   "label": "fair",
+   "reason": "Maps event.summary to responses.title (base booking field) and keeps notes when description is null; follows from the function name and base getBookingFields.ts."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > cancelBooking > should handle cancellation errors gracefully without throwing": {
+   "label": "fair",
+   "reason": "Description: errors are caught and logged, not thrown; test also needs handleCancelBooking (spec mock) to be called."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > cancelBooking > should handle database errors gracefully without throwing": {
+   "label": "fair",
+   "reason": "Description says errors are caught and logged; a rejecting findBookingByUidWithEventType must not propagate."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > cancelBooking > should successfully cancel a booking": {
+   "label": "unfair",
+   "reason": "Asserts handleCancelBooking is called with exactly {userId, actionSource: \"SYSTEM\", bookingData: {uid, cancellationReason: \"Cancelled on user's calendar\", cancelledBy: userPrimaryEmail, skipCalendarSyncTaskCancellation: true}}; the cancellationReason string is invented, and actionSource SYSTEM vs WEBHOOK is not stated."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > rescheduleBooking > should build fallback responses when booking responses are missing": {
+   "label": "unfair",
+   "reason": "Expects the fallback responses built when booking.responses is not an object to be exactly {name: booking.title, email: userPrimaryEmail ?? \"\", guests: [], notes: description ?? \"\", smsReminderNumber, location: {label,value,optionValue}}; using the booking title as the attendee name and this exact shape are not stated anywhere. Also checks metadata.calendarSubscriptionEvent string and the exact three bookingMeta flags."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > rescheduleBooking > should handle database errors gracefully without throwing": {
+   "label": "fair",
+   "reason": "Description: errors are caught and logged, not thrown."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > rescheduleBooking > should handle rescheduling errors gracefully without throwing": {
+   "label": "fair",
+   "reason": "Description: errors from createBooking are caught and logged; createBooking via the spec-mocked getRegularBookingService must be called."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > rescheduleBooking > should preserve original duration when external event has different duration": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Description only says rescheduleBooking 'updates booking times when the calendar event is rescheduled'; preserving the original booking duration (end = event.start + booking duration) instead of using event.end is never stated, and a reasonable implementation using event.end gives a different end. Event is 90 min, booking 60; test expects end 15:00."
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > rescheduleBooking > should successfully reschedule a booking preserving original duration": {
+   "label": "unfair",
+   "reason": "Asserts the exact bookingData object, including metadata.calendarSubscriptionEvent as a JSON string with summary/description/location (description says `metadata: {}`), responses.location {label,optionValue,value}, and bookingMeta with undisclosed skipAvailabilityCheck/skipEventLimitsCheck."
+  }
+ },
+ "24324": {
+  "packages/lib/server/repository/bookingReport.test.ts::PrismaBookingReportRepository > createReport > should create a booking report with all fields": {
+   "label": "fair",
+   "reason": "Asserts create({data: {all CreateBookingReportInput fields}, select: {id: true}}) -> {id}. The fields come from the spec's interface, and select {id:true} follows from the Promise<{id: string}> return type and the base repositories' select-minimal convention."
+  },
+  "packages/lib/server/repository/bookingReport.test.ts::PrismaBookingReportRepository > createReport > should create a booking report without optional fields": {
+   "label": "fair",
+   "reason": "Same call with description/organizationId undefined. toHaveBeenCalledWith treats undefined keys as absent, so passing the input through or listing fields both pass."
+  },
+  "packages/lib/server/repository/bookingReport.test.ts::PrismaBookingReportRepository > findAllReportedBookings > should find all reported bookings with pagination": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "An exact findMany call is asserted: skip/take, a select matching the BookingReportSummary fields (follows from the spec), and orderBy {createdAt: \"desc\"}. No ordering is stated in the description or spec, so an implementation without orderBy, or with another order, fails.",
+   "clarification": "findAllReportedBookings passes skip/take to prisma findMany, selects only the BookingReportSummary fields, and orders by createdAt descending."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > access control > should throw FORBIDDEN when user doesn't have access to booking": {
+   "label": "unfair",
+   "reason": "Asserts FORBIDDEN with the exact message \"You don't have access to this booking\". The access check is implied by the BookingAccessService spec, but neither the description nor the spec gives this string, and BookingAccessService and any handler using it are new in this PR."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > access control > should throw NOT_FOUND when booking doesn't exist": {
+   "label": "fair",
+   "reason": "NOT_FOUND with message \"Booking not found\" when findByUidIncludeReport returns null; this is the standard wording across the base code (e.g. getBookingAttendees.handler.ts throws \"Booking not found\")."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > duplicate report prevention > should throw BAD_REQUEST when booking already has a report": {
+   "label": "unfair",
+   "reason": "Rejecting a second report follows from the one-to-one Booking.report in the spec, but the test requires code BAD_REQUEST and the exact invented message \"This booking has already been reported\", stated nowhere. The description even mentions a report 'count', which suggests multiple reports."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > successful report creation > should create report without description for past booking": {
+   "label": "unfair",
+   "reason": "Requires the exact message \"Booking reported successfully\" plus createReport args with cancelled:false and organizationId undefined; the return message strings are not given in the description or spec."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > successful report creation > should successfully create a single booking report and auto-cancel upcoming booking": {
+   "label": "unfair",
+   "reason": "Requires the exact message \"Booking reported and cancelled successfully\", which is invented. reportedCount 1 and the createReport args (bookerEmail from attendees[0], cancelled:true, organizationId undefined) are only partly inferable."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > cancellation integration > should cancel booking when cancelBooking is true": {
+   "label": "unfair",
+   "reason": "Requires the invented message \"Booking reported and cancelled successfully\" and an exact handleCancelBooking({bookingData: {uid, cancelledBy: user.email, skipCancellationReasonValidation: true}, userId}) call. skipCancellationReasonValidation is in the spec, but cancelledBy and the exact object shape are not."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > cancellation integration > should handle cancellation failure gracefully": {
+   "label": "unfair",
+   "reason": "Requires that the report still succeeds when cancellation throws, with the exact invented message \"Booking reported successfully, but cancellation failed\" and no cancellationError property. None of this is in the description or spec."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > cancellation integration > should not cancel booking if it's in the past": {
+   "label": "unfair",
+   "reason": "Not cancelling past bookings follows from the description ('Upcoming booking ... would get cancelled'), but the test also asserts the invented message \"Booking reported successfully\"."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > cancellation integration > should pass seatReferenceUid for seated events": {
+   "label": "unfair",
+   "reason": "Requires matching the reporting user's email against booking.seatsReferences[].attendee.email and passing that seat's referenceUid as seatReferenceUid to handleCancelBooking. Seats are never mentioned in the description or spec, and nothing says the reporter's own seat should be cancelled."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > cancellation integration > should use cancelSubsequentBookings for recurring events": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "For a recurring booking it requires handleCancelBooking bookingData to include cancelSubsequentBookings: true. The description never mentions recurring bookings; the spec only names getActiveRecurringBookingsFromDate. Cancelling just this occurrence, or using the existing allRemainingBookings flag in base bookingCancelSchema (packages/prisma/zod-utils.ts), are equally valid readings."
+  }
+ },
+ "24465": {
+  "packages/app-store/googlecalendar/lib/__tests__/getFreeBusyResult.test.ts::GoogleCalendarService.getFreeBusyResult - shouldServeCache logic > shouldServeCache parameter handling > should call fetchAvailability immediately when shouldServeCache is 0 (falsey)": {
+   "label": "fair",
+   "reason": "The description says the `shouldServeCache === false` check becomes `!shouldServeCache` to handle all falsey values; the test passes 0 and expects fetchAvailability(args) to be called once and its result returned."
+  },
+  "packages/app-store/googlecalendar/lib/__tests__/getFreeBusyResult.test.ts::GoogleCalendarService.getFreeBusyResult - shouldServeCache logic > shouldServeCache parameter handling > should call fetchAvailability immediately when shouldServeCache is empty string (falsey)": {
+   "label": "fair",
+   "reason": "The description says the `shouldServeCache === false` check becomes `!shouldServeCache` to handle all falsey values; the test passes \"\" and expects fetchAvailability(args) to be called once and its result returned."
+  },
+  "packages/app-store/googlecalendar/lib/__tests__/getFreeBusyResult.test.ts::GoogleCalendarService.getFreeBusyResult - shouldServeCache logic > shouldServeCache parameter handling > should call fetchAvailability immediately when shouldServeCache is null (falsey)": {
+   "label": "fair",
+   "reason": "The description says the `shouldServeCache === false` check becomes `!shouldServeCache` to handle all falsey values; the test passes null and expects fetchAvailability(args) to be called once and its result returned."
+  },
+  "packages/app-store/googlecalendar/lib/__tests__/getFreeBusyResult.test.ts::GoogleCalendarService.getFreeBusyResult - shouldServeCache logic > shouldServeCache parameter handling > should call fetchAvailability immediately when shouldServeCache is undefined (falsey)": {
+   "label": "fair",
+   "reason": "The description says the `shouldServeCache === false` check becomes `!shouldServeCache` to handle all falsey values; the test passes undefined and expects fetchAvailability(args) to be called once and its result returned."
+  },
+  "packages/features/calendar-cache/lib/getShouldServeCache.test.ts::CacheService.getShouldServeCache > when shouldServeCache is undefined > should return false when no teamId is provided": {
+   "label": "fair",
+   "reason": "The description states getShouldServeCache returned undefined when no teamId was passed and fixes it; the test expects `false` and no checkIfTeamHasFeature call, matching base line `if (!teamId) return undefined` changed to false."
+  },
+  "packages/features/calendar-cache/lib/getShouldServeCache.test.ts::CacheService.getShouldServeCache > when shouldServeCache is undefined > should return false when teamId is 0": {
+   "label": "fair",
+   "reason": "Same `!teamId` branch in base getShouldServeCache.ts; with the stated fix, teamId 0 returns false without calling checkIfTeamHasFeature."
+  },
+  "packages/features/calendar-cache/lib/getShouldServeCache.test.ts::CacheService.getShouldServeCache > when shouldServeCache is undefined > should return false when teamId is null": {
+   "label": "fair",
+   "reason": "Same `!teamId` branch; null teamId returns false without a feature-repository call, as the description's fix implies."
+  }
+ },
+ "24880": {
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > sortEvents > should sort events by start time ascending": {
+   "label": "fair",
+   "reason": "Sorting by start time ascending follows from the name sortEvents and the base store.ts:40 sort by start."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > sortEvents > should sort events with same start time by end time descending (longer first)": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Asserts the tie-break for equal starts is end time descending (longest first). Neither the description nor the spec says this. The base store.ts:40 sorts by start only, so a stable sort or an end-ascending tie-break are also valid readings."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > sortEvents > should not mutate the original array": {
+   "label": "fair",
+   "reason": "Asserts the input array keeps its order. A pure utility that returns the sorted array normally copies first ([...events].sort), though the base store.ts:40 sorts in place."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should return empty array for no events": {
+   "label": "fair",
+   "reason": "Empty input gives [], which follows from the signature."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should return single group for single event": {
+   "label": "fair",
+   "reason": "One event gives one group of one, which follows from the name and signature."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should group two overlapping events together": {
+   "label": "fair",
+   "reason": "10:00-11:00 and 10:30-11:30 overlap and form one group in sorted order. This follows from the function name."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should separate non-overlapping events into different groups": {
+   "label": "fair",
+   "reason": "An event ending at 11:00 and one starting at 11:00 go in separate groups. Treating end times as exclusive is the standard interval convention."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should handle chain overlaps (A overlaps B, B overlaps C)": {
+   "label": "fair",
+   "reason": "A chain A-B-C forms one group of 3 even though A and C only touch. Building overlap groups as connected clusters (a sweep over the running group end) is the standard meaning for a cascading layout."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should handle multiple separate overlap groups": {
+   "label": "fair",
+   "reason": "Two disjoint overlapping pairs give two groups of 2. This follows from the function name."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should handle events that start at the same time": {
+   "label": "fair",
+   "reason": "Three events with the same start form one group of 3, which is plain overlap semantics."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should calculate layout for single event": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Asserts the default widthPercent 80 and baseZIndex 60. The spec gives the config fields but no defaults, and the base EventList.tsx used width 90 and zIndex 61.",
+   "clarification": "calculateEventLayouts defaults are baseWidthPercent 80, offsetStepPercent 8, baseZIndex 60 and safetyMarginPercent 0.5; event i in an overlap group gets left = i*step, width = baseWidthPercent and zIndex = baseZIndex + i."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should calculate cascading layout for two overlapping events": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Asserts the default offset step 8, width 80 and zIndex 60/61. None of these defaults is stated anywhere, and the base EventList used 90/61.",
+   "clarification": "calculateEventLayouts defaults are baseWidthPercent 80, offsetStepPercent 8, baseZIndex 60 and safetyMarginPercent 0.5; event i in an overlap group gets left = i*step, width = baseWidthPercent and zIndex = baseZIndex + i."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should calculate cascading layout for three overlapping events": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Asserts offsets 0/8/16 and zIndex 60/61/62, which rely on the unstated defaults (step 8, z 60).",
+   "clarification": "calculateEventLayouts defaults are baseWidthPercent 80, offsetStepPercent 8, baseZIndex 60 and safetyMarginPercent 0.5; event i in an overlap group gets left = i*step, width = baseWidthPercent and zIndex = baseZIndex + i."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should respect custom configuration": {
+   "label": "fair",
+   "reason": "With config {70,10,50} it asserts width 70, left 0/10 and z 50/51. These follow from the field names (baseWidthPercent, offsetStepPercent, baseZIndex) and a cascade where each later event shifts by one step and one z level."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should handle non-overlapping events in separate groups": {
+   "label": "fair",
+   "reason": "Asserts groupIndex 0/1, indexInGroup 0 and left 0 for touching events. These follow from the EventLayout fields in the spec and the grouping semantics."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should prevent overflow with many overlapping events (dense scenario)": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Asserts left+width <= 99.5 for an 11-event chain. Preventing overflow is stated, but the 0.5 margin is not: the spec only names a safetyMarginPercent field with no default, so an implementation that caps at 100 fails.",
+   "clarification": "The default safetyMarginPercent is 0.5, and every layout must satisfy leftOffsetPercent + widthPercent <= 100 - safetyMarginPercent."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should respect safety margin with 20+ overlapping events": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Asserts left+width <= 99.5 for 21 overlapping events. The default 0.5 safety margin is not stated; the spec only names safetyMarginPercent.",
+   "clarification": "The default safetyMarginPercent is 0.5, and every layout must satisfy leftOffsetPercent + widthPercent <= 100 - safetyMarginPercent."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should compress offset step for dense overlaps while maintaining cascade": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Asserts that for 12 overlapping events every leftOffsetPercent is strictly greater than the previous one while staying <= 100. The description only says to stop overflow; clamping offsets at a maximum, or wrapping the cascade, also stops overflow but fails the strict-increase check."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should maintain full width for small overlap groups": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Asserts width 80 and offsets 0/8/16 for a 3-event group. These are unstated defaults, and the base used width 90.",
+   "clarification": "calculateEventLayouts defaults are baseWidthPercent 80, offsetStepPercent 8, baseZIndex 60 and safetyMarginPercent 0.5; event i in an overlap group gets left = i*step, width = baseWidthPercent and zIndex = baseZIndex + i."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > createLayoutMap > should create a map from event ID to layout": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "The map keyed by event.id follows from the signature, but it also asserts map.get(2).leftOffsetPercent === 8, which relies on the unstated default offset step.",
+   "clarification": "calculateEventLayouts defaults are baseWidthPercent 80, offsetStepPercent 8, baseZIndex 60 and safetyMarginPercent 0.5; event i in an overlap group gets left = i*step, width = baseWidthPercent and zIndex = baseZIndex + i."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > createLayoutMap > should handle empty layouts": {
+   "label": "fair",
+   "reason": "An empty input gives an empty Map, which follows from the signature."
+  }
+ },
+ "25313": {
+  "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > CONFIDENTIAL clients > should accept CONFIDENTIAL client with code_verifier for enhanced security": {
+   "label": "fair",
+   "reason": "Expects 200 with the base success body, generateSecret('plain_secret') and verifyCodeChallenge('test_verifier','test_challenge','S256'). The description says confidential clients that used PKCE must send code_verifier on exchange; passing the stored method as the third argument follows from the spec signature and the new codeChallengeMethod column."
+  },
+  "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > CONFIDENTIAL clients > should reject CONFIDENTIAL client with invalid client_secret": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects 401 with data.error 'invalid_client'. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses. It also needs the secret compared in code against client.clientSecret, because the mocked findFirst ignores a base-style where: {clientSecret: hashedSecret} filter.",
+   "clarification": "Token endpoint errors return RFC 6749 \u00a75.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+  },
+  "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > CONFIDENTIAL clients > should reject CONFIDENTIAL client with invalid code_verifier": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects 400 with data.error 'invalid_grant' (RFC 7636 \u00a74.6 code) when verification fails. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
+   "clarification": "Token endpoint errors return RFC 6749 \u00a75.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+  },
+  "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > CONFIDENTIAL clients > should reject CONFIDENTIAL client without client_secret": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects 401 with data.error 'invalid_client'; the behavior (reject) is stated ('enforce client_secret for Confidential') but the body shape is not. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
+   "clarification": "Token endpoint errors return RFC 6749 \u00a75.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+  },
+  "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > General validation > should reject expired authorization code": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects 400 with data.error 'invalid_grant' when accessCode.findFirst returns null; base returns 401 {message:'Unauthorized'} for this case, and the description does not say the status or body changes.",
+   "clarification": "Token endpoint errors return RFC 6749 \u00a75.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+  },
+  "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > General validation > should reject invalid client_id": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects 401 with data.error 'invalid_client'. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
+   "clarification": "Token endpoint errors return RFC 6749 \u00a75.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+  },
+  "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > General validation > should reject invalid grant_type": {
+   "label": "unfair",
+   "reason": "Expects data.error 'invalid_request' for grant_type 'implicit'. Base returns {message:'grant_type invalid'} (400), and the OAuth standard the description points at (RFC 6749 \u00a75.2) prescribes 'unsupported_grant_type' for this case, so nothing in the inputs leads to 'invalid_request'."
+  },
+  "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > General validation > should reject mismatched redirect_uri": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects 400 with data.error 'invalid_grant'; base route.ts returns 401 {message:'Unauthorized'} for a redirect_uri mismatch, and the description doesn't say this changes (the RFC code is invalid_grant).",
+   "clarification": "Token endpoint errors return RFC 6749 \u00a75.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+  },
+  "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > PUBLIC clients > should exchange authorization code for tokens with valid PKCE": {
+   "label": "fair",
+   "reason": "Expects 200 with the base success body {access_token, token_type:'bearer', refresh_token, expires_in:1800}, verifyCodeChallenge('test_verifier','test_challenge','S256') and deleteMany called. All of this is stated in the description (public clients have no secret, S256 PKCE) or already in the base route."
+  },
+  "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > PUBLIC clients > should reject PUBLIC client with invalid code_verifier": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects 400 with data.error 'invalid_grant' and verifyCodeChallenge called with the stored S256 method. Rejecting is stated; the body/code is not. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
+   "clarification": "Token endpoint errors return RFC 6749 \u00a75.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+  },
+  "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > PUBLIC clients > should reject PUBLIC client with missing code challenge in access code": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects 400 with data.error 'invalid_request' when the stored access code has codeChallenge null; the RFCs don't fix this code either (invalid_grant is equally plausible), and base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
+   "clarification": "Token endpoint errors return RFC 6749 \u00a75.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+  },
+  "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > PUBLIC clients > should reject PUBLIC client without code_verifier": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects 400 with data.error 'invalid_request' for a missing code_verifier. Rejecting is stated; the body shape and code are not. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
+   "clarification": "Token endpoint errors return RFC 6749 \u00a75.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+  },
+  "packages/lib/pkce.test.ts::PKCE Functions > isValidCodeChallengeMethod > should accept S256 method": {
+   "label": "fair",
+   "reason": "Description: PKCE is S256 only."
+  },
+  "packages/lib/pkce.test.ts::PKCE Functions > isValidCodeChallengeMethod > should reject unsupported methods": {
+   "label": "fair",
+   "reason": "Expects false for plain, MD5, SHA1, invalid and ''; the description says S256 only ('S256 required')."
+  },
+  "packages/lib/pkce.test.ts::PKCE Functions > verifyCodeChallenge > should default to S256 method when none specified": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects verifyCodeChallenge(verifier, challenge) with no method to verify as S256. The spec makes method optional but gives no default; RFC 7636 \u00a74.3 defaults to 'plain', and with plain unsupported, returning false is also a valid reading.",
+   "clarification": "verifyCodeChallenge treats an omitted method as 'S256'."
+  },
+  "packages/lib/pkce.test.ts::PKCE Functions > verifyCodeChallenge > should fail verification with wrong S256 code challenge": {
+   "label": "fair",
+   "reason": "A wrong challenge must fail; follows from the function's purpose."
+  },
+  "packages/lib/pkce.test.ts::PKCE Functions > verifyCodeChallenge > should return false for unsupported method": {
+   "label": "fair",
+   "reason": "Expects false for 'MD5'; the description says only S256 is supported."
+  },
+  "packages/lib/pkce.test.ts::PKCE Functions > verifyCodeChallenge > should verify S256 code challenge correctly": {
+   "label": "fair",
+   "reason": "Uses the RFC 7636 Appendix B verifier/challenge pair; S256 = BASE64URL(SHA256(verifier)) without padding is the standard, and the description's openssl recipe shows the same encoding."
+  },
+  "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > CONFIDENTIAL clients > should accept CONFIDENTIAL client with valid PKCE for enhanced security": {
+   "label": "fair",
+   "reason": "Expects accessCode.create called with exactly the base data fields plus codeChallenge 'test_challenge' and codeChallengeMethod 'S256'; the description says AccessCode stores codeChallenge/codeChallengeMethod, and the spec names the columns."
+  },
+  "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > CONFIDENTIAL clients > should generate authorization code for CONFIDENTIAL client without PKCE": {
+   "label": "fair",
+   "reason": "Expects create data to contain codeChallenge: undefined and codeChallengeMethod: undefined (objectContaining needs the keys present). Passing the optional input fields straight through, as the base does with teamId: undefined, satisfies this."
+  },
+  "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > CONFIDENTIAL clients > should reject CONFIDENTIAL client with code_challenge but missing method": {
+   "label": "unfair",
+   "reason": "Expects a TRPCError with the exact message 'code_challenge_method must be S256 when PKCE is used' (toThrow compares the message). That string appears nowhere in the description or spec, and rejecting rather than defaulting the method to S256 is also unstated."
+  },
+  "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > Client validation > should accept only supported PKCE methods": {
+   "label": "unfair",
+   "reason": "Expects SHA1 and plain to be rejected with the exact message 'code_challenge_method must be S256 for public clients', an invented string not in the description or spec. The handler is called directly, so the zod enum alone does not help."
+  },
+  "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > PUBLIC clients > should generate authorization code for PUBLIC client with valid PKCE": {
+   "label": "fair",
+   "reason": "Expects result.client equal to the stubbed client and create data containing codeChallenge/codeChallengeMethod; stated in the description (generateAuthCode accepts and stores them)."
+  },
+  "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > PUBLIC clients > should reject PUBLIC client with invalid code_challenge_method": {
+   "label": "unfair",
+   "reason": "Expects the exact TRPCError message 'code_challenge_method must be S256 for public clients' for MD5/plain; rejecting is stated, but the message string is invented."
+  },
+  "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > PUBLIC clients > should reject PUBLIC client without code_challenge": {
+   "label": "unfair",
+   "reason": "Expects the exact TRPCError message 'code_challenge required for public clients'; rejecting is stated, but the message string is invented."
+  },
+  "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > PUBLIC clients > should reject PUBLIC client without code_challenge_method": {
+   "label": "unfair",
+   "reason": "Expects the exact message 'code_challenge_method must be S256 for public clients' when the method is missing; the string is invented, and defaulting a missing method to S256 would be a valid reading."
+  }
+ },
+ "25315": {
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to booking owner": {
+   "label": "fair",
+   "reason": "Spec input includes bookingOwnerId; a credential whose userId equals bookingOwnerId resolving without error is the obvious meaning of that input. Only requires not throwing."
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to logged-in user": {
+   "label": "fair",
+   "reason": "A credential with userId === loggedInUserId must resolve; this is the most basic access rule implied by the ensureAccessible(credentialId, loggedInUserId, ...) signature."
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to organization the logged-in user belongs to": {
+   "label": "fair",
+   "reason": "Credential teamId equals the organizationId from the spec-listed getUserOrganizationAndTeams (teams: []); base BookingAccessService.ts:77-95 treats organizationId alongside teams[].teamId as a team to check, so counting it follows base convention."
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to team the booking owner belongs to": {
+   "label": "fair",
+   "reason": "Test needs getUserOrganizationAndTeams to be called for bookingOwnerId too. The description doesn't say so, but base BookingAccessService.ts:74 already calls getUserOrganizationAndTeams on the booking owner and walks its organizationId/teams for access checks, so following that pattern passes."
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to team the logged-in user belongs to": {
+   "label": "fair",
+   "reason": "Credential teamId is in teams[] returned by the spec-mocked getUserOrganizationAndTeams for the logged-in user; team membership access is the evident reason that dependency is listed in the spec."
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should handle null bookingOwnerId": {
+   "label": "fair",
+   "reason": "Credential owned by the logged-in user with bookingOwnerId null must resolve; follows from the `number | null` type in the spec signature and the ownership rule."
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should throw FORBIDDEN when credential is not accessible": {
+   "label": "unfair",
+   "reason": "Asserts the error is an HttpError with statusCode 403 and the exact message \"You do not have access to this credential\"; neither the error class (the trpc handler base code uses TRPCError) nor the message is in the description or spec."
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should throw NOT_FOUND when credential does not exist": {
+   "label": "unfair",
+   "reason": "Asserts an HttpError instance with statusCode 404 and message \"Credential not found\". The message is a common base string (e.g. handleDeleteCredential.ts:71), but the error class and status code are not given; a TRPCError NOT_FOUND, natural in the trpc handler, or a plain Error fails."
+  }
+ },
+ "26039": {
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createContacts > should create contacts successfully": {
+   "label": "fair",
+   "reason": "Asserts the firstname/lastname/email split and the {id,email} result, which the base hubspot CrmService.createContacts already does. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createContacts > should handle existing contact error gracefully": {
+   "label": "fair",
+   "reason": "Asserts that the ID is parsed from the 'Contact already exists. Existing ID:' error, which is existing base behavior. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should associate meeting with contacts": {
+   "label": "fair",
+   "reason": "Asserts the existing batchApi.create('meetings','contacts',{inputs:[...meeting_event_to_contact]}) call from the base hubspotAssociate. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines. It also needs custom fields off when options are {}."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should create a meeting without custom fields when feature is disabled": {
+   "label": "fair",
+   "reason": "Asserts the base standard properties (hs_meeting_title, SCHEDULED) and no extra fields when onBookingWriteToEventObject is unset. Gating on that flag follows from the description ('enable On booking writes') and the zod field named in the spec."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should create meeting successfully when owner lookup fails due to missing scope": {
+   "label": "fair",
+   "reason": "Asserts the base handleMeetingCreation return shape, and that no hubspot_owner_id is set when getPage rejects. The base getHubspotOwnerIdByEmail already catches the error. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should handle multiple custom fields of different types": {
+   "label": "fair",
+   "reason": "Combines static text, {name}, a boolean checkbox and an ISO start date. Each is a value source named in the description, and the formats follow the base Salesforce write-to-record code (packages/app-store/salesforce/lib/CrmService.ts in the base code: checkbox !!value, dates via toISOString)."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include checkbox field with boolean value": {
+   "label": "fair",
+   "reason": "Asserts the property is boolean true. The schema in the spec allows a boolean value, and the base Salesforce checkbox handling writes !!fieldConfig.value."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include custom text field with UTM tracking value": {
+   "label": "fair",
+   "reason": "{utm:source} resolves to tracking.utm_source through trackingRepository.findByBookingUid. The UTM source is in the description, the repository is in the spec, and the utm_${param} lookup copies the base Salesforce getTextValueFromBookingTracking."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include custom text field with booking response placeholder": {
+   "label": "fair",
+   "reason": "{name} resolves to responses.name.value ('John Doe'). The description names {fieldId} booking-response placeholders, and the base Salesforce getTextValueFromBookingResponse does the same replacement."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include custom text field with static value": {
+   "label": "fair",
+   "reason": "Static text 'Cal.com Booking' is written unchanged. The description lists static text as a value source."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include date field with booking created date": {
+   "label": "fair",
+   "reason": "Asserts booking.createdAt from bookingRepository.findBookingByUid as the ISO string '2024-01-10T09:00:00.000Z'. The repository method is in the spec, and the ISO format follows the base Salesforce getDateFieldValue and the hubspot toISOString usage."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include date field with booking start date": {
+   "label": "fair",
+   "reason": "Asserts BOOKING_START_DATE gives new Date(startTime).toISOString(). The description lists booking start date, and the format matches the base Salesforce getDateFieldValue and the hubspot hs_meeting_start_time."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include phone field with static value": {
+   "label": "fair",
+   "reason": "A static phone value is written unchanged. The description lists phone and static values."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should set hubspot owner when organizer email matches": {
+   "label": "fair",
+   "reason": "Asserts hubspot_owner_id from the base getHubspotOwnerIdByEmail. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should skip fields that do not exist on HubSpot meeting object": {
+   "label": "fair",
+   "reason": "The description says it 'validates properties against the HubSpot Meeting object and skips any missing fields', and the spec names coreApi.getAll('meetings')."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should skip fields with unknown placeholders that cannot be resolved": {
+   "label": "fair",
+   "reason": "An unresolved {unknown_placeholder} must be left out of the properties entirely. The base Salesforce write-to-record code (packages/app-store/salesforce/lib/CrmService.ts in the base code) returns undefined for an unresolved placeholder ('Don't return the field name') and only adds truthy values. One risk: copying Salesforce's event-object variant instead would assign the key an undefined value."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > deleteEvent > should archive meeting when organizer has changed": {
+   "label": "fair",
+   "reason": "Existing base behavior: deleteEvent archives the meeting when hasOrganizerChanged is set. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > deleteEvent > should cancel meeting when organizer has not changed": {
+   "label": "fair",
+   "reason": "Existing base hubspotCancelMeeting sets hs_meeting_outcome CANCELED. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > getContacts > should handle single email string input": {
+   "label": "fair",
+   "reason": "Existing base getContacts behavior. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > getContacts > should return contacts when found": {
+   "label": "fair",
+   "reason": "Existing base getContacts mapping to {id,email}. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > getContacts > should return empty array when no contacts found": {
+   "label": "fair",
+   "reason": "Existing base behavior. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > updateEvent > should update meeting with standard properties": {
+   "label": "fair",
+   "reason": "Existing base hubspotUpdateMeeting with RESCHEDULED. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  }
+ },
+ "26217": {
+  "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > returns 409 when target includes 'email'": {
+   "label": "fair",
+   "reason": "Expects 409 with {message: SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS} when user.create rejects with P2002 on ['email']. The spec says non-token signups use user.create and that tests stub unique-constraint errors as Prisma.PrismaClientKnownRequestError, and the description says an existing user yields 409 with the new USER_ALREADY_EXISTS code; mapping an email unique violation to that response is the natural reading."
+  },
+  "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > returns 409 when target includes 'email' among other fields": {
+   "label": "fair",
+   "reason": "Same as the email case with meta.target ['id','email','username']; any check that the target contains 'email' passes, and that follows from handling an email unique violation."
+  },
+  "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > returns 409 when target is 'username' only": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Expects a username-only P2002 to map to 409 with message USER_ALREADY_EXISTS (the code the frontend uses to redirect to login). Neither description nor spec says a username clash counts as 'user already exists'; base code reports it as a distinct 'Username or email is already taken'/'A user exists with that username' error, so returning a different message or re-throwing is a valid reading."
+  },
+  "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws when target is empty": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Expects a P2002 whose meta has no target ({}) to be re-thrown rather than turned into 409. Nothing in the description or spec says the mapping depends on meta.target; treating every P2002 on user creation as 'user already exists' is an equally valid implementation and fails this test."
+  },
+  "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws when target is undefined": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Expects a P2002 with meta undefined to be re-thrown. The target-based condition is unstated; mapping any P2002 to 409 USER_ALREADY_EXISTS is a valid reading that fails this test."
+  },
+  "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws non-P2002 Prisma errors": {
+   "label": "fair",
+   "reason": "Expects a P2025 error from user.create to propagate. Base handlers let errors propagate, and only unique violations relate to 'user already exists'."
+  },
+  "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws generic errors": {
+   "label": "fair",
+   "reason": "Expects a plain Error from user.create to propagate, which is the base behavior."
+  },
+  "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler \u2013 signup P2002 contract > Successful Creation > returns 201 when user is created (non-token flow)": {
+   "label": "fair",
+   "reason": "Expects 201 when user.create resolves; base handlers already return 201 'Created user', and the spec says the non-token path uses user.create."
+  },
+  "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler \u2013 signup P2002 contract > Invite flow - existing user validation > returns 409 when user exists but was not invited to this team": {
+   "label": "fair",
+   "reason": "Expects 409 {message: USER_ALREADY_EXISTS} when user.findUnique returns an existing user for a token signup; the description says to return 409 when the user already exists with an invite token, and the spec lists user.findUnique and the constant."
+  },
+  "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler \u2013 signup P2002 contract > Successful Creation > returns 201 when user is created via invite (token flow)": {
+   "label": "fair",
+   "reason": "Expects 201 when findUnique/findFirst return null and user.upsert resolves; base calcomHandler already upserts and returns 201 in the token flow, and the spec states user.upsert is used for token signups."
+  },
+  "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler \u2013 signup P2002 contract > Invite flow - existing user validation > returns 201 when user exists and was invited to this team": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Expects 201 when findUnique returns {invitedTo: 1} matching the token's teamId. The description says to return 409 whenever the user already exists with an invite token. Base inviteMember/utils.ts:350 does create placeholder users with invitedTo: teamId, so a careful engineer could infer the exception, but a literal implementation returns 409, and other placeholder checks (e.g. no password) fail with the mocked {id, invitedTo} row."
+  },
+  "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > returns 409 when target includes 'email'": {
+   "label": "fair",
+   "reason": "Expects 409 with {message: SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS} when user.create rejects with P2002 on ['email']. The spec says non-token signups use user.create and that tests stub unique-constraint errors as Prisma.PrismaClientKnownRequestError, and the description says an existing user yields 409 with the new USER_ALREADY_EXISTS code; mapping an email unique violation to that response is the natural reading. selfHostedHandler must also switch the base user.upsert to user.create, which the spec states."
+  },
+  "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > returns 409 when target includes 'email' among other fields": {
+   "label": "fair",
+   "reason": "Same as the email case with meta.target ['id','email','username']; any check that the target contains 'email' passes, and that follows from handling an email unique violation."
+  },
+  "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > returns 409 when target is 'username' only": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Expects a username-only P2002 to map to 409 with message USER_ALREADY_EXISTS (the code the frontend uses to redirect to login). Neither description nor spec says a username clash counts as 'user already exists'; base code reports it as a distinct 'Username or email is already taken'/'A user exists with that username' error, so returning a different message or re-throwing is a valid reading."
+  },
+  "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws when target is empty": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Expects a P2002 whose meta has no target ({}) to be re-thrown rather than turned into 409. Nothing in the description or spec says the mapping depends on meta.target; treating every P2002 on user creation as 'user already exists' is an equally valid implementation and fails this test."
+  },
+  "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws when target is undefined": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Expects a P2002 with meta undefined to be re-thrown. The target-based condition is unstated; mapping any P2002 to 409 USER_ALREADY_EXISTS is a valid reading that fails this test."
+  },
+  "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws non-P2002 Prisma errors": {
+   "label": "fair",
+   "reason": "Expects a P2025 error from user.create to propagate. Base handlers let errors propagate, and only unique violations relate to 'user already exists'. Requires the spec-stated switch from user.upsert to user.create in the non-token path."
+  },
+  "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler \u2013 signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws generic errors": {
+   "label": "fair",
+   "reason": "Expects a plain Error from user.create to propagate, which is the base behavior. Requires the spec-stated user.create in the non-token path."
+  },
+  "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler \u2013 signup P2002 contract > Successful Creation > returns 201 when user is created (non-token flow)": {
+   "label": "fair",
+   "reason": "Expects 201 when user.create resolves; base handlers already return 201 'Created user', and the spec says the non-token path uses user.create."
+  },
+  "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler \u2013 signup P2002 contract > Invite flow - existing user validation > returns 409 when user exists but was not invited to this team": {
+   "label": "fair",
+   "reason": "Expects 409 {message: USER_ALREADY_EXISTS} when user.findUnique returns an existing user for a token signup; the description says to return 409 when the user already exists with an invite token, and the spec lists user.findUnique and the constant."
+  },
+  "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler \u2013 signup P2002 contract > Successful Creation > returns 201 when user is created via invite (token flow)": {
+   "label": "unfair",
+   "reason": "Expects 201 for a token signup with no existing user. The token flow reaches createOrUpdateMemberships, which the test mocks as vi.fn() returning undefined; base selfHostedHandler.ts (~L115) does `const { membership } = await createOrUpdateMemberships(...)` (membership unused), which throws a TypeError on undefined. The test only passes because the PR also dropped that unrelated destructuring, which nothing in the description or spec mentions."
+  },
+  "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler \u2013 signup P2002 contract > Invite flow - existing user validation > returns 201 when user exists and was invited to this team": {
+   "label": "unfair",
+   "reason": "Expects 201 when the existing user has invitedTo equal to the token's teamId. Beyond the unstated invitedTo exception (the description says 409 whenever the user already exists with a token), the token flow reaches createOrUpdateMemberships, which the test mocks as vi.fn() returning undefined; base selfHostedHandler.ts (~L115) does `const { membership } = await createOrUpdateMemberships(...)` (membership unused), which throws a TypeError on undefined. The test only passes because the PR also dropped that unrelated destructuring, which nothing in the description or spec mentions."
+  },
+  "packages/features/auth/signup/lib/fetchSignup.test.ts::fetchSignup > returns success when signup completes": {
+   "label": "fair",
+   "reason": "Expects ok: true for a 200 JSON response; follows from the SignupResult signature in the spec."
+  },
+  "packages/features/auth/signup/lib/fetchSignup.test.ts::fetchSignup > returns error with status code when signup fails": {
+   "label": "fair",
+   "reason": "Expects ok: false and status 409 for a 409 JSON response; follows from the SignupResult type {ok:false; status; error}."
+  },
+  "packages/features/auth/signup/lib/fetchSignup.test.ts::hasCheckoutSession > returns false when checkoutSessionId is absent": {
+   "label": "fair",
+   "reason": "Follows from the type guard name and signature (error has checkoutSessionId)."
+  },
+  "packages/features/auth/signup/lib/fetchSignup.test.ts::hasCheckoutSession > returns true when checkoutSessionId exists": {
+   "label": "fair",
+   "reason": "Follows from the type guard name and signature."
+  },
+  "packages/features/auth/signup/lib/fetchSignup.test.ts::isUserAlreadyExistsError > returns false for other error messages": {
+   "label": "fair",
+   "reason": "Expects false for 409 with message 'Username is already taken'; base code already uses 409 for other conflicts, and the dedicated SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS code implies matching the message, not only the status."
+  },
+  "packages/features/auth/signup/lib/fetchSignup.test.ts::isUserAlreadyExistsError > returns false for success responses": {
+   "label": "fair",
+   "reason": "Follows from the name and the SignupResult union."
+  },
+  "packages/features/auth/signup/lib/fetchSignup.test.ts::isUserAlreadyExistsError > returns true for 409 with user_already_exists message": {
+   "label": "fair",
+   "reason": "Expects true for status 409 with message SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS (compared via the constant); stated by the description (409 when user exists) and spec."
+  }
+ },
+ "27088": {
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > does not pass busyTimesFromLimitsBookings when no limits and no initialData bookings": {
+   "label": "fair",
+   "reason": "Asserts the initialData passed to _getUserAvailability has no busyTimesFromLimitsBookings key; the description states the conditional spread `...(busyTimesFromLimitsBookings ? { busyTimesFromLimitsBookings } : {})` explicitly."
+  },
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > fetches busy times when eventType has booking limits": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Asserts getStartEndDateforLimitCheck(DATE_FROM_ISO, DATE_TO_ISO, {PER_DAY:3}, null) with four args; the base slots/util.ts _getBusyTimesFromLimitsForUsers calls it as (from, to, bookingLimits || durationLimits), so copying that pattern fails. The getBusyTimesForLimitChecks args (userIds, eventType.id, limitDateFrom.format(), rescheduleUid, limits) follow the slots/util.ts pattern.",
+   "clarification": "Compute the limit window with getStartEndDateforLimitCheck(dateFrom.toISOString(), dateTo.toISOString(), bookingLimits, durationLimits), passing both parsed limits (null when absent) as separate arguments."
+  },
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > fetches busy times when eventType has duration limits": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects getStartEndDateforLimitCheck(..., null, {PER_WEEK:120}); the base slots/util.ts call passes `bookingLimits || durationLimits` as the third argument, which would give ({PER_WEEK:120}) and fail. The 4-param signature in getBusyTimes.ts allows the expected form, but neither the description nor the spec picks it.",
+   "clarification": "Compute the limit window with getStartEndDateforLimitCheck(dateFrom.toISOString(), dateTo.toISOString(), bookingLimits, durationLimits), passing both parsed limits (null when absent) as separate arguments."
+  },
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > fetches eventType by eventTypeId when not provided in initialData": {
+   "label": "fair",
+   "reason": "Expects findByIdForUserAvailability({id:100}), which the existing this.getEventType does, mirroring _getUserAvailability's own `if (!eventType && eventTypeId) eventType = await this.getEventType(eventTypeId)`. The getBusyTimesForLimitChecks args follow the slots/util.ts pattern."
+  },
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > passes both bookingLimits and durationLimits separately to getStartEndDateforLimitCheck": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Asserts both limits passed separately ({PER_DAY:3}, {PER_WEEK:120}); the analogous base call in slots/util.ts passes only `bookingLimits || durationLimits`, and the spec only names the stubbed member.",
+   "clarification": "Compute the limit window with getStartEndDateforLimitCheck(dateFrom.toISOString(), dateTo.toISOString(), bookingLimits, durationLimits), passing both parsed limits (null when absent) as separate arguments."
+  },
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > passes fetched busyTimesFromLimitsBookings to _getUserAvailability": {
+   "label": "fair",
+   "reason": "Fetched limit bookings must reach _getUserAvailability through the existing initialData.busyTimesFromLimitsBookings field. The description says the method 'sends busy times from limits' to it, and the spec says to call this._getUserAvailability."
+  },
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > passes fetched eventType to _getUserAvailability to avoid duplicate DB query": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Asserts that the eventType the method fetched is forwarded in initialData. Neither the description nor the spec mentions this. Passing initialData unchanged, so that _getUserAvailability refetches it as it already does, is a valid alternative."
+  },
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > passes rescheduleUid to getBusyTimesForLimitChecks when provided": {
+   "label": "fair",
+   "reason": "Passes initialData.rescheduleUid through as rescheduleUid, which is how base _getUserAvailability (`initialData?.rescheduleUid ?? undefined`) and slots/util.ts already pass it. The description lists reschedules as a case to handle."
+  },
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > preserves pre-existing busyTimesFromLimitsBookings from initialData instead of overwriting with empty array": {
+   "label": "fair",
+   "reason": "The description's 'Updates since last revision' says the method initializes from initialData.busyTimesFromLimitsBookings and passes it through instead of []."
+  },
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > skips fetching limit busy times when busyTimesFromLimitsBookings is already in initialData": {
+   "label": "fair",
+   "reason": "The description says to fetch limit busy times only 'when not in initialData'. The test checks that getBusyTimesForLimitChecks is not called and that a result with busy is returned."
+  },
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > skips fetching limit busy times when eventType has no limits": {
+   "label": "fair",
+   "reason": "No limit calls without booking/duration limits; base code guards limit fetching with `eventType && (bookingLimits || durationLimits)`."
+  },
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > skips fetching limit busy times when no eventType exists": {
+   "label": "fair",
+   "reason": "There is nothing to fetch without an eventType, and the base code uses the same eventType guard."
+  },
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > uses host user IDs for team events with booking limits": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Expects userIds [1,2,3] taken from eventType.hosts. The description only says to handle 'team events', and since the method takes a single user, passing [user.id] is a valid reading. Base slots/util.ts passes all users being checked, not eventType.hosts."
+  },
+  "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > uses only the user ID for solo events with booking limits": {
+   "label": "fair",
+   "reason": "With no hosts, userIds [42] is the user's own id, so either reading of the team-event behavior gives this result. The other args follow the slots/util.ts pattern."
+  }
+ },
+ "27192": {
+  "packages/features/CalendarEventBuilder.test.ts::CalendarEventBuilder > should create an event with assignment reason": {
+   "label": "fair",
+   "reason": "withAssignmentReason stores the given {category, details} on the event, following the signature in the spec and the existing builder pattern (e.g. withHashedLink)."
+  },
+  "packages/features/CalendarEventBuilder.test.ts::CalendarEventBuilder > should create an event with assignment reason without details": {
+   "label": "fair",
+   "reason": "Stores {category:'reassigned', details:null} unchanged, which follows from the signature and the builder's pass-through pattern."
+  },
+  "packages/features/CalendarEventBuilder.test.ts::CalendarEventBuilder > should create an event with null assignment reason": {
+   "label": "fair",
+   "reason": "withAssignmentReason(null) leaves assignmentReason null; the spec types the argument as `| null`, and the builder passes values through."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'reassigned' for REASSIGNED": {
+   "label": "fair",
+   "reason": "The description lists category keys routed/reassigned/rerouted/salesforce_assigned, and those keys already exist in base en/common.json. REASSIGNED to 'reassigned' is direct. Identical to the existing switch in base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'reassigned' for RR_REASSIGNED": {
+   "label": "fair",
+   "reason": "RR_REASSIGNED is a reassignment, and 'reassigned' is the only matching key named in the description. Identical to the existing switch in base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'rerouted' for REROUTED": {
+   "label": "fair",
+   "reason": "Direct mapping to the 'rerouted' key, which the description names. Identical to the existing switch in base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'routed' for ROUTING_FORM_ROUTING": {
+   "label": "fair",
+   "reason": "Direct mapping to the 'routed' key; the description gives 'Routed' as the routing-form example. Identical to the existing switch in base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'routed' for ROUTING_FORM_ROUTING_FALLBACK": {
+   "label": "fair",
+   "reason": "The fallback is still routing-form routing, and 'routed' is the only routing key among the four the description names. Identical to the existing switch in base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'routed' for unknown enum values (default case)": {
+   "label": "fair",
+   "reason": "Base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts already maps AssignmentReasonEnum to these exact keys with `default: return \"routed\"`; the new helper is that mapping moved to packages/features."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'salesforce_assigned' for SALESFORCE_ASSIGNMENT": {
+   "label": "fair",
+   "reason": "Direct mapping to the 'salesforce_assigned' key, which the description names (and which exists in base common.json). Identical to the existing switch in base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts."
+  }
+ },
+ "27208": {
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > userId filter validation > keeps valid user IDs in multi-select filter": {
+   "label": "fair",
+   "reason": "Expects data [1,2,999] reduced to [1,2] with type MULTI_SELECT kept; the description says invalid user IDs are filtered out against accessible userIds, and userId is a MULTI_SELECT filter in the base bookings code (useBookingFilters.ts)."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > userId filter validation > removes filter when all user IDs are invalid in multi-select": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Asserts the whole {f,v} filter is dropped (result length 0) when none of its IDs are accessible. The description only says invalid IDs are 'silently filtered out', and the base code deliberately keeps multi-select filters with empty data arrays in activeFilters to keep the filter UI (packages/features/data-table/hooks/useColumnFilters.ts ~L37-42), so keeping the filter with data: [] is an equally valid reading."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > eventTypeId filter validation > keeps valid event type IDs in multi-select filter": {
+   "label": "fair",
+   "reason": "Expects [10,20,999] reduced to [10,20]; directly stated by the description (validate eventTypeId filters against accessible eventTypeIds, filter out invalid values)."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > eventTypeId filter validation > removes filter when all event type IDs are invalid in multi-select": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Asserts the whole {f,v} filter is dropped (result length 0) when none of its IDs are accessible. The description only says invalid IDs are 'silently filtered out', and the base code deliberately keeps multi-select filters with empty data arrays in activeFilters to keep the filter UI (packages/features/data-table/hooks/useColumnFilters.ts ~L37-42), so keeping the filter with data: [] is an equally valid reading."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > teamId filter validation > keeps valid team IDs in multi-select filter": {
+   "label": "fair",
+   "reason": "Expects [100,200,999] reduced to [100,200]; directly stated by the description for teamId filters."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > teamId filter validation > removes filter when all team IDs are invalid in multi-select": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Asserts the whole {f,v} filter is dropped (result length 0) when none of its IDs are accessible. The description only says invalid IDs are 'silently filtered out', and the base code deliberately keeps multi-select filters with empty data arrays in activeFilters to keep the filter UI (packages/features/data-table/hooks/useColumnFilters.ts ~L37-42), so keeping the filter with data: [] is an equally valid reading."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > other filters > preserves filters that are not userId, eventTypeId, or teamId": {
+   "label": "fair",
+   "reason": "Expects status and attendeeName filters returned unchanged and in order; the description scopes validation to userId, eventTypeId and teamId only."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > other filters > preserves filters without a value": {
+   "label": "fair",
+   "reason": "Expects {f:'userId', v: undefined} kept as-is; ActiveFilter.v is optional in base types.ts and a typical implementation that only touches filters with a MULTI_SELECT value passes; nothing suggests dropping it."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > mixed filters > validates multiple filters correctly": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Expects length 3 with the eventTypeId filter (data [888], all invalid) removed entirely, plus order preserved. Dropping a filter whose IDs are all invalid is not stated; the base code keeps empty multi-select filters in activeFilters (useColumnFilters.ts), so keeping it with data [] is a valid reading that gives length 4."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > empty accessible resources > removes all ID-based filters when no resources are accessible": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Expects only the status filter to remain (length 1), i.e. userId/eventTypeId filters with no accessible IDs are removed rather than kept with data []. Same unstated choice as the 'removes filter when all ... invalid' tests; base code keeps empty multi-select filters (useColumnFilters.ts)."
+  }
+ },
+ "27378": {
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingCancelledWebhook": {
+   "label": "fair",
+   "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_CANCELLED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingCreatedWebhook": {
+   "label": "fair",
+   "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_CREATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingNoShowUpdatedWebhook": {
+   "label": "fair",
+   "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_NO_SHOW_UPDATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingPaidWebhook": {
+   "label": "fair",
+   "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_PAID. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingPaymentInitiatedWebhook": {
+   "label": "fair",
+   "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_PAYMENT_INITIATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingRejectedWebhook": {
+   "label": "fair",
+   "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_REJECTED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingRequestedWebhook": {
+   "label": "fair",
+   "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_REQUESTED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingRescheduledWebhook": {
+   "label": "fair",
+   "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_RESCHEDULED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueFormSubmittedWebhook": {
+   "label": "fair",
+   "reason": "Asserts deliverWebhook is called with triggerEvent FORM_SUBMITTED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueOOOCreatedWebhook": {
+   "label": "fair",
+   "reason": "Asserts deliverWebhook is called with triggerEvent OOO_CREATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueRecordingReadyWebhook": {
+   "label": "fair",
+   "reason": "Asserts deliverWebhook is called with triggerEvent RECORDING_READY. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > Constructor & Dependencies > should be instantiable with Tasker and Logger": {
+   "label": "fair",
+   "reason": "Constructing with the deps object from the spec."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > Constructor & Dependencies > should create sub-logger with prefix": {
+   "label": "fair",
+   "reason": "The prefix '[WebhookTaskerProducerService]' is unchanged from the base constructor. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > Error Handling > should log and rethrow error if WebhookTasker fails": {
+   "label": "fair",
+   "reason": "The 'Failed to queue webhook delivery task' log and rethrow are existing base queueTask behavior. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > Metadata Support > should include metadata if provided": {
+   "label": "fair",
+   "reason": "Passing metadata through is existing base payload building. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > queueBookingCancelledWebhook > should queue a BOOKING_CANCELLED webhook task": {
+   "label": "fair",
+   "reason": "Existing base payload fields. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > queueBookingCreatedWebhook > should generate operationId if not provided": {
+   "label": "fair",
+   "reason": "The UUID operationId comes from the base uuidv4 usage. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > queueBookingCreatedWebhook > should log debug messages": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Besides the base 'Queueing booking webhook task' log, it asserts the existing 'Webhook delivery task queued' debug log now includes taskId: 'task-id-123' from deliverWebhook's result. The base logged only { operationId }, and neither the description nor the spec asks for taskId in the log, so keeping the base log line also fits.",
+   "clarification": "After deliverWebhook resolves, queueTask logs debug 'Webhook delivery task queued' with { operationId, taskId } where taskId is the returned result.taskId."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > queueBookingCreatedWebhook > should queue a BOOKING_CREATED webhook task": {
+   "label": "fair",
+   "reason": "Existing base payload fields passed to deliverWebhook. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > queueBookingCreatedWebhook > should use provided operationId": {
+   "label": "fair",
+   "reason": "Existing base behavior. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+  },
+  "packages/features/webhooks/lib/tasker/WebhookTasker.test.ts::WebhookSyncTasker > should execute webhook delivery immediately via consumer": {
+   "label": "fair",
+   "reason": "Asserts processWebhookTask(payload, /^sync_/) and taskId /^sync_/. The description says the sync tasker calls WebhookTaskConsumer directly, processWebhookTask(payload, taskId) is the base signature, and `sync_${nanoid(10)}` is the base convention in BookingEmailAndSmsSyncTasker.ts:16 and MonthlyProrationSyncTasker.ts:11."
+  },
+  "packages/features/webhooks/lib/tasker/WebhookTasker.test.ts::WebhookSyncTasker > should generate unique task IDs for each delivery": {
+   "label": "fair",
+   "reason": "Asserts taskId 'sync_test123456' when nanoid is mocked to 'test123456'. The nanoid mock is in the spec, and the sync_ + nanoid format is the base convention in the existing sync taskers."
+  },
+  "packages/features/webhooks/lib/tasker/WebhookTasker.test.ts::WebhookSyncTasker > should propagate errors from consumer": {
+   "label": "fair",
+   "reason": "A rejection from the consumer propagates, which is the natural result of awaiting it, as in the base sync taskers."
+  },
+  "packages/features/webhooks/lib/tasker/WebhookTasker.test.ts::WebhookTriggerTasker > should trigger webhook delivery via trigger.dev": {
+   "label": "fair",
+   "reason": "Asserts taskId equals the trigger handle id. The spec names the deliverWebhook.trigger mock, and returning handle.id follows the base PlatformOrganizationBillingTriggerTasker pattern that the description cites."
+  }
+ },
+ "27405": {
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > createReport > should create a report with all fields": {
+   "label": "fair",
+   "reason": "Asserts create({data: input, select: {id: true}}) and returns {id}. Input fields match the spec signature one to one, and select {id:true} returning Promise<{id}> mirrors the base PrismaBookingReportRepository.createReport (packages/features/bookingReport/repositories/PrismaBookingReportRepository.ts)."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > createReport > should create a report with empty additionalNotes": {
+   "label": "fair",
+   "reason": "Same create({data, select:{id:true}}) call with additionalNotes \"\"; passing input fields through unchanged follows from the spec signature and the base createReport pattern."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > createReport > should create a report with null optional fields": {
+   "label": "fair",
+   "reason": "Same call with null correctAssignee/teamId/routingFormId passed through; the spec types those fields as nullable and the base repository passes input fields straight to data."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > createReport > should propagate database errors": {
+   "label": "fair",
+   "reason": "Only checks that a rejected prisma create rejects createReport; any implementation that does not swallow errors passes."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > createReport > should propagate foreign key constraint errors": {
+   "label": "fair",
+   "reason": "Same as the other error test: rejection from create must propagate, which a plain pass-through does."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > existsByBookingUid > should handle empty string bookingUid": {
+   "label": "fair",
+   "reason": "Asserts findUnique({where:{bookingUid:\"\"}, select:{id:true}}) and false. The spec says the stub has only findUnique, the description says bookingUid is unique (findUnique), and selecting only id is the base repository convention."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > existsByBookingUid > should return false when no report exists for the booking": {
+   "label": "fair",
+   "reason": "findUnique returns null -> false, with where {bookingUid} and select {id:true}; follows from the spec (findUnique stub, boolean result) and base select-minimal convention."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > existsByBookingUid > should return true when a report exists for the booking": {
+   "label": "fair",
+   "reason": "findUnique returns a row -> true; same call shape as above, determined by the spec and description (findUnique on unique bookingUid)."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > access control > should throw BAD_REQUEST when a report already exists for the booking": {
+   "label": "fair",
+   "reason": "Expects BAD_REQUEST with the translated wrong_assignment_already_reported message and no createReport call. The description states duplicates are rejected with 400 via t(\"wrong_assignment_already_reported\"), and the spec names the key and the mocked getTranslation."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > access control > should throw FORBIDDEN when user doesn't have access to booking": {
+   "label": "fair",
+   "reason": "Exact FORBIDDEN message \"You don't have access to this booking\" is already in the base handler; this test only fails at base because the file mocks the new WrongAssignmentReportRepository module."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > access control > should throw NOT_FOUND when booking doesn't exist": {
+   "label": "fair",
+   "reason": "NOT_FOUND \"Booking not found\" is existing base handler behavior; fails at base only because the new repository module is missing."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > database persistence > should persist report even when webhooks fail": {
+   "label": "fair",
+   "reason": "Checks createReport is called and success true when getWebhooks throws; base already catches webhook errors, and the description says reports are persisted."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > database persistence > should persist report to database with all fields": {
+   "label": "fair",
+   "reason": "Asserts createReport({bookingUid, reportedById: user.id, correctAssignee, additionalNotes, teamId: eventType.teamId, routingFormId: null}); fields come from the spec signature, teamId matches the base handler's teamId variable, and routingFormId comes from routedFromRoutingFormReponse.formId per spec/description (null here)."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > database persistence > should persist report with null optional fields": {
+   "label": "fair",
+   "reason": "eventType null -> teamId null and missing correctAssignee -> null; the base handler already computes teamId as eventType?.teamId || null and correctAssignee || null, and the spec types both as nullable."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > database persistence > should return reportId in response": {
+   "label": "fair",
+   "reason": "Spec says the handler result gains reportId: string; the test checks it equals createReport's id."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > database persistence > should throw if database write fails": {
+   "label": "fair",
+   "reason": "A generic createReport error must propagate; the description says only P2002 is caught and mapped, so rethrowing other errors is the stated behavior."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > edge cases > should handle booking without assignmentReason": {
+   "label": "fair",
+   "reason": "Checks webhook routingReason null; unchanged base behavior (assignmentReason?.reasonString || null). Fails at base only due to the missing new module."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > edge cases > should handle booking without attendees": {
+   "label": "fair",
+   "reason": "Checks webhook guest \"\"; unchanged base behavior (attendees[0]?.email || \"\")."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > edge cases > should handle booking without eventType": {
+   "label": "fair",
+   "reason": "Checks getWebhooks teamId null and payload eventType null; unchanged base behavior."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > edge cases > should handle booking without user": {
+   "label": "fair",
+   "reason": "Checks success and getWebhooks userId null; unchanged base behavior."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > successful report > should successfully report with all fields": {
+   "label": "fair",
+   "reason": "Checks success true and message \"Wrong assignment reported successfully\", both already returned by the base handler."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > successful report > should successfully report with only required fields (no correctAssignee)": {
+   "label": "fair",
+   "reason": "Same success/message assertions as base; passes once the report is persisted without throwing."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > webhook integration > should handle webhook failures gracefully": {
+   "label": "fair",
+   "reason": "sendGenericWebhookPayload rejection is already caught per webhook in the base handler; success/message unchanged."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > webhook integration > should not fail when getWebhooks throws": {
+   "label": "fair",
+   "reason": "Base handler already wraps getWebhooks in try/catch; success true."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > webhook integration > should send webhook with correct payload structure": {
+   "label": "fair",
+   "reason": "Asserts the getWebhooks args and payload shape that the base handler already builds; nothing new is required beyond not breaking it."
+  }
+ },
+ "27428": {
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::checkSheetActive > returns false when focused element is inside a Radix portal (overlay)": {
+   "label": "fair",
+   "reason": "Focus inside a [data-radix-portal] ancestor that is not the sheet -> false; stated in the description's checkSheetActive rule and the spec's data-radix-portal note."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::checkSheetActive > returns false when sheetContent is null": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "A focused button in document.body, outside any portal, with sheetContent null must return false. The description's rule (\"focus is not inside any Radix portal -> shortcuts work\") gives true for this input, and nothing says what a null sheet means, so returning true is an equally valid reading."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::checkSheetActive > returns true when document.body is focused": {
+   "label": "fair",
+   "reason": "Body focus is the DOM's 'no element focused' state and is also outside any portal, so the description's rule gives true either way."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::checkSheetActive > returns true when focused element is inside sheetContent": {
+   "label": "fair",
+   "reason": "Stated in the description: focus inside the sheet content -> shortcuts work."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::checkSheetActive > returns true when focused element is outside any Radix portal": {
+   "label": "fair",
+   "reason": "Stated in the description: focus not inside any Radix portal -> shortcuts work."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::checkSheetActive > returns true when no element has focus": {
+   "label": "fair",
+   "reason": "Stated in the description: if no element has focus -> shortcuts work (activeElement null)."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > ArrowDown > navigates to next when canGoNext is true": {
+   "label": "fair",
+   "reason": "ArrowDown calls preventDefault, stopPropagation and handleNext; stated in the description (Down = next, arrows always consumed)."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > ArrowDown > stops propagation but does NOT navigate when canGoNext is false": {
+   "label": "fair",
+   "reason": "The description says arrow keys always preventDefault/stopPropagation even at list boundaries, but navigate only when possible."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > ArrowDown > stops propagation but does NOT navigate when transitioning": {
+   "label": "fair",
+   "reason": "Arrows always consumed (description); not navigating while isTransitioning follows from the config field and the base buttons being disabled when navigation.isTransitioning (BookingDetailsSheet.tsx)."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > ArrowUp > navigates to previous when canGoPrev is true": {
+   "label": "fair",
+   "reason": "Up = previous and arrows consumed with preventDefault+stopPropagation, per the description."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > ArrowUp > stops propagation but does NOT navigate when canGoPrev is false": {
+   "label": "fair",
+   "reason": "Boundary case explicitly described: event consumed, no navigation."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > ArrowUp > stops propagation but does NOT navigate when transitioning": {
+   "label": "fair",
+   "reason": "Same as the ArrowDown transitioning case; follows from isTransitioning in the config and the base disabled-button logic."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > Enter > clicks join link when available": {
+   "label": "fair",
+   "reason": "Enter joins the meeting via the join link and stopPropagation is called when a link is present, per the description; getJoinLink returning an anchor makes .click() the natural action, and preventDefault alongside is standard."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > Enter > does nothing when no join link is available": {
+   "label": "fair",
+   "reason": "Only asserts no preventDefault without a join link; the description says Enter consumes the event only when a join link is present."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > editable targets > ignores events from contenteditable elements": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "The test sets div.contentEditable = \"true\" under jsdom 22, which implements neither contentEditable nor isContentEditable, so only an implementation that reads the expando property `contentEditable === \"true\"` passes. The common `isContentEditable` or `getAttribute(\"contenteditable\")` checks fail, and nothing in the description, spec or base code picks the check.",
+   "clarification": "isEditableTarget detects contenteditable elements by checking `element.contentEditable === \"true\"` (the jsdom test environment does not implement isContentEditable or reflect the contenteditable attribute)."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > editable targets > ignores events from input elements": {
+   "label": "fair",
+   "reason": "The handler skips events whose target is editable; this follows from the exported isEditableTarget helper named in the description/spec, and an input is unambiguously editable."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > editable targets > ignores events from textarea elements": {
+   "label": "fair",
+   "reason": "Same as the input case; a textarea is detected by any standard check."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > sheet inactive > does not handle any keys when sheet is inactive": {
+   "label": "fair",
+   "reason": "The description says shortcuts are suppressed when the sheet is not active (isSheetActive false), so no stopPropagation and no navigation."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > unhandled keys > does not preventDefault or stopPropagation for unhandled keys": {
+   "label": "fair",
+   "reason": "Only the listed keys are shortcuts; leaving Tab untouched is the default for any switch on e.key."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::isEditableTarget > returns false for button elements": {
+   "label": "fair",
+   "reason": "A button is not editable; any standard check returns false."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::isEditableTarget > returns false for null": {
+   "label": "fair",
+   "reason": "Follows from the EventTarget | null signature."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::isEditableTarget > returns false for regular div elements": {
+   "label": "fair",
+   "reason": "A plain div is not editable under any implementation."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::isEditableTarget > returns true for contenteditable elements": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Same jsdom issue: div.contentEditable = \"true\" only sets an expando property in jsdom 22, so `isContentEditable` (undefined) or the attribute check returns false. Only `el.contentEditable === \"true\"` passes, and nothing in 1-3 says which check to use.",
+   "clarification": "isEditableTarget detects contenteditable elements by checking `element.contentEditable === \"true\"` (the jsdom test environment does not implement isContentEditable or reflect the contenteditable attribute)."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::isEditableTarget > returns true for input elements": {
+   "label": "fair",
+   "reason": "Inputs are editable targets under any standard check."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::isEditableTarget > returns true for textarea elements": {
+   "label": "fair",
+   "reason": "Textareas are editable targets under any standard check."
+  }
+ },
+ "30354": {
+  "apps/web/modules/bookings/components/OverlayCalendar/OverlayCalendarContinueModal.test.tsx::OverlayCalendarContinueModal > continues with the regular login when no social login is chosen": {
+   "label": "fair",
+   "reason": "Asserts the Microsoft button's text contains 'continue_with Microsoft', which reuses the base modal's t('continue_with', {appName}) with the provider name used in the description ('Continue with Google (or Microsoft)'). It also asserts the regular button calls onContinue() with no args, as the base modal's arrow handler already does."
+  },
+  "apps/web/modules/bookings/components/OverlayCalendar/OverlayCalendarContinueModal.test.tsx::OverlayCalendarContinueModal > only offers the social logins that are available": {
+   "label": "fair",
+   "reason": "Buttons are rendered only for the providers passed in socialLoginProviders, and clicking Google calls onContinue('google'). The test ids, the prop and the provider type are all in the spec, and the description says only enabled social logins are offered."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getLastVisibleDate > falls back to the selected date in column view when nothing is available": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Expects selectedDate when there are no available days. The description says nothing about this function. Base AvailableTimeSlots returns [] in this case, and the signature allows null, so returning null is a valid answer."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getLastVisibleDate > ignores available days before the selected date in column view": {
+   "label": "fair",
+   "reason": "Column view starts at the selected date and takes the next extraDays available days, mirroring base AvailableTimeSlots.tsx (filter days from selectedDate, then slice(0, extraDays))."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getLastVisibleDate > returns null without a selected date": {
+   "label": "fair",
+   "reason": "selectedDate is typed string | null, and null is the natural result when nothing is selected."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getLastVisibleDate > shows consecutive days in week view": {
+   "label": "fair",
+   "reason": "Expects selectedDate + extraDays - 1 days, the same end date base LargeCalendar.tsx computes (`.add(extraDays - 1, 'day')`), in YYYY-MM-DD like the inputs."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getLastVisibleDate > shows only the selected date in month view": {
+   "label": "fair",
+   "reason": "Month view shows only the selected day's slots, so the last visible date is the selected date, which also follows from the function name."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getLastVisibleDate > skips days without availability in column view": {
+   "label": "fair",
+   "reason": "Takes the first extraDays available days, as base AvailableTimeSlots.tsx does (nonEmptyScheduleDaysFromSelectedDate.slice(0, extraDays))."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getOverlayDateRange > covers every day up to the last visible one": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects {dateFrom:'2026-10-21T00:00:00+00:00', dateTo:'2026-10-27T23:59:59+00:00'}. The spec gives no return type, and neither the keys nor the dayjs .format() strings are specified; toISOString ('...23:59:59.999Z') or bare dates are valid alternatives.",
+   "clarification": "getOverlayDateRange returns { dateFrom, dateTo } as dayjs .format() strings (start of the selected day, end of the later of selectedDate and lastVisibleDate), or { dateFrom: null, dateTo: null } when there is no selected date."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getOverlayDateRange > covers the whole selected day when it is the only visible one": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects exact strings '2026-10-24T00:00:00+00:00'/'2026-10-24T23:59:59+00:00' in a {dateFrom, dateTo} object, and nothing in the description or spec sets that format.",
+   "clarification": "getOverlayDateRange returns { dateFrom, dateTo } as dayjs .format() strings (start of the selected day, end of the later of selectedDate and lastVisibleDate), or { dateFrom: null, dateTo: null } when there is no selected date."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getOverlayDateRange > never ends before the selected date": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Clamping dateTo to the selected day is reasonable, but the assertion compares the exact string '2026-10-21T23:59:59+00:00', which nothing determines.",
+   "clarification": "getOverlayDateRange returns { dateFrom, dateTo } as dayjs .format() strings (start of the selected day, end of the later of selectedDate and lastVisibleDate), or { dateFrom: null, dateTo: null } when there is no selected date."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getOverlayDateRange > returns no range without a selected date": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects {dateFrom:null, dateTo:null}. The spec gives no return shape, so returning null or undefined fields is valid; the key names match only the calendarOverlay query input in base useCalendars.ts.",
+   "clarification": "getOverlayDateRange returns { dateFrom, dateTo } as dayjs .format() strings (start of the selected day, end of the later of selectedDate and lastVisibleDate), or { dateFrom: null, dateTo: null } when there is no selected date."
+  },
+  "apps/web/modules/bookings/hooks/useOverlayCalendar.test.ts::useOverlayCalendar > starts with the calendars that are checked for conflicts": {
+   "label": "fair",
+   "reason": "The description says the overlay 'starts with the calendars selected for conflict checking and loads them right away, instead of starting with the primary calendar only'. That gives: isSelected calendars toggled, primary not, and one onToggleCalendar call with {credentialId, externalId} entries (the base ToggledConnectedCalendars shape)."
+  },
+  "apps/web/modules/bookings/hooks/useOverlayCalendar.test.ts::useOverlayCalendar > waits for the connected calendars to load": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "Requires not initializing while connectedCalendars is [], then initializing on rerender. Base useOverlayCalendar treats [] as loaded (`connectedCalendars && ...`) and sets initalised. The description implies auto-loading after login but never mentions this existing empty-array bug, so keeping the base guard is a plausible reading."
+  },
+  "packages/app-store/googlecalendar/lib/__tests__/CalendarService.test.ts::getAvailabilityWithTitles > returns nothing when only calendars of other integrations are selected": {
+   "label": "fair",
+   "reason": "Returns [] without calling events.list, the same early return as base getAvailability ('Early return if only other integrations are selected'). The eventsListMock comes from a hidden support file supplied at evaluation."
+  },
+  "packages/app-store/googlecalendar/lib/__tests__/CalendarService.test.ts::getAvailabilityWithTitles > returns the events that block availability with their titles": {
+   "label": "unfair",
+   "reason": "A single toEqual fixes several details nothing in 1-3 determines: self-declined and transparent events are dropped, the all-day event becomes '2024-01-10T18:30:00.000Z' (midnight in the response's timeZone, then toISOString) while dateTime events pass through as raw '+05:30' strings, and the untitled event has no title. events.list with singleEvents:true and pageToken paging is a reasonable Google API choice, but the output encoding is invented."
+  },
+  "packages/app-store/office365calendar/lib/__tests__/CalendarService.test.ts::Office365CalendarService > getAvailabilityWithTitles returns the busy events with their titles": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Free events filtered and the `${dateTime}Z` format follow base getAvailability, but the URL must contain exactly '$select=showAs,start,end,subject&'. Any field order is valid for Graph, and the spec doesn't give one.",
+   "clarification": "getAvailabilityWithTitles requests the same calendarView URL as getAvailability with `subject` appended to the select list: `$select=showAs,start,end,subject&$top=999`."
+  },
+  "packages/features/bookings/lib/useCheckOverlapWithOverlay.test.ts::useCheckOverlapWithOverlay > doesn't overlap when the slot is free": {
+   "label": "fair",
+   "reason": "Same as the base result plus overlappingTitle: null, which the spec types as string | null."
+  },
+  "packages/features/bookings/lib/useCheckOverlapWithOverlay.test.ts::useCheckOverlapWithOverlay > includes the date for events spanning several days": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Expects 'Jan 11, 14:00'/'Jan 13, 16:00'. The description only says the hover card 'shows the date on both ends', so the dayjs format 'MMM D, HH:mm' is unstated, and formats like '11 Jan 14:00' or ISO dates are valid.",
+   "clarification": "When a busy time starts and ends on different days, overlappingTimeStart/End use the dayjs format \"MMM D, HH:mm\"; otherwise \"HH:mm\"."
+  },
+  "packages/features/bookings/lib/useCheckOverlapWithOverlay.test.ts::useCheckOverlapWithOverlay > returns no title for busy times without one": {
+   "label": "fair",
+   "reason": "overlappingTitle is null (not undefined) for untitled busy times, which follows from the spec's `string | null` type."
+  },
+  "packages/features/bookings/lib/useCheckOverlapWithOverlay.test.ts::useCheckOverlapWithOverlay > returns the title and time of the event a slot overlaps with": {
+   "label": "fair",
+   "reason": "Same-day times keep the base 'HH:mm' format, and overlappingTitle is the busy date's title, as the spec and description state."
+  },
+  "packages/features/calendar-subscription/lib/telemetry/__tests__/CalendarTelemetryWrapper.test.ts::CalendarTelemetryWrapper.getAvailabilityWithTitles > falls back to getAvailability for calendars that can't provide titles": {
+   "label": "fair",
+   "reason": "The description says to fall back to getAvailability, and Calendar.getAvailabilityWithTitles is optional in the spec, so the wrapper uses getAvailability when the wrapped calendar lacks it."
+  },
+  "packages/features/calendar-subscription/lib/telemetry/__tests__/CalendarTelemetryWrapper.test.ts::CalendarTelemetryWrapper.getAvailabilityWithTitles > returns the titles of calendars that support them": {
+   "label": "fair",
+   "reason": "The wrapper delegates to originalCalendar.getAvailabilityWithTitles(params), the same delegation pattern the base wrapper uses for its other methods."
+  },
+  "packages/features/calendars/lib/getCalendarsEvents.test.ts::getCalendarsEvents > Event titles > should include event titles in overlay mode": {
+   "label": "fair",
+   "reason": "The description says titles are fetched in 'overlay' mode via getAvailabilityWithTitles. It gets the same params object as getAvailability, and the existing source mapping adds source."
+  },
+  "packages/features/calendars/weeklyview/utils/index.test.ts::getEventSegmentForDay > doesn't spill an all-day event that ends at midnight into the next day": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Not spilling into the next day is natural with an exclusive end, but the asserted segment end '2024-01-11 00:00' (next midnight rather than 23:59) is a representation choice the spec doesn't fix.",
+   "clarification": "A segment's end on a day the event runs past is the next day's midnight (dayStart.add(1, 'day')), not 23:59; an event ending exactly at midnight does not appear on the following day."
+  },
+  "packages/features/calendars/weeklyview/utils/index.test.ts::getEventSegmentForDay > keeps events without a duration on the day they start": {
+   "label": "ambiguous",
+   "kind": "behavior",
+   "reason": "A zero-length event at midnight must return [00:00, 00:00] for its own day and null for the previous day. A plain overlap test (start < dayEnd && end > dayStart) returns null, and dropping zero-length events is a valid choice the description doesn't rule out."
+  },
+  "packages/features/calendars/weeklyview/utils/index.test.ts::getEventSegmentForDay > returns an event within the day as is": {
+   "label": "fair",
+   "reason": "An event inside the day returns its own start and end, which follows from the function's documented purpose and return type."
+  },
+  "packages/features/calendars/weeklyview/utils/index.test.ts::getEventSegmentForDay > returns null for events on other days": {
+   "label": "fair",
+   "reason": "The spec's return type includes null, and events that don't touch the day return null."
+  },
+  "packages/features/calendars/weeklyview/utils/index.test.ts::getEventSegmentForDay > splits a multi-day event into one segment per day it covers": {
+   "label": "ambiguous",
+   "kind": "convention",
+   "reason": "Splitting per day is in the description ('renders events that span midnight on every day they cover'). The asserted day boundaries are next midnight ('2024-01-10 00:00' as the end of day 9) rather than endOf('day') 23:59, which is unstated.",
+   "clarification": "A segment's end on a day the event runs past is the next day's midnight (dayStart.add(1, 'day')), not 23:59; an event ending exactly at midnight does not appear on the following day."
+  },
+  "packages/trpc/server/routers/viewer/availability/user.handler.test.ts::availability.user handler > includes calendar event titles when the user looks at their own availability": {
+   "label": "fair",
+   "reason": "The description states that availability.user uses 'overlay' mode only when the requested user's id equals the logged-in user's id. The test checks mode:'overlay' in the params of the stubbed getUserAvailabilityIncludingBusyTimesFromLimits."
+  }
+ }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "cs329m-agent-runner",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": { "node": ">=22.19.0" },
+  "description": "Q2/Q3 runs: Pi on a benchmark task under one condition, graded by q2q3-tools/harness.py. Uses tools/graph-mcp's dependencies (npm ci --prefix tools/graph-mcp).",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

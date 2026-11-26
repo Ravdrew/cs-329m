@@ -1,0 +1,30 @@
+{
+ "packages/app-store/googlecalendar/lib/__tests__/getFreeBusyResult.test.ts::GoogleCalendarService.getFreeBusyResult - shouldServeCache logic > shouldServeCache parameter handling > should call fetchAvailability immediately when shouldServeCache is 0 (falsey)": {
+  "label": "fair",
+  "reason": "The description says the `shouldServeCache === false` check becomes `!shouldServeCache` to handle all falsey values; the test passes 0 and expects fetchAvailability(args) to be called once and its result returned."
+ },
+ "packages/app-store/googlecalendar/lib/__tests__/getFreeBusyResult.test.ts::GoogleCalendarService.getFreeBusyResult - shouldServeCache logic > shouldServeCache parameter handling > should call fetchAvailability immediately when shouldServeCache is empty string (falsey)": {
+  "label": "fair",
+  "reason": "The description says the `shouldServeCache === false` check becomes `!shouldServeCache` to handle all falsey values; the test passes \"\" and expects fetchAvailability(args) to be called once and its result returned."
+ },
+ "packages/app-store/googlecalendar/lib/__tests__/getFreeBusyResult.test.ts::GoogleCalendarService.getFreeBusyResult - shouldServeCache logic > shouldServeCache parameter handling > should call fetchAvailability immediately when shouldServeCache is null (falsey)": {
+  "label": "fair",
+  "reason": "The description says the `shouldServeCache === false` check becomes `!shouldServeCache` to handle all falsey values; the test passes null and expects fetchAvailability(args) to be called once and its result returned."
+ },
+ "packages/app-store/googlecalendar/lib/__tests__/getFreeBusyResult.test.ts::GoogleCalendarService.getFreeBusyResult - shouldServeCache logic > shouldServeCache parameter handling > should call fetchAvailability immediately when shouldServeCache is undefined (falsey)": {
+  "label": "fair",
+  "reason": "The description says the `shouldServeCache === false` check becomes `!shouldServeCache` to handle all falsey values; the test passes undefined and expects fetchAvailability(args) to be called once and its result returned."
+ },
+ "packages/features/calendar-cache/lib/getShouldServeCache.test.ts::CacheService.getShouldServeCache > when shouldServeCache is undefined > should return false when no teamId is provided": {
+  "label": "fair",
+  "reason": "The description states getShouldServeCache returned undefined when no teamId was passed and fixes it; the test expects `false` and no checkIfTeamHasFeature call, matching base line `if (!teamId) return undefined` changed to false."
+ },
+ "packages/features/calendar-cache/lib/getShouldServeCache.test.ts::CacheService.getShouldServeCache > when shouldServeCache is undefined > should return false when teamId is 0": {
+  "label": "fair",
+  "reason": "Same `!teamId` branch in base getShouldServeCache.ts; with the stated fix, teamId 0 returns false without calling checkIfTeamHasFeature."
+ },
+ "packages/features/calendar-cache/lib/getShouldServeCache.test.ts::CacheService.getShouldServeCache > when shouldServeCache is undefined > should return false when teamId is null": {
+  "label": "fair",
+  "reason": "Same `!teamId` branch; null teamId returns false without a feature-repository call, as the description's fix implies."
+ }
+}

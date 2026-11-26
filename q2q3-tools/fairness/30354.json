@@ -1,0 +1,141 @@
+{
+  "apps/web/modules/bookings/components/OverlayCalendar/OverlayCalendarContinueModal.test.tsx::OverlayCalendarContinueModal > continues with the regular login when no social login is chosen": {
+    "label": "fair",
+    "reason": "Asserts the Microsoft button's text contains 'continue_with Microsoft', which reuses the base modal's t('continue_with', {appName}) with the provider name used in the description ('Continue with Google (or Microsoft)'). It also asserts the regular button calls onContinue() with no args, as the base modal's arrow handler already does."
+  },
+  "apps/web/modules/bookings/components/OverlayCalendar/OverlayCalendarContinueModal.test.tsx::OverlayCalendarContinueModal > only offers the social logins that are available": {
+    "label": "fair",
+    "reason": "Buttons are rendered only for the providers passed in socialLoginProviders, and clicking Google calls onContinue('google'). The test ids, the prop and the provider type are all in the spec, and the description says only enabled social logins are offered."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getLastVisibleDate > falls back to the selected date in column view when nothing is available": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Expects selectedDate when there are no available days. The description says nothing about this function. Base AvailableTimeSlots returns [] in this case, and the signature allows null, so returning null is a valid answer."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getLastVisibleDate > ignores available days before the selected date in column view": {
+    "label": "fair",
+    "reason": "Column view starts at the selected date and takes the next extraDays available days, mirroring base AvailableTimeSlots.tsx (filter days from selectedDate, then slice(0, extraDays))."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getLastVisibleDate > returns null without a selected date": {
+    "label": "fair",
+    "reason": "selectedDate is typed string | null, and null is the natural result when nothing is selected."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getLastVisibleDate > shows consecutive days in week view": {
+    "label": "fair",
+    "reason": "Expects selectedDate + extraDays - 1 days, the same end date base LargeCalendar.tsx computes (`.add(extraDays - 1, 'day')`), in YYYY-MM-DD like the inputs."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getLastVisibleDate > shows only the selected date in month view": {
+    "label": "fair",
+    "reason": "Month view shows only the selected day's slots, so the last visible date is the selected date, which also follows from the function name."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getLastVisibleDate > skips days without availability in column view": {
+    "label": "fair",
+    "reason": "Takes the first extraDays available days, as base AvailableTimeSlots.tsx does (nonEmptyScheduleDaysFromSelectedDate.slice(0, extraDays))."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getOverlayDateRange > covers every day up to the last visible one": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Expects {dateFrom:'2026-10-21T00:00:00+00:00', dateTo:'2026-10-27T23:59:59+00:00'}. The spec gives no return type, and neither the keys nor the dayjs .format() strings are specified; toISOString ('...23:59:59.999Z') or bare dates are valid alternatives.",
+    "clarification": "getOverlayDateRange returns { dateFrom, dateTo } as dayjs .format() strings (start of the selected day, end of the later of selectedDate and lastVisibleDate), or { dateFrom: null, dateTo: null } when there is no selected date."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getOverlayDateRange > covers the whole selected day when it is the only visible one": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Expects exact strings '2026-10-24T00:00:00+00:00'/'2026-10-24T23:59:59+00:00' in a {dateFrom, dateTo} object, and nothing in the description or spec sets that format.",
+    "clarification": "getOverlayDateRange returns { dateFrom, dateTo } as dayjs .format() strings (start of the selected day, end of the later of selectedDate and lastVisibleDate), or { dateFrom: null, dateTo: null } when there is no selected date."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getOverlayDateRange > never ends before the selected date": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Clamping dateTo to the selected day is reasonable, but the assertion compares the exact string '2026-10-21T23:59:59+00:00', which nothing determines.",
+    "clarification": "getOverlayDateRange returns { dateFrom, dateTo } as dayjs .format() strings (start of the selected day, end of the later of selectedDate and lastVisibleDate), or { dateFrom: null, dateTo: null } when there is no selected date."
+  },
+  "apps/web/modules/bookings/hooks/useCalendars.test.ts::getOverlayDateRange > returns no range without a selected date": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Expects {dateFrom:null, dateTo:null}. The spec gives no return shape, so returning null or undefined fields is valid; the key names match only the calendarOverlay query input in base useCalendars.ts.",
+    "clarification": "getOverlayDateRange returns { dateFrom, dateTo } as dayjs .format() strings (start of the selected day, end of the later of selectedDate and lastVisibleDate), or { dateFrom: null, dateTo: null } when there is no selected date."
+  },
+  "apps/web/modules/bookings/hooks/useOverlayCalendar.test.ts::useOverlayCalendar > starts with the calendars that are checked for conflicts": {
+    "label": "fair",
+    "reason": "The description says the overlay 'starts with the calendars selected for conflict checking and loads them right away, instead of starting with the primary calendar only'. That gives: isSelected calendars toggled, primary not, and one onToggleCalendar call with {credentialId, externalId} entries (the base ToggledConnectedCalendars shape)."
+  },
+  "apps/web/modules/bookings/hooks/useOverlayCalendar.test.ts::useOverlayCalendar > waits for the connected calendars to load": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Requires not initializing while connectedCalendars is [], then initializing on rerender. Base useOverlayCalendar treats [] as loaded (`connectedCalendars && ...`) and sets initalised. The description implies auto-loading after login but never mentions this existing empty-array bug, so keeping the base guard is a plausible reading."
+  },
+  "packages/app-store/googlecalendar/lib/__tests__/CalendarService.test.ts::getAvailabilityWithTitles > returns nothing when only calendars of other integrations are selected": {
+    "label": "fair",
+    "reason": "Returns [] without calling events.list, the same early return as base getAvailability ('Early return if only other integrations are selected'). The eventsListMock comes from a hidden support file supplied at evaluation."
+  },
+  "packages/app-store/googlecalendar/lib/__tests__/CalendarService.test.ts::getAvailabilityWithTitles > returns the events that block availability with their titles": {
+    "label": "unfair",
+    "reason": "A single toEqual fixes several details nothing in 1-3 determines: self-declined and transparent events are dropped, the all-day event becomes '2024-01-10T18:30:00.000Z' (midnight in the response's timeZone, then toISOString) while dateTime events pass through as raw '+05:30' strings, and the untitled event has no title. events.list with singleEvents:true and pageToken paging is a reasonable Google API choice, but the output encoding is invented."
+  },
+  "packages/app-store/office365calendar/lib/__tests__/CalendarService.test.ts::Office365CalendarService > getAvailabilityWithTitles returns the busy events with their titles": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Free events filtered and the `${dateTime}Z` format follow base getAvailability, but the URL must contain exactly '$select=showAs,start,end,subject&'. Any field order is valid for Graph, and the spec doesn't give one.",
+    "clarification": "getAvailabilityWithTitles requests the same calendarView URL as getAvailability with `subject` appended to the select list: `$select=showAs,start,end,subject&$top=999`."
+  },
+  "packages/features/bookings/lib/useCheckOverlapWithOverlay.test.ts::useCheckOverlapWithOverlay > doesn't overlap when the slot is free": {
+    "label": "fair",
+    "reason": "Same as the base result plus overlappingTitle: null, which the spec types as string | null."
+  },
+  "packages/features/bookings/lib/useCheckOverlapWithOverlay.test.ts::useCheckOverlapWithOverlay > includes the date for events spanning several days": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Expects 'Jan 11, 14:00'/'Jan 13, 16:00'. The description only says the hover card 'shows the date on both ends', so the dayjs format 'MMM D, HH:mm' is unstated, and formats like '11 Jan 14:00' or ISO dates are valid.",
+    "clarification": "When a busy time starts and ends on different days, overlappingTimeStart/End use the dayjs format \"MMM D, HH:mm\"; otherwise \"HH:mm\"."
+  },
+  "packages/features/bookings/lib/useCheckOverlapWithOverlay.test.ts::useCheckOverlapWithOverlay > returns no title for busy times without one": {
+    "label": "fair",
+    "reason": "overlappingTitle is null (not undefined) for untitled busy times, which follows from the spec's `string | null` type."
+  },
+  "packages/features/bookings/lib/useCheckOverlapWithOverlay.test.ts::useCheckOverlapWithOverlay > returns the title and time of the event a slot overlaps with": {
+    "label": "fair",
+    "reason": "Same-day times keep the base 'HH:mm' format, and overlappingTitle is the busy date's title, as the spec and description state."
+  },
+  "packages/features/calendar-subscription/lib/telemetry/__tests__/CalendarTelemetryWrapper.test.ts::CalendarTelemetryWrapper.getAvailabilityWithTitles > falls back to getAvailability for calendars that can't provide titles": {
+    "label": "fair",
+    "reason": "The description says to fall back to getAvailability, and Calendar.getAvailabilityWithTitles is optional in the spec, so the wrapper uses getAvailability when the wrapped calendar lacks it."
+  },
+  "packages/features/calendar-subscription/lib/telemetry/__tests__/CalendarTelemetryWrapper.test.ts::CalendarTelemetryWrapper.getAvailabilityWithTitles > returns the titles of calendars that support them": {
+    "label": "fair",
+    "reason": "The wrapper delegates to originalCalendar.getAvailabilityWithTitles(params), the same delegation pattern the base wrapper uses for its other methods."
+  },
+  "packages/features/calendars/lib/getCalendarsEvents.test.ts::getCalendarsEvents > Event titles > should include event titles in overlay mode": {
+    "label": "fair",
+    "reason": "The description says titles are fetched in 'overlay' mode via getAvailabilityWithTitles. It gets the same params object as getAvailability, and the existing source mapping adds source."
+  },
+  "packages/features/calendars/weeklyview/utils/index.test.ts::getEventSegmentForDay > doesn't spill an all-day event that ends at midnight into the next day": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Not spilling into the next day is natural with an exclusive end, but the asserted segment end '2024-01-11 00:00' (next midnight rather than 23:59) is a representation choice the spec doesn't fix.",
+    "clarification": "A segment's end on a day the event runs past is the next day's midnight (dayStart.add(1, 'day')), not 23:59; an event ending exactly at midnight does not appear on the following day."
+  },
+  "packages/features/calendars/weeklyview/utils/index.test.ts::getEventSegmentForDay > keeps events without a duration on the day they start": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "A zero-length event at midnight must return [00:00, 00:00] for its own day and null for the previous day. A plain overlap test (start < dayEnd && end > dayStart) returns null, and dropping zero-length events is a valid choice the description doesn't rule out."
+  },
+  "packages/features/calendars/weeklyview/utils/index.test.ts::getEventSegmentForDay > returns an event within the day as is": {
+    "label": "fair",
+    "reason": "An event inside the day returns its own start and end, which follows from the function's documented purpose and return type."
+  },
+  "packages/features/calendars/weeklyview/utils/index.test.ts::getEventSegmentForDay > returns null for events on other days": {
+    "label": "fair",
+    "reason": "The spec's return type includes null, and events that don't touch the day return null."
+  },
+  "packages/features/calendars/weeklyview/utils/index.test.ts::getEventSegmentForDay > splits a multi-day event into one segment per day it covers": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Splitting per day is in the description ('renders events that span midnight on every day they cover'). The asserted day boundaries are next midnight ('2024-01-10 00:00' as the end of day 9) rather than endOf('day') 23:59, which is unstated.",
+    "clarification": "A segment's end on a day the event runs past is the next day's midnight (dayStart.add(1, 'day')), not 23:59; an event ending exactly at midnight does not appear on the following day."
+  },
+  "packages/trpc/server/routers/viewer/availability/user.handler.test.ts::availability.user handler > includes calendar event titles when the user looks at their own availability": {
+    "label": "fair",
+    "reason": "The description states that availability.user uses 'overlay' mode only when the requested user's id equals the logged-in user's id. The test checks mode:'overlay' in the params of the stubbed getUserAvailabilityIncludingBusyTimesFromLimits."
+  }
+}

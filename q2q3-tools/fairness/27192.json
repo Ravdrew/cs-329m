@@ -1,0 +1,42 @@
+{
+  "packages/features/CalendarEventBuilder.test.ts::CalendarEventBuilder > should create an event with assignment reason": {
+    "label": "fair",
+    "reason": "withAssignmentReason stores the given {category, details} on the event, following the signature in the spec and the existing builder pattern (e.g. withHashedLink)."
+  },
+  "packages/features/CalendarEventBuilder.test.ts::CalendarEventBuilder > should create an event with assignment reason without details": {
+    "label": "fair",
+    "reason": "Stores {category:'reassigned', details:null} unchanged, which follows from the signature and the builder's pass-through pattern."
+  },
+  "packages/features/CalendarEventBuilder.test.ts::CalendarEventBuilder > should create an event with null assignment reason": {
+    "label": "fair",
+    "reason": "withAssignmentReason(null) leaves assignmentReason null; the spec types the argument as `| null`, and the builder passes values through."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'reassigned' for REASSIGNED": {
+    "label": "fair",
+    "reason": "The description lists category keys routed/reassigned/rerouted/salesforce_assigned, and those keys already exist in base en/common.json. REASSIGNED to 'reassigned' is direct. Identical to the existing switch in base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'reassigned' for RR_REASSIGNED": {
+    "label": "fair",
+    "reason": "RR_REASSIGNED is a reassignment, and 'reassigned' is the only matching key named in the description. Identical to the existing switch in base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'rerouted' for REROUTED": {
+    "label": "fair",
+    "reason": "Direct mapping to the 'rerouted' key, which the description names. Identical to the existing switch in base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'routed' for ROUTING_FORM_ROUTING": {
+    "label": "fair",
+    "reason": "Direct mapping to the 'routed' key; the description gives 'Routed' as the routing-form example. Identical to the existing switch in base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'routed' for ROUTING_FORM_ROUTING_FALLBACK": {
+    "label": "fair",
+    "reason": "The fallback is still routing-form routing, and 'routed' is the only routing key among the four the description names. Identical to the existing switch in base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'routed' for unknown enum values (default case)": {
+    "label": "fair",
+    "reason": "Base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts already maps AssignmentReasonEnum to these exact keys with `default: return \"routed\"`; the new helper is that mapping moved to packages/features."
+  },
+  "packages/features/bookings/lib/getAssignmentReasonCategory.test.ts::getAssignmentReasonCategory > returns 'salesforce_assigned' for SALESFORCE_ASSIGNMENT": {
+    "label": "fair",
+    "reason": "Direct mapping to the 'salesforce_assigned' key, which the description names (and which exists in base common.json). Identical to the existing switch in base apps/web/lib/booking/assignmentReasonBadgeTitleMap.ts."
+  }
+}
