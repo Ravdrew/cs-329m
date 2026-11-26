@@ -45,14 +45,17 @@ Two files in the same folder.
 - Mark what a developer would mark: usually 2–6 entries. Mark a component when its behaviour changes, not every
   file the change might touch. Mark or add a dependency when the change adds or changes how two components connect.
 - Notes say **what** should change and any rule the change must follow, in the developer's words: behaviour,
-  conditions, defaults, what the user sees. Use names from `spec.md` where they help. They do not say how to code it.
+  conditions, defaults, what the user sees. They do not say how to code it.
+- Every coding agent already gets `spec.md`, so do not copy it into notes: no lists of fields, props, signatures or
+  test ids. Name a function or file from it only where that says which part of the graph changes. Say what the spec
+  does not: which components change and how they connect, and the rules from the PR description.
 - `files` on a new node: only paths the developer would plan (for example those `spec.md` names); otherwise omit.
 
 ### `intent.md`
 
 The same change as one to three short paragraphs of plain prose, for an agent that has no graph: what to add or
 change, where (by component or file name as the graph and spec call them), and the rules from your notes. It must
-say the same things as `edit.json`: nothing more, nothing less.
+say the same things as `edit.json`: nothing more, nothing less, and like the notes it does not copy `spec.md`.
 
 ## Check
 
