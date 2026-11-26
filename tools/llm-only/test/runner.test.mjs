@@ -515,7 +515,7 @@ test('wide-full update: the host drops deleted files, follows renames, re-expand
   git(repo, ['mv', 'packages/c/old.ts', 'packages/c/new.ts']);
   rmSync(join(repo, 'packages/d/gone.ts'));
   const middle = commitAll('second: add n and m, rename old, delete gone');
-  write('packages/b/z.ts', 'export const z = 33;\n');
+  write('packages/b/z.ts', `export const z = 33;\n${Array.from({ length: 60 }, (_, i) => `export const z${i} = ${i};`).join('\n')}\n`);
   const after = commitAll('third');
   write('packages/b/z.ts', 'export const z = 333; // from the future\n');
   const future = commitAll('future');
@@ -541,14 +541,29 @@ test('wide-full update: the host drops deleted files, follows renames, re-expand
   assert.deepEqual(alpha['x-source-evidence'], [{ path: 'packages/a/x.ts', start_line: 3, end_line: 5 }], 'moved lines remapped, deleted citation gone');
   assert.deepEqual(beta['x-source-evidence'], [{ path: 'packages/c/new.ts', start_line: 1, end_line: 3 }], 'citation follows the rename; changed line gone');
   assert.deepEqual(seed.unassigned, ['packages/b/m.ts']);
-  assert.equal(seed.pending.size, 0, 'nothing has to be resubmitted');
+  assert.deepEqual([...seed.pending.keys()], ['beta'], 'only the component whose files changed by more than 50 lines waits for review');
+  assert.deepEqual(seed.reviewFiles, ['packages/b/m.ts']);
 
-  // Finalization still refuses what the host could not repair: the edge lost its only citation.
+  // Finalization refuses until every decision is made and what the host could not repair is fixed.
   const graph = new DraftGraph(source, schema, target.repo, { membership: 'full', seed });
+  assert.throws(() => graph.validate(), /1 components changed substantially and have no decision.*beta/);
+  assert.throws(() => graph.record({ unchanged: [{ id: 'beta', reason: 'same job' }] }, () => false), /read \(read_source\) or diff/);
+  assert.throws(() => graph.record({ unchanged: [{ id: 'alpha', reason: 'x' }] }), /not a component waiting/);
+  assert.deepEqual(graph.record({ unchanged: [{ id: 'beta', reason: 'new constants only' }] }), { components_to_review: [], new_files_to_decide: 1 });
+  assert.throws(() => graph.validate(), /1 new files have no decision.*packages\/b\/m\.ts/);
+  assert.throws(() => graph.record({ out_of_scope: [{ path: 'packages/a/', reason: 'x' }] }), /holds no, new file/);
+  graph.record({ out_of_scope: [{ path: 'packages/b/', reason: 'generated constants' }] });
+  assert.deepEqual(graph.review.out_of_scope, [{ path: 'packages/b/', reason: 'generated constants', files: ['packages/b/m.ts'] }]);
   assert.throws(() => graph.validate(), /e: source evidence is required/);
   source.read({ path: 'packages/a/n.ts', start_line: 1 });
   graph.update(yaml({ edges: [{ id: 'e', from: 'alpha', to: 'beta', kind: 'uses', label: 'u', description: 'd', 'x-source-evidence': [{ path: 'packages/a/n.ts', start_line: 1, end_line: 1 }] }] }));
   const updated = graph.finalize();
+
+  // Adding a waiting file to a component (here by a directory entry) is a decision too.
+  const other = new DraftGraph(source, schema, target.repo, { membership: 'full', seed });
+  other.update(yaml({ nodes: [{ ...beta, files: ['packages/b/', 'packages/c/new.ts'] }] }));
+  assert.deepEqual(other.undecided(), []);
+  assert.equal(other.pending.has('beta'), false, 'resubmitting a component decides it');
   assert.equal(updated.commit, after);
 
   // History covers before..after and nothing later.
@@ -570,8 +585,8 @@ test('wide-full update: the host drops deleted files, follows renames, re-expand
   const config = JSON.parse(readFileSync(join(runDir, 'server.json'), 'utf8'));
   assert.equal(config.seed.history, true);
   assert.equal(config.seed.commits, 2);
-  assert.deepEqual(definitionsFor(config).map(d => d.name).filter(n => n.startsWith('git_')), ['git_log', 'git_show', 'git_diff', 'git_blame']);
-  assert.equal(definitionsFor({}).some(d => d.name.startsWith('git_')), false);
+  assert.deepEqual(definitionsFor(config).map(d => d.name).slice(6), ['git_log', 'git_show', 'git_diff', 'git_blame', 'record_review']);
+  assert.equal(definitionsFor({}).length, 6);
   const instructions = readFileSync(join(runDir, 'instructions.md'), 'utf8');
   assert.match(instructions, new RegExp(`describes commit ${before}`));
   assert.match(instructions, /## Must be fixed \(1\)\n\n- e: no citation left/);
@@ -580,4 +595,9 @@ test('wide-full update: the host drops deleted files, follows renames, re-expand
   const tools = createGraphTools({ ...config, deadline: Date.now() + 60_000 });
   assert.equal(JSON.parse(tools.call('git_log', {}).content[0].text).total, 2);
   assert.equal(tools.call('git_show', { commit: future }).isError, true);
+  assert.match(tools.call('record_review', { unchanged: [{ id: 'beta', reason: 'r' }] }).content[0].text, /read \(read_source\) or diff/);
+  assert.equal(tools.call('git_diff', { path: 'packages/b/z.ts' }).isError, false);
+  assert.deepEqual(JSON.parse(tools.call('record_review', { unchanged: [{ id: 'beta', reason: 'r' }] }).content[0].text).components_to_review, []);
+  assert.deepEqual(JSON.parse(readFileSync(join(runDir, 'review.json'), 'utf8')).unchanged, [{ id: 'beta', reason: 'r' }]);
+  assert.match(instructions, /## Components to review \(1; member files changed by more than 50 lines\)\n\n.*\n\n- beta \(\d+ lines\): packages\/b\/z\.ts/);
 });

@@ -63,6 +63,9 @@ export class DraftGraph {
     this.frozen = false;
     // The update step: start from the previous graph; entries citing changed code must be resubmitted or removed.
     this.pending = new Set();
+    // Full-membership updates: new files that need a decision, and the decisions recorded with record_review.
+    this.reviewFiles = new Set(options.seed?.reviewFiles ?? []);
+    this.review = { unchanged: [], out_of_scope: [] };
     if (options.seed) {
       this.document = structuredClone(options.seed.document);
       this.pending = new Set(options.seed.pending.keys());
@@ -102,13 +105,53 @@ export class DraftGraph {
     return this.inspect();
   }
 
+  /** Record review decisions: components still right as they are, and new files left out of the graph. */
+  record({ unchanged = [], out_of_scope = [] }, looked = () => true) {
+    requireValue(!this.frozen, 'The graph is frozen');
+    for (const { id, reason } of unchanged) {
+      requireValue(this.pending.has(id), `${id} is not a component waiting for review`);
+      requireValue(typeof reason === 'string' && reason.trim(), `${id}: give a reason`);
+      requireValue(looked(id), `${id}: read (read_source) or diff (git_diff, git_show) one of its changed files first`);
+    }
+    for (const { path, reason } of out_of_scope) {
+      requireValue(typeof reason === 'string' && reason.trim(), `${path}: give a reason`);
+      const files = path.endsWith('/') ? [...this.reviewFiles].filter(p => p.startsWith(path)) : this.reviewFiles.has(path) ? [path] : [];
+      requireValue(files.length, `${path} is not, and holds no, new file waiting for a decision`);
+    }
+    for (const { id, reason } of unchanged) { this.pending.delete(id); this.review.unchanged.push({ id, reason: reason.trim() }); }
+    for (const { path, reason } of out_of_scope) {
+      const files = path.endsWith('/') ? [...this.reviewFiles].filter(p => p.startsWith(path)) : [path];
+      for (const f of files) this.reviewFiles.delete(f);
+      this.review.out_of_scope.push({ path, reason: reason.trim(), files });
+    }
+    return { components_to_review: [...this.pending], new_files_to_decide: this.undecided().length };
+  }
+
+  /** New files still without a decision: not listed by any component (directory entries count) nor recorded out of scope. */
+  undecided() {
+    if (!this.reviewFiles.size) return [];
+    const listed = new Set();
+    for (const n of this.document.nodes) for (const f of n.files ?? []) {
+      const p = typeof f === 'string' ? f : f?.path;
+      if (typeof p !== 'string') continue;
+      if (p.endsWith('/')) { for (const r of this.reviewFiles) if (r.startsWith(p)) listed.add(r); } else listed.add(p);
+    }
+    return [...this.reviewFiles].filter(p => !listed.has(p));
+  }
+
   inspect(id) {
     if (id) return this.document.nodes.find(n => n.id === id) ?? this.document.edges.find(e => e.id === id) ?? this.document.groups.find(g => g.id === id) ?? { error: 'ID not found' };
-    return { frozen: this.frozen, ...(this.pending.size ? { must_be_reviewed: [...this.pending] } : {}), title: this.document.title, scope: this.document['x-scope'], groups: this.document.groups.map(g => g.id), nodes: this.document.nodes.map(n => ({ id: n.id, label: n.label })), edges: this.document.edges.map(e => ({ id: e.id, from: e.from, to: e.to, kind: e.kind })) };
+    const undecided = this.undecided();
+    return { frozen: this.frozen, ...(this.pending.size ? { must_be_reviewed: [...this.pending] } : {}), ...(undecided.length ? { new_files_to_decide: undecided.length } : {}), title: this.document.title, scope: this.document['x-scope'], groups: this.document.groups.map(g => g.id), nodes: this.document.nodes.map(n => ({ id: n.id, label: n.label })), edges: this.document.edges.map(e => ({ id: e.id, from: e.from, to: e.to, kind: e.kind })) };
   }
 
   validate() {
     this.source.assertClean();
+    if (this.membership === 'full') {
+      requireValue(!this.pending.size, `${this.pending.size} components changed substantially and have no decision: resubmit them with update_graph, or record them as still right with record_review: ${[...this.pending].slice(0, 60).join(', ')}`);
+      const undecided = this.undecided();
+      requireValue(!undecided.length, `${undecided.length} new files have no decision: add them to a component, or record them as out of scope with record_review: ${undecided.slice(0, 60).join(', ')}`);
+    }
     requireValue(!this.pending.size, `${this.pending.size} entries cite changed code and have not been resubmitted or removed: ${[...this.pending].slice(0, 60).join(', ')}`);
     const graph = structuredClone(this.document);
     for (const item of [...graph.nodes, ...graph.edges]) {

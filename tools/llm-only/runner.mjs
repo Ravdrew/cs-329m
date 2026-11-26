@@ -3,7 +3,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkPi, DEFAULT_MODEL, DEFAULT_PROVIDER, executePi } from './pi.mjs';
 import { DraftGraph, parseYaml, yaml } from './graph.mjs';
-import { changedFiles, fetchCommit, numstat, seedDraft, seedInstructions, seedInstructionsFull } from './seed.mjs';
+import { changedFiles, fetchCommit, seedDraft, seedInstructions, seedInstructionsFull } from './seed.mjs';
 import { assertOutsideRepository, fetchHistory, git, History, prepareCheckout, sha256, Source } from './source.mjs';
 
 export const HERE = dirname(fileURLToPath(import.meta.url));
@@ -39,7 +39,7 @@ export function verifyRun(runDir) {
   if (document.commit !== config.commit || document.repo !== config.repo || document['x-variant'] !== (config.seed ? 'llm-only-chained' : 'llm-only')) throw new Error('Graph header differs from run configuration');
   const seed = config.seed ? seedDraft(readFileSync(join(runDir, 'seed.yaml'), 'utf8'), source, { membership: config.membership }) : undefined;
   // Every entry that had to be reviewed was resubmitted or removed before the graph could be frozen.
-  const draft = new DraftGraph(source, schema, config.repo, { groups: config.groups, membership: config.membership, seed: seed && { ...seed, pending: new Map() } });
+  const draft = new DraftGraph(source, schema, config.repo, { groups: config.groups, membership: config.membership, seed: seed && { ...seed, pending: new Map(), reviewFiles: [] } });
   draft.document = document;
   const verified = draft.validate();
   if (yaml(verified) !== content) throw new Error('Frozen YAML/evidence/hashes differ from validated canonical output');
@@ -101,14 +101,14 @@ export async function runExperiment(options, dependencies = {}) {
       const changes = changedFiles(config.checkout, seed.previous.commit, target.commit);
       const history = full ? new History(config.checkout, previousCommit, target.commit) : null;
       config.seed = { ...config.seed, commit: seed.previous.commit, sha256: sha256(seedText), pending: seed.pending.size, changed_files: changes.length,
-        ...(full ? { history: true, commits: history.commits.length, host_added_files: [...seed.report.values()].reduce((n, r) => n + r.added.length, 0), unassigned_new_files: seed.unassigned.length } : {}) };
+        ...(full ? { history: true, commits: history.commits.length, host_added_files: [...seed.report.values()].reduce((n, r) => n + r.added.length, 0), unassigned_new_files: seed.unassigned.length, components_to_review: seed.pending.size } : {}) };
       metadata.seed = config.seed;
       const edit = (text, from, to) => { if (!text.includes(from)) throw new Error(`Shared prompt no longer contains: ${from}`); return text.replace(from, to); };
       let shared = edit(sharedPrompt, 'Aim for roughly 60–100 components, each in a group, with at least 6 groups. Spread them over every area in the scope.', 'Each is in a group, with at least 6 groups.');
       shared = edit(shared, 'reference graphs, previous runs, team repositories', 'reference graphs, previous runs other than the previous graph given below, team repositories');
       shared = edit(shared, 'ranges that read_source returned in this run, at most 200 lines each', 'ranges that read_source returned in this run, at most 200 lines each, or that the previous graph already cites');
       const how = readFileSync(join(HERE, full ? 'prompt-update-full.md' : 'prompt-update.md'), 'utf8').replaceAll('{{OLD}}', previousCommit).replaceAll('{{NEW}}', target.commit);
-      const facts = full ? seedInstructionsFull(seed, source, numstat(config.checkout, previousCommit, target.commit), history.commits.length) : seedInstructions(seed, changes);
+      const facts = full ? seedInstructionsFull(seed, source, history.commits.length) : seedInstructions(seed, changes);
       prompt = `${shared}\n${how}\n${facts}`;
     }
     const instructions = `${prompt}\nTarget: ${target.repo}, commit ${target.commit}.\n\nShared graph schema (format only; no example graph):\n${schemaText}`;

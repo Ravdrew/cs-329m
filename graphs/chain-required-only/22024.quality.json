@@ -1,0 +1,18 @@
+{
+  "commit": "0a3b3a69e30562d94e4cbfd5e8492b70065682c4",
+  "nodes": 67,
+  "edges": 99,
+  "groups": 14,
+  "owned_files": 1041,
+  "in_scope_files": 2489,
+  "scope_coverage": 0.3,
+  "evidence_ranges": 198,
+  "weak_evidence": 0,
+  "single_file_nodes": 0.119,
+  "median_files_per_node": 8,
+  "verdict": "ok",
+  "reasons": [],
+  "run_dir": "/Users/andg/Desktop/llm-only-runs/chain/runs/22024-1/2026-11-26T23-16-53.732Z-Msjogr",
+  "attempts": 1,
+  "previous": 20646
+}

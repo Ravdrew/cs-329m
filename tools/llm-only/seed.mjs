@@ -87,6 +87,7 @@ export function seedInstructions({ previous, document, pending }, changes) {
   ].join('\n');
 }
 
+export const REVIEW_LINES = 50;
 const memberSource = p => SOURCE_FILE.test(p) && !TEST_FILE.test(p);
 const dirsOf = path => { const out = []; for (let i = path.indexOf('/'); i >= 0; i = path.indexOf('/', i + 1)) out.push(path.slice(0, i + 1)); return out; };
 /** Directories (trailing slash) all of whose member-source files, at least two and at most MAX_DIRECTORY_FILES, are in `owned`. */
@@ -178,7 +179,17 @@ function seedFull(text, source) {
   };
   // Only files in the scope are worth the model's attention; the rest stay out of the graph, as in a fresh build.
   const unassigned = added.filter(p => !taken.has(p) && inScope(p));
-  return { previous, document, pending: new Map(), carried, report, added: addedSet, unassigned, renamed };
+  // What the model must decide before it can finalize (graph.mjs): every component whose member files changed by
+  // more than REVIEW_LINES lines (resubmit it, or record it as still right after looking at a changed file), and every
+  // in-scope new file the host could not place (add it to a component, or record it as out of scope).
+  const lines = numstat(source.root, old, source.commit);
+  const pending = new Map();
+  for (const n of document.nodes) {
+    const changed = report.get(n.id)?.changed ?? [];
+    const churn = changed.reduce((sum, p) => sum + (lines.get(p)?.[0] ?? 0) + (lines.get(p)?.[1] ?? 0), 0);
+    if (churn > REVIEW_LINES) pending.set(n.id, { churn, files: [...changed].sort((a, b) => ((lines.get(b)?.[0] ?? 0) + (lines.get(b)?.[1] ?? 0)) - ((lines.get(a)?.[0] ?? 0) + (lines.get(a)?.[1] ?? 0))) });
+  }
+  return { previous, document, pending, carried, report, added: addedSet, unassigned, reviewFiles: unassigned, renamed, numstat: lines };
 }
 
 /** Files of a node for the prompt: whole directories as `dir/ (n files)`, the rest one by one. */
@@ -193,7 +204,8 @@ export function compactFiles(files, allFiles) {
 }
 
 /** The instructions for a full-membership update: the previous graph in brief, and what changed since. */
-export function seedInstructionsFull(seed, source, numstat, commits) {
+export function seedInstructionsFull(seed, source, commits) {
+  const { numstat } = seed;
   const { previous, document, report, unassigned } = seed;
   const brief = {
     groups: document.groups,
@@ -209,14 +221,8 @@ export function seedInstructionsFull(seed, source, numstat, commits) {
   for (const e of document.edges) if (!e['x-source-evidence'].length) broken.push(`- ${e.id}: no citation left`);
   const churn = p => { const s = numstat.get(p); return s ? s[0] + s[1] : 0; };
   const gone = [...report].filter(([, r]) => r.gone.length).map(([id, r]) => `- ${id}: ${r.gone.join(', ')}`);
-  const changed = [];
-  for (const n of document.nodes) {
-    const r = report.get(n.id);
-    if (!r?.changed.length) continue;
-    const list = [...r.changed].sort((a, b) => churn(b) - churn(a));
-    const shown = list.slice(0, 12).map(p => `${p} (+${numstat.get(p)?.[0] ?? '?'} -${numstat.get(p)?.[1] ?? '?'})`);
-    changed.push(`- ${n.id}: ${shown.join(', ')}${list.length > 12 ? `, and ${list.length - 12} more` : ''}`);
-  }
+  const review = [...seed.pending].map(([id, { churn, files }]) => `- ${id} (${churn} lines): ${files.slice(0, 10).map(p => `${p} (+${numstat.get(p)?.[0] ?? '?'} -${numstat.get(p)?.[1] ?? '?'})`).join(', ')}${files.length > 10 ? `, and ${files.length - 10} more` : ''}`);
+  const minor = document.nodes.filter(n => report.get(n.id)?.changed.length && !seed.pending.has(n.id)).map(n => n.id);
   const host = [];
   for (const [id, r] of report) {
     const parts = [r.dropped.length && `${r.dropped.length} deleted files dropped`, r.renamed.length && `${r.renamed.length} renamed files followed`, r.added.length && `${r.added.length} new files added (${[...new Set(r.added.map(p => p.slice(0, p.lastIndexOf('/') + 1)))].slice(0, 4).join(', ')})`].filter(Boolean);
@@ -232,9 +238,12 @@ export function seedInstructionsFull(seed, source, numstat, commits) {
     `## History`, '', `${commits} commits lie between the previous graph's commit and the pinned one. git_log, git_show, git_diff and git_blame cover exactly that range.`, '',
     `## Must be fixed (${broken.length})`, '', ...(broken.length ? broken : ['None.']), '',
     `## Cited code is gone (${gone.length} entries)`, '', 'These citations no longer match the code. The entry keeps its other citations.', '', ...(gone.length ? gone : ['None.']), '',
-    `## Member files that changed (${changed.length} components; most changed first, lines added and removed)`, '', ...(changed.length ? changed : ['None.']), '',
+    `## Components to review (${review.length}; member files changed by more than ${REVIEW_LINES} lines)`, '',
+    'Each needs a decision before you can finalize: resubmit it with update_graph if the change affects what it says, or record it as still right with record_review after reading or diffing one of the changed files listed. Files are listed most changed first, with lines added and removed.', '',
+    ...(review.length ? review : ['None.']), '',
+    `Smaller changes, no decision needed (${minor.length}): ${minor.join(', ') || 'none'}.`, '',
     `## Already applied by the host (${host.length} components)`, '', ...(host.length ? host : ['None.']), '',
-    `## New source files no component lists (${unassigned.length})`, '', 'Files in the scope that the host could not place. Tests, API v1/v2, the platform SDK and other out-of-scope areas are left out.', '', ...(newFiles.length ? newFiles : ['None.']), '',
+    `## New source files no component lists (${unassigned.length})`, '', 'Files in the scope that the host could not place (tests, API v1/v2, the platform SDK and other out-of-scope areas are already left out). Each needs a decision before you can finalize: add it to the files of the component it belongs to (a directory entry covers all its files), or add a component for it, or record it as out of scope with record_review (a directory path with a trailing slash covers every listed file under it).', '', ...(newFiles.length ? newFiles : ['None.']), '',
   ].join('\n');
 }
 
