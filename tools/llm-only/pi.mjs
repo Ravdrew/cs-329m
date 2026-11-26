@@ -7,7 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { InMemoryCredentialStore } from '@earendil-works/pi-ai';
 import { clampThinkingLevel } from '@earendil-works/pi-ai/compat';
 import { createAgentSession, createExtensionRuntime, ModelRuntime, SessionManager, SettingsManager, VERSION } from '@earendil-works/pi-coding-agent';
-import { createGraphTools, toolDefinitions } from './source-server.mjs';
+import { createGraphTools, definitionsFor, toolDefinitions } from './source-server.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const DEFAULT_MODEL = 'gpt-6-astra';
@@ -68,6 +68,8 @@ export async function runPiSession(config, emit = () => {}, runtime) {
   const model = selectModel(runtime, config);
   await checkPi(config, runtime);
   const tools = createGraphTools(config);
+  const definitions = definitionsFor(config);
+  const names = definitions.map(def => def.name);
   let session;
   let attempts = 0;
   let stopReason = null;
@@ -90,10 +92,10 @@ export async function runPiSession(config, emit = () => {}, runtime) {
   });
   ({ session } = await createAgentSession({
     cwd: config.checkout, agentDir: join(config.runDir, 'pi-private'), modelRuntime: runtime, model,
-    thinkingLevel: config.effort, tools: toolNames,
+    thinkingLevel: config.effort, tools: names,
     sessionManager: SessionManager.inMemory(config.checkout), settingsManager,
     resourceLoader: isolatedResources(instructions),
-    customTools: toolDefinitions.map(def => ({
+    customTools: definitions.map(def => ({
       name: def.name, label: def.name, description: config.seed ? def.description.replace('This draft starts empty for every run.', 'This draft starts as the previous graph.') : def.description, parameters: def.inputSchema,
       executionMode: 'sequential',
       execute: async (_id, args, signal) => {
@@ -123,7 +125,7 @@ export async function runPiSession(config, emit = () => {}, runtime) {
   let monitor;
   const interrupted = () => stop('Interrupted');
   try {
-    if (session.messages.length || JSON.stringify([...session.getActiveToolNames()].sort()) !== JSON.stringify([...toolNames].sort())) throw new Error('Pi session inherited history or unexpected tools');
+    if (session.messages.length || JSON.stringify([...session.getActiveToolNames()].sort()) !== JSON.stringify([...names].sort())) throw new Error('Pi session inherited history or unexpected tools');
     // Pi appends only the explicit working directory to a custom system prompt.
     const expectedPrompt = `${instructions}\n\n<cwd>\n${config.checkout}\n</cwd>`;
     if (session.systemPrompt !== expectedPrompt || session.thinkingLevel !== config.effort) throw new Error('Pi changed the experiment instructions or reasoning effort');
@@ -133,7 +135,7 @@ export async function runPiSession(config, emit = () => {}, runtime) {
       model, reasoning_effort: session.thinkingLevel, tools: session.getActiveToolNames(),
       inherited_resources: [], compaction: false, cache_warming: false, retries: false,
     });
-    emit({ type: 'session_started', provider: model.provider, model: model.id, tools: toolNames });
+    emit({ type: 'session_started', provider: model.provider, model: model.id, tools: names });
     session.subscribe(event => {
       // Finalized messages contain the transcript and one usage value per response.
       // Avoid duplicating partial streaming events or persisting transport headers.
@@ -152,7 +154,7 @@ export async function runPiSession(config, emit = () => {}, runtime) {
       }
       if (event.type === 'tool_execution_start') {
         attempts++;
-        if (!toolNames.includes(event.toolName)) stop(`Unexpected tool request: ${event.toolName}`);
+        if (!names.includes(event.toolName)) stop(`Unexpected tool request: ${event.toolName}`);
         else if (attempts > config.maxTools) stop('Tool-call limit reached');
       }
       if (event.type === 'tool_execution_end' && event.toolName === 'finalize_graph' && !event.isError && tools.graph.frozen) stop(frozenReason);

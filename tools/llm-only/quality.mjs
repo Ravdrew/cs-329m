@@ -23,6 +23,8 @@ const OUT_OF_SCOPE = [
   /^packages\/app-store\/(?!_utils\/|_lib\/|_components\/|_pages\/|components\/|utils\/|server\/|[^/]+\.[cm]?[jt]sx?$)/,
   /(^|\/)(scripts|playwright|cypress)\//, /\.d\.ts$/, /\.(config|setup)\.[cm]?[jt]s$/,
 ];
+/** A tracked path the wide scope asks the graph to cover (non-test source under apps/ or packages/, not out of scope). */
+export const inScope = p => SOURCE_FILE.test(p) && !TEST_FILE.test(p) && /^(apps|packages)\//.test(p) && !OUT_OF_SCOPE.some(r => r.test(p));
 export const THRESHOLDS = Object.freeze({ min_scope_coverage: 0.2, max_weak_evidence: 0.25, max_single_file_nodes: 0.5 });
 
 const WEAK_LINE = /^\s*($|\/\/|\/\*|\*|\*\/|import\b|export\s+(\*|\{[^}]*\})\s+from\b|export\s+type\s+\{|["']use (client|server)["'];?$|\}\s*from\s+["'])/;
@@ -31,9 +33,9 @@ export function quality(runDir) {
   const graph = parseYaml(readFileSync(join(runDir, 'graph.yaml'), 'utf8'));
   const checkout = join(runDir, 'calcom');
   const tracked = git(checkout, ['ls-tree', '-r', '--name-only', '--full-tree', graph.commit]).split('\n').filter(Boolean);
-  const inScope = tracked.filter(p => SOURCE_FILE.test(p) && !TEST_FILE.test(p) && /^(apps|packages)\//.test(p) && !OUT_OF_SCOPE.some(r => r.test(p)));
+  const scoped = tracked.filter(inScope);
   const owned = new Set(graph.nodes.flatMap(n => (n.files ?? []).map(f => (typeof f === 'string' ? f : f.path))));
-  const covered = inScope.filter(p => owned.has(p));
+  const covered = scoped.filter(p => owned.has(p));
   const lines = new Map();
   const fileLines = path => {
     if (!lines.has(path)) { try { lines.set(path, readFileSync(join(checkout, path), 'utf8').split('\n')); } catch { lines.set(path, []); } }
@@ -51,7 +53,7 @@ export function quality(runDir) {
   const round = x => Math.round(x * 1000) / 1000;
   const metrics = {
     commit: graph.commit, nodes: graph.nodes.length, edges: graph.edges.length, groups: graph.groups.length,
-    owned_files: owned.size, in_scope_files: inScope.length, scope_coverage: round(covered.length / inScope.length),
+    owned_files: owned.size, in_scope_files: scoped.length, scope_coverage: round(covered.length / scoped.length),
     evidence_ranges: ranges, weak_evidence: round(weak / Math.max(ranges, 1)),
     single_file_nodes: round(fileCounts.filter(c => c === 1).length / Math.max(fileCounts.length, 1)),
     median_files_per_node: fileCounts[Math.floor(fileCounts.length / 2)] ?? 0,

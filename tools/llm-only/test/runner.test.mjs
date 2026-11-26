@@ -11,8 +11,8 @@ import { checkPi, DEFAULT_MODEL, executePi, runPiSession, toolNames } from '../p
 import { DraftGraph, parseYaml, yaml } from '../graph.mjs';
 import { changedFiles, fetchCommit, seedDraft } from '../seed.mjs';
 import { runExperiment, TEAM_ROOT, verifyRun } from '../runner.mjs';
-import { createGraphTools } from '../source-server.mjs';
-import { assertOutsideRepository, git, prepareCheckout, Source } from '../source.mjs';
+import { createGraphTools, definitionsFor } from '../source-server.mjs';
+import { assertOutsideRepository, fetchHistory, git, History, prepareCheckout, Source } from '../source.mjs';
 
 const root = mkdtempSync(join(tmpdir(), 'llm-only-test-'));
 after(() => rmSync(root, { recursive: true, force: true }));
@@ -494,4 +494,90 @@ test('wide-full membership: directories expand to tracked non-test source files,
     [['pkg/nothing/'], ['pkg/form/Builder.tsx'], /no tracked non-test source files/],
     [['pkg/form/schema.ts'], ['pkg/form/Builder.tsx'], /at least one of its member files/],
   ]) assert.throws(() => draft([node('form', files, evidence), node('other', ['pkg/other.ts'], ['pkg/other.ts'])]).finalize(), error);
+});
+
+test('wide-full update: the host drops deleted files, follows renames, re-expands directories, and git sees only the range', async () => {
+  const repo = join(root, 'full-chain');
+  const write = (p, text) => { mkdirSync(join(repo, p.slice(0, p.lastIndexOf('/'))), { recursive: true }); writeFileSync(join(repo, p), text); };
+  const commitAll = message => { git(repo, ['add', '-A']); git(repo, ['-c', 'user.name=F', '-c', 'user.email=f@example.invalid', 'commit', '--quiet', '-m', message]); return git(repo, ['rev-parse', 'HEAD']).trim(); };
+  mkdirSync(repo);
+  git(repo, ['init', '--quiet', '--template=']);
+  write('packages/a/x.ts', 'export function x() {\n  return 1;\n}\n');
+  write('packages/a/y.ts', 'export const y = 2;\n');
+  write('packages/b/z.ts', 'export const z = 3;\n');
+  write('packages/b/w.ts', 'export const w = 4;\n');
+  write('packages/c/old.ts', 'export function moved() {\n  return "same body";\n}\n');
+  write('packages/d/gone.ts', 'export const gone = 5;\n');
+  const before = commitAll('first');
+  write('packages/a/x.ts', '// header\n// more\nexport function x() {\n  return 1;\n}\n');
+  write('packages/a/n.ts', 'export const n = 6;\n');
+  write('packages/b/m.ts', 'export const m = 7;\n');
+  git(repo, ['mv', 'packages/c/old.ts', 'packages/c/new.ts']);
+  rmSync(join(repo, 'packages/d/gone.ts'));
+  const middle = commitAll('second: add n and m, rename old, delete gone');
+  write('packages/b/z.ts', 'export const z = 33;\n');
+  const after = commitAll('third');
+  write('packages/b/z.ts', 'export const z = 333; // from the future\n');
+  const future = commitAll('future');
+
+  // The previous graph, full membership, at the first commit.
+  const src0 = prepareCheckout({ directory: join(mkdtempSync(join(root, 'full-a-')), 'calcom'), remote: repo, commit: before });
+  for (const p of ['packages/a/x.ts', 'packages/b/z.ts', 'packages/c/old.ts', 'packages/d/gone.ts']) src0.read({ path: p, start_line: 1 });
+  const node = (id, files, evidence) => ({ id, label: id, kind: 'service', group: 'g', summary: 's', description: 'd', files, 'x-source-evidence': evidence });
+  const first = new DraftGraph(src0, schema, target.repo, { membership: 'full' });
+  first.update(yaml({ title: 't', description: 'd', 'x-scope': { included: ['a'], excluded: ['b'] }, groups: [{ id: 'g', label: 'G' }],
+    nodes: [node('alpha', ['packages/a/', 'packages/d/gone.ts'], [{ path: 'packages/a/x.ts', start_line: 1, end_line: 3 }, { path: 'packages/d/gone.ts', start_line: 1, end_line: 1 }]),
+      node('beta', ['packages/b/z.ts', 'packages/c/old.ts'], [{ path: 'packages/b/z.ts', start_line: 1, end_line: 1 }, { path: 'packages/c/old.ts', start_line: 1, end_line: 3 }])],
+    edges: [{ id: 'e', from: 'alpha', to: 'beta', kind: 'uses', label: 'u', description: 'd', 'x-source-evidence': [{ path: 'packages/d/gone.ts', start_line: 1, end_line: 1 }] }] }));
+  const text = yaml(first.finalize());
+
+  const source = prepareCheckout({ directory: join(mkdtempSync(join(root, 'full-b-')), 'calcom'), remote: repo, commit: after });
+  fetchHistory(source.root, repo, before, after);
+  const seed = seedDraft(text, source, { membership: 'full' });
+  const alpha = seed.document.nodes.find(n => n.id === 'alpha');
+  const beta = seed.document.nodes.find(n => n.id === 'beta');
+  assert.deepEqual(alpha.files, ['packages/a/x.ts', 'packages/a/y.ts', 'packages/a/n.ts'], 'deleted file dropped, new file in a whole directory added');
+  assert.deepEqual(beta.files, ['packages/b/z.ts', 'packages/c/new.ts'], 'rename followed; packages/b/ was not wholly owned');
+  assert.deepEqual(alpha['x-source-evidence'], [{ path: 'packages/a/x.ts', start_line: 3, end_line: 5 }], 'moved lines remapped, deleted citation gone');
+  assert.deepEqual(beta['x-source-evidence'], [{ path: 'packages/c/new.ts', start_line: 1, end_line: 3 }], 'citation follows the rename; changed line gone');
+  assert.deepEqual(seed.unassigned, ['packages/b/m.ts']);
+  assert.equal(seed.pending.size, 0, 'nothing has to be resubmitted');
+
+  // Finalization still refuses what the host could not repair: the edge lost its only citation.
+  const graph = new DraftGraph(source, schema, target.repo, { membership: 'full', seed });
+  assert.throws(() => graph.validate(), /e: source evidence is required/);
+  source.read({ path: 'packages/a/n.ts', start_line: 1 });
+  graph.update(yaml({ edges: [{ id: 'e', from: 'alpha', to: 'beta', kind: 'uses', label: 'u', description: 'd', 'x-source-evidence': [{ path: 'packages/a/n.ts', start_line: 1, end_line: 1 }] }] }));
+  const updated = graph.finalize();
+  assert.equal(updated.commit, after);
+
+  // History covers before..after and nothing later.
+  const history = new History(source.root, before, after);
+  assert.deepEqual(history.log().commits.map(c => c.subject), ['third', 'second: add n and m, rename old, delete gone']);
+  assert.deepEqual(history.log({ path: 'packages/b/z.ts' }).commits.map(c => c.subject), ['third']);
+  assert.match(history.show({ commit: middle.slice(0, 10) }).text, /rename old/);
+  assert.match(history.diff({ path: 'packages/b/z.ts' }).text, /\+export const z = 33;/);
+  assert.throws(() => history.show({ commit: before }), /Only commits between/);
+  assert.throws(() => history.show({ commit: future }), /Only commits between/);
+  assert.throws(() => git(source.root, ['cat-file', '-e', future]), 'the future commit was never fetched');
+  assert.match(history.blame({ path: 'packages/b/z.ts', start_line: 1, end_line: 1 }).text, /33/);
+
+  // The runner wires it together: history tools, the full update prompt and its lists.
+  const outputRoot = mkdtempSync(join(root, 'full-run-'));
+  const seedFile = join(root, 'full-seed.yaml');
+  writeFileSync(seedFile, text);
+  const { runDir } = await runExperiment({ outputRoot, prepareOnly: true, scope: 'wide-full', commit: after, seed: seedFile }, { target: { ...target, remote: repo, commit: '0'.repeat(40) } });
+  const config = JSON.parse(readFileSync(join(runDir, 'server.json'), 'utf8'));
+  assert.equal(config.seed.history, true);
+  assert.equal(config.seed.commits, 2);
+  assert.deepEqual(definitionsFor(config).map(d => d.name).filter(n => n.startsWith('git_')), ['git_log', 'git_show', 'git_diff', 'git_blame']);
+  assert.equal(definitionsFor({}).some(d => d.name.startsWith('git_')), false);
+  const instructions = readFileSync(join(runDir, 'instructions.md'), 'utf8');
+  assert.match(instructions, new RegExp(`describes commit ${before}`));
+  assert.match(instructions, /## Must be fixed \(1\)\n\n- e: no citation left/);
+  assert.match(instructions, /packages\/b\/: m\.ts/);
+  assert.match(instructions, /alpha: 1 deleted files dropped; 1 new files added \(packages\/a\/\)/);
+  const tools = createGraphTools({ ...config, deadline: Date.now() + 60_000 });
+  assert.equal(JSON.parse(tools.call('git_log', {}).content[0].text).total, 2);
+  assert.equal(tools.call('git_show', { commit: future }).isError, true);
 });

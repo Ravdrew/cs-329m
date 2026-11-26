@@ -18,7 +18,8 @@ Options:
   --source PATH         Local upstream Git object cache; only the pinned commit is fetched
   --output-root PATH    New run directories here; must be outside all Git checkouts
   --commit SHA          Full commit to graph (default: the pin in targets/calcom.env)
-  --seed GRAPH          Update this graph of an earlier commit instead of starting empty (--scope wide)
+  --seed GRAPH          Update this graph of an earlier commit instead of starting empty (--scope wide or wide-full;
+                        wide-full also gets read-only git history up to --commit)
   --scope NAME          booking (default), wide (the whole web product) or wide-full (wide, and every component
                         lists all the files it owns)
   --max-tools N         Maximum source/graph tool calls (default: 600)
