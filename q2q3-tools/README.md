@@ -14,6 +14,7 @@ remove or clarify).
 | `make_spec.py` + `ts_exports.js` | Interface-spec generator. It uses the TypeScript parser, prints signatures only, and covers changed signatures, Prisma additions and the members the tests' mocks define. |
 | `apply_hand_edits.py` | Builds `specs-final/` from `specs-generated-v3/` plus `pilot-specs/` and every hand edit, each with its reason. |
 | `specs-final/` | **The 20 specs to give agents.** They passed four independent reviews (`SPEC-REVIEW-2026-11-02.md`). |
+| [`prose-intents/`](prose-intents/README.md) | **20 draft implementation-intent prompts** for `prose-intent`, with source provenance and review decisions. Awaiting human review and comparison with the final graph edits. |
 | `specs-generated-v3/` | Raw generator output (`.md` plus `.json` summaries). |
 | `pilot-specs/` | The pilot's hand-finished specs for #24207, #24324 and #25315. |
 | `HAND-EDITS.md` | The interface/behaviour rule, every hand edit, and what is left out on purpose. |

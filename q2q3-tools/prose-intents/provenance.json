@@ -1,0 +1,413 @@
+{
+  "schema_version": 1,
+  "prepared_date": "2026-11-26",
+  "project_revision": "79161f49fb66f87c97048c4c99665d25583c6c40",
+  "status": "draft_awaiting_human_review",
+  "authoring_inputs": "Original task descriptions, shared specs, and explicitly recorded pre-change production sources; see README for scope and incidental coordination context.",
+  "content_validation": "Packaging and prompt wiring only; no hidden-test evaluations or target implementations used for tuning.",
+  "tasks": [
+    {
+      "task": 19626,
+      "title": "fix: skip when browsing month has no available slots",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/19626",
+      "base_commit": "d131d58b19fd5a5dbc19b6447227fbbcacd8e2af",
+      "intent_path": "q2q3-tools/prose-intents/19626.md",
+      "intent_sha256": "0f3f004e76e4851015fbf133793ba46453e37c80a798a81fc78c6d321dcc762f",
+      "problem_statement_sha256": "013daf292beb3cf917d68d2adcd01af02b407ed432115df8960fca4a1b6dd508",
+      "spec_path": "q2q3-tools/specs-final/19626.md",
+      "spec_sha256": "27c45e0ba7bccd1ad921ce4d6394cd507656a7c331e8526a8b3909852afe63be",
+      "base_source_files": [
+        {
+          "path": "packages/features/calendars/DatePicker.tsx",
+          "sha256": "0a8d8287e72a6b1495ee2324bbcf1bcdfc49efbbc21f422e9bc83684f536022c",
+          "url": "https://github.com/calcom/cal.diy/blob/d131d58b19fd5a5dbc19b6447227fbbcacd8e2af/packages/features/calendars/DatePicker.tsx",
+          "inspection": "full file or selected relevant excerpts"
+        },
+        {
+          "path": "packages/features/bookings/Booker/components/DatePicker.tsx",
+          "sha256": "829562dd9ee1ab76a8a3114fb0bb50d5b849ac9c7ef5a556977979330e3f0545",
+          "url": "https://github.com/calcom/cal.diy/blob/d131d58b19fd5a5dbc19b6447227fbbcacd8e2af/packages/features/bookings/Booker/components/DatePicker.tsx",
+          "inspection": "full file or selected relevant excerpts"
+        }
+      ],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    },
+    {
+      "task": 19997,
+      "title": "feat: Custom Fields OR Add-Ons with a fee associated",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/19997",
+      "base_commit": "65448c017f4d33600912e7cb75c4f46be1bd95c8",
+      "intent_path": "q2q3-tools/prose-intents/19997.md",
+      "intent_sha256": "4cc79279e0b04b81e6e3cc41796899076a2121c9a749625f1b3496103946e8ce",
+      "problem_statement_sha256": "1dba3612035f08023d3f85090358e804366b96a0296a4556c60ce2bdea6dd2e3",
+      "spec_path": "q2q3-tools/specs-final/19997.md",
+      "spec_sha256": "fd9bc1aea62e9c17321bcb713789063fb01ac4ddcb733c1c44cbe5d5361fe454",
+      "base_source_files": [
+        {
+          "path": "packages/features/bookings/lib/handlePayment.ts",
+          "sha256": "4faab9354e9aa6782292b7414e3ae2943bff771abf33ac6a4e4a4ebfdbf9ec78",
+          "url": "https://github.com/calcom/cal.diy/blob/65448c017f4d33600912e7cb75c4f46be1bd95c8/packages/features/bookings/lib/handlePayment.ts",
+          "inspection": "full file or selected relevant excerpts"
+        },
+        {
+          "path": "packages/features/form-builder/schema.ts",
+          "sha256": "532706b38e37b0dfe22643c24894886af1bd07c3d695678ad7ebcd8bcb73a85c",
+          "url": "https://github.com/calcom/cal.diy/blob/65448c017f4d33600912e7cb75c4f46be1bd95c8/packages/features/form-builder/schema.ts",
+          "inspection": "full file or selected relevant excerpts"
+        }
+      ],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": [
+        "Pricing arithmetic, units, and card-hold behavior"
+      ]
+    },
+    {
+      "task": 20646,
+      "title": "feat: Embed - Show skeleton loader when pageType is provided",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/20646",
+      "base_commit": "15aaf7f51bd14b97f54a678b15dd75771943332e",
+      "intent_path": "q2q3-tools/prose-intents/20646.md",
+      "intent_sha256": "f9c9ed83d2ae710ef210876f6300881d1ccedf9e1d00bb32960db5ba1279ef1b",
+      "problem_statement_sha256": "7a7f0a3c763d8882034ea62441ad58a8b29476506cab5b5fd57f532b18392241",
+      "spec_path": "q2q3-tools/specs-final/20646.md",
+      "spec_sha256": "f4540d574d33f93236fce7b26f045a755b334579fcf01d7ff917768c83c4dda6",
+      "base_source_files": [
+        {
+          "path": "packages/embeds/embed-core/src/Inline/inlineHtml.ts",
+          "sha256": "b9eefbba9f382cf17b8427ca81ab020e090f01fc3e5deaa7dba86a200b888485",
+          "url": "https://github.com/calcom/cal.diy/blob/15aaf7f51bd14b97f54a678b15dd75771943332e/packages/embeds/embed-core/src/Inline/inlineHtml.ts",
+          "inspection": "full file or selected relevant excerpts"
+        }
+      ],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    },
+    {
+      "task": 22024,
+      "title": "feat: Phone based bookings for everyone (#21320)",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/22024",
+      "base_commit": "0a3b3a69e30562d94e4cbfd5e8492b70065682c4",
+      "intent_path": "q2q3-tools/prose-intents/22024.md",
+      "intent_sha256": "7e6dcca2f778b7a1fea1508202eab74f23eec5c26d253f1cdccbd68baaff84c6",
+      "problem_statement_sha256": "deb5b33d199fec8e64fac744a4cbf8d2dc0f0197a58f74c9672050b4d78aa157",
+      "spec_path": "q2q3-tools/specs-final/22024.md",
+      "spec_sha256": "8646a4e0a84f76ddcf16403833d2a5a0b6e00f4ad8aff40c07b1e7d7de4ca3d1",
+      "base_source_files": [
+        {
+          "path": "packages/sms/sms-manager.ts",
+          "sha256": "3abe8381974998798a6cab773a0a3445f45a742f3e232711898161f26b0d23b8",
+          "url": "https://github.com/calcom/cal.diy/blob/0a3b3a69e30562d94e4cbfd5e8492b70065682c4/packages/sms/sms-manager.ts",
+          "inspection": "full file or selected relevant excerpts"
+        },
+        {
+          "path": "packages/features/form-builder/FormBuilder.tsx",
+          "sha256": "cf9ce2f7b1b2cbca3b3e0b944ceda6a11ab4b11057d79a2b03576fef91c0f5ca",
+          "url": "https://github.com/calcom/cal.diy/blob/0a3b3a69e30562d94e4cbfd5e8492b70065682c4/packages/features/form-builder/FormBuilder.tsx",
+          "inspection": "full file or selected relevant excerpts"
+        }
+      ],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": [
+        "Personal-event SMS rate-limit identity and organization opt-out"
+      ]
+    },
+    {
+      "task": 24124,
+      "title": "feat: Calendar Sync",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/24124",
+      "base_commit": "5d65a0f09199abeab9729d2665e9bed399692f55",
+      "intent_path": "q2q3-tools/prose-intents/24124.md",
+      "intent_sha256": "2e43ae9e0ded40894dcb89c3507facca5af00024f7582cec9283703bca2167c8",
+      "problem_statement_sha256": "1f82ac81d2294d5ba4657f35ed174f58a6c13ed4660f49bc4931df96e521914d",
+      "spec_path": "q2q3-tools/specs-final/24124.md",
+      "spec_sha256": "bfb48554221ed12ad81ad7bcaabda6bd66cf345c64dbd0c7561f07f016c223ee",
+      "base_source_files": [],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    },
+    {
+      "task": 24207,
+      "title": "feat: botid enabled on api/book/event api route",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/24207",
+      "base_commit": "f3269a3ddf5156eac9b6ca4663c68c938c231252",
+      "intent_path": "q2q3-tools/prose-intents/24207.md",
+      "intent_sha256": "e24624ce951d5e6533b4717776b2efea3c2f4ee29b2f8a4ea62c50e4557c0809",
+      "problem_statement_sha256": "53a6a225a9c4bec9258af0f5bc5535c28551365672b124c1e901d99b6a621be0",
+      "spec_path": "q2q3-tools/specs-final/24207.md",
+      "spec_sha256": "fb394828e370897a44f7595f7cd86bd3c9c86f828ae49d358b88f4c8b6416eae",
+      "base_source_files": [
+        {
+          "path": "apps/web/pages/api/book/event.ts",
+          "sha256": "bc7377d7bd48eb3a644ad327f5a308e7df4ad1efaad8300fed994bfd98a331c3",
+          "url": "https://github.com/calcom/cal.diy/blob/f3269a3ddf5156eac9b6ca4663c68c938c231252/apps/web/pages/api/book/event.ts",
+          "inspection": "full file or selected relevant excerpts"
+        },
+        {
+          "path": "packages/features/flags/features.repository.ts",
+          "sha256": "110b4c4aaec759c60de6c7a9daa6ca5b973c0b2e395cd3885acb87b39e94c6df",
+          "url": "https://github.com/calcom/cal.diy/blob/f3269a3ddf5156eac9b6ca4663c68c938c231252/packages/features/flags/features.repository.ts",
+          "inspection": "full file or selected relevant excerpts"
+        }
+      ],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": [
+        "Environment/team flag precedence, missing team, and verification failure policy"
+      ]
+    },
+    {
+      "task": 24324,
+      "title": "feat: report booking",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/24324",
+      "base_commit": "a2bee76da6c0d5d7e3edeaccfbbaf14f146e21bf",
+      "intent_path": "q2q3-tools/prose-intents/24324.md",
+      "intent_sha256": "24e396263de206eb5e85168caf26b4fe65d143646f4d3b8e51f8daadbf6a9fdf",
+      "problem_statement_sha256": "9e522a7a5fdb0dff08c6260cf7a2745057da4cd4ac158edadc7c319da4008ce2",
+      "spec_path": "q2q3-tools/specs-final/24324.md",
+      "spec_sha256": "a601d996f625e8f97f2104ed9116ccfdf5ea4513983cb9e817d084b776a3d514",
+      "base_source_files": [],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": [
+        "Cancellation choice and recurring-booking scope"
+      ]
+    },
+    {
+      "task": 24465,
+      "title": "fix: Faulty logic around `shouldServeCache`",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/24465",
+      "base_commit": "b81a307bd98328289acf5bf5c5acdc97e554c7f4",
+      "intent_path": "q2q3-tools/prose-intents/24465.md",
+      "intent_sha256": "e2c0cecf25cf74ed2f0b6aec12d316d89cf8b946a8bfa4c09db8b680a5f36247",
+      "problem_statement_sha256": "1e378a8e67e11693e20ee6ae5f92c62a14edc09fae83206b330b7c7a1cad22cf",
+      "spec_path": "q2q3-tools/specs-final/24465.md",
+      "spec_sha256": "1edf618daa4cc15ecb6011cca2406ca28be00f7ba80cc1b56bb2055370ec4659",
+      "base_source_files": [
+        {
+          "path": "packages/features/calendar-cache/lib/getShouldServeCache.ts",
+          "sha256": "37c8ca9043b5e3b76390ce1843b349197c797b2b11c14ea8252d6d95ffc7f60e",
+          "url": "https://github.com/calcom/cal.diy/blob/b81a307bd98328289acf5bf5c5acdc97e554c7f4/packages/features/calendar-cache/lib/getShouldServeCache.ts",
+          "inspection": "full file or selected relevant excerpts"
+        },
+        {
+          "path": "packages/features/calendar-subscription/lib/cache/CalendarCacheWrapper.ts",
+          "sha256": "bf466ee8972600b989f6b5e84d3c4ea7dee0a429dbca10a968d0291288de443b",
+          "url": "https://github.com/calcom/cal.diy/blob/b81a307bd98328289acf5bf5c5acdc97e554c7f4/packages/features/calendar-subscription/lib/cache/CalendarCacheWrapper.ts",
+          "inspection": "full file or selected relevant excerpts"
+        }
+      ],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    },
+    {
+      "task": 24880,
+      "title": "feat: improve overlapping events display in weekly calendar view",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/24880",
+      "base_commit": "c48f2043f21656290f9f20b5785b48fe3c661308",
+      "intent_path": "q2q3-tools/prose-intents/24880.md",
+      "intent_sha256": "a9a5c1537875782249c79fe7bdbef35454a20593b67f9cef21f31e0ff294f317",
+      "problem_statement_sha256": "f1bf70398e0137ed3b50fc95c30b2b5adaa226534a7cf30b91a16bc05ac1426e",
+      "spec_path": "q2q3-tools/specs-final/24880.md",
+      "spec_sha256": "c9edec24ce3661181cf4f649dd3eab37704812e9a3be6e5c0bb985b3adb7cfae",
+      "base_source_files": [],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    },
+    {
+      "task": 25313,
+      "title": "feat: OAuth PKCE",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/25313",
+      "base_commit": "c95b0833c13a57b4800ed57d69a63a798bf21589",
+      "intent_path": "q2q3-tools/prose-intents/25313.md",
+      "intent_sha256": "45f1f53f02855002aa8132785539d1b3dc7e6bc1e9e613fae79495d0a489e591",
+      "problem_statement_sha256": "4104afacd8b965e93be82afb76f0c1c133037ff9e010c42e3106e1d9eb22ec46",
+      "spec_path": "q2q3-tools/specs-final/25313.md",
+      "spec_sha256": "756c47aec419bba1386d9ea17980e4ef65d0e8fcf899a7d86c959ac406d1c261",
+      "base_source_files": [],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    },
+    {
+      "task": 25315,
+      "title": "fix: access service class for editLocationHandler",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/25315",
+      "base_commit": "44311f51badd99513e0774500444da72d2230658",
+      "intent_path": "q2q3-tools/prose-intents/25315.md",
+      "intent_sha256": "854d33359cae886ddd434d80961670b876b53c9e4719670f9794162f68b3a735",
+      "problem_statement_sha256": "cb6c050f8d68e3e5697a53da430236db905d8a97e407bcc129fed0e30c73f92f",
+      "spec_path": "q2q3-tools/specs-final/25315.md",
+      "spec_sha256": "7525be4eaf63fe4edb4f52226e2b89f3df8eafe8e7ab7e91ee8f6fdaa6b5c197",
+      "base_source_files": [
+        {
+          "path": "packages/trpc/server/routers/viewer/bookings/editLocation.handler.ts",
+          "sha256": "58ee4094a3011a7049ea14ba71c6dba523243142d6a6aff84e93ba8c9d96671c",
+          "url": "https://github.com/calcom/cal.diy/blob/44311f51badd99513e0774500444da72d2230658/packages/trpc/server/routers/viewer/bookings/editLocation.handler.ts",
+          "inspection": "full file or selected relevant excerpts"
+        },
+        {
+          "path": "packages/features/credentials/repositories/CredentialRepository.ts",
+          "sha256": "ec3c42d8841197f6c1edf8e44080876994dfc9b8cd040502b99ac063fc2f8d89",
+          "url": "https://github.com/calcom/cal.diy/blob/44311f51badd99513e0774500444da72d2230658/packages/features/credentials/repositories/CredentialRepository.ts",
+          "inspection": "full file or selected relevant excerpts"
+        },
+        {
+          "path": "packages/features/users/repositories/UserRepository.ts",
+          "sha256": "54f5ba9ba545d67457de8dc13ebdd89069f866c2080b16793d060d35ff488900",
+          "url": "https://github.com/calcom/cal.diy/blob/44311f51badd99513e0774500444da72d2230658/packages/features/users/repositories/UserRepository.ts",
+          "inspection": "full file or selected relevant excerpts"
+        }
+      ],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": [
+        "Credential ownership, team, and organization access decision table"
+      ]
+    },
+    {
+      "task": 26039,
+      "title": "feat: Hubspot write to meeting object",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/26039",
+      "base_commit": "8ad5f7bf55df95123709f0f3c1bbe2e9118f4b9a",
+      "intent_path": "q2q3-tools/prose-intents/26039.md",
+      "intent_sha256": "2f3c634c2dd65d83769d7fbefca10a2b30ecb424b3ca7804db4b91a0fc51af52",
+      "problem_statement_sha256": "e29e5aec3190ff6b2b9e324be8b768d56677807267893c3f109a32489205e45e",
+      "spec_path": "q2q3-tools/specs-final/26039.md",
+      "spec_sha256": "97e150d97008583f9b7e8866e1685da011b0e11c3aae6a753e3e92d4aa3a84f9",
+      "base_source_files": [],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": [
+        "Missing placeholder values, date formatting, and write policy"
+      ]
+    },
+    {
+      "task": 26217,
+      "title": "fix: handle existing users on invite token flow",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/26217",
+      "base_commit": "8b5d9202db719c29a5222dce2fe1fc0fffee6792",
+      "intent_path": "q2q3-tools/prose-intents/26217.md",
+      "intent_sha256": "f0cd852e6661d48c4f9365597c89669e13392f9e182864b9acd5d87c7233bfc1",
+      "problem_statement_sha256": "7af113167b9dcdc51943d07bac4bac9c972d27deba8719aa1bf69ee34f7765fc",
+      "spec_path": "q2q3-tools/specs-final/26217.md",
+      "spec_sha256": "ad4dea1d5d0c36321f7a78e35e5b9ea6326f4bba48a9ef428d40aee9025cc27d",
+      "base_source_files": [],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    },
+    {
+      "task": 27088,
+      "title": "feat: make source required on EventBusyDetails for Troubleshooter display",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/27088",
+      "base_commit": "3e874917ec369bdd31a8ae73e8dbe02b02ca21d3",
+      "intent_path": "q2q3-tools/prose-intents/27088.md",
+      "intent_sha256": "8ac6e908ac13466d9622fc908f2f1b52fea059e440335f02d4803306c658aa58",
+      "problem_statement_sha256": "133b576a6c525b1af24a63f42bfea5ce003f66e728740a33fb5179c5b030c531",
+      "spec_path": "q2q3-tools/specs-final/27088.md",
+      "spec_sha256": "491d6950cd3157aef3c4b40c541c1e2a7a849b49aafebe8c64662c7e989c2284",
+      "base_source_files": [],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    },
+    {
+      "task": 27192,
+      "title": "feat: display assignment reason in organizer emails and booking single view",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/27192",
+      "base_commit": "d9658a5a2780ff6ba131f3e7bf34e209845e37b9",
+      "intent_path": "q2q3-tools/prose-intents/27192.md",
+      "intent_sha256": "cd90628355f84e3e3cd4e043ed0c41d47dbdfb9ec10beffef4c6a4ea67398ff4",
+      "problem_statement_sha256": "2a0cc6290a6f0fd2949f5f0049f605453049044985590faa2616736df4a1f1a0",
+      "spec_path": "q2q3-tools/specs-final/27192.md",
+      "spec_sha256": "5b8e8b60afd45074bee63e73fad8eff46c4f1768fb7b0b4c8f75b7068c59c613",
+      "base_source_files": [],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    },
+    {
+      "task": 27208,
+      "title": "feat: add filter segment validation with useActiveFiltersValidator hook and refactor DataTableProvider",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/27208",
+      "base_commit": "267686704d38c88b31a692c00a703fa7d1ed44fc",
+      "intent_path": "q2q3-tools/prose-intents/27208.md",
+      "intent_sha256": "af63c03bdbe61fa8e4ec06b9cce572d6342f362edfa83eed2d5e328a3e15f996",
+      "problem_statement_sha256": "bcc96224435f4903c5b2a550c0e7e4054ca648d4df1e6d6fa8a74a8dfa8f6c04",
+      "spec_path": "q2q3-tools/specs-final/27208.md",
+      "spec_sha256": "f404300eed1c72f0d1e1ffe130608f19bd3e3ebafb94ea710140c18faa10d031",
+      "base_source_files": [],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    },
+    {
+      "task": 27378,
+      "title": "feat: implement webhook tasker with async/sync fallback",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/27378",
+      "base_commit": "db7547fd6d90a3d9013eb67cafbfcd737b29da0f",
+      "intent_path": "q2q3-tools/prose-intents/27378.md",
+      "intent_sha256": "d17664abab434dc02c2bdadc5738c75d3b01ec3e4536e32adc807d565bd2658f",
+      "problem_statement_sha256": "e923ac37b5555a84e071bd65d1e7b8f37269fce57e8bbefda5e33510f6efcf19",
+      "spec_path": "q2q3-tools/specs-final/27378.md",
+      "spec_sha256": "be09a24dc4e14c34f61fc98246f44168de2509b0978fd61b0a0423a8725a0880",
+      "base_source_files": [],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    },
+    {
+      "task": 27405,
+      "title": "feat: Write wrong assignment reports to the database",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/27405",
+      "base_commit": "c3a8301b0cdc5bea32102bd2b2696253f7c3e04f",
+      "intent_path": "q2q3-tools/prose-intents/27405.md",
+      "intent_sha256": "660593aa20c340a816f4a6786917cc39a0905778f6410c712f7bc2c9f1af7928",
+      "problem_statement_sha256": "5b33f9bf72c54796d46784a645622c3fdbb4f09550299b56dcd1f6387967ab16",
+      "spec_path": "q2q3-tools/specs-final/27405.md",
+      "spec_sha256": "9dfc73d6b8a109f221d9112da943c71b9e3df9f508826e93914c02e9a2f7cb07",
+      "base_source_files": [],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    },
+    {
+      "task": 27428,
+      "title": "feat: add keyboard shortcuts and tooltips to booking slideover buttons",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/27428",
+      "base_commit": "5d65df9c05a2bf55bac89a5c821d6f5c0db02df9",
+      "intent_path": "q2q3-tools/prose-intents/27428.md",
+      "intent_sha256": "1ba09bfc614cde6455adcf8716740310cb1e2e0f02fd0387a061d2943c6eaafb",
+      "problem_statement_sha256": "4d5407bbd0f9e4e8e6b546b9571beec8de7f27017d7800ef89141cd9c3a4676c",
+      "spec_path": "q2q3-tools/specs-final/27428.md",
+      "spec_sha256": "08777df2e6955364979111dd62f9531d29b4609cb92dd8c31b97d96427c441fe",
+      "base_source_files": [],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    },
+    {
+      "task": 30354,
+      "title": "feat: overlay calendar v2 and troubleshooter v2",
+      "original_pr_url": "https://github.com/calcom/cal.diy/pull/30354",
+      "base_commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+      "intent_path": "q2q3-tools/prose-intents/30354.md",
+      "intent_sha256": "aab8dce41756f78a2d3cfae35f90542768e2b62c317f8fe24668ee67f2069f89",
+      "problem_statement_sha256": "03a36c97d854c359466f77f5b6988fb1d85bd863a869f7caaa9067a465183e59",
+      "spec_path": "q2q3-tools/specs-final/30354.md",
+      "spec_sha256": "74e77d858146245e82570bab85f7cf689afdde81c4d26f7dc5cea0ab4eaf8ae2",
+      "base_source_files": [],
+      "human_review": "pending",
+      "graph_edit_parity": "not_compared",
+      "review_decisions": []
+    }
+  ]
+}
