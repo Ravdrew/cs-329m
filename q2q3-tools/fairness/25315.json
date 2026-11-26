@@ -1,0 +1,34 @@
+{
+ "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to booking owner": {
+  "label": "fair",
+  "reason": "Spec input includes bookingOwnerId; a credential whose userId equals bookingOwnerId resolving without error is the obvious meaning of that input. Only requires not throwing."
+ },
+ "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to logged-in user": {
+  "label": "fair",
+  "reason": "A credential with userId === loggedInUserId must resolve; this is the most basic access rule implied by the ensureAccessible(credentialId, loggedInUserId, ...) signature."
+ },
+ "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to organization the logged-in user belongs to": {
+  "label": "fair",
+  "reason": "Credential teamId equals the organizationId from the spec-listed getUserOrganizationAndTeams (teams: []); base BookingAccessService.ts:77-95 treats organizationId alongside teams[].teamId as a team to check, so counting it follows base convention."
+ },
+ "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to team the booking owner belongs to": {
+  "label": "fair",
+  "reason": "Test needs getUserOrganizationAndTeams to be called for bookingOwnerId too. The description doesn't say so, but base BookingAccessService.ts:74 already calls getUserOrganizationAndTeams on the booking owner and walks its organizationId/teams for access checks, so following that pattern passes."
+ },
+ "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to team the logged-in user belongs to": {
+  "label": "fair",
+  "reason": "Credential teamId is in teams[] returned by the spec-mocked getUserOrganizationAndTeams for the logged-in user; team membership access is the evident reason that dependency is listed in the spec."
+ },
+ "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should handle null bookingOwnerId": {
+  "label": "fair",
+  "reason": "Credential owned by the logged-in user with bookingOwnerId null must resolve; follows from the `number | null` type in the spec signature and the ownership rule."
+ },
+ "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should throw FORBIDDEN when credential is not accessible": {
+  "label": "unfair",
+  "reason": "Asserts the error is an HttpError with statusCode 403 and the exact message \"You do not have access to this credential\"; neither the error class (the trpc handler base code uses TRPCError) nor the message is in the description or spec."
+ },
+ "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should throw NOT_FOUND when credential does not exist": {
+  "label": "unfair",
+  "reason": "Asserts an HttpError instance with statusCode 404 and message \"Credential not found\". The message is a common base string (e.g. handleDeleteCredential.ts:71), but the error class and status code are not given; a TRPCError NOT_FOUND, natural in the trpc handler, or a plain Error fails."
+ }
+}

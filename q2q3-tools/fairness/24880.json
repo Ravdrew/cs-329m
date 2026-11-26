@@ -1,0 +1,102 @@
+{
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > sortEvents > should sort events by start time ascending": {
+    "label": "fair",
+    "reason": "Sorting by start time ascending follows from the name sortEvents and the base store.ts:40 sort by start."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > sortEvents > should sort events with same start time by end time descending (longer first)": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Asserts the tie-break for equal starts is end time descending (longest first). Neither the description nor the spec says this. The base store.ts:40 sorts by start only, so a stable sort or an end-ascending tie-break are also valid readings."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > sortEvents > should not mutate the original array": {
+    "label": "fair",
+    "reason": "Asserts the input array keeps its order. A pure utility that returns the sorted array normally copies first ([...events].sort), though the base store.ts:40 sorts in place."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should return empty array for no events": {
+    "label": "fair",
+    "reason": "Empty input gives [], which follows from the signature."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should return single group for single event": {
+    "label": "fair",
+    "reason": "One event gives one group of one, which follows from the name and signature."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should group two overlapping events together": {
+    "label": "fair",
+    "reason": "10:00-11:00 and 10:30-11:30 overlap and form one group in sorted order. This follows from the function name."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should separate non-overlapping events into different groups": {
+    "label": "fair",
+    "reason": "An event ending at 11:00 and one starting at 11:00 go in separate groups. Treating end times as exclusive is the standard interval convention."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should handle chain overlaps (A overlaps B, B overlaps C)": {
+    "label": "fair",
+    "reason": "A chain A-B-C forms one group of 3 even though A and C only touch. Building overlap groups as connected clusters (a sweep over the running group end) is the standard meaning for a cascading layout."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should handle multiple separate overlap groups": {
+    "label": "fair",
+    "reason": "Two disjoint overlapping pairs give two groups of 2. This follows from the function name."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should handle events that start at the same time": {
+    "label": "fair",
+    "reason": "Three events with the same start form one group of 3, which is plain overlap semantics."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should calculate layout for single event": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Asserts the default widthPercent 80 and baseZIndex 60. The spec gives the config fields but no defaults, and the base EventList.tsx used width 90 and zIndex 61.",
+    "clarification": "calculateEventLayouts defaults are baseWidthPercent 80, offsetStepPercent 8, baseZIndex 60 and safetyMarginPercent 0.5; event i in an overlap group gets left = i*step, width = baseWidthPercent and zIndex = baseZIndex + i."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should calculate cascading layout for two overlapping events": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Asserts the default offset step 8, width 80 and zIndex 60/61. None of these defaults is stated anywhere, and the base EventList used 90/61.",
+    "clarification": "calculateEventLayouts defaults are baseWidthPercent 80, offsetStepPercent 8, baseZIndex 60 and safetyMarginPercent 0.5; event i in an overlap group gets left = i*step, width = baseWidthPercent and zIndex = baseZIndex + i."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should calculate cascading layout for three overlapping events": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Asserts offsets 0/8/16 and zIndex 60/61/62, which rely on the unstated defaults (step 8, z 60).",
+    "clarification": "calculateEventLayouts defaults are baseWidthPercent 80, offsetStepPercent 8, baseZIndex 60 and safetyMarginPercent 0.5; event i in an overlap group gets left = i*step, width = baseWidthPercent and zIndex = baseZIndex + i."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should respect custom configuration": {
+    "label": "fair",
+    "reason": "With config {70,10,50} it asserts width 70, left 0/10 and z 50/51. These follow from the field names (baseWidthPercent, offsetStepPercent, baseZIndex) and a cascade where each later event shifts by one step and one z level."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should handle non-overlapping events in separate groups": {
+    "label": "fair",
+    "reason": "Asserts groupIndex 0/1, indexInGroup 0 and left 0 for touching events. These follow from the EventLayout fields in the spec and the grouping semantics."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should prevent overflow with many overlapping events (dense scenario)": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Asserts left+width <= 99.5 for an 11-event chain. Preventing overflow is stated, but the 0.5 margin is not: the spec only names a safetyMarginPercent field with no default, so an implementation that caps at 100 fails.",
+    "clarification": "The default safetyMarginPercent is 0.5, and every layout must satisfy leftOffsetPercent + widthPercent <= 100 - safetyMarginPercent."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should respect safety margin with 20+ overlapping events": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Asserts left+width <= 99.5 for 21 overlapping events. The default 0.5 safety margin is not stated; the spec only names safetyMarginPercent.",
+    "clarification": "The default safetyMarginPercent is 0.5, and every layout must satisfy leftOffsetPercent + widthPercent <= 100 - safetyMarginPercent."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should compress offset step for dense overlaps while maintaining cascade": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Asserts that for 12 overlapping events every leftOffsetPercent is strictly greater than the previous one while staying <= 100. The description only says to stop overflow; clamping offsets at a maximum, or wrapping the cascade, also stops overflow but fails the strict-increase check."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should maintain full width for small overlap groups": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Asserts width 80 and offsets 0/8/16 for a 3-event group. These are unstated defaults, and the base used width 90.",
+    "clarification": "calculateEventLayouts defaults are baseWidthPercent 80, offsetStepPercent 8, baseZIndex 60 and safetyMarginPercent 0.5; event i in an overlap group gets left = i*step, width = baseWidthPercent and zIndex = baseZIndex + i."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > createLayoutMap > should create a map from event ID to layout": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "The map keyed by event.id follows from the signature, but it also asserts map.get(2).leftOffsetPercent === 8, which relies on the unstated default offset step.",
+    "clarification": "calculateEventLayouts defaults are baseWidthPercent 80, offsetStepPercent 8, baseZIndex 60 and safetyMarginPercent 0.5; event i in an overlap group gets left = i*step, width = baseWidthPercent and zIndex = baseZIndex + i."
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > createLayoutMap > should handle empty layouts": {
+    "label": "fair",
+    "reason": "An empty input gives an empty Map, which follows from the signature."
+  }
+}

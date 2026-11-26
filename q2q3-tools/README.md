@@ -3,11 +3,12 @@
 Tooling for the Q2/Q3 agent runs: a harness that runs a coding agent on a benchmark task and grades it with the PR's
 own hidden tests, plus the interface specs every agent gets. Nothing here comes from the booking reference graph
 (no graph, ownership, adjudications or Q1 scores). The decisions behind it are summarized in
-`HAND-EDITS.md` (spec rule) and `REGRESSION.md` (regression proposal).
+`HAND-EDITS.md` (spec rule), `REGRESSION.md` (regression proposal) and `TEST-FAIRNESS.md` (which hidden tests to
+remove or clarify).
 
 | File | What it is |
 |---|---|
-| `harness.py` | One task at a time: `prepare` (check out the base commit, install, hide git history), `check` (gold patch passes, base fails), `baseline` (full unit suite twice at base), `evaluate LABEL [--regress]` (record the agent's diff, add the hidden tests, score tests and files), `restore`. |
+| `harness.py` | One task at a time: `prepare` (check out the base commit, install, hide git history), `check` (gold patch passes, base fails), `baseline` (full unit suite twice at base), `evaluate LABEL [--regress]` (record the agent's diff, add the hidden tests, score tests and files), `reset` (between agent runs: back to the prepared base snapshot without reinstalling), `restore`. Temporary files go in `PILOT_PRIVATE/tmp`, so parallel workers with their own `PILOT_DIR`/`PILOT_PRIVATE` never share them. |
 | `task_overrides.json` | Test helper files that ship with the hidden tests (#19997, #20646, #30354). |
 | `gold_regress.py` | Sanity check for the regression metric: the real PR should break no baseline test. |
 | `make_spec.py` + `ts_exports.js` | Interface-spec generator. It uses the TypeScript parser, prints signatures only, and covers changed signatures, Prisma additions and the members the tests' mocks define. |
@@ -18,8 +19,13 @@ own hidden tests, plus the interface specs every agent gets. Nothing here comes 
 | `HAND-EDITS.md` | The interface/behaviour rule, every hand edit, and what is left out on purpose. |
 | `SPEC-REVIEW-2026-11-02.md` | The four reviews and what each one changed. |
 | `REGRESSION.md` | Proposed regression check (full unit suite against a per-task baseline), with measured times. |
+| `TEST-FAIRNESS.md` | **Hidden-test fairness labels for all 20 tasks** (366 tests: 246 fair, 44 to clarify, 76 to remove) and what to do with them. Labels in `test_fairness.json`, built by `test_fairness.py` from its own entries and `fairness/<PR>.json`; draft spec clarifications in `fairness/CLARIFICATIONS-draft.md`. |
 | `results/` | Gold checks for the three tasks with test helpers, and the gold-patch regression check for #24207. |
 | `env/` | `env.sh` and the Yarn shim used on the cloud box (Node 20, bundled Yarn, Prisma engine workarounds). |
+| `graph_to_text.py` | **Text channel.** Renders a graph YAML as prose: the requested change first (nodes and edges marked `new`/`modify`/`delete`, with their notes), then every component with its files and dependencies. No code excerpts (`x-*` fields dropped, fenced code removed), evidence as `file:line` only. Deterministic. |
+| `make_prompt.py` | Builds the agent prompt for a task: the pilot's wording, PR description, `--spec`, and for the text condition `--graph` (rendered here) or `--graph-text`. Conditions differ only in the graph block; prints the prompt's sha256 for the run log. |
+| `test_graph_text.py` | Tests for both (`GRAPHS=a.yaml:b.yaml` adds real graphs to the leak and determinism checks). |
+| `text-channel-samples/` | What the agent would read: the PR #9 hot-start graph rendered (~104 KB, ~26k tokens), the hand-made edit graph (shows the requested-change section), and a full #24207 prompt. All from 54343aa graphs, so format examples only. |
 
 ## Running
 The defaults point at the cloud box layout. Override them with these env vars:
@@ -55,3 +61,16 @@ Regenerating is deterministic: the same inputs give byte-identical specs.
 - `env/yarn` handles Yarn 4's renamed CA setting (#30354's base ships Yarn 4).
 - `prepare` turns off git auto-gc and waits for any running gc before it moves `.git` aside. A background gc once
   wiped a clone mid-move.
+
+## Text channel (2026-11-04)
+```
+python3 graph_to_text.py GRAPH.yaml -o graph.md            # options: --max-files N (default 40), --edge-evidence none
+python3 make_prompt.py 24207 --spec                        # no-graph condition
+python3 make_prompt.py 24207 --spec --graph GRAPH.yaml     # text condition: same prompt plus <component_graph>
+```
+Sizes on the 54343aa graphs: hot-start ~104 KB (295 edges; ~72 KB with `--edge-evidence none`), LLM-only ~32 KB.
+Whole-repo graphs will be larger; nodes with more than 40 files are listed by directory.
+Open for the team: the graph intro sentence in `make_prompt.py` (`GRAPH_INTRO`) is neutral on purpose (no "the graph
+may be wrong" caveat, no "start from the graph" nudge); the same sentence should introduce the graph in the MCP and
+image conditions. Tested on the 9 YAML graphs in the team repo plus PR #9: no excerpt line appears in the output.
+

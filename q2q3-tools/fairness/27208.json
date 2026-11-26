@@ -1,0 +1,47 @@
+{
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > userId filter validation > keeps valid user IDs in multi-select filter": {
+    "label": "fair",
+    "reason": "Expects data [1,2,999] reduced to [1,2] with type MULTI_SELECT kept; the description says invalid user IDs are filtered out against accessible userIds, and userId is a MULTI_SELECT filter in the base bookings code (useBookingFilters.ts)."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > userId filter validation > removes filter when all user IDs are invalid in multi-select": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Asserts the whole {f,v} filter is dropped (result length 0) when none of its IDs are accessible. The description only says invalid IDs are 'silently filtered out', and the base code deliberately keeps multi-select filters with empty data arrays in activeFilters to keep the filter UI (packages/features/data-table/hooks/useColumnFilters.ts ~L37-42), so keeping the filter with data: [] is an equally valid reading."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > eventTypeId filter validation > keeps valid event type IDs in multi-select filter": {
+    "label": "fair",
+    "reason": "Expects [10,20,999] reduced to [10,20]; directly stated by the description (validate eventTypeId filters against accessible eventTypeIds, filter out invalid values)."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > eventTypeId filter validation > removes filter when all event type IDs are invalid in multi-select": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Asserts the whole {f,v} filter is dropped (result length 0) when none of its IDs are accessible. The description only says invalid IDs are 'silently filtered out', and the base code deliberately keeps multi-select filters with empty data arrays in activeFilters to keep the filter UI (packages/features/data-table/hooks/useColumnFilters.ts ~L37-42), so keeping the filter with data: [] is an equally valid reading."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > teamId filter validation > keeps valid team IDs in multi-select filter": {
+    "label": "fair",
+    "reason": "Expects [100,200,999] reduced to [100,200]; directly stated by the description for teamId filters."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > teamId filter validation > removes filter when all team IDs are invalid in multi-select": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Asserts the whole {f,v} filter is dropped (result length 0) when none of its IDs are accessible. The description only says invalid IDs are 'silently filtered out', and the base code deliberately keeps multi-select filters with empty data arrays in activeFilters to keep the filter UI (packages/features/data-table/hooks/useColumnFilters.ts ~L37-42), so keeping the filter with data: [] is an equally valid reading."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > other filters > preserves filters that are not userId, eventTypeId, or teamId": {
+    "label": "fair",
+    "reason": "Expects status and attendeeName filters returned unchanged and in order; the description scopes validation to userId, eventTypeId and teamId only."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > other filters > preserves filters without a value": {
+    "label": "fair",
+    "reason": "Expects {f:'userId', v: undefined} kept as-is; ActiveFilter.v is optional in base types.ts and a typical implementation that only touches filters with a MULTI_SELECT value passes; nothing suggests dropping it."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > mixed filters > validates multiple filters correctly": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Expects length 3 with the eventTypeId filter (data [888], all invalid) removed entirely, plus order preserved. Dropping a filter whose IDs are all invalid is not stated; the base code keeps empty multi-select filters in activeFilters (useColumnFilters.ts), so keeping it with data [] is a valid reading that gives length 4."
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > empty accessible resources > removes all ID-based filters when no resources are accessible": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Expects only the status filter to remain (length 1), i.e. userId/eventTypeId filters with no accessible IDs are removed rather than kept with data []. Same unstated choice as the 'removes filter when all ... invalid' tests; base code keeps empty multi-select filters (useColumnFilters.ts)."
+  }
+}
