@@ -392,5 +392,5 @@ drafted 16 spec sentences for the 44 "ambiguous convention" tests, pending Jo's 
    `q2q3-tools/fairness/resolve_second_review.py`, each with a reason); tests fair in only one review go to tier 2.
    Checked by hand: #26217 invite-path tests need an unmentioned change at base `selfHostedHandler.ts:115` (excluded).
 Result: 366 tests = 237 fair + 74 underdetermined + 55 excluded; 311 scored (the 2026-11-25 plan had 290).
-Branch `fairness-second-review` (local; not pushed). Still open: harness reports the three scores; tag the frozen
+Branch `fairness-second-review`, PR #15. Still open: harness reports the three scores; tag the frozen
 labels before any experiment run; task selection.
