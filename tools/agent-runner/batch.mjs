@@ -55,7 +55,7 @@ export function plan(matrix) {
 
 const SUMMARY_FIELDS = ['task', 'condition', 'repeat', 'status', 'stop_reason', 'resolved', 'f2p_passed', 'f2p_total',
   'fair_resolved', 'fair_passed', 'fair_total', 'file_recall', 'file_precision', 'regressions', 'tool_calls', 'graph_tool_calls', 'bash_commands', 'search_commands',
-  'responses', 'duration_ms', 'audit_flagged'];
+  'sandbox_refusals', 'responses', 'duration_ms', 'audit_flagged'];
 
 export function summarize(out) {
   const rows = [];

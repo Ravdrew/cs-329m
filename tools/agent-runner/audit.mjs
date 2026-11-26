@@ -1,10 +1,14 @@
 // What the agent did, from its tool calls: search commands (a Q2/Q3 cost metric) and anything that breaks the
-// prompt's rules. Pi's bash tool cannot be sandboxed per command, so the rules are checked here, after the run.
+// prompt's rules, and what the sandbox (graph-mcp/sandbox.mjs) refused. With the sandbox on, the flags are a second look
+// (they match text, so they over-report); with it off (Linux, or sandbox: false) they are the only check.
 // Flags are for review: a flagged run is not discarded automatically.
 
 const SEARCH = /(^|[\s;&|(`$])(grep|egrep|rg|ag|ack|find|fd|tree|git\s+grep|ls\s+(-\w*R|--recursive))\b/;
 const NETWORK = /(^|[\s;&|(`$])(curl|wget|ssh|scp|nc|git\s+(clone|fetch|pull|ls-remote)|npm\s+(view|info|install|i|pack)|npx|yarn\s+(add|dlx|npm\s+info)|pnpm\s+(add|dlx)|pip3?\s+install)\b/;
 const HISTORY = /(^|[\s;&|(`$])git\s+(log|show|reflog|blame|rev-list|cat-file|whatchanged)\b/;
+// What a refusal looks like: sandbox-exec makes the command's file or socket call fail with EPERM; the file tools
+// throw SANDBOX_REFUSAL (graph-mcp/sandbox.mjs).
+const REFUSAL = /Operation not permitted|Sandbox: outside the checkout/;
 const ABSOLUTE = /(?:^|[\s'"=:(<>])(\/[\w.@%+~-][^\s'";|&)<>`]*)/g;
 
 export const isSearch = command => SEARCH.test(command);
@@ -19,6 +23,11 @@ export function audit(events, { workdir, envScript } = {}) {
     .filter(Boolean).map(p => p.replace(/\/+$/, ''));
   const inside = p => allowed.some(a => p === a || p.startsWith(`${a}/`));
   const flags = { outside_paths: [], network: [], history: [], parent_escape: [] };
+  // Refused by the sandbox: counted (each is a rule the agent tried to break, or a tool the sandbox breaks), not flagged.
+  const refusals = events.filter(e => e.type === 'tool_execution_end')
+    .map(e => ({ tool: e.toolName, text: (e.result?.content ?? []).map(c => c.text ?? '').join('\n') }))
+    .filter(r => REFUSAL.test(r.text))
+    .map(r => ({ tool: r.tool, line: r.text.split('\n').find(l => REFUSAL.test(l)).slice(0, 300) }));
   const bash = [];
   const byTool = {};
   for (const c of calls) {
@@ -43,5 +52,7 @@ export function audit(events, { workdir, envScript } = {}) {
     search_commands: bash.filter(isSearch).length,
     flagged: Object.values(flags).some(f => f.length > 0),
     flags,
+    sandbox_refusals: refusals.length,
+    refusals,
   };
 }

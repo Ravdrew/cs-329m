@@ -11,6 +11,7 @@ import { audit } from '../audit.mjs';
 import { plan, runBatch, shuffle } from '../batch.mjs';
 import { resolveCondition } from '../conditions.mjs';
 import { executeAgent, runOne, TEAM_ROOT } from '../run.mjs';
+import { sandboxSupported } from '../../graph-mcp/sandbox.mjs';
 
 const EDIT = join(TEAM_ROOT, 'graphs/booking-handmade-edit.yaml');
 const BASE = join(TEAM_ROOT, 'graphs/booking-handmade.yaml');
@@ -238,4 +239,22 @@ test('a run that ends in an error is redone on resume, and the failed attempt is
   assert.equal(attempt, 2);
   const { summarize } = await import('../batch.mjs');
   assert.deepEqual(summarize(out).map(r => r.status), ['completed'], 'the summary has the result, not the failed attempt');
+});
+
+test('runs are sandboxed where sandbox-exec exists: a read of PILOT_PRIVATE is refused and counted', { skip: !sandboxSupported() && 'needs macOS sandbox-exec' }, async () => {
+  const pilotDir = pilot('pilot-sandbox');
+  const pilotPrivate = join(root, 'private-sandbox');
+  mkdirSync(pilotPrivate, { recursive: true });
+  writeFileSync(join(pilotPrivate, '5-gold.diff'), 'HIDDEN_GOLD\n');
+  const { deps } = fakeDeps([[toolCall('bash', { command: `cat ${join(pilotPrivate, '5-gold.diff')}` })]]);
+  const r = await runOne({ task: 5, condition: 'prose', repeat: 1, out: join(root, 'out-sandbox'), pilotDir, pilotPrivate, maxMinutes: 2 }, deps);
+  assert.equal(r.status, 'completed', r.error);
+  assert.equal(r.sandbox, 'sandbox-exec');
+  assert.equal(r.sandbox_refusals, 1);
+  assert.doesNotMatch(readFileSync(join(r.runDir, 'events.jsonl'), 'utf8'), /HIDDEN_GOLD/);
+  assert.ok(existsSync(join(r.runDir, 'sandbox.sb')));
+  const off = await runOne({ task: 5, condition: 'prose', repeat: 2, out: join(root, 'out-sandbox'), pilotDir, pilotPrivate, maxMinutes: 2, sandbox: false },
+    fakeDeps([[toolCall('bash', { command: `cat ${join(pilotPrivate, '5-gold.diff')}` })]]).deps);
+  assert.equal(off.sandbox, 'off');
+  assert.match(readFileSync(join(off.runDir, 'events.jsonl'), 'utf8'), /HIDDEN_GOLD/, 'sandbox: false is the old, open behaviour');
 });

@@ -4,7 +4,7 @@
 //
 // RUN.json: { task, condition, repeat, inputs: { base?, edit?, intent? }, out, pilotDir, pilotPrivate?, python?,
 //             provider?, model?, effort?, maxMinutes?, maxToolCalls?, maxCostUsd?, authFile?, regress?,
-//             codegraphServer? }
+//             codegraphServer?, sandbox? ('auto' | true | false, see sandboxFor) }
 // The task must have been prepared (`python3 q2q3-tools/harness.py prepare PULL` with the same PILOT_DIR).
 // Writes OUT/PULL/CONDITION-rREPEAT/: prompt.md, worker.json, events.jsonl, agent.stderr.log, tools.jsonl (graph
 // tool channel), audit.json, evaluation.json, run.json (full F2P score and the fair-only score next to it). A run whose run.json exists is skipped (resumable batches),
@@ -18,6 +18,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { audit } from './audit.mjs';
 import { resolveCondition } from './conditions.mjs';
+import { sandboxSpec, sandboxSupported } from '../graph-mcp/sandbox.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const TEAM_ROOT = resolve(HERE, '../..');
@@ -26,8 +27,21 @@ const { version: PI_VERSION } = JSON.parse(readFileSync(join(TEAM_ROOT, 'tools/g
 
 export const DEFAULTS = {
   provider: 'openai', model: 'gpt-6-astra', effort: 'medium', maxMinutes: 45, maxToolCalls: 300, maxCostUsd: 10,
-  python: 'python3', regress: false,
+  python: 'python3', regress: false, sandbox: 'auto',
 };
+
+/**
+ * The agent's sandbox (graph-mcp/sandbox.mjs): 'auto' (the default) sandboxes wherever sandbox-exec exists (macOS),
+ * true requires it, false turns it off. The hidden history and test reports (deny) stay unreadable either way it runs.
+ */
+export function sandboxFor(setting, { workdir, envScript, deny = [] }) {
+  if (setting === false) return null;
+  if (!sandboxSupported()) {
+    if (setting === true) throw new Error('sandbox: true needs macOS sandbox-exec; set sandbox to false or "auto" on this platform');
+    return null;
+  }
+  return sandboxSpec({ workdir, envScript, deny });
+}
 
 const json = (path, value) => writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
 const sha256 = text => createHash('sha256').update(text).digest('hex');
@@ -137,8 +151,10 @@ export async function runOne(config, deps = {}) {
     [String(config.task), '--spec', ...args, '--workdir', workdir, '--env-script', envScript, '-o', out])))(condition.promptArgs, promptFile);
   record.prompt_sha256 = sha256(readFileSync(promptFile));
   // 3. The agent.
+  const sandbox = sandboxFor(config.sandbox, { workdir, envScript, deny: [pilotPrivate] });
+  record.sandbox = sandbox ? 'sandbox-exec' : 'off';
   const worker = {
-    workdir, runDir, promptFile, condition, codegraphServer: config.codegraphServer,
+    workdir, runDir, promptFile, condition, codegraphServer: config.codegraphServer, sandbox,
     provider: config.provider, model: config.model, effort: config.effort, authFile: config.authFile,
     maxMinutes: config.maxMinutes, maxToolCalls: config.maxToolCalls, maxCostUsd: config.maxCostUsd,
   };
@@ -164,7 +180,7 @@ export async function runOne(config, deps = {}) {
     duration_ms: agent.durationMs ?? null, responses: agent.responses ?? 0, usage: agent.usage ?? null,
     active_tools: agent.activeTools ?? null,
     tool_calls: report.tool_calls, graph_tool_calls: report.graph_tool_calls, bash_commands: report.bash_commands,
-    search_commands: report.search_commands, audit_flagged: report.flagged,
+    search_commands: report.search_commands, audit_flagged: report.flagged, sandbox_refusals: report.sandbox_refusals,
     resolved: evaluation?.resolved ?? null, f2p_passed: evaluation?.f2p_passed ?? null, f2p_total: evaluation?.f2p_total ?? null,
     // Fair-only score: the hidden tests labelled fair or convention in q2q3-tools/test_fairness.json (null if unlabelled).
     fair_resolved: evaluation?.fair_resolved ?? null, fair_passed: evaluation?.fair_passed ?? null, fair_total: evaluation?.fair_total ?? null,

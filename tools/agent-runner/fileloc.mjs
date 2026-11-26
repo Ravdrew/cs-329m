@@ -12,7 +12,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { audit } from './audit.mjs';
-import { TEAM_ROOT, executeAgent, isDone, readEvents } from './run.mjs';
+import { TEAM_ROOT, executeAgent, isDone, readEvents, sandboxFor } from './run.mjs';
 
 const GRAPH_TOOLS = ['get_requested_change', 'graph_overview', 'get_group', 'get_node', 'get_edge', 'find_components', 'neighbors'];
 const json = (path, value) => writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
@@ -108,7 +108,7 @@ async function runOneLoc(config, task, gold, condition, repeat) {
   const graphTools = condition === 'graph-noreq' ? GRAPH_TOOLS.filter(t => t !== 'get_requested_change') : undefined;
   const worker = {
     workdir, runDir, promptFile, condition: { channel: graph ? 'mcp' : 'none', graph, codegraph: false },
-    graphTools, builtinTools: ['read', 'bash'], provider: config.provider, model: config.model, effort: config.effort,
+    graphTools, builtinTools: ['read', 'bash'], sandbox: sandboxFor(config.sandbox ?? 'auto', { workdir }), provider: config.provider, model: config.model, effort: config.effort,
     maxMinutes: config.maxMinutes, maxToolCalls: config.maxToolCalls, maxCostUsd: config.maxCostUsd,
   };
   json(join(runDir, 'worker.json'), worker);
@@ -123,7 +123,8 @@ async function runOneLoc(config, task, gold, condition, repeat) {
     task: task.pull_number, condition, repeat, started, finished: new Date().toISOString(), status: agent.status,
     error: agent.lastError ?? null, model: agent.model, usage: agent.usage ?? null, graph: graph ?? null,
     tool_calls: report.tool_calls, tool_calls_by_name: report.tool_calls_by_name, graph_tool_calls: report.graph_tool_calls,
-    search_commands: report.search_commands, audit_flagged: report.flagged, changed_files: changed ? changed.split('\n') : [],
+    search_commands: report.search_commands, audit_flagged: report.flagged, sandbox: worker.sandbox ? 'sandbox-exec' : 'off',
+    sandbox_refusals: report.sandbox_refusals, changed_files: changed ? changed.split('\n') : [],
     list_found: files !== null, ...score(files, gold),
   };
   json(join(runDir, 'run.json'), record);

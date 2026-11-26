@@ -71,6 +71,9 @@ It streams the answer, logs tool calls to stderr, and writes `events.jsonl`, `ef
 `tools.jsonl` and `mcp.log` to the run directory. It has no time or call limits; the Q2/Q3 runner should add them as
 `tools/llm-only/pi.mjs` does.
 
+`sandbox.mjs` rebuilds Pi's `bash`/`read`/`edit`/`write` with Pi's own factories (same names, schemas and
+descriptions) and sandboxes them on macOS; `createGraphSession({ sandbox })` uses it. See tools/agent-runner/README.md.
+
 ## Tools
 
 | Tool | Returns |

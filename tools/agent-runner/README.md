@@ -74,7 +74,18 @@ Cal.com's own Yarn.
 is still graded on what it changed. `invalid` means the agent was offered other tools than the condition's (it is not
 graded). A subprocess that hangs is killed 5 minutes after its time limit.
 
-**Audit.** Pi's `bash` cannot be restricted per command, so the prompt's rules are checked afterwards: absolute paths
+**Sandbox (macOS).** By default (`"sandbox": "auto"`) the agent's `bash`, `read`, `edit` and `write` run sandboxed
+(`tools/graph-mcp/sandbox.mjs`): every bash command under `sandbox-exec` with a profile written to `RUN_DIR/sandbox.sb`,
+the file tools limited to the checkout. The agent cannot reach the network (localhost servers and DNS lookups still
+work), cannot read anything under `/Users` except the checkout, `env.sh` and the Node toolchain (`~/.nvm`,
+`~/.cache/node`, `~/.yarn`), so not the team repo, earlier runs or `~/.pi`, and can never read `PILOT_PRIVATE` (the real
+git history and hidden test reports). Writes go only to the checkout, temporary directories and the toolchain caches.
+The tools keep Pi's names, schemas and descriptions, so the model sees the same prompt either way. `run.json` records
+`sandbox` (`sandbox-exec` or `off`) and `sandbox_refusals` (tool results the sandbox refused). `"sandbox": true`
+fails where `sandbox-exec` is missing; `false` turns it off. On Linux it is off for now (`bwrap` would be the
+equivalent), so there the audit flags below are the only check. `fileloc.mjs` uses the same setting.
+
+**Audit.** The prompt's rules are also checked afterwards from the commands' text: absolute paths
 outside the checkout (except the env script, `/tmp`, `/dev/null` and system binaries), network commands, git history
 commands, and `../..` escapes. Flagged runs are marked (`audit_flagged`) for review, not dropped. `search_commands`
 counts bash commands that search (`grep`, `rg`, `find`, `git grep`, `ls -R`, ...), one of the proposal's cost metrics.

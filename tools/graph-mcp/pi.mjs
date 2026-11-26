@@ -14,6 +14,7 @@ import { InMemoryCredentialStore } from '@earendil-works/pi-ai';
 import {
   createAgentSession, createMcpExtension, DefaultResourceLoader, ModelRuntime, SessionManager, SettingsManager, VERSION,
 } from '@earendil-works/pi-coding-agent';
+import { sandboxedToolDefinitions } from './sandbox.mjs';
 import { parseCli } from './server.mjs';
 import { createGraphTools, toolDefinitions } from './tools.mjs';
 
@@ -100,7 +101,8 @@ export async function createModelRuntime(authFile) {
  * Start an isolated Pi session in `cwd` with the graph tools on the chosen channel, plus Pi's coding tools.
  * config: server config (graph, runDir, tools, maxChars, ...) plus cwd, channel ('mcp' | 'native' | 'none' for no
  * graph tools), provider, model, effort, systemPrompt, builtinTools (default read/bash/edit/write; [] for graph tools
- * only), extraMcpServers ([{ name, config }], e.g. CodeGraph's server). Returns the session and the tool names the
+ * only), extraMcpServers ([{ name, config }], e.g. CodeGraph's server), sandbox (a sandboxSpec from sandbox.mjs: the
+ * built-in tools run sandboxed, with the profile written to RUN_DIR/sandbox.sb). Returns the session and the tool names the
  * model should see; check them with assertTools after the first prompt has started.
  */
 export async function createGraphSession(config, runtime) {
@@ -133,7 +135,9 @@ export async function createGraphSession(config, runtime) {
   const { session } = await createAgentSession({
     cwd, agentDir, modelRuntime: runtime, model, thinkingLevel: config.effort ?? 'medium',
     tools: [...builtins, ...graphNames, ...extraPatterns], sessionManager: SessionManager.inMemory(cwd), settingsManager, resourceLoader,
-    customTools: channel === 'native' ? graphCustomTools(serverConfig) : [],
+    // Sandboxed built-ins have the built-ins' names, so they replace them (same schemas and descriptions).
+    customTools: [...(channel === 'native' ? graphCustomTools(serverConfig) : []),
+      ...(config.sandbox ? sandboxedToolDefinitions(cwd, config.sandbox, join(runDir, 'sandbox.sb'), builtins) : [])],
   });
   // Emits session_start: the MCP extension connects the servers here; the first prompt waits for direct tools.
   await session.bindExtensions({});
