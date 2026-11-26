@@ -11,7 +11,8 @@ instructions and rules). The pieces are added in this order, and only block 3 di
     2. the interface spec, with --spec (specs-final/PULL.md, the same in every condition)
     3. one of: the graph, with --graph (rendered here by graph_to_text.py with its defaults) or --graph-text
        (pre-rendered); a note that the graph is available through tools, with --graph-tools (tool channel, or the
-       CodeGraph control); or the developer's intent written as prose, with --intent (the prose-intent condition)
+       CodeGraph control); or the developer's intent written as prose, with --intent (the prose-intent condition).
+       --intent with --graph-tools codegraph gives both, intent first (the codegraph-intent condition)
     4. work instructions and rules
 
 The prompt is printed (or written with -o) and its sha256 goes to stderr, for the run log.
@@ -59,8 +60,23 @@ TOOLS_INTRO = {
                      'Open the files the graph points to, and search the code for what the graph does not cover. '
                      'The graph can be incomplete, so check what it says against the code.'),
     'codegraph': ('## Code graph\n\n'
-                  'A code graph of the repository as it is in your checkout is available through the CodeGraph '
-                  'tools (their names start with `mcp__codegraph__`).'),
+                  'You also have CodeGraph, an index of the code in your checkout: every function, class, component '
+                  'and type, the file and lines it is in, and the calls, imports and renders between them. It is '
+                  'available as the tool `mcp__codegraph__codegraph_explore`. Give it a short question in plain words '
+                  '(for example "how is the payment amount computed for a booking") or the names of functions, '
+                  'components or files (for example "handlePayment getBookingFields"). It returns the source of the '
+                  'matching code with line numbers, grouped by file, the call paths between the pieces, and what '
+                  'depends on them. It keeps up with your edits a second or so after you make them.\n\n'
+                  'When to use it:\n\n'
+                  '1. Before you search or open files: call it with the names and words from the request to find the '
+                  'code the change is about.\n'
+                  '2. Before you change a function, component or type: call it with that name to see what calls or '
+                  'uses it, so that you update everything the change affects.\n'
+                  '3. When you need to know how two parts of the code connect: name both, and it shows the path '
+                  'between them.\n\n'
+                  'It indexes source code only: read or search configuration files, translations and docs as usual. '
+                  'If a result starts with a warning that files were edited since the last sync, read those files '
+                  'directly.'),
 }
 
 INTENT_INTRO = ('## What the developer intends\n\n'
@@ -100,8 +116,12 @@ def build(pull, spec=False, graph=None, graph_text=None, workdir='/work/calcom',
         if not sp.exists():
             raise SystemExit(f'no spec for {pull}: {sp}')
         parts.append(sp.read_text().strip())
-    if sum(x is not None for x in (graph, graph_text, graph_tools, intent)) > 1:
-        raise SystemExit('give at most one of --graph, --graph-text, --graph-tools, --intent')
+    # The intent can go with CodeGraph (the codegraph-intent condition: CodeGraph has no description of the change);
+    # our graph's edit already is one, so the intent never goes with the graph itself.
+    blocks = [x for x in (graph, graph_text, graph_tools, intent) if x is not None]
+    if len(blocks) > 1 and not (len(blocks) == 2 and intent is not None and graph_tools == 'codegraph'):
+        raise SystemExit('give at most one of --graph, --graph-text, --graph-tools, --intent '
+                         '(or --intent with --graph-tools codegraph)')
     if graph:
         import yaml
         from graph_to_text import render
@@ -109,10 +129,10 @@ def build(pull, spec=False, graph=None, graph_text=None, workdir='/work/calcom',
         parts.append(GRAPH_INTRO.format(graph=text))
     elif graph_text:
         parts.append(GRAPH_INTRO.format(graph=Path(graph_text).read_text()))
-    elif graph_tools:
-        parts.append(TOOLS_INTRO[graph_tools])
-    elif intent:
+    if intent:
         parts.append(INTENT_INTRO.format(intent=Path(intent).read_text().strip()))
+    if graph_tools:
+        parts.append(TOOLS_INTRO[graph_tools])
     parts.append(WORK)
     parts.append(RULES.format(workdir=workdir, env=env))
     return '\n\n'.join(parts) + '\n'

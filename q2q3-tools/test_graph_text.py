@@ -146,3 +146,10 @@ def test_tool_and_intent_conditions_differ_only_in_their_block(tmp_path, monkeyp
     assert make_prompt.TOOLS_INTRO['graph'].startswith(make_prompt.GRAPH_INTRO.split('\n\n<component_graph>')[0])
     with pytest.raises(SystemExit):
         make_prompt.build(1, graph_tools='graph', intent=str(tmp_path / 'intent.md'))
+    # codegraph-intent: the intent, then CodeGraph's block, and nothing else changes.
+    both = make_prompt.build(1, spec=True, graph_tools='codegraph', intent=str(tmp_path / 'intent.md'))
+    intent_block = make_prompt.INTENT_INTRO.format(intent='Add a page that lists bookings.')
+    assert both.replace(intent_block + '\n\n', '', 1).replace(make_prompt.TOOLS_INTRO['codegraph'] + '\n\n', '', 1) == base
+    assert both.index(intent_block) < both.index('mcp__codegraph__codegraph_explore') < both.index('Implement this change')
+    with pytest.raises(SystemExit):
+        make_prompt.build(1, graph='g.yaml', graph_tools='codegraph', intent=str(tmp_path / 'intent.md'))

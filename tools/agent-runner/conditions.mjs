@@ -11,6 +11,8 @@ export const CONDITIONS = {
   'tool-guided': { prompt: ['--graph-tools', 'graph-guided'], channel: 'mcp', graph: 'edit', needs: ['edit'] },
   'tool-noedit': { prompt: ['--graph-tools', 'graph'], channel: 'mcp', graph: 'base', needs: ['base'] },
   codegraph: { prompt: ['--graph-tools', 'codegraph'], channel: 'none', codegraph: true, needs: [] },
+  // The intent plus CodeGraph: prose-intent with a code index, against which tool/text are compared.
+  'codegraph-intent': { prompt: ['--intent', '{intent}', '--graph-tools', 'codegraph'], channel: 'none', codegraph: true, needs: ['intent'] },
 };
 
 /** make_prompt.py arguments and the graph the agent can query, for one condition and a task's inputs. */

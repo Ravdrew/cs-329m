@@ -14,7 +14,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
-import { resolveCondition } from './conditions.mjs';
+import { CONDITIONS, resolveCondition } from './conditions.mjs';
 import { DEFAULTS, isDone, python, runDirOf, runOne } from './run.mjs';
 
 /** Deterministic shuffle (mulberry32), so a batch's order can be reproduced from its seed. */
@@ -82,7 +82,9 @@ export async function runBatch(matrix, { log = console.log, deps = {} } = {}) {
   const out = resolve(matrix.out);
   const { workers: _w, tasks: _t, conditions: _c, repeats: _r, inputs, seed: _s, ...settings } = matrix;
   const shared = { ...DEFAULTS, ...settings };
-  const prepare = deps.prepare ?? ((w, task) => python({ ...shared, ...w }, 'harness.py', ['prepare', String(task)]));
+  // A CodeGraph condition needs the index, built at prepare.
+  const indexed = matrix.conditions.some(c => CONDITIONS[c]?.codegraph);
+  const prepare = deps.prepare ?? ((w, task) => python({ ...shared, ...w }, 'harness.py', ['prepare', String(task), ...(indexed ? ['--codegraph'] : [])]));
   const one = deps.runOne ?? runOne;
   await Promise.all(plan(matrix).map(async (worker, wi) => {
     for (const { task, runs } of worker.tasks) {

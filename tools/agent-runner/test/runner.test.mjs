@@ -258,3 +258,26 @@ test('runs are sandboxed where sandbox-exec exists: a read of PILOT_PRIVATE is r
   assert.equal(off.sandbox, 'off');
   assert.match(readFileSync(join(off.runDir, 'events.jsonl'), 'utf8'), /HIDDEN_GOLD/, 'sandbox: false is the old, open behaviour');
 });
+
+test('codegraph-intent gets the intent and CodeGraph; leftover CodeGraph servers for a checkout are stopped', async () => {
+  const inputs = { base: BASE, edit: EDIT, intent: '/i.md' };
+  assert.deepEqual(resolveCondition('codegraph-intent', inputs), { name: 'codegraph-intent', channel: 'none', codegraph: true, graph: undefined,
+    promptArgs: ['--intent', '/i.md', '--graph-tools', 'codegraph'] });
+  assert.throws(() => resolveCondition('codegraph-intent', {}), /needs task inputs: intent/);
+  // Stand-ins for `codegraph serve --mcp --path DIR`, which detaches and outlives the agent.
+  const { spawn } = await import('node:child_process');
+  const { stopCodegraphServers } = await import('../run.mjs');
+  const dir = join(root, 'cg-checkout');
+  const fake = path => spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)', '/x/codegraph.js', 'serve', '--mcp', '--path', path],
+    { detached: true, stdio: 'ignore' });
+  const mine = fake(dir), other = fake(`${dir}-other`), nested = fake(`${dir}/sub`);
+  await new Promise(res => setTimeout(res, 300));
+  try {
+    assert.deepEqual(stopCodegraphServers(dir), [mine.pid]);
+    await new Promise(res => setTimeout(res, 300));
+    assert.throws(() => process.kill(mine.pid, 0), 'stopped');
+    process.kill(other.pid, 0); process.kill(nested.pid, 0); // other checkouts' servers are left alone
+  } finally {
+    for (const p of [mine, other, nested]) { try { process.kill(p.pid, 'SIGKILL'); } catch { /* gone */ } }
+  }
+});

@@ -34,6 +34,34 @@ export const DEFAULTS = {
  * The agent's sandbox (graph-mcp/sandbox.mjs): 'auto' (the default) sandboxes wherever sandbox-exec exists (macOS),
  * true requires it, false turns it off. The hidden history and test reports (deny) stay unreadable either way it runs.
  */
+/** The pinned CodeGraph CLI (npm ci --prefix tools/codegraph). */
+export const CODEGRAPH_CLI = join(TEAM_ROOT, 'tools/codegraph/node_modules/.bin/codegraph');
+
+/**
+ * CodeGraph's MCP server for the codegraph conditions, unless the config gives one: the pinned CLI serving the
+ * checkout's index (built by `harness.py prepare PULL --codegraph`), with telemetry and update checks off.
+ */
+export function codegraphServerFor(config, workdir) {
+  if (config.codegraphServer) return config.codegraphServer;
+  if (!existsSync(CODEGRAPH_CLI)) throw new Error(`CodeGraph is not installed: npm ci --prefix ${join(TEAM_ROOT, 'tools/codegraph')}`);
+  if (!existsSync(join(workdir, '.codegraph'))) throw new Error(`${workdir} has no CodeGraph index: run harness.py prepare PULL --codegraph`);
+  return { command: CODEGRAPH_CLI, args: ['serve', '--mcp', '--path', workdir], env: { DO_NOT_TRACK: '1', CODEGRAPH_NO_UPDATE_CHECK: '1' } };
+}
+
+/**
+ * Stop CodeGraph servers serving this checkout. `codegraph serve` detaches into its own process group, so it outlives
+ * the agent and would keep re-indexing the checkout through reset and the next prepare. Returns the pids stopped.
+ */
+export function stopCodegraphServers(workdir, { signal = 'SIGTERM' } = {}) {
+  const ps = spawnSync('ps', ['-axo', 'pid=,command='], { encoding: 'utf8' }).stdout ?? '';
+  const pids = ps.split('\n').map(l => l.trim().match(/^(\d+)\s+(.*)$/)).filter(Boolean)
+    // The whole path, so another worker's checkout (calcom-2, calcom/sub) is never matched.
+    .filter(([, , cmd]) => /codegraph\.js serve\b/.test(cmd) && new RegExp(`--path ${workdir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s|$)`).test(cmd))
+    .map(([, pid]) => Number(pid));
+  for (const pid of pids) { try { process.kill(pid, signal); } catch { /* already gone */ } }
+  return pids;
+}
+
 export function sandboxFor(setting, { workdir, envScript, deny = [] }) {
   if (setting === false) return null;
   if (!sandboxSupported()) {
@@ -154,12 +182,15 @@ export async function runOne(config, deps = {}) {
   const sandbox = sandboxFor(config.sandbox, { workdir, envScript, deny: [pilotPrivate] });
   record.sandbox = sandbox ? 'sandbox-exec' : 'off';
   const worker = {
-    workdir, runDir, promptFile, condition, codegraphServer: config.codegraphServer, sandbox,
+    workdir, runDir, promptFile, condition, sandbox,
+    codegraphServer: condition.codegraph ? (deps.codegraphServer ?? codegraphServerFor(config, workdir)) : undefined,
     provider: config.provider, model: config.model, effort: config.effort, authFile: config.authFile,
     maxMinutes: config.maxMinutes, maxToolCalls: config.maxToolCalls, maxCostUsd: config.maxCostUsd,
   };
   json(join(runDir, 'worker.json'), worker);
+  if (condition.codegraph && !deps.agent) stopCodegraphServers(workdir); // a server left over from an earlier run
   const agent = await (deps.agent ?? (w => executeAgent(config, runDir, w.workdir)))(worker);
+  if (condition.codegraph && !deps.agent) record.codegraph_servers_stopped = stopCodegraphServers(workdir).length;
   // 4. What it did.
   const report = audit(readEvents(join(runDir, 'events.jsonl')), { workdir, envScript });
   json(join(runDir, 'audit.json'), report);
