@@ -9,6 +9,19 @@ export function parseYaml(text) {
   if (document.errors.length) throw new Error(document.errors.map(e => e.message).join('\n'));
   return document.toJS({ maxAliasCount: 0 });
 }
+const EVIDENCE_SHAPE = 'x-source-evidence entries are {path, start_line, end_line}, with a path string and integer lines (the schema field "evidence" with file/line is filled in by the host; do not write it)';
+// Checked on every update, so a wrong shape is reported with its entry's ID before the whole draft is written.
+function checkEvidenceShape(item) {
+  const list = item['x-source-evidence'];
+  if (list === undefined) return;
+  if (!Array.isArray(list)) throw new Error(`${item.id}: x-source-evidence must be an array; ${EVIDENCE_SHAPE}`);
+  for (const entry of list) {
+    if (typeof entry?.path !== 'string' || !Number.isInteger(entry.start_line) || !Number.isInteger(entry.end_line)) {
+      throw new Error(`${item.id}: ${EVIDENCE_SHAPE}; got ${JSON.stringify(entry)?.slice(0, 160)}`);
+    }
+    delete entry.excerpt; // the graph stores locations, not code
+  }
+}
 const requireValue = (condition, message) => { if (!condition) throw new Error(message); };
 
 export class DraftGraph {
@@ -20,6 +33,13 @@ export class DraftGraph {
     this.validateSchema = new Ajv2020({ allErrors: true, strict: false }).compile(schema);
     this.document = { version: 1, repo, commit: source.commit, groups: [], nodes: [], edges: [], 'x-variant': 'llm-only' };
     this.frozen = false;
+    // The update step: start from the previous graph; entries citing changed code must be resubmitted or removed.
+    this.pending = new Set();
+    if (options.seed) {
+      this.document = structuredClone(options.seed.document);
+      this.pending = new Set(options.seed.pending.keys());
+      for (const [path, ranges] of options.seed.carried) source.reads.set(path, [...(source.reads.get(path) ?? []), ...ranges]);
+    }
   }
 
   update(text, remove = []) {
@@ -37,6 +57,7 @@ export class DraftGraph {
           requireValue(item && typeof item.id === 'string', `${key} entries need explicit IDs for incremental updates`);
           requireValue(!batch.has(item.id), `Duplicate ID in update: ${item.id}`);
           batch.add(item.id);
+          if (key !== 'groups') checkEvidenceShape(item);
           const index = next[key].findIndex(previous => previous.id === item.id);
           if (index < 0) next[key].push(item); else next[key][index] = item;
         }
@@ -48,16 +69,19 @@ export class DraftGraph {
     for (const key of ['groups', 'nodes', 'edges']) next[key] = next[key].filter(item => !remove.includes(item.id));
     requireValue(JSON.stringify(next).length < 4_000_000, 'Draft exceeds 4 MB');
     this.document = next;
+    for (const key of ['nodes', 'edges']) for (const item of patch[key] ?? []) this.pending.delete(item.id);
+    for (const id of remove) this.pending.delete(id);
     return this.inspect();
   }
 
   inspect(id) {
     if (id) return this.document.nodes.find(n => n.id === id) ?? this.document.edges.find(e => e.id === id) ?? this.document.groups.find(g => g.id === id) ?? { error: 'ID not found' };
-    return { frozen: this.frozen, title: this.document.title, scope: this.document['x-scope'], groups: this.document.groups.map(g => g.id), nodes: this.document.nodes.map(n => ({ id: n.id, label: n.label })), edges: this.document.edges.map(e => ({ id: e.id, from: e.from, to: e.to, kind: e.kind })) };
+    return { frozen: this.frozen, ...(this.pending.size ? { must_be_reviewed: [...this.pending] } : {}), title: this.document.title, scope: this.document['x-scope'], groups: this.document.groups.map(g => g.id), nodes: this.document.nodes.map(n => ({ id: n.id, label: n.label })), edges: this.document.edges.map(e => ({ id: e.id, from: e.from, to: e.to, kind: e.kind })) };
   }
 
   validate() {
     this.source.assertClean();
+    requireValue(!this.pending.size, `${this.pending.size} entries cite changed code and have not been resubmitted or removed: ${[...this.pending].slice(0, 60).join(', ')}`);
     const graph = structuredClone(this.document);
     for (const item of [...graph.nodes, ...graph.edges]) {
       item.provenance ??= 'inferred';
@@ -93,13 +117,17 @@ export class DraftGraph {
     }
     const paths = new Set();
     const triples = new Set();
+    const evidenceErrors = [];
     for (const item of [...graph.nodes, ...graph.edges]) {
       requireValue(item.provenance === 'inferred' && item.status === 'existing', `${item.id}: use inferred/existing`);
       requireValue(item['x-source-evidence']?.length, `${item.id}: source evidence is required`);
       requireValue(Array.isArray(item['x-source-evidence']), `${item.id}: x-source-evidence must be an array`);
-      item['x-source-evidence'] = item['x-source-evidence'].map(e => this.source.evidence(e));
+      item['x-source-evidence'] = item['x-source-evidence'].map(e => {
+        try { return this.source.evidence(e); } catch (error) { evidenceErrors.push(`${item.id}: ${error.message}`); return e; }
+      });
       for (const evidence of item['x-source-evidence']) paths.add(evidence.path);
     }
+    requireValue(!evidenceErrors.length, `${evidenceErrors.length} evidence error(s):\n${evidenceErrors.slice(0, 40).join('\n')}`);
     for (const node of graph.nodes) {
       requireValue(!node.group || groups.has(node.group), `${node.id}: unknown group`);
       requireValue(node.summary?.trim() && node.description?.trim(), `${node.id}: summary and description required`);

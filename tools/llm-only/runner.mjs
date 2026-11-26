@@ -3,11 +3,17 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkPi, DEFAULT_MODEL, DEFAULT_PROVIDER, executePi } from './pi.mjs';
 import { DraftGraph, parseYaml, yaml } from './graph.mjs';
+import { changedFiles, fetchCommit, seedDraft, seedInstructions } from './seed.mjs';
 import { assertOutsideRepository, git, prepareCheckout, sha256, Source } from './source.mjs';
 
 export const HERE = dirname(fileURLToPath(import.meta.url));
 // Same group requirement as the hot-start runner's required policy, so the shared prompt is enforced for both.
 export const GROUP_RULE = Object.freeze({ min_nodes: 20, min_groups: 3 });
+// 'booking' is the Q1 condition and stays byte-identical; 'wide' covers the whole web product for the per-PR graphs.
+export const SCOPES = Object.freeze({
+  booking: { prompt: 'shared-core.md', groups: GROUP_RULE },
+  wide: { prompt: 'shared-core-wide.md', groups: Object.freeze({ min_nodes: 20, min_groups: 6 }) },
+});
 export const TEAM_ROOT = resolve(HERE, '../..');
 const json = (path, value) => writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
 export function targetConfig() {
@@ -28,8 +34,10 @@ export function verifyRun(runDir) {
   }
   const content = readFileSync(join(runDir, 'graph.yaml'), 'utf8');
   const document = parseYaml(content);
-  if (document.commit !== config.commit || document.repo !== config.repo || document['x-variant'] !== 'llm-only') throw new Error('Graph header differs from run configuration');
-  const draft = new DraftGraph(source, schema, config.repo, { groups: config.groups });
+  if (document.commit !== config.commit || document.repo !== config.repo || document['x-variant'] !== (config.seed ? 'llm-only-chained' : 'llm-only')) throw new Error('Graph header differs from run configuration');
+  const seed = config.seed ? seedDraft(readFileSync(join(runDir, 'seed.yaml'), 'utf8'), source) : undefined;
+  // Every entry that had to be reviewed was resubmitted or removed before the graph could be frozen.
+  const draft = new DraftGraph(source, schema, config.repo, { groups: config.groups, seed: seed && { ...seed, pending: new Map() } });
   draft.document = document;
   const verified = draft.validate();
   if (yaml(verified) !== content) throw new Error('Frozen YAML/evidence/hashes differ from validated canonical output');
@@ -43,7 +51,9 @@ export function verifyRun(runDir) {
 
 export async function runExperiment(options, dependencies = {}) {
   const started = Date.now();
-  const target = dependencies.target ?? targetConfig();
+  const scope = options.scope ?? 'booking';
+  if (!Object.hasOwn(SCOPES, scope)) throw new Error(`Unknown scope: ${scope}`);
+  const target = { ...(dependencies.target ?? targetConfig()), ...(options.commit ? { commit: options.commit } : {}) };
   const outputRoot = resolve(options.outputRoot ?? join(TEAM_ROOT, '..', 'llm-only-runs'));
   mkdirSync(outputRoot, { recursive: true });
   assertOutsideRepository(outputRoot, TEAM_ROOT);
@@ -53,13 +63,13 @@ export async function runExperiment(options, dependencies = {}) {
     provider: options.provider ?? DEFAULT_PROVIDER, effort: options.effort ?? 'medium',
     authFile: options.authFile ? resolve(options.authFile) : null,
     maxTools: options.maxTools ?? 600, maxMinutes: options.maxMinutes ?? 45,
-    groups: GROUP_RULE,
+    groups: SCOPES[scope].groups, scope, seed: options.seed ? { path: resolve(options.seed) } : null,
   };
   const metadata = {
     version: 1, variant: 'llm-only', backend: 'pi-sdk', status: 'preparing', started_at: new Date(started).toISOString(),
-    target, run_directory: runDir, provider: config.provider, model: config.model, reasoning_effort: config.effort,
+    target, scope, run_directory: runDir, provider: config.provider, model: config.model, reasoning_effort: config.effort,
     limits: { max_tool_calls: config.maxTools, max_minutes: config.maxMinutes },
-    isolation: { fresh_session: true, fresh_checkout: true, source_access: 'tracked-regular-files-only custom tools', shell: false, web: false, plugins: false, prior_graphs_supplied: false, inherited_project_instructions: false, os_container: false },
+    isolation: { fresh_session: true, fresh_checkout: true, source_access: 'tracked-regular-files-only custom tools', shell: false, web: false, plugins: false, prior_graphs_supplied: Boolean(options.seed), inherited_project_instructions: false, os_container: false },
     usage: null, cost_usd: null, estimated_cost_usd: null, graph_sha256: null,
   };
   const report = () => json(join(runDir, 'run.json'), metadata);
@@ -73,8 +83,23 @@ export async function runExperiment(options, dependencies = {}) {
     const schemaText = readFileSync(join(TEAM_ROOT, 'schema/graph.schema.json'), 'utf8');
     // The task, scope, quality bar and evidence rules are shared with the hot-start runner; prompt.md says only how
     // this condition builds the graph.
-    const sharedPrompt = readFileSync(join(TEAM_ROOT, 'tools/prompts/shared-core.md'), 'utf8');
-    const prompt = `${sharedPrompt}\n${readFileSync(join(HERE, 'prompt.md'), 'utf8')}`;
+    const sharedPrompt = readFileSync(join(TEAM_ROOT, 'tools/prompts', SCOPES[scope].prompt), 'utf8');
+    let prompt = `${sharedPrompt}\n${readFileSync(join(HERE, 'prompt.md'), 'utf8')}`;
+    if (options.seed) {
+      const seedText = readFileSync(config.seed.path, 'utf8');
+      writeFileSync(join(runDir, 'seed.yaml'), seedText);
+      fetchCommit(config.checkout, options.source ? resolve(options.source) : target.remote, parseYaml(seedText).commit);
+      const seed = seedDraft(seedText, source);
+      if (seed.previous.commit === target.commit || seed.previous.repo !== target.repo) throw new Error('The previous graph must be of the same repository at another commit');
+      const changes = changedFiles(config.checkout, seed.previous.commit, target.commit);
+      config.seed = { ...config.seed, commit: seed.previous.commit, sha256: sha256(seedText), pending: seed.pending.size, changed_files: changes.length };
+      metadata.seed = config.seed;
+      const edit = (text, from, to) => { if (!text.includes(from)) throw new Error(`Shared prompt no longer contains: ${from}`); return text.replace(from, to); };
+      let shared = edit(sharedPrompt, 'Aim for roughly 60–100 components, each in a group, with at least 6 groups. Spread them over every area in the scope.', 'Each is in a group, with at least 6 groups.');
+      shared = edit(shared, 'reference graphs, previous runs, team repositories', 'reference graphs, previous runs other than the previous graph given below, team repositories');
+      shared = edit(shared, 'ranges that read_source returned in this run, at most 200 lines each', 'ranges that read_source returned in this run, at most 200 lines each, or that the previous graph already cites');
+      prompt = `${shared}\n${readFileSync(join(HERE, 'prompt-update.md'), 'utf8')}\n${seedInstructions(seed, changes)}`;
+    }
     const instructions = `${prompt}\nTarget: ${target.repo}, commit ${target.commit}.\n\nShared graph schema (format only; no example graph):\n${schemaText}`;
     writeFileSync(join(runDir, 'schema.json'), schemaText);
     writeFileSync(join(runDir, 'instructions.md'), instructions);
@@ -83,8 +108,8 @@ export async function runExperiment(options, dependencies = {}) {
     metadata.schema_sha256 = sha256(schemaText);
     metadata.source_manifest_sha256 = sha256(readFileSync(join(runDir, 'source-manifest.json')));
     metadata.runner_revision = git(TEAM_ROOT, ['rev-parse', 'HEAD']).trim();
-    metadata.runner_files = Object.fromEntries(['package-lock.json', 'prompt.md', 'source.mjs', 'graph.mjs', 'source-server.mjs', 'pi.mjs', 'runner.mjs', 'cli.mjs'].map(file => [file, sha256(readFileSync(join(HERE, file)))]));
-    metadata.runner_files['../prompts/shared-core.md'] = sha256(sharedPrompt);
+    metadata.runner_files = Object.fromEntries(['package-lock.json', 'prompt.md', 'prompt-update.md', 'seed.mjs', 'source.mjs', 'graph.mjs', 'source-server.mjs', 'pi.mjs', 'runner.mjs', 'cli.mjs'].map(file => [file, sha256(readFileSync(join(HERE, file)))]));
+    metadata.runner_files[`../prompts/${SCOPES[scope].prompt}`] = sha256(sharedPrompt);
     metadata.source_file_count = source.files.length;
     metadata.status = options.prepareOnly ? 'prepared' : 'running';
     config.deadline = Date.now() + config.maxMinutes * 60_000;

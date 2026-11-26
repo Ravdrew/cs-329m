@@ -1,0 +1,4252 @@
+version: 1
+repo: calcom/cal.diy
+commit: f3269a3ddf5156eac9b6ca4663c68c938c231252
+title: Cal.com web product component graph
+description: Component graph of the Cal.com web product (booking, availability, calendars, event types, auth, embeds, app store, notifications, persistence).
+groups:
+  - id: g-appstore
+    label: App store
+    summary: App store framework and integration families
+  - id: g-auth
+    label: Auth and OAuth
+    summary: Signup, next-auth session and OAuth tokens
+  - id: g-availability
+    label: Availability and slots
+    summary: Slots, schedules, busy times and out of office
+  - id: g-booking-core
+    label: Booking lifecycle
+    summary: Create, confirm, reschedule and cancel bookings and their side effects
+  - id: g-booking-ui
+    label: Booking pages and Booker UI
+    summary: Public booking pages and booking management views
+  - id: g-calendars
+    label: Calendars and cache
+    summary: Calendar integrations, calendar sync cache and views
+  - id: g-data
+    label: Persistence
+    summary: Prisma models
+  - id: g-embed
+    label: Embeds
+    summary: Embed snippet runtime and embed configuration UI
+  - id: g-eventtypes
+    label: Event types and forms
+    summary: Event type CRUD, booking fields, form builder and routing forms
+  - id: g-external
+    label: External boundaries
+    summary: Third party systems reached by the product
+  - id: g-notify
+    label: Webhooks tasks and notifications
+    summary: Webhooks, tasker, cron, workflows, email and SMS
+  - id: g-platform
+    label: Platform services
+    summary: tRPC API, feature flags, data tables and payments
+nodes:
+  - id: ai-phone
+    label: Cal AI phone service
+    kind: service
+    group: g-notify
+    summary: Retell AI phone agents and numbers.
+    description: calAIPhone provider registry with Retell AI service; phoneNumber and aiVoiceAgent tRPC routers manage agents and numbers; the executeAIPhoneCall task places workflow calls.
+    files:
+      - packages/features/calAIPhone/index.ts
+      - packages/features/calAIPhone/providers/retellAI/RetellAIService.ts
+      - packages/trpc/server/routers/viewer/phoneNumber/_router.ts
+      - packages/trpc/server/routers/viewer/aiVoiceAgent/_router.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calAIPhone/index.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/features/calAIPhone/providers/retellAI/RetellAIService.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/trpc/server/routers/viewer/phoneNumber/_router.ts
+        start_line: 1
+        end_line: 30
+      - path: packages/trpc/server/routers/viewer/aiVoiceAgent/_router.ts
+        start_line: 1
+        end_line: 8
+  - id: analytics-manager
+    label: Analytics manager
+    kind: service
+    group: g-appstore
+    summary: Sends analytics events through analytics apps.
+    description: AnalyticsManager (now under tasker/tasks/analytics) resolves an analytics app service via getAnalyticsService from a credential; the sendAnalyticsEvent tasker task loads the credential and forwards events.
+    files:
+      - packages/features/tasker/tasks/analytics/analyticsManager.ts
+      - packages/features/tasker/tasks/analytics/sendAnalyticsEvent.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/tasker/tasks/analytics/analyticsManager.ts
+        start_line: 1
+        end_line: 30
+      - path: packages/features/tasker/tasks/analytics/sendAnalyticsEvent.ts
+        start_line: 1
+        end_line: 37
+  - id: app-api-router
+    label: App API dispatcher
+    kind: endpoint
+    group: g-appstore
+    summary: Dispatches app install handlers.
+    description: Routes /api/integrations/[...args] to generated app API handlers and creates credentials for declarative installs.
+    routes:
+      - /api/integrations/[...args]
+    files:
+      - apps/web/pages/api/integrations/[...args].ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/pages/api/integrations/[...args].ts
+        start_line: 1
+        end_line: 12
+  - id: app-store-registry
+    label: App store registry (generated service maps)
+    kind: service
+    group: g-appstore
+    summary: Generated lazy import maps of apps per capability.
+    description: The old packages/app-store/index.ts map was replaced by generated maps (CalendarServiceMap, PaymentServiceMap, VideoApiAdapterMap, AnalyticsServiceMap) consumed by the calendar, video, payment and analytics factories.
+    files:
+      - packages/app-store/calendar.services.generated.ts
+      - packages/app-store/payment.services.generated.ts
+      - packages/app-store/video.adapters.generated.ts
+      - packages/app-store/analytics.services.generated.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/calendar.services.generated.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/app-store/payment.services.generated.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/app-store/video.adapters.generated.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/app-store/analytics.services.generated.ts
+        start_line: 1
+        end_line: 8
+  - id: apps-trpc
+    label: apps tRPC router
+    kind: endpoint
+    group: g-appstore
+    summary: App management procedures.
+    description: List, toggle, save keys, credentials, location options and default conferencing app.
+    files:
+      - packages/trpc/server/routers/viewer/apps/_router.tsx
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/apps/_router.tsx
+        start_line: 1
+        end_line: 60
+  - id: availability-page
+    label: Availability page
+    kind: page
+    group: g-availability
+    summary: Schedules page.
+    description: Authenticated server page that loads cached availability lists via tRPC router callers, checks PBAC permissions and renders the availability list and troubleshooting slider table.
+    routes:
+      - /availability
+    files:
+      - apps/web/app/(use-page-wrapper)/(main-nav)/availability/page.tsx
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/(use-page-wrapper)/(main-nav)/availability/page.tsx
+        start_line: 1
+        end_line: 40
+  - id: book-event-api
+    label: POST /api/book/event
+    kind: endpoint
+    group: g-booking-core
+    summary: Public booking endpoint.
+    description: Verifies Turnstile token, applies rate limit, resolves session and delegates to handleNewBooking with WEBAPP creation source.
+    routes:
+      - /api/book/event
+    files:
+      - apps/web/pages/api/book/event.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/pages/api/book/event.ts
+        start_line: 1
+        end_line: 45
+  - id: booker
+    label: Booker component
+    kind: component
+    group: g-booking-ui
+    summary: Main public booking widget.
+    description: Booker.tsx assembles AvailableTimeSlots, BookEventForm, EventMeta, Header, LargeCalendar, OverlayCalendar and instant booking, driven by a zustand booker store now exposed via BookerStoreProvider.
+    files:
+      - packages/features/bookings/Booker/Booker.tsx
+      - packages/features/bookings/Booker/BookerStoreProvider.tsx
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/Booker/Booker.tsx
+        start_line: 1
+        end_line: 12
+      - path: packages/features/bookings/Booker/BookerStoreProvider.tsx
+        start_line: 1
+        end_line: 12
+  - id: booker-booking-hooks
+    label: Booker booking mutations
+    kind: component
+    group: g-booking-ui
+    summary: useBookings hook submitting create, recurring and instant bookings.
+    description: Wraps createBooking, createRecurringBooking and createInstantBooking mutations, handles success redirects and payment links, and posts embed SDK events.
+    files:
+      - packages/features/bookings/Booker/components/hooks/useBookings.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/Booker/components/hooks/useBookings.ts
+        start_line: 1
+        end_line: 12
+  - id: booker-date-picker
+    label: Date picker and calendar grid
+    kind: component
+    group: g-calendars
+    summary: Month calendar used by the Booker and embed config.
+    description: Renders a month grid and marks available days using getAvailableDatesInMonth.
+    files:
+      - packages/features/calendars/DatePicker.tsx
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendars/DatePicker.tsx
+        start_line: 1
+        end_line: 12
+  - id: booking-confirm-trpc
+    label: bookings.confirm tRPC handler
+    kind: endpoint
+    group: g-booking-core
+    summary: Host confirm or reject.
+    description: Confirms via handleConfirmation or rejects with refund and declined emails.
+    files:
+      - packages/trpc/server/routers/viewer/bookings/confirm.handler.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/bookings/confirm.handler.ts
+        start_line: 1
+        end_line: 12
+  - id: booking-fields
+    label: Booking fields definition
+    kind: service
+    group: g-eventtypes
+    summary: Effective booking form fields.
+    description: Builds booking fields from system fields, custom inputs and workflow SMS number field.
+    files:
+      - packages/features/bookings/lib/getBookingFields.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/getBookingFields.ts
+        start_line: 1
+        end_line: 12
+  - id: booking-pages
+    label: Public booking pages
+    kind: page
+    group: g-booking-ui
+    summary: Next.js app-dir routes for user, team and org booking pages rendering the booker view.
+    description: Route files under apps/web/app/(booking-page-wrapper) render the booker view with embed variants; team type pages now have cached-data variants and booking/[uid] pages moved into this wrapper.
+    routes:
+      - /[user]/[type]
+      - /team/[slug]/[type]
+      - /org/[orgSlug]/[user]/[type]
+    files:
+      - apps/web/app/(booking-page-wrapper)/[user]/[type]/page.tsx
+      - apps/web/app/(booking-page-wrapper)/team/[slug]/[type]/pageWithCachedData.tsx
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/(booking-page-wrapper)/[user]/[type]/page.tsx
+        start_line: 1
+        end_line: 12
+      - path: apps/web/app/(booking-page-wrapper)/team/[slug]/[type]/pageWithCachedData.tsx
+        start_line: 1
+        end_line: 12
+  - id: booking-reminder-cron
+    label: Pending booking reminder cron
+    kind: job
+    group: g-notify
+    summary: Emails organizers about pending bookings.
+    description: Cron route querying PENDING bookings at intervals and sending reminder emails.
+    routes:
+      - /api/cron/bookingReminder
+    files:
+      - apps/web/app/api/cron/bookingReminder/route.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/cron/bookingReminder/route.ts
+        start_line: 1
+        end_line: 60
+  - id: bookings-listing-view
+    label: Bookings listing view
+    kind: page
+    group: g-booking-ui
+    summary: Authenticated bookings list using the data table.
+    description: Tabs for upcoming, unconfirmed, recurring, past and cancelled bookings on DataTableProvider and tRPC bookings.get.
+    routes:
+      - /bookings/[status]
+    files:
+      - apps/web/modules/bookings/views/bookings-listing-view.tsx
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/modules/bookings/views/bookings-listing-view.tsx
+        start_line: 1
+        end_line: 12
+  - id: busy-times
+    label: Busy times
+    kind: service
+    group: g-availability
+    summary: Busy periods.
+    description: BusyTimesService collects busy periods from bookings and external calendars (via CalendarManager); instantiated via a DI container now under features/di.
+    files:
+      - packages/lib/getBusyTimes.ts
+      - packages/features/di/containers/BusyTimes.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/lib/getBusyTimes.ts
+        start_line: 1
+        end_line: 30
+      - path: packages/features/di/containers/BusyTimes.ts
+        start_line: 1
+        end_line: 16
+  - id: calendar-cache
+    label: Calendar cache
+    kind: service
+    group: g-calendars
+    summary: Free/busy cache.
+    description: Caches calendar availability per credential, gated by calendar-cache feature flag, and manages watch and unwatch.
+    files:
+      - packages/features/calendar-cache/calendar-cache.ts
+      - packages/features/calendar-cache/calendar-cache.repository.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendar-cache/calendar-cache.ts
+        start_line: 1
+        end_line: 12
+      - path: packages/features/calendar-cache/calendar-cache.repository.ts
+        start_line: 1
+        end_line: 12
+  - id: calendar-cache-cron
+    label: Calendar watch cron
+    kind: job
+    group: g-calendars
+    summary: Renews calendar watches.
+    description: Cron that activates and renews calendar subscriptions and unwatches stale ones.
+    routes:
+      - /api/calendar-cache/cron
+    files:
+      - packages/features/calendar-cache/api/cron.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendar-cache/api/cron.ts
+        start_line: 1
+        end_line: 40
+  - id: calendar-factory
+    label: Calendar service factory
+    kind: service
+    group: g-appstore
+    summary: Maps credential to CalendarService.
+    description: getCalendar maps credential type to the CalendarService class through the generated CalendarServiceMap and optionally wraps it with the calendar-subscription cache wrapper behind feature flags.
+    files:
+      - packages/app-store/_utils/getCalendar.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/_utils/getCalendar.ts
+        start_line: 1
+        end_line: 40
+  - id: calendar-manager
+    label: CalendarManager
+    kind: service
+    group: g-calendars
+    summary: Calendar service wrapper.
+    description: Connected calendars, busy times and create, update and delete event over calendar services; moved to features/calendars/lib.
+    files:
+      - packages/features/calendars/lib/CalendarManager.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendars/lib/CalendarManager.ts
+        start_line: 1
+        end_line: 30
+  - id: calendar-subscription
+    label: Calendar subscription service
+    kind: service
+    group: g-calendars
+    summary: Provider push subscriptions feeding cache and sync.
+    description: CalendarSubscriptionService subscribes and unsubscribes SelectedCalendars through Google and Office365 adapters, stores channel data on the SelectedCalendar, processes webhooks and loads events into the calendar cache event service and the booking sync service. Gated by calendar-subscription-cache and calendar-subscription-sync flags. CalendarCacheWrapper serves cached events in front of a Calendar.
+    files:
+      - packages/features/calendar-subscription/lib/CalendarSubscriptionService.ts
+      - packages/features/calendar-subscription/lib/cache/CalendarCacheWrapper.ts
+      - packages/features/calendar-subscription/lib/sync/CalendarSyncService.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendar-subscription/lib/CalendarSubscriptionService.ts
+        start_line: 1
+        end_line: 80
+      - path: packages/features/calendar-subscription/lib/cache/CalendarCacheWrapper.ts
+        start_line: 1
+        end_line: 30
+      - path: packages/features/calendar-subscription/lib/sync/CalendarSyncService.ts
+        start_line: 1
+        end_line: 30
+  - id: calendar-subscription-cron
+    label: Calendar subscriptions cron
+    kind: job
+    group: g-calendars
+    summary: Rolls out new calendar subscriptions.
+    description: Cron route that calls checkForNewSubscriptions on CalendarSubscriptionService when features are enabled.
+    routes:
+      - /api/cron/calendar-subscriptions
+    files:
+      - apps/web/app/api/cron/calendar-subscriptions/route.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/cron/calendar-subscriptions/route.ts
+        start_line: 1
+        end_line: 66
+  - id: calendar-subscription-webhook
+    label: Calendar subscription webhook
+    kind: endpoint
+    group: g-calendars
+    summary: Receives Google and Office365 calendar change pushes.
+    description: POST route validating the provider param and delegating to CalendarSubscriptionService.processWebhook when cache or sync is enabled.
+    routes:
+      - /api/webhooks/calendar-subscription/[provider]
+    files:
+      - apps/web/app/api/webhooks/calendar-subscription/[provider]/route.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/webhooks/calendar-subscription/[provider]/route.ts
+        start_line: 1
+        end_line: 87
+  - id: cancel-api
+    label: /api/cancel endpoint
+    kind: endpoint
+    group: g-booking-core
+    summary: Cancel route.
+    description: POST and DELETE route that resolves the session user and calls handleCancelBooking.
+    routes:
+      - /api/cancel
+    files:
+      - apps/web/app/api/cancel/route.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/cancel/route.ts
+        start_line: 1
+        end_line: 12
+  - id: connected-calendars-trpc
+    label: Connected calendars handler
+    kind: endpoint
+    group: g-calendars
+    summary: Connected and destination calendars.
+    description: calendars tRPC handler returning connected calendars and ensuring default destination calendar in DB.
+    files:
+      - packages/trpc/server/routers/viewer/calendars/connectedCalendars.handler.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/calendars/connectedCalendars.handler.ts
+        start_line: 1
+        end_line: 12
+  - id: credentials-resolver
+    label: Credential resolver
+    kind: service
+    group: g-appstore
+    summary: Collects credentials for a booking.
+    description: getAllCredentials merges user, team and managed parent team credentials plus delegation credentials.
+    files:
+      - packages/features/bookings/lib/getAllCredentialsForUsersOnEvent/getAllCredentials.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/getAllCredentialsForUsersOnEvent/getAllCredentials.ts
+        start_line: 1
+        end_line: 12
+  - id: crm-apps
+    label: CRM integration family
+    kind: service
+    group: g-appstore
+    summary: CRM provider services.
+    description: CRM implementations such as HubSpot and Salesforce creating contacts and meetings.
+    files:
+      - packages/app-store/hubspot/lib/CrmService.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/hubspot/lib/CrmService.ts
+        start_line: 1
+        end_line: 30
+  - id: crm-manager
+    label: CRM manager
+    kind: service
+    group: g-appstore
+    summary: CRM facade.
+    description: Finds or creates contacts and creates CRM events for bookings through the app CRM service.
+    files:
+      - packages/lib/crmManager/crmManager.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/lib/crmManager/crmManager.ts
+        start_line: 1
+        end_line: 50
+  - id: data-table
+    label: Data table framework
+    kind: component
+    group: g-platform
+    summary: Filterable and paginated table framework.
+    description: Components, filters, DataTableProvider URL-synced state and filter segments shared by list pages.
+    files:
+      - packages/features/data-table/index.ts
+      - packages/features/data-table/hooks/useDataTable.ts
+      - packages/features/data-table/DataTableProvider.tsx
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/data-table/index.ts
+        start_line: 1
+        end_line: 7
+      - path: packages/features/data-table/hooks/useDataTable.ts
+        start_line: 1
+        end_line: 11
+      - path: packages/features/data-table/DataTableProvider.tsx
+        start_line: 1
+        end_line: 8
+  - id: email-manager
+    label: Email and SMS manager
+    kind: service
+    group: g-notify
+    summary: Sends emails and SMS.
+    description: Sends booking scheduled, rescheduled, cancelled, request, declined emails and attendee SMS plus account, team and workflow emails; BookingEmailSmsHandler groups booking notifications.
+    files:
+      - packages/emails/email-manager.ts
+      - packages/features/bookings/lib/BookingEmailSmsHandler.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/emails/email-manager.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/features/bookings/lib/BookingEmailSmsHandler.ts
+        start_line: 1
+        end_line: 8
+  - id: embed-config-ui
+    label: Embed configuration UI
+    kind: component
+    group: g-embed
+    summary: Embed snippet generator.
+    description: Dialog generating embed code with live preview using the booker store and DatePicker.
+    files:
+      - packages/features/embed/Embed.tsx
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/embed/Embed.tsx
+        start_line: 1
+        end_line: 8
+  - id: embed-core
+    label: Embed core runtime
+    kind: component
+    group: g-embed
+    summary: Embed script.
+    description: Defines custom elements for inline, modal and floating button embeds and iframe messaging.
+    files:
+      - packages/embeds/embed-core/src/embed.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/embeds/embed-core/src/embed.ts
+        start_line: 1
+        end_line: 8
+  - id: event-manager
+    label: EventManager
+    kind: service
+    group: g-booking-core
+    summary: Orchestrates external events.
+    description: Creates, updates and deletes calendar events, video meetings and CRM events across a booking's credentials and stores references; moved to features/bookings/lib.
+    files:
+      - packages/features/bookings/lib/EventManager.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/EventManager.ts
+        start_line: 1
+        end_line: 40
+  - id: event-type-update
+    label: eventTypes.update handler
+    kind: endpoint
+    group: g-eventtypes
+    summary: Event type update.
+    description: Moved to eventTypes/heavy and served by a separate heavy tRPC route. Updates event types including locations, hosts, limits and destination calendar; propagates to managed children and queues translation.
+    files:
+      - packages/trpc/server/routers/viewer/eventTypes/heavy/update.handler.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/eventTypes/heavy/update.handler.ts
+        start_line: 1
+        end_line: 40
+  - id: event-types-page
+    label: Event types page
+    kind: page
+    group: g-eventtypes
+    summary: Event types list page.
+    description: Authenticated page rendering the event types listing view via cached eventTypes router callers.
+    routes:
+      - /event-types
+    files:
+      - apps/web/app/(use-page-wrapper)/(main-nav)/event-types/page.tsx
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/(use-page-wrapper)/(main-nav)/event-types/page.tsx
+        start_line: 1
+        end_line: 8
+  - id: ext-providers
+    label: Third-party providers
+    kind: external
+    group: g-external
+    summary: Calendar, video, CRM, payment APIs.
+    description: Google, Daily, HubSpot, Stripe and similar external APIs.
+    files:
+      - packages/app-store/calendar.services.generated.ts
+      - packages/app-store/video.adapters.generated.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/calendar.services.generated.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/app-store/video.adapters.generated.ts
+        start_line: 1
+        end_line: 8
+  - id: ext-subscribers
+    label: Webhook subscriber endpoints
+    kind: external
+    group: g-external
+    summary: Customer endpoints.
+    description: Customer HTTP endpoints receiving signed webhook payloads.
+    files:
+      - packages/features/webhooks/lib/sendPayload.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/webhooks/lib/sendPayload.ts
+        start_line: 1
+        end_line: 40
+  - id: feature-flags
+    label: Feature flags
+    kind: service
+    group: g-platform
+    summary: Feature flag checks.
+    description: FeaturesRepository checks global, user and team feature flags with an in-process cache.
+    files:
+      - packages/features/flags/features.repository.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/flags/features.repository.ts
+        start_line: 1
+        end_line: 20
+  - id: filter-segments-trpc
+    label: filterSegments tRPC router
+    kind: endpoint
+    group: g-platform
+    summary: Saved filter segments CRUD.
+    description: list, create, update, delete and preference procedures for saved data-table filter segments, backed by FilterSegmentRepository.
+    files:
+      - packages/trpc/server/routers/viewer/filterSegments/_router.tsx
+      - packages/trpc/server/routers/viewer/filterSegments/create.handler.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/filterSegments/_router.tsx
+        start_line: 1
+        end_line: 40
+      - path: packages/trpc/server/routers/viewer/filterSegments/create.handler.ts
+        start_line: 1
+        end_line: 19
+  - id: form-builder
+    label: Form builder
+    kind: component
+    group: g-eventtypes
+    summary: Dynamic form editor.
+    description: UI to edit and render dynamic booking form fields.
+    files:
+      - packages/features/form-builder/FormBuilder.tsx
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/form-builder/FormBuilder.tsx
+        start_line: 1
+        end_line: 20
+  - id: google-calendar-app
+    label: Calendar integration family
+    kind: service
+    group: g-appstore
+    summary: Calendar provider services.
+    description: CalendarService implementations per provider; Google adds OAuth via CalendarAuth, watch channels and cache integration.
+    files:
+      - packages/app-store/googlecalendar/lib/CalendarService.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/googlecalendar/lib/CalendarService.ts
+        start_line: 1
+        end_line: 8
+  - id: handle-cancel-booking
+    label: handleCancelBooking
+    kind: service
+    group: g-booking-core
+    summary: Cancels bookings with all side effects.
+    description: Updates booking status, cancels external calendar and video events, refunds payments, fires cancelled webhooks, sends cancellation emails and SMS and cancels reminders.
+    files:
+      - packages/features/bookings/lib/handleCancelBooking.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleCancelBooking.ts
+        start_line: 1
+        end_line: 8
+  - id: handle-confirmation
+    label: handleConfirmation
+    kind: service
+    group: g-booking-core
+    summary: Confirms pending bookings.
+    description: Creates calendar events, updates status to accepted, sends scheduled emails, fires webhooks and schedules workflow reminders and no-show triggers.
+    files:
+      - packages/features/bookings/lib/handleConfirmation.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleConfirmation.ts
+        start_line: 1
+        end_line: 8
+  - id: handle-new-booking
+    label: handleNewBooking
+    kind: service
+    group: g-booking-core
+    summary: Core create/reschedule booking orchestration.
+    description: Loads event type and users, checks limits and availability, creates the Booking row, runs EventManager, handles payment, sends emails and SMS, triggers webhooks, schedules reminders and no-show tasks. Exposed through DI containers now under features/di/bookings.
+    files:
+      - packages/features/bookings/lib/handleNewBooking.ts
+      - packages/features/di/bookings/containers/RegularBookingService.container.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+      - path: packages/features/di/bookings/containers/RegularBookingService.container.ts
+        start_line: 1
+        end_line: 13
+  - id: instant-booking
+    label: Instant booking client
+    kind: service
+    group: g-booking-core
+    summary: Posts instant meeting bookings.
+    description: Client helper that posts to /api/book/instant-event.
+    files:
+      - packages/features/bookings/lib/create-instant-booking.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/create-instant-booking.ts
+        start_line: 1
+        end_line: 15
+  - id: model-booking
+    label: Booking models
+    kind: model
+    group: g-data
+    summary: Booking tables.
+    description: Booking, Attendee and BookingReference tables.
+    files:
+      - packages/prisma/schema.prisma
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/prisma/schema.prisma
+        start_line: 1
+        end_line: 8
+  - id: model-credential
+    label: Credential and destination calendar models
+    kind: model
+    group: g-data
+    summary: Credential tables.
+    description: Credential and DestinationCalendar.
+    files:
+      - packages/prisma/schema.prisma
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/prisma/schema.prisma
+        start_line: 262
+        end_line: 285
+  - id: model-eventtype
+    label: EventType model
+    kind: model
+    group: g-data
+    summary: Event type table.
+    description: Event types with locations, hosts and limits.
+    files:
+      - packages/prisma/schema.prisma
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/prisma/schema.prisma
+        start_line: 1
+        end_line: 8
+  - id: model-payment-webhook
+    label: Payment and Webhook models
+    kind: model
+    group: g-data
+    summary: Payment and webhook tables.
+    description: Payment, WebhookTriggerEvents and Webhook.
+    files:
+      - packages/prisma/schema.prisma
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/prisma/schema.prisma
+        start_line: 1
+        end_line: 8
+  - id: model-platform-misc
+    label: Feature, SelectedSlots, OAuth, FilterSegment and CalendarCache models
+    kind: model
+    group: g-data
+    summary: Platform tables.
+    description: Feature flags, selected slots, OAuth clients and access codes, calendar cache, saved filter segments.
+    files:
+      - packages/prisma/schema.prisma
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/prisma/schema.prisma
+        start_line: 1604
+        end_line: 1623
+  - id: model-schedule
+    label: Schedule, Availability and SelectedCalendar models
+    kind: model
+    group: g-data
+    summary: Availability tables.
+    description: Schedule, Availability and SelectedCalendar.
+    files:
+      - packages/prisma/schema.prisma
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/prisma/schema.prisma
+        start_line: 871
+        end_line: 890
+  - id: model-seat
+    label: Seat, reminder and scheduled trigger models
+    kind: model
+    group: g-data
+    summary: Seat and reminder tables.
+    description: BookingSeat, WorkflowReminder and WebhookScheduledTriggers.
+    files:
+      - packages/prisma/schema.prisma
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/prisma/schema.prisma
+        start_line: 1
+        end_line: 8
+  - id: model-task
+    label: Task model
+    kind: model
+    group: g-data
+    summary: Tasker queue table.
+    description: Task rows with attempts and scheduling.
+    files:
+      - packages/prisma/schema.prisma
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/prisma/schema.prisma
+        start_line: 2003
+        end_line: 2021
+  - id: model-user
+    label: User model
+    kind: model
+    group: g-data
+    summary: User table.
+    description: User accounts with time zone and defaults.
+    files:
+      - packages/prisma/schema.prisma
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/prisma/schema.prisma
+        start_line: 1
+        end_line: 8
+  - id: next-auth-config
+    label: next-auth configuration
+    kind: service
+    group: g-auth
+    summary: Auth providers and callbacks.
+    description: Credentials, email, Google and SAML providers with session and JWT callbacks and org linking.
+    files:
+      - packages/features/auth/lib/next-auth-options.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/auth/lib/next-auth-options.ts
+        start_line: 1
+        end_line: 8
+  - id: no-show-triggers
+    label: Cal Video no-show triggers
+    kind: job
+    group: g-notify
+    summary: No-show webhook tasks.
+    description: Schedules tasker jobs after booking start for host and guest no-show webhooks; the host task marks no-show in DB.
+    files:
+      - packages/features/bookings/lib/handleNewBooking/scheduleNoShowTriggers.ts
+      - packages/features/tasker/tasks/triggerNoShow/triggerHostNoShow.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking/scheduleNoShowTriggers.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/features/tasker/tasks/triggerNoShow/triggerHostNoShow.ts
+        start_line: 1
+        end_line: 30
+  - id: oauth-manager
+    label: App OAuth manager
+    kind: service
+    group: g-appstore
+    summary: OAuth token lifecycle.
+    description: Shared OAuth2 token refresh, expiry and credential sync utility for apps.
+    files:
+      - packages/app-store/_utils/oauth/OAuthManager.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/_utils/oauth/OAuthManager.ts
+        start_line: 1
+        end_line: 8
+  - id: oauth-token-api
+    label: OAuth token endpoint
+    kind: endpoint
+    group: g-auth
+    summary: Token exchange.
+    description: Exchanges authorization codes for signed access and refresh tokens and deletes used codes.
+    routes:
+      - /api/auth/oauth/token
+    files:
+      - apps/web/app/api/auth/oauth/token/route.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/auth/oauth/token/route.ts
+        start_line: 1
+        end_line: 93
+  - id: out-of-office
+    label: Out of office
+    kind: endpoint
+    group: g-availability
+    summary: OOO entries.
+    description: Creates or updates out-of-office entries, sends redirect email and fires OOO_CREATED webhooks.
+    files:
+      - packages/trpc/server/routers/viewer/ooo/outOfOfficeCreateOrUpdate.handler.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/ooo/outOfOfficeCreateOrUpdate.handler.ts
+        start_line: 1
+        end_line: 8
+  - id: payment-apps
+    label: Payment integration family
+    kind: service
+    group: g-appstore
+    summary: Payment provider services.
+    description: PaymentService implementations (Stripe, PayPal, Alby, HitPay, BTCPay and others); Stripe creates payments and sends awaiting-payment emails.
+    files:
+      - packages/app-store/stripepayment/lib/PaymentService.ts
+      - packages/app-store/btcpayserver/lib/PaymentService.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/stripepayment/lib/PaymentService.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/app-store/btcpayserver/lib/PaymentService.ts
+        start_line: 1
+        end_line: 8
+  - id: payment-initiation
+    label: Payment initiation
+    kind: service
+    group: g-platform
+    summary: Starts booking payments.
+    description: handlePayment loads the payment app via PaymentServiceMap and creates a payment or collects a card hold.
+    files:
+      - packages/features/bookings/lib/handlePayment.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handlePayment.ts
+        start_line: 1
+        end_line: 30
+  - id: payment-refund
+    label: Payment refund
+    kind: service
+    group: g-platform
+    summary: Refund by policy.
+    description: Applies event type refund policy and refunds the successful payment via the payment app; also no-show fee handling under bookings/lib/payment.
+    files:
+      - packages/features/bookings/lib/payment/processPaymentRefund.ts
+      - packages/features/bookings/lib/payment/handleNoShowFee.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/payment/processPaymentRefund.ts
+        start_line: 1
+        end_line: 40
+      - path: packages/features/bookings/lib/payment/handleNoShowFee.ts
+        start_line: 1
+        end_line: 8
+  - id: payment-success
+    label: Payment success and Stripe webhook
+    kind: endpoint
+    group: g-platform
+    summary: Payment confirmation flow.
+    description: Stripe webhook route and handlePaymentSuccess mark payment and booking paid then confirm or request the booking.
+    routes:
+      - /api/integrations/stripepayment/webhook
+    files:
+      - packages/features/ee/payments/api/webhook.ts
+      - packages/app-store/_utils/payments/handlePaymentSuccess.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/ee/payments/api/webhook.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/app-store/_utils/payments/handlePaymentSuccess.ts
+        start_line: 1
+        end_line: 30
+  - id: recurring-booking
+    label: Recurring booking handler
+    kind: service
+    group: g-booking-core
+    summary: Creates a series of bookings.
+    description: Calls handleNewBooking once per recurring slot and aggregates results.
+    files:
+      - packages/features/bookings/lib/handleNewRecurringBooking.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewRecurringBooking.ts
+        start_line: 1
+        end_line: 8
+  - id: request-reschedule-trpc
+    label: bookings.requestReschedule tRPC handler
+    kind: endpoint
+    group: g-booking-core
+    summary: Host requests reschedule.
+    description: Cancels booking, deletes calendar and video events, sends request-reschedule emails and fires cancelled webhooks.
+    files:
+      - packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+        start_line: 1
+        end_line: 8
+  - id: reserve-slot
+    label: Slot reservation
+    kind: endpoint
+    group: g-availability
+    summary: Temporary slot reservation.
+    description: Reserves a slot for a booker via SelectedSlots rows (PrismaSelectedSlotRepository) and a uid cookie.
+    files:
+      - packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts
+        start_line: 1
+        end_line: 8
+  - id: routing-forms
+    label: Routing forms
+    kind: service
+    group: g-eventtypes
+    summary: Routing form responses.
+    description: Handles routing form responses (optionally queued, with a queued response cleanup cron) and routes to event types or team members; its tRPC router moved to packages/trpc/server/routers/apps/routing-forms.
+    files:
+      - packages/app-store/routing-forms/lib/handleResponse.ts
+      - packages/app-store/routing-forms/cron/queuedFormResponseCleanup.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/routing-forms/lib/handleResponse.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/app-store/routing-forms/cron/queuedFormResponseCleanup.ts
+        start_line: 1
+        end_line: 30
+  - id: schedule-trpc
+    label: Schedule management
+    kind: endpoint
+    group: g-availability
+    summary: Schedule CRUD.
+    description: tRPC handlers to create, update, duplicate and delete availability schedules and date overrides; update delegates to lib/schedules/updateSchedule.
+    files:
+      - packages/trpc/server/routers/viewer/availability/schedule/update.handler.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/availability/schedule/update.handler.ts
+        start_line: 1
+        end_line: 22
+  - id: seated-bookings
+    label: Seated bookings handler
+    kind: service
+    group: g-booking-core
+    summary: Seat booking, reschedule and cancel flows.
+    description: handleSeats creates new seats or reschedules seated bookings, firing webhooks and workflow reminders.
+    files:
+      - packages/features/bookings/lib/handleSeats/handleSeats.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleSeats/handleSeats.ts
+        start_line: 1
+        end_line: 8
+  - id: signup-api
+    label: Signup API
+    kind: endpoint
+    group: g-auth
+    summary: Signup route.
+    description: App-dir route that checks Turnstile and the disable-signup flag then runs the signup handler.
+    routes:
+      - /api/auth/signup
+    files:
+      - apps/web/app/api/auth/signup/route.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/auth/signup/route.ts
+        start_line: 1
+        end_line: 8
+  - id: slots-router
+    label: slots tRPC router
+    kind: endpoint
+    group: g-availability
+    summary: Public slot endpoints.
+    description: getSchedule, reserveSlot, isAvailable and removeSelectedSlotMark procedures.
+    files:
+      - packages/trpc/server/routers/viewer/slots/_router.tsx
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/_router.tsx
+        start_line: 1
+        end_line: 56
+  - id: slots-service
+    label: Available slots calculation
+    kind: service
+    group: g-availability
+    summary: Computes bookable slots.
+    description: Combines event type, host availability, busy times, booking limits, reserved slots and OOO into slots; wired through a DI container under features/di.
+    files:
+      - packages/trpc/server/routers/viewer/slots/util.ts
+      - packages/features/di/containers/AvailableSlots.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/util.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/features/di/containers/AvailableSlots.ts
+        start_line: 1
+        end_line: 20
+  - id: tasker
+    label: Tasker
+    kind: job
+    group: g-notify
+    summary: Task queue.
+    description: Database-backed task queue with typed handlers (webhooks, emails, no-show, CRM events, translation, workflow emails, body scan, analytics, AI phone calls) processed by a cron route.
+    routes:
+      - /api/tasks/cron
+    files:
+      - packages/features/tasker/tasker.ts
+      - packages/features/tasker/internal-tasker.ts
+      - packages/features/tasker/tasks/index.ts
+      - apps/web/app/api/tasks/cron/route.ts
+      - packages/features/tasker/tasks/sendWorkflowEmails.ts
+      - packages/features/tasker/tasks/executeAIPhoneCall.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/tasker/tasker.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/features/tasker/internal-tasker.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/features/tasker/tasks/index.ts
+        start_line: 1
+        end_line: 41
+      - path: apps/web/app/api/tasks/cron/route.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/features/tasker/tasks/sendWorkflowEmails.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/features/tasker/tasks/executeAIPhoneCall.ts
+        start_line: 1
+        end_line: 40
+  - id: trpc-viewer-router
+    label: tRPC viewer router
+    kind: endpoint
+    group: g-platform
+    summary: Merged viewer routers.
+    description: Merges bookings, eventTypes, availability, slots, webhook, apps, calendars, credentials, pbac, filterSegments, workflows, phoneNumber, aiVoiceAgent and other routers.
+    files:
+      - packages/trpc/server/routers/viewer/_router.tsx
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/_router.tsx
+        start_line: 1
+        end_line: 8
+  - id: use-schedule-hook
+    label: useSchedule slots hook
+    kind: component
+    group: g-availability
+    summary: Client hook querying slots.getSchedule.
+    description: Builds the query for slots.getSchedule via tRPC (or API v2 variant) with month, timezone, duration and reschedule parameters and polls on an interval.
+    files:
+      - packages/features/schedules/lib/use-schedule/useSchedule.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/schedules/lib/use-schedule/useSchedule.ts
+        start_line: 1
+        end_line: 20
+  - id: user-availability
+    label: User availability
+    kind: service
+    group: g-availability
+    summary: Per-user availability.
+    description: Working hours, date overrides, OOO and busy periods for a date range.
+    files:
+      - packages/lib/getUserAvailability.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/lib/getUserAvailability.ts
+        start_line: 1
+        end_line: 30
+  - id: video-apps
+    label: Video integration family
+    kind: service
+    group: g-appstore
+    summary: Video provider adapters.
+    description: VideoApiAdapter implementations such as Daily creating rooms and links.
+    files:
+      - packages/app-store/dailyvideo/lib/VideoApiAdapter.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/dailyvideo/lib/VideoApiAdapter.ts
+        start_line: 1
+        end_line: 8
+  - id: video-client
+    label: Video client
+    kind: service
+    group: g-appstore
+    summary: Video adapter facade.
+    description: Resolves VideoApiAdapter for credentials via VideoApiAdapterMap, creates, updates and deletes meetings, and emails on broken integrations; moved to app-store/videoClient.
+    files:
+      - packages/app-store/videoClient.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/videoClient.ts
+        start_line: 1
+        end_line: 30
+  - id: webhook-scheduler
+    label: Webhook scheduled triggers
+    kind: job
+    group: g-notify
+    summary: Scheduled webhooks.
+    description: Schedules MEETING_STARTED, MEETING_ENDED and no-show webhooks and processes them through a cron route.
+    routes:
+      - /api/cron/webhookTriggers
+    files:
+      - packages/features/webhooks/lib/scheduleTrigger.ts
+      - apps/web/app/api/cron/webhookTriggers/route.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/webhooks/lib/scheduleTrigger.ts
+        start_line: 1
+        end_line: 30
+      - path: apps/web/app/api/cron/webhookTriggers/route.ts
+        start_line: 1
+        end_line: 8
+  - id: webhook-send
+    label: Webhook delivery
+    kind: service
+    group: g-notify
+    summary: Sends webhook payloads.
+    description: sendPayload signs and posts payloads; sendOrSchedulePayload defers to tasker; handleWebhookTrigger fans out to subscribers; a new DI-based WebhookNotifier and WebhookService layer with payload builders emits typed events.
+    files:
+      - packages/features/webhooks/lib/sendPayload.ts
+      - packages/features/webhooks/lib/sendOrSchedulePayload.ts
+      - packages/features/bookings/lib/handleWebhookTrigger.ts
+      - packages/features/webhooks/lib/service/WebhookNotifier.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/webhooks/lib/sendPayload.ts
+        start_line: 1
+        end_line: 40
+      - path: packages/features/webhooks/lib/sendOrSchedulePayload.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/features/bookings/lib/handleWebhookTrigger.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/features/webhooks/lib/service/WebhookNotifier.ts
+        start_line: 1
+        end_line: 36
+  - id: webhook-subscribers
+    label: Webhook subscriber lookup
+    kind: service
+    group: g-notify
+    summary: Finds webhook subscribers.
+    description: getWebhooks finds user, event type, team, org and platform webhooks for a trigger.
+    files:
+      - packages/features/webhooks/lib/getWebhooks.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/webhooks/lib/getWebhooks.ts
+        start_line: 1
+        end_line: 30
+  - id: webhook-trpc
+    label: webhook tRPC handlers
+    kind: endpoint
+    group: g-notify
+    summary: Webhook CRUD.
+    description: Creates, edits and deletes webhook subscriptions; creation schedules triggers for existing bookings.
+    files:
+      - packages/trpc/server/routers/viewer/webhook/create.handler.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/webhook/create.handler.ts
+        start_line: 1
+        end_line: 30
+  - id: weekly-calendar-view
+    label: Weekly calendar view
+    kind: component
+    group: g-calendars
+    summary: Week-view scheduler calendar component.
+    description: Calendar component exported from features/calendars/weeklyview with state store, event list, blocked time cells, used for the large booker calendar layout.
+    files:
+      - packages/features/calendars/weeklyview/index.tsx
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendars/weeklyview/index.tsx
+        start_line: 1
+        end_line: 1
+  - id: workflow-reminders
+    label: Workflow reminders
+    kind: service
+    group: g-notify
+    summary: Reminder scheduling.
+    description: Schedules and cancels email, SMS, WhatsApp and AI phone call reminders per workflow steps.
+    files:
+      - packages/features/ee/workflows/lib/reminders/reminderScheduler.ts
+      - packages/features/ee/workflows/lib/reminders/aiPhoneCallManager.ts
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/ee/workflows/lib/reminders/reminderScheduler.ts
+        start_line: 1
+        end_line: 8
+      - path: packages/features/ee/workflows/lib/reminders/aiPhoneCallManager.ts
+        start_line: 1
+        end_line: 8
+edges:
+  - id: e1
+    from: booking-pages
+    to: booker
+    kind: renders
+    label: renders booker view
+    description: Booking page route renders the public booking view containing the Booker.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/(booking-page-wrapper)/[user]/[type]/page.tsx
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: apps/web/app/(booking-page-wrapper)/[user]/[type]/page.tsx
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e10
+    from: handle-new-booking
+    to: seated-bookings
+    kind: calls
+    label: delegates seated flows
+    description: Seated event types are handled by handleSeats.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e100
+    from: calendar-cache
+    to: calendar-factory
+    kind: calls
+    label: initializes calendar
+    description: Cache imports getCalendar to initialise a calendar from a credential.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendar-cache/calendar-cache.ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/features/calendar-cache/calendar-cache.ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e101
+    from: calendar-cache-cron
+    to: calendar-cache
+    kind: calls
+    label: watches and unwatches calendars
+    description: Cron calls watch and unwatch via CalendarCache.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendar-cache/api/cron.ts
+        start_line: 1
+        end_line: 40
+    evidence:
+      - file: packages/features/calendar-cache/api/cron.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e102
+    from: calendar-cache-cron
+    to: model-schedule
+    kind: reads
+    label: reads selected calendars
+    description: SelectedCalendarRepository batches.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendar-cache/api/cron.ts
+        start_line: 1
+        end_line: 40
+    evidence:
+      - file: packages/features/calendar-cache/api/cron.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e103
+    from: google-calendar-app
+    to: calendar-cache
+    kind: uses
+    label: caches Google free/busy
+    description: Google CalendarService uses CalendarCache.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/googlecalendar/lib/CalendarService.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/app-store/googlecalendar/lib/CalendarService.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e104
+    from: google-calendar-app
+    to: oauth-manager
+    kind: uses
+    label: manages OAuth tokens
+    description: CalendarAuth refreshes Google tokens.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/googlecalendar/lib/CalendarService.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/app-store/googlecalendar/lib/CalendarService.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e105
+    from: google-calendar-app
+    to: ext-providers
+    kind: calls
+    label: calls Google Calendar API
+    description: Creates events and reads free/busy.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/googlecalendar/lib/CalendarService.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/app-store/googlecalendar/lib/CalendarService.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e106
+    from: video-apps
+    to: ext-providers
+    kind: calls
+    label: calls Daily API
+    description: Creates rooms and tokens.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/dailyvideo/lib/VideoApiAdapter.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/app-store/dailyvideo/lib/VideoApiAdapter.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e107
+    from: crm-apps
+    to: ext-providers
+    kind: calls
+    label: calls CRM API
+    description: HubSpot API client calls.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/hubspot/lib/CrmService.ts
+        start_line: 1
+        end_line: 30
+    evidence:
+      - file: packages/app-store/hubspot/lib/CrmService.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e108
+    from: crm-apps
+    to: oauth-manager
+    kind: uses
+    label: refreshes tokens
+    description: refreshOAuthTokens for HubSpot.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/hubspot/lib/CrmService.ts
+        start_line: 1
+        end_line: 30
+    evidence:
+      - file: packages/app-store/hubspot/lib/CrmService.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e109
+    from: connected-calendars-trpc
+    to: model-credential
+    kind: writes
+    label: ensures destination calendar
+    description: Ensures default destination calendar in DB.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/calendars/connectedCalendars.handler.ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/trpc/server/routers/viewer/calendars/connectedCalendars.handler.ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e11
+    from: handle-new-booking
+    to: model-booking
+    kind: writes
+    label: creates and updates bookings
+    description: Creates the Booking row and updates it with references and status.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e110
+    from: app-api-router
+    to: model-credential
+    kind: writes
+    label: creates credentials
+    description: Installs apps by creating credentials.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/pages/api/integrations/[...args].ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: apps/web/pages/api/integrations/[...args].ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e111
+    from: app-api-router
+    to: app-store-registry
+    kind: calls
+    label: dispatches app handlers
+    description: Loads generated handlers.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/pages/api/integrations/[...args].ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: apps/web/pages/api/integrations/[...args].ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e112
+    from: apps-trpc
+    to: model-credential
+    kind: reads
+    label: lists installed apps
+    description: App handlers read credentials.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/apps/_router.tsx
+        start_line: 1
+        end_line: 60
+    evidence:
+      - file: packages/trpc/server/routers/viewer/apps/_router.tsx
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e113
+    from: event-types-page
+    to: event-type-update
+    kind: calls
+    label: edits event types
+    description: Event type page uses the eventTypes router.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/(use-page-wrapper)/(main-nav)/event-types/page.tsx
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: apps/web/app/(use-page-wrapper)/(main-nav)/event-types/page.tsx
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e114
+    from: event-type-update
+    to: model-eventtype
+    kind: writes
+    label: updates event type
+    description: Prisma updates of event types.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/eventTypes/heavy/update.handler.ts
+        start_line: 1
+        end_line: 40
+    evidence:
+      - file: packages/trpc/server/routers/viewer/eventTypes/heavy/update.handler.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e115
+    from: event-type-update
+    to: tasker
+    kind: emits
+    label: queues translation task
+    description: Uses tasker for translateEventTypeData.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/eventTypes/heavy/update.handler.ts
+        start_line: 1
+        end_line: 40
+    evidence:
+      - file: packages/trpc/server/routers/viewer/eventTypes/heavy/update.handler.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e116
+    from: event-type-update
+    to: model-credential
+    kind: writes
+    label: sets destination calendar
+    description: setDestinationCalendarHandler from the calendars router.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/eventTypes/heavy/update.handler.ts
+        start_line: 1
+        end_line: 40
+    evidence:
+      - file: packages/trpc/server/routers/viewer/eventTypes/heavy/update.handler.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e117
+    from: booking-fields
+    to: form-builder
+    kind: uses
+    label: field helpers
+    description: Shares field identifier utils.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/getBookingFields.ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/features/bookings/lib/getBookingFields.ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e118
+    from: routing-forms
+    to: model-eventtype
+    kind: reads
+    label: routes to event types
+    description: Response handling finds team members and routes.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/routing-forms/lib/handleResponse.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/app-store/routing-forms/lib/handleResponse.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e119
+    from: signup-api
+    to: feature-flags
+    kind: reads
+    label: checks disable-signup
+    description: Checks the global disable-signup flag.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/auth/signup/route.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: apps/web/app/api/auth/signup/route.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e12
+    from: handle-new-booking
+    to: model-eventtype
+    kind: reads
+    label: loads event type
+    description: Loads event type and hosts via getEventTypesFromDB.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e120
+    from: signup-api
+    to: model-user
+    kind: writes
+    label: creates users
+    description: Signup handlers create user rows.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/auth/signup/route.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: apps/web/app/api/auth/signup/route.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e121
+    from: next-auth-config
+    to: model-user
+    kind: reads
+    label: authenticates users
+    description: Looks up users and profiles.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/auth/lib/next-auth-options.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/auth/lib/next-auth-options.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e122
+    from: oauth-token-api
+    to: model-platform-misc
+    kind: writes
+    label: consumes access codes
+    description: Deletes used access codes after issuing tokens.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/auth/oauth/token/route.ts
+        start_line: 1
+        end_line: 93
+    evidence:
+      - file: apps/web/app/api/auth/oauth/token/route.ts
+        line: 1
+        note: Lines 1–93 (inclusive).
+  - id: e123
+    from: embed-config-ui
+    to: booker-date-picker
+    kind: renders
+    label: preview date picker
+    description: Embed preview renders DatePicker.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/embed/Embed.tsx
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/embed/Embed.tsx
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e124
+    from: embed-core
+    to: booking-pages
+    kind: navigates
+    label: loads booking iframe
+    description: Embed loads booking pages in an iframe.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/embeds/embed-core/src/embed.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/embeds/embed-core/src/embed.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e125
+    from: webhook-send
+    to: webhook-subscribers
+    kind: calls
+    label: finds subscribers
+    description: handleWebhookTrigger calls getWebhooks.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleWebhookTrigger.ts
+        start_line: 1
+        end_line: 30
+    evidence:
+      - file: packages/features/bookings/lib/handleWebhookTrigger.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e126
+    from: webhook-send
+    to: ext-subscribers
+    kind: emits
+    label: POSTs payloads
+    description: Signed payloads sent to subscriber URLs.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/webhooks/lib/sendPayload.ts
+        start_line: 1
+        end_line: 40
+    evidence:
+      - file: packages/features/webhooks/lib/sendPayload.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e127
+    from: webhook-send
+    to: tasker
+    kind: emits
+    label: schedules webhook task
+    description: Defers when TASKER_ENABLE_WEBHOOKS set.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/webhooks/lib/sendOrSchedulePayload.ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/features/webhooks/lib/sendOrSchedulePayload.ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e128
+    from: webhook-subscribers
+    to: model-payment-webhook
+    kind: reads
+    label: reads webhooks
+    description: webhook.findMany.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/webhooks/lib/getWebhooks.ts
+        start_line: 1
+        end_line: 30
+    evidence:
+      - file: packages/features/webhooks/lib/getWebhooks.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e129
+    from: webhook-scheduler
+    to: model-seat
+    kind: writes
+    label: writes scheduled triggers
+    description: Scheduled trigger rows.
+    x-source-evidence:
+      - path: packages/features/webhooks/lib/scheduleTrigger.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/webhooks/lib/scheduleTrigger.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e13
+    from: handle-new-booking
+    to: user-availability
+    kind: calls
+    label: checks host availability
+    description: ensureAvailableUsers verifies hosts are free.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e130
+    from: webhook-scheduler
+    to: webhook-send
+    kind: emits
+    label: sends due webhooks
+    description: Cron processes scheduled triggers.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/cron/webhookTriggers/route.ts
+        start_line: 1
+        end_line: 20
+    evidence:
+      - file: apps/web/app/api/cron/webhookTriggers/route.ts
+        line: 1
+        note: Lines 1–20 (inclusive).
+  - id: e131
+    from: webhook-trpc
+    to: model-payment-webhook
+    kind: writes
+    label: creates webhooks
+    description: webhook.create.
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/webhook/create.handler.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/trpc/server/routers/viewer/webhook/create.handler.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e132
+    from: webhook-trpc
+    to: webhook-scheduler
+    kind: calls
+    label: schedules existing bookings
+    description: updateTriggerForExistingBookings.
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/webhook/create.handler.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/trpc/server/routers/viewer/webhook/create.handler.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e133
+    from: tasker
+    to: model-task
+    kind: writes
+    label: persists tasks
+    description: Task create, succeed and retry.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/tasker/internal-tasker.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/tasker/internal-tasker.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e134
+    from: tasker
+    to: webhook-send
+    kind: emits
+    label: runs webhook tasks
+    description: sendWebhook and no-show handlers.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/tasker/tasks/index.ts
+        start_line: 1
+        end_line: 41
+    evidence:
+      - file: packages/features/tasker/tasks/index.ts
+        line: 1
+        note: Lines 1–41 (inclusive).
+  - id: e135
+    from: tasker
+    to: email-manager
+    kind: emits
+    label: runs email tasks
+    description: sendEmail and sendWorkflowEmails handlers send emails.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/tasker/tasks/sendWorkflowEmails.ts
+        start_line: 1
+        end_line: 30
+    evidence:
+      - file: packages/features/tasker/tasks/sendWorkflowEmails.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e136
+    from: tasker
+    to: crm-manager
+    kind: calls
+    label: runs createCRMEvent
+    description: createCRMEvent task.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/tasker/tasks/index.ts
+        start_line: 1
+        end_line: 41
+    evidence:
+      - file: packages/features/tasker/tasks/index.ts
+        line: 1
+        note: Lines 1–41 (inclusive).
+  - id: e137
+    from: workflow-reminders
+    to: model-seat
+    kind: writes
+    label: writes reminder rows
+    description: Scheduled reminders.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/ee/workflows/lib/reminders/reminderScheduler.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/ee/workflows/lib/reminders/reminderScheduler.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e138
+    from: bookings-listing-view
+    to: data-table
+    kind: renders
+    label: renders data table
+    description: Uses DataTable provider filters and segments.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/modules/bookings/views/bookings-listing-view.tsx
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: apps/web/modules/bookings/views/bookings-listing-view.tsx
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e139
+    from: bookings-listing-view
+    to: trpc-viewer-router
+    kind: calls
+    label: queries bookings.get
+    description: trpc bookings.get.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/modules/bookings/views/bookings-listing-view.tsx
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: apps/web/modules/bookings/views/bookings-listing-view.tsx
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e14
+    from: handle-new-booking
+    to: credentials-resolver
+    kind: calls
+    label: gets credentials
+    description: Collects credentials for organizer and team.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e140
+    from: trpc-viewer-router
+    to: booking-confirm-trpc
+    kind: calls
+    label: mounts bookings router
+    description: bookingsRouter mounted.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/_router.tsx
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/_router.tsx
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e141
+    from: trpc-viewer-router
+    to: slots-router
+    kind: calls
+    label: mounts slots router
+    description: slotsRouter.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/_router.tsx
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/_router.tsx
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e142
+    from: trpc-viewer-router
+    to: webhook-trpc
+    kind: calls
+    label: mounts webhook router
+    description: webhookRouter.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/_router.tsx
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/_router.tsx
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e143
+    from: trpc-viewer-router
+    to: apps-trpc
+    kind: calls
+    label: mounts apps router
+    description: appsRouter.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/_router.tsx
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/_router.tsx
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e144
+    from: trpc-viewer-router
+    to: event-type-update
+    kind: calls
+    label: mounts eventTypes router
+    description: eventTypesRouter.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/_router.tsx
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/_router.tsx
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e145
+    from: trpc-viewer-router
+    to: feature-flags
+    kind: calls
+    label: mounts features router
+    description: featureFlagRouter.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/_router.tsx
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/_router.tsx
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e146
+    from: feature-flags
+    to: model-platform-misc
+    kind: reads
+    label: reads feature rows
+    description: Feature and userFeatures lookups.
+    x-source-evidence:
+      - path: packages/features/flags/features.repository.ts
+        start_line: 1
+        end_line: 20
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/flags/features.repository.ts
+        line: 1
+        note: Lines 1–20 (inclusive).
+  - id: e147
+    from: booker-date-picker
+    to: booker
+    kind: uses
+    label: reads booker store
+    description: DatePicker uses booker store.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendars/DatePicker.tsx
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/features/calendars/DatePicker.tsx
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e148
+    from: booker
+    to: weekly-calendar-view
+    kind: renders
+    label: renders large calendar
+    description: LargeCalendar uses week view.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/Booker/Booker.tsx
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/features/bookings/Booker/Booker.tsx
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e15
+    from: handle-new-booking
+    to: event-manager
+    kind: calls
+    label: creates calendar and video events
+    description: EventManager.create or reschedule creates calendar and meeting events.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e150
+    from: trpc-viewer-router
+    to: filter-segments-trpc
+    kind: calls
+    label: mounts filterSegments router
+    description: filterSegmentsRouter mounted on viewer.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/_router.tsx
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/_router.tsx
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e151
+    from: data-table
+    to: filter-segments-trpc
+    kind: calls
+    label: saves filter segments
+    description: Segment hooks list and mutate saved filter segments.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/data-table/index.ts
+        start_line: 1
+        end_line: 7
+    evidence:
+      - file: packages/features/data-table/index.ts
+        line: 1
+        note: Lines 1–7 (inclusive).
+  - id: e152
+    from: filter-segments-trpc
+    to: model-platform-misc
+    kind: writes
+    label: writes filter segments
+    description: Creates, updates and deletes FilterSegment rows via the repository.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/filterSegments/create.handler.ts
+        start_line: 1
+        end_line: 19
+    evidence:
+      - file: packages/trpc/server/routers/viewer/filterSegments/create.handler.ts
+        line: 1
+        note: Lines 1–19 (inclusive).
+  - id: e153
+    from: trpc-viewer-router
+    to: connected-calendars-trpc
+    kind: calls
+    label: mounts calendars router
+    description: calendarsRouter exposes connectedCalendars.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/_router.tsx
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/_router.tsx
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e154
+    from: tasker
+    to: analytics-manager
+    kind: calls
+    label: runs sendAnalyticsEvent
+    description: sendAnalyticsEvent task forwards events through AnalyticsManager.
+    x-source-evidence:
+      - path: packages/features/tasker/tasks/analytics/sendAnalyticsEvent.ts
+        start_line: 1
+        end_line: 37
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/tasker/tasks/analytics/sendAnalyticsEvent.ts
+        line: 1
+        note: Lines 1–37 (inclusive).
+  - id: e155
+    from: analytics-manager
+    to: model-credential
+    kind: reads
+    label: loads analytics credential
+    description: Task loads the credential by id before building the analytics service.
+    x-source-evidence:
+      - path: packages/features/tasker/tasks/analytics/sendAnalyticsEvent.ts
+        start_line: 1
+        end_line: 37
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/tasker/tasks/analytics/sendAnalyticsEvent.ts
+        line: 1
+        note: Lines 1–37 (inclusive).
+  - id: e156
+    from: analytics-manager
+    to: ext-providers
+    kind: calls
+    label: sends analytics events
+    description: Analytics app service sends the event to the provider.
+    x-source-evidence:
+      - path: packages/features/tasker/tasks/analytics/analyticsManager.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/tasker/tasks/analytics/analyticsManager.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e16
+    from: handle-new-booking
+    to: email-manager
+    kind: emits
+    label: sends scheduled/request emails
+    description: Sends scheduled, rescheduled and request emails and SMS.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e17
+    from: handle-new-booking
+    to: webhook-send
+    kind: emits
+    label: fires booking webhooks
+    description: BOOKING_CREATED/RESCHEDULED/REQUESTED webhooks.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e18
+    from: handle-new-booking
+    to: webhook-scheduler
+    kind: emits
+    label: schedules meeting webhooks
+    description: Schedules MEETING_STARTED/ENDED triggers.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e19
+    from: handle-new-booking
+    to: workflow-reminders
+    kind: emits
+    label: schedules workflow reminders
+    description: Schedules mandatory and workflow email/SMS reminders.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e2
+    from: booker
+    to: booker-date-picker
+    kind: renders
+    label: renders date picker
+    description: Booker renders the DatePicker for day selection.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/Booker/Booker.tsx
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/features/bookings/Booker/Booker.tsx
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e20
+    from: handle-new-booking
+    to: no-show-triggers
+    kind: emits
+    label: schedules no-show tasks
+    description: Schedules host/guest no-show webhook tasks for Cal Video bookings.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking/scheduleNoShowTriggers.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking/scheduleNoShowTriggers.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e200
+    from: tasker
+    to: ai-phone
+    kind: calls
+    label: runs executeAIPhoneCall
+    description: Task places AI phone calls for workflow reminders if the cal-ai-voice-agents flag is on.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/tasker/tasks/executeAIPhoneCall.ts
+        start_line: 1
+        end_line: 40
+    evidence:
+      - file: packages/features/tasker/tasks/executeAIPhoneCall.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e201
+    from: workflow-reminders
+    to: ai-phone
+    kind: calls
+    label: schedules AI phone calls
+    description: aiPhoneCallManager schedules AI phone call tasks.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/ee/workflows/lib/reminders/aiPhoneCallManager.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/ee/workflows/lib/reminders/aiPhoneCallManager.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e202
+    from: trpc-viewer-router
+    to: ai-phone
+    kind: calls
+    label: mounts phoneNumber and aiVoiceAgent
+    description: phoneNumber and aiVoiceAgent routers.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/phoneNumber/_router.ts
+        start_line: 1
+        end_line: 30
+    evidence:
+      - file: packages/trpc/server/routers/viewer/phoneNumber/_router.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e21
+    from: handle-new-booking
+    to: payment-initiation
+    kind: calls
+    label: starts payment for paid events
+    description: Creates a payment for paid event types.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e22
+    from: handle-new-booking
+    to: booking-fields
+    kind: uses
+    label: resolves booking fields
+    description: Builds booking fields with system fields.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e23
+    from: handle-new-booking
+    to: feature-flags
+    kind: reads
+    label: checks calendar-cache flag
+    description: getShouldServeCache consults calendar cache flags.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking.ts
+        start_line: 1
+        end_line: 60
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e24
+    from: seated-bookings
+    to: webhook-send
+    kind: emits
+    label: fires seat webhooks
+    description: Triggers booking webhooks for seat changes.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleSeats/handleSeats.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleSeats/handleSeats.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e25
+    from: seated-bookings
+    to: workflow-reminders
+    kind: emits
+    label: schedules seat reminders
+    description: Schedules workflow reminders for new seats.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleSeats/handleSeats.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleSeats/handleSeats.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e26
+    from: seated-bookings
+    to: model-seat
+    kind: writes
+    label: writes seat rows
+    description: Creates and updates seat and attendee data.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleSeats/handleSeats.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleSeats/handleSeats.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e27
+    from: cancel-api
+    to: handle-cancel-booking
+    kind: calls
+    label: delegates cancellation
+    description: Route calls handleCancelBooking with session user.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/cancel/route.ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: apps/web/app/api/cancel/route.ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e28
+    from: handle-cancel-booking
+    to: model-booking
+    kind: writes
+    label: cancels bookings
+    description: Updates booking status and removes attendees.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleCancelBooking.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleCancelBooking.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e29
+    from: handle-cancel-booking
+    to: event-manager
+    kind: calls
+    label: deletes calendar and video events
+    description: eventManager.cancelEvent removes external events.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleCancelBooking.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleCancelBooking.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e3
+    from: booker
+    to: booker-booking-hooks
+    kind: uses
+    label: submits booking via hooks
+    description: Booker form submission uses the useBookings mutation hook.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/Booker/Booker.tsx
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/features/bookings/Booker/Booker.tsx
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e30
+    from: handle-cancel-booking
+    to: payment-refund
+    kind: calls
+    label: refunds payment
+    description: processPaymentRefund for paid bookings.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleCancelBooking.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleCancelBooking.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e300
+    from: calendar-subscription-webhook
+    to: calendar-subscription
+    kind: calls
+    label: processes provider webhook
+    description: Validates provider and calls processWebhook on CalendarSubscriptionService.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/webhooks/calendar-subscription/[provider]/route.ts
+        start_line: 1
+        end_line: 87
+    evidence:
+      - file: apps/web/app/api/webhooks/calendar-subscription/[provider]/route.ts
+        line: 1
+        note: Lines 1–87 (inclusive).
+  - id: e301
+    from: calendar-subscription-cron
+    to: calendar-subscription
+    kind: calls
+    label: checks new subscriptions
+    description: Calls checkForNewSubscriptions from cron.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/cron/calendar-subscriptions/route.ts
+        start_line: 1
+        end_line: 66
+    evidence:
+      - file: apps/web/app/api/cron/calendar-subscriptions/route.ts
+        line: 1
+        note: Lines 1–66 (inclusive).
+  - id: e302
+    from: calendar-subscription
+    to: model-schedule
+    kind: writes
+    label: stores channel data on SelectedCalendar
+    description: updateSubscription writes channel id, expiration and sync timestamps on selected calendars.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendar-subscription/lib/CalendarSubscriptionService.ts
+        start_line: 1
+        end_line: 80
+    evidence:
+      - file: packages/features/calendar-subscription/lib/CalendarSubscriptionService.ts
+        line: 1
+        note: Lines 1–80 (inclusive).
+  - id: e303
+    from: calendar-subscription
+    to: feature-flags
+    kind: reads
+    label: checks subscription flags
+    description: Reads calendar-subscription-cache and calendar-subscription-sync feature flags.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendar-subscription/lib/CalendarSubscriptionService.ts
+        start_line: 1
+        end_line: 30
+    evidence:
+      - file: packages/features/calendar-subscription/lib/CalendarSubscriptionService.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e304
+    from: calendar-factory
+    to: calendar-subscription
+    kind: uses
+    label: wraps calendar with cache
+    description: getCalendar wraps services with CalendarCacheWrapper when the subscription cache flag is enabled.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/_utils/getCalendar.ts
+        start_line: 1
+        end_line: 40
+    evidence:
+      - file: packages/app-store/_utils/getCalendar.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e305
+    from: calendar-subscription
+    to: model-booking
+    kind: reads
+    label: sync reads bookings
+    description: CalendarSyncService uses BookingRepository to match calendar changes with bookings.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendar-subscription/lib/sync/CalendarSyncService.ts
+        start_line: 1
+        end_line: 30
+    evidence:
+      - file: packages/features/calendar-subscription/lib/sync/CalendarSyncService.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e31
+    from: handle-cancel-booking
+    to: email-manager
+    kind: emits
+    label: sends cancellation emails
+    description: sendCancelledEmailsAndSMS to host and attendees.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleCancelBooking.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleCancelBooking.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e32
+    from: handle-cancel-booking
+    to: webhook-send
+    kind: emits
+    label: fires cancelled webhooks
+    description: BOOKING_CANCELLED payloads.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleCancelBooking.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleCancelBooking.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e33
+    from: handle-cancel-booking
+    to: workflow-reminders
+    kind: emits
+    label: cancels reminders
+    description: sendCancelledReminders and deletes scheduled reminders.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleCancelBooking.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleCancelBooking.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e34
+    from: handle-cancel-booking
+    to: seated-bookings
+    kind: calls
+    label: cancels single seat
+    description: Delegates seat cancellations to cancelAttendeeSeat.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleCancelBooking.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleCancelBooking.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e35
+    from: booking-confirm-trpc
+    to: handle-confirmation
+    kind: calls
+    label: confirms bookings
+    description: Confirmation path delegates to handleConfirmation.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/bookings/confirm.handler.ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/trpc/server/routers/viewer/bookings/confirm.handler.ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e36
+    from: booking-confirm-trpc
+    to: payment-refund
+    kind: calls
+    label: refunds on rejection
+    description: Rejection refunds paid bookings.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/bookings/confirm.handler.ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/trpc/server/routers/viewer/bookings/confirm.handler.ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e37
+    from: booking-confirm-trpc
+    to: email-manager
+    kind: emits
+    label: sends declined emails
+    description: sendDeclinedEmailsAndSMS on rejection.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/bookings/confirm.handler.ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/trpc/server/routers/viewer/bookings/confirm.handler.ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e38
+    from: booking-confirm-trpc
+    to: model-booking
+    kind: writes
+    label: updates booking status
+    description: Marks bookings accepted or rejected.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/bookings/confirm.handler.ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/trpc/server/routers/viewer/bookings/confirm.handler.ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e39
+    from: handle-confirmation
+    to: event-manager
+    kind: calls
+    label: creates calendar events
+    description: Creates calendar and video events on confirmation.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleConfirmation.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleConfirmation.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e4
+    from: booker
+    to: use-schedule-hook
+    kind: uses
+    label: loads slots
+    description: Booker obtains availability through the schedule hook.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/Booker/Booker.tsx
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/features/bookings/Booker/Booker.tsx
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e40
+    from: handle-confirmation
+    to: email-manager
+    kind: emits
+    label: sends scheduled emails
+    description: sendScheduledEmailsAndSMS after confirmation.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleConfirmation.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleConfirmation.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e41
+    from: handle-confirmation
+    to: webhook-send
+    kind: emits
+    label: fires confirmation webhooks
+    description: BOOKING_CREATED style webhooks.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleConfirmation.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleConfirmation.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e42
+    from: handle-confirmation
+    to: workflow-reminders
+    kind: emits
+    label: schedules reminders
+    description: Schedules mandatory and workflow reminders.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleConfirmation.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleConfirmation.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e43
+    from: handle-confirmation
+    to: no-show-triggers
+    kind: emits
+    label: schedules no-show tasks
+    description: Calls scheduleNoShowTriggers.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleConfirmation.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleConfirmation.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e44
+    from: handle-confirmation
+    to: model-booking
+    kind: writes
+    label: marks booking accepted
+    description: Updates booking status and references.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleConfirmation.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleConfirmation.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e45
+    from: request-reschedule-trpc
+    to: email-manager
+    kind: emits
+    label: sends reschedule request emails
+    description: sendRequestRescheduleEmailAndSMS to attendees.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e46
+    from: request-reschedule-trpc
+    to: webhook-send
+    kind: emits
+    label: fires cancelled webhook
+    description: Sends booking cancelled payload for the reschedule request.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e47
+    from: request-reschedule-trpc
+    to: video-client
+    kind: calls
+    label: deletes meeting
+    description: Deletes video meeting references.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e48
+    from: request-reschedule-trpc
+    to: calendar-factory
+    kind: calls
+    label: deletes calendar event
+    description: Uses getCalendar to delete external events.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e49
+    from: request-reschedule-trpc
+    to: model-booking
+    kind: writes
+    label: cancels booking
+    description: Updates booking as cancelled with reschedule flag.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e5
+    from: use-schedule-hook
+    to: slots-router
+    kind: calls
+    label: calls slots.getSchedule
+    description: Hook queries the slots tRPC router.
+    x-source-evidence:
+      - path: packages/features/schedules/lib/use-schedule/useSchedule.ts
+        start_line: 1
+        end_line: 20
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/schedules/lib/use-schedule/useSchedule.ts
+        line: 1
+        note: Lines 1–20 (inclusive).
+  - id: e50
+    from: booking-reminder-cron
+    to: email-manager
+    kind: emits
+    label: sends organizer reminders
+    description: sendOrganizerRequestReminderEmail for pending bookings.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/cron/bookingReminder/route.ts
+        start_line: 1
+        end_line: 60
+    evidence:
+      - file: apps/web/app/api/cron/bookingReminder/route.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e51
+    from: booking-reminder-cron
+    to: model-booking
+    kind: reads
+    label: finds pending bookings
+    description: Queries pending bookings.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/app/api/cron/bookingReminder/route.ts
+        start_line: 1
+        end_line: 60
+    evidence:
+      - file: apps/web/app/api/cron/bookingReminder/route.ts
+        line: 1
+        note: Lines 1–60 (inclusive).
+  - id: e52
+    from: no-show-triggers
+    to: tasker
+    kind: emits
+    label: creates no-show tasks
+    description: tasker.create for host and guest no-show webhooks.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking/scheduleNoShowTriggers.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking/scheduleNoShowTriggers.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e53
+    from: no-show-triggers
+    to: model-booking
+    kind: writes
+    label: marks no-show
+    description: Sets noShowHost and attendee noShow.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/tasker/tasks/triggerNoShow/triggerHostNoShow.ts
+        start_line: 1
+        end_line: 30
+    evidence:
+      - file: packages/features/tasker/tasks/triggerNoShow/triggerHostNoShow.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e54
+    from: no-show-triggers
+    to: webhook-subscribers
+    kind: reads
+    label: finds no-show webhooks
+    description: getWebhooks for no-show triggers.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewBooking/scheduleNoShowTriggers.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleNewBooking/scheduleNoShowTriggers.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e55
+    from: credentials-resolver
+    to: model-credential
+    kind: reads
+    label: reads credentials
+    description: Queries team and parent credentials.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/getAllCredentialsForUsersOnEvent/getAllCredentials.ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/features/bookings/lib/getAllCredentialsForUsersOnEvent/getAllCredentials.ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e56
+    from: event-manager
+    to: calendar-manager
+    kind: calls
+    label: creates calendar events
+    description: createEvent/updateEvent/deleteEvent.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/EventManager.ts
+        start_line: 1
+        end_line: 40
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/EventManager.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e57
+    from: event-manager
+    to: video-client
+    kind: calls
+    label: creates meetings
+    description: createMeeting/updateMeeting/deleteMeeting.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/EventManager.ts
+        start_line: 1
+        end_line: 40
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/EventManager.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e58
+    from: event-manager
+    to: crm-manager
+    kind: calls
+    label: creates CRM events
+    description: CrmManager and CRM scheduler.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/EventManager.ts
+        start_line: 1
+        end_line: 40
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/EventManager.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e59
+    from: event-manager
+    to: tasker
+    kind: emits
+    label: queues CRM event task
+    description: CRMScheduler queues createCRMEvent tasks.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/tasker/tasks/index.ts
+        start_line: 1
+        end_line: 41
+    evidence:
+      - file: packages/features/tasker/tasks/index.ts
+        line: 1
+        note: Lines 1–41 (inclusive).
+  - id: e6
+    from: booker-booking-hooks
+    to: book-event-api
+    kind: calls
+    label: POSTs booking request
+    description: createBooking helpers post booking data to the booking API.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/Booker/components/hooks/useBookings.ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/features/bookings/Booker/components/hooks/useBookings.ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e60
+    from: calendar-manager
+    to: calendar-factory
+    kind: calls
+    label: gets calendar service
+    description: createEvent uses getCalendar.
+    x-source-evidence:
+      - path: packages/features/calendars/lib/CalendarManager.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/calendars/lib/CalendarManager.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e61
+    from: calendar-factory
+    to: app-store-registry
+    kind: uses
+    label: resolves app package
+    description: Looks up calendar service import in CalendarServiceMap by credential type.
+    x-source-evidence:
+      - path: packages/app-store/_utils/getCalendar.ts
+        start_line: 1
+        end_line: 40
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/app-store/_utils/getCalendar.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e62
+    from: calendar-factory
+    to: google-calendar-app
+    kind: calls
+    label: instantiates CalendarService
+    description: Instantiates the provider CalendarService.
+    x-source-evidence:
+      - path: packages/app-store/_utils/getCalendar.ts
+        start_line: 1
+        end_line: 40
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/app-store/_utils/getCalendar.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e63
+    from: video-client
+    to: app-store-registry
+    kind: uses
+    label: resolves video adapter
+    description: Imports app by credential type from VideoApiAdapterMap.
+    x-source-evidence:
+      - path: packages/app-store/videoClient.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/app-store/videoClient.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e64
+    from: video-client
+    to: video-apps
+    kind: calls
+    label: calls VideoApiAdapter
+    description: Uses adapter factories.
+    x-source-evidence:
+      - path: packages/app-store/videoClient.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/app-store/videoClient.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e65
+    from: video-client
+    to: email-manager
+    kind: emits
+    label: broken integration email
+    description: sendBrokenIntegrationEmail on failure.
+    x-source-evidence:
+      - path: packages/app-store/videoClient.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/app-store/videoClient.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e66
+    from: crm-manager
+    to: crm-apps
+    kind: calls
+    label: calls CRM service
+    description: getCrm returns the CRM service.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/lib/crmManager/crmManager.ts
+        start_line: 1
+        end_line: 50
+    evidence:
+      - file: packages/lib/crmManager/crmManager.ts
+        line: 1
+        note: Lines 1–50 (inclusive).
+  - id: e67
+    from: payment-initiation
+    to: payment-apps
+    kind: calls
+    label: creates payment via app
+    description: Instantiates PaymentService via the generated payment map.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handlePayment.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handlePayment.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e68
+    from: payment-initiation
+    to: app-store-registry
+    kind: uses
+    label: loads payment app
+    description: PaymentServiceMap lookup.
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handlePayment.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/bookings/lib/handlePayment.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e69
+    from: payment-apps
+    to: email-manager
+    kind: emits
+    label: sends awaiting-payment email
+    description: sendAwaitingPaymentEmailAndSMS.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/stripepayment/lib/PaymentService.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/app-store/stripepayment/lib/PaymentService.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e7
+    from: booker-booking-hooks
+    to: instant-booking
+    kind: calls
+    label: creates instant booking
+    description: Uses the instant booking client.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/create-instant-booking.ts
+        start_line: 1
+        end_line: 15
+    evidence:
+      - file: packages/features/bookings/lib/create-instant-booking.ts
+        line: 1
+        note: Lines 1–15 (inclusive).
+  - id: e70
+    from: payment-apps
+    to: model-payment-webhook
+    kind: writes
+    label: writes payments
+    description: Creates Payment rows.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/btcpayserver/lib/PaymentService.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/app-store/btcpayserver/lib/PaymentService.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e71
+    from: payment-apps
+    to: ext-providers
+    kind: calls
+    label: calls Stripe API
+    description: Stripe SDK calls.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/app-store/stripepayment/lib/PaymentService.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/app-store/stripepayment/lib/PaymentService.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e72
+    from: payment-refund
+    to: model-credential
+    kind: reads
+    label: reads payment credentials
+    description: Finds payment app credentials.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/payment/processPaymentRefund.ts
+        start_line: 1
+        end_line: 40
+    evidence:
+      - file: packages/features/bookings/lib/payment/processPaymentRefund.ts
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e73
+    from: payment-success
+    to: model-payment-webhook
+    kind: writes
+    label: marks payment success
+    description: Updates payment success.
+    x-source-evidence:
+      - path: packages/app-store/_utils/payments/handlePaymentSuccess.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/app-store/_utils/payments/handlePaymentSuccess.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e74
+    from: payment-success
+    to: model-booking
+    kind: writes
+    label: marks booking paid
+    description: Sets paid and accepted status.
+    x-source-evidence:
+      - path: packages/app-store/_utils/payments/handlePaymentSuccess.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/app-store/_utils/payments/handlePaymentSuccess.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e75
+    from: payment-success
+    to: handle-confirmation
+    kind: calls
+    label: confirms paid booking
+    description: Calls handleConfirmation when no host confirmation required.
+    x-source-evidence:
+      - path: packages/app-store/_utils/payments/handlePaymentSuccess.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/app-store/_utils/payments/handlePaymentSuccess.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e76
+    from: payment-success
+    to: event-manager
+    kind: calls
+    label: creates calendar events
+    description: Creates events for confirmed paid bookings.
+    x-source-evidence:
+      - path: packages/app-store/_utils/payments/handlePaymentSuccess.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/app-store/_utils/payments/handlePaymentSuccess.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e77
+    from: payment-success
+    to: email-manager
+    kind: emits
+    label: sends scheduled and request emails
+    description: Scheduled email or request emails after payment.
+    x-source-evidence:
+      - path: packages/app-store/_utils/payments/handlePaymentSuccess.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/app-store/_utils/payments/handlePaymentSuccess.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e78
+    from: ext-providers
+    to: payment-success
+    kind: calls
+    label: Stripe webhook callbacks
+    description: Stripe posts payment events.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/ee/payments/api/webhook.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/ee/payments/api/webhook.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e79
+    from: slots-router
+    to: slots-service
+    kind: calls
+    label: getSchedule handler
+    description: Lazy loads getScheduleHandler.
+    status: existing
+    provenance: inferred
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/_router.tsx
+        start_line: 1
+        end_line: 56
+    evidence:
+      - file: packages/trpc/server/routers/viewer/slots/_router.tsx
+        line: 1
+        note: Lines 1–56 (inclusive).
+  - id: e8
+    from: book-event-api
+    to: handle-new-booking
+    kind: calls
+    label: delegates booking creation
+    description: Passes the request to handleNewBooking after rate limiting.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: apps/web/pages/api/book/event.ts
+        start_line: 1
+        end_line: 45
+    evidence:
+      - file: apps/web/pages/api/book/event.ts
+        line: 1
+        note: Lines 1–45 (inclusive).
+  - id: e80
+    from: slots-router
+    to: reserve-slot
+    kind: calls
+    label: reserveSlot handler
+    description: Lazy loads reserveSlotHandler.
+    status: existing
+    provenance: inferred
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/_router.tsx
+        start_line: 1
+        end_line: 56
+    evidence:
+      - file: packages/trpc/server/routers/viewer/slots/_router.tsx
+        line: 1
+        note: Lines 1–56 (inclusive).
+  - id: e81
+    from: slots-router
+    to: model-platform-misc
+    kind: writes
+    label: deletes selected slots
+    description: removeSelectedSlotMark deletes reservations.
+    status: existing
+    provenance: inferred
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/_router.tsx
+        start_line: 1
+        end_line: 56
+    evidence:
+      - file: packages/trpc/server/routers/viewer/slots/_router.tsx
+        line: 1
+        note: Lines 1–56 (inclusive).
+  - id: e82
+    from: reserve-slot
+    to: model-platform-misc
+    kind: writes
+    label: reserves slot
+    description: Writes SelectedSlots through repository.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e83
+    from: slots-service
+    to: user-availability
+    kind: calls
+    label: gets users availability
+    description: getUsersAvailability for hosts.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/util.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/slots/util.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e84
+    from: slots-service
+    to: busy-times
+    kind: calls
+    label: gets limit busy times
+    description: getBusyTimesForLimitChecks.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/util.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/slots/util.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e85
+    from: slots-service
+    to: model-platform-misc
+    kind: reads
+    label: reads reserved slots
+    description: Excludes reserved slots.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/util.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/slots/util.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e86
+    from: slots-service
+    to: model-eventtype
+    kind: reads
+    label: reads event types
+    description: Loads event type and hosts.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/util.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/slots/util.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e87
+    from: slots-service
+    to: feature-flags
+    kind: reads
+    label: serve-cache decision
+    description: getShouldServeCache.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/util.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/slots/util.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e88
+    from: slots-service
+    to: email-manager
+    kind: emits
+    label: no-slots notification
+    description: handleNotificationWhenNoSlots emails org admins.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/slots/util.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/slots/util.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e89
+    from: user-availability
+    to: busy-times
+    kind: calls
+    label: gets busy times
+    description: Calls getBusyTimesService from the DI container.
+    x-source-evidence:
+      - path: packages/lib/getUserAvailability.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/lib/getUserAvailability.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e9
+    from: recurring-booking
+    to: handle-new-booking
+    kind: calls
+    label: books each occurrence
+    description: Calls handleNewBooking per recurring slot.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/bookings/lib/handleNewRecurringBooking.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/features/bookings/lib/handleNewRecurringBooking.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e90
+    from: user-availability
+    to: model-schedule
+    kind: reads
+    label: reads schedules and overrides
+    description: Reads availability and schedules.
+    x-source-evidence:
+      - path: packages/lib/getUserAvailability.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/lib/getUserAvailability.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e91
+    from: busy-times
+    to: calendar-manager
+    kind: calls
+    label: gets external busy times
+    description: getBusyCalendarTimes.
+    x-source-evidence:
+      - path: packages/lib/getBusyTimes.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/lib/getBusyTimes.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e92
+    from: busy-times
+    to: model-booking
+    kind: reads
+    label: reads bookings
+    description: Queries bookings as busy times.
+    x-source-evidence:
+      - path: packages/lib/getBusyTimes.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/lib/getBusyTimes.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e93
+    from: calendar-manager
+    to: calendar-cache
+    kind: uses
+    label: cached free/busy
+    description: Calendar services serve from cache when allowed.
+    x-source-evidence:
+      - path: packages/features/calendars/lib/CalendarManager.ts
+        start_line: 1
+        end_line: 30
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: packages/features/calendars/lib/CalendarManager.ts
+        line: 1
+        note: Lines 1–30 (inclusive).
+  - id: e94
+    from: schedule-trpc
+    to: model-schedule
+    kind: writes
+    label: updates schedules
+    description: updateSchedule updates schedule and availability rows.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/availability/schedule/update.handler.ts
+        start_line: 1
+        end_line: 22
+    evidence:
+      - file: packages/trpc/server/routers/viewer/availability/schedule/update.handler.ts
+        line: 1
+        note: Lines 1–22 (inclusive).
+  - id: e95
+    from: availability-page
+    to: schedule-trpc
+    kind: calls
+    label: edits schedules
+    description: Availability view calls schedule mutations.
+    x-source-evidence:
+      - path: apps/web/app/(use-page-wrapper)/(main-nav)/availability/page.tsx
+        start_line: 1
+        end_line: 40
+    provenance: inferred
+    status: existing
+    evidence:
+      - file: apps/web/app/(use-page-wrapper)/(main-nav)/availability/page.tsx
+        line: 1
+        note: Lines 1–40 (inclusive).
+  - id: e96
+    from: out-of-office
+    to: email-manager
+    kind: emits
+    label: sends redirect notification
+    description: sendBookingRedirectNotification.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/ooo/outOfOfficeCreateOrUpdate.handler.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/ooo/outOfOfficeCreateOrUpdate.handler.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e97
+    from: out-of-office
+    to: webhook-send
+    kind: emits
+    label: fires OOO webhook
+    description: OOO_CREATED payload.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/trpc/server/routers/viewer/ooo/outOfOfficeCreateOrUpdate.handler.ts
+        start_line: 1
+        end_line: 8
+    evidence:
+      - file: packages/trpc/server/routers/viewer/ooo/outOfOfficeCreateOrUpdate.handler.ts
+        line: 1
+        note: Lines 1–8 (inclusive).
+  - id: e98
+    from: calendar-cache
+    to: feature-flags
+    kind: reads
+    label: checks calendar-cache flag
+    description: checkIfFeatureIsEnabledGlobally.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendar-cache/calendar-cache.ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/features/calendar-cache/calendar-cache.ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+  - id: e99
+    from: calendar-cache
+    to: model-platform-misc
+    kind: writes
+    label: stores cached availability
+    description: Reads and writes CalendarCache rows.
+    provenance: inferred
+    status: existing
+    x-source-evidence:
+      - path: packages/features/calendar-cache/calendar-cache.repository.ts
+        start_line: 1
+        end_line: 12
+    evidence:
+      - file: packages/features/calendar-cache/calendar-cache.repository.ts
+        line: 1
+        note: Lines 1–12 (inclusive).
+x-variant: llm-only-chained
+x-scope:
+  included:
+    - Public booking pages, Booker UI, booking lifecycle (create, seats, recurring, instant, confirm, reject, reschedule, cancel)
+    - Availability, slots, schedules, out of office, busy times
+    - Calendar integration framework, calendar cache and cron, calendar views and date picker
+    - Event types, booking fields, form builder, routing forms
+    - Signup, next-auth, OAuth token endpoints
+    - Embed core and embed configuration UI
+    - App store framework and integration families (calendar, video, CRM, payment)
+    - Webhooks, tasker, cron routes, workflows reminders, email and SMS manager, feature flags
+    - tRPC viewer routers, web HTTP API routes, data table, Prisma models
+  excluded:
+    - API v1 and v2, platform SDK and atoms
+    - Enterprise-only features (organizations admin, SSO/SAML, dsync, insights) beyond boundary mentions
+    - Marketing and example apps, generic UI primitives (packages/ui), build tooling
+    - Tests, mocks, static assets, per-app individual integrations beyond family representatives
+x-source-files:
+  - path: apps/web/app/(booking-page-wrapper)/[user]/[type]/page.tsx
+    sha256: 383d5a8f9ad40318cb9735e263d6e8931dd1e9ff1ef869fdff5a7a1c7581a46e
+  - path: apps/web/app/(booking-page-wrapper)/team/[slug]/[type]/pageWithCachedData.tsx
+    sha256: 275c4742902866994d6929a427baef9a8268648ce41c91d02ade1582ccb3be39
+  - path: apps/web/app/(use-page-wrapper)/(main-nav)/availability/page.tsx
+    sha256: 9d5d76bfd050b51a871bc030353bcf0267a5565c81fb9a928fb235a3e2d2a088
+  - path: apps/web/app/(use-page-wrapper)/(main-nav)/event-types/page.tsx
+    sha256: 38bab0d5d05f11955c5575bfa2ccfa0dcb0bac611ef94a72a247084b7e78bf4b
+  - path: apps/web/app/api/auth/oauth/token/route.ts
+    sha256: 798eef12601d89e4048cc44a4b1998e4f4fb7f9ced5cb7898f836caea4bc4550
+  - path: apps/web/app/api/auth/signup/route.ts
+    sha256: 4fb4e78efc844bb33dc70100adb829d7d77d1ab56c735e0c0216437a6647462f
+  - path: apps/web/app/api/cancel/route.ts
+    sha256: 292520407b90b26d8762390246f6397c6e1ac75e71834948aa84ea86f680998e
+  - path: apps/web/app/api/cron/bookingReminder/route.ts
+    sha256: 4203ec153b43750c5998a39980c0986fe9fad14b973c09d881bc2a15519a9745
+  - path: apps/web/app/api/cron/calendar-subscriptions/route.ts
+    sha256: 31a67216a12055d4854f338b1ad01bdb33483595a46bf780a491fc1b4b9435bc
+  - path: apps/web/app/api/cron/webhookTriggers/route.ts
+    sha256: 85f79079fd8f8503dbcb961b5ac9cbbb88aa9773bbc7f9a3b3ba6b5cc401fa81
+  - path: apps/web/app/api/tasks/cron/route.ts
+    sha256: 37bb43efa3094b28fedfe0f508747710d46639141563f5db84a4954b7954ae0f
+  - path: apps/web/app/api/webhooks/calendar-subscription/[provider]/route.ts
+    sha256: 0708a62101479a657e2d6c51009cae2b99b7adf3c4835b0a47e2678856da9dcd
+  - path: apps/web/modules/bookings/views/bookings-listing-view.tsx
+    sha256: 92b59541130be1ab544adf5f82261f5c3c7889dd1f22452ecab3cad295846477
+  - path: apps/web/pages/api/book/event.ts
+    sha256: bc7377d7bd48eb3a644ad327f5a308e7df4ad1efaad8300fed994bfd98a331c3
+  - path: apps/web/pages/api/integrations/[...args].ts
+    sha256: 509587214478b59f74182a58426f3bd25adc7e0290991bea766b4dc559eada8a
+  - path: packages/app-store/_utils/getCalendar.ts
+    sha256: 1baaf071aca8376d7f7ce8db8f5cc5ea45e35fd25a66e163c63de77e939e67dc
+  - path: packages/app-store/_utils/oauth/OAuthManager.ts
+    sha256: 78a03f4276160abbab24b55f1895516806510705f16cff6f25feb8f68c392327
+  - path: packages/app-store/_utils/payments/handlePaymentSuccess.ts
+    sha256: ec403b9b7ccbba13dcfa03895e7f9f5834582621025cf44dc768d14b084307e4
+  - path: packages/app-store/analytics.services.generated.ts
+    sha256: 5fd90d98f511d7c0314202a76591362ab10fdaee366c1e9e24ea2d91bf291c7d
+  - path: packages/app-store/btcpayserver/lib/PaymentService.ts
+    sha256: 222d745e223eaa0476ee833b7c7a0243d71dbf345129bb1deee2387c8f520cee
+  - path: packages/app-store/calendar.services.generated.ts
+    sha256: 8da24f8998cdf8082eff6267fdfc18c80e19aa32fcbac2c2bff56b9c107ad0ff
+  - path: packages/app-store/dailyvideo/lib/VideoApiAdapter.ts
+    sha256: 1293fd4acea54cc0dabb5395038db88c36eb5736b4a8260317b79fb3d203849c
+  - path: packages/app-store/googlecalendar/lib/CalendarService.ts
+    sha256: 9bebe4faa321f482de7bb43a3657079423cacd3ed9fd3ff2874b7d30d1a5617e
+  - path: packages/app-store/hubspot/lib/CrmService.ts
+    sha256: 8c445658fe388a21f0cb593d3f2c0365aa3b37bb5fe79965e2856a3481719a25
+  - path: packages/app-store/payment.services.generated.ts
+    sha256: d610810481ed09d4142c4d3bbce16e76ec3fb5455c8da4bf4ada3d2e334e37ad
+  - path: packages/app-store/routing-forms/cron/queuedFormResponseCleanup.ts
+    sha256: f4a95557f83554bcd9ba59feb000054c61763e5c13fa4f5decc67373172efe15
+  - path: packages/app-store/routing-forms/lib/handleResponse.ts
+    sha256: 74580744a6938ea309229c44a169e26d798a3359ffbee76ed58ae8f79a93a6e4
+  - path: packages/app-store/stripepayment/lib/PaymentService.ts
+    sha256: c057b9bcab1dcd4df47a189feb00592cdcc4a8d1713d1979f9a8c9e99b969a45
+  - path: packages/app-store/video.adapters.generated.ts
+    sha256: 425a37a20ad19f59b67919432f60bfae1e35838c88bd02f06094e5a36fea997f
+  - path: packages/app-store/videoClient.ts
+    sha256: 615b8531b8ec181e556e4c2e3296edc9d535202d7e1615c9986ecd180934d659
+  - path: packages/emails/email-manager.ts
+    sha256: 2bec4aed50c3fe9272cbf1e5a1beb5a7316cb10193d89bbd8c4c6306866445d1
+  - path: packages/embeds/embed-core/src/embed.ts
+    sha256: 631909e1c9947793346ec56a91d58677606cac6c11d012a353e48458b7c0d5ea
+  - path: packages/features/auth/lib/next-auth-options.ts
+    sha256: 7ef4768cc008edf7a99345b11588e65c323a8e1d7b56746004efe291770bb740
+  - path: packages/features/bookings/Booker/Booker.tsx
+    sha256: fe38528352bf53334419fbc0a41dd58ce07ab6cf44ebc81b2f377036a9456a03
+  - path: packages/features/bookings/Booker/BookerStoreProvider.tsx
+    sha256: 2b25b2abc9d000fac8abfd7c101e961596f5ad0f3420416450c1f891972b0745
+  - path: packages/features/bookings/Booker/components/hooks/useBookings.ts
+    sha256: f16f710f29889999f0f7c12ce1ee44828371c2397a2b5b03b29f5bbd34881e1f
+  - path: packages/features/bookings/lib/BookingEmailSmsHandler.ts
+    sha256: 074422b9b9c8668ce9709e9e1afc5de51b12788bc5ed898156c8d1d9bfafd33a
+  - path: packages/features/bookings/lib/EventManager.ts
+    sha256: 9a125282609d375192462eaac6c08a023489ba6a02b8be80e6a46e0ed46fda59
+  - path: packages/features/bookings/lib/create-instant-booking.ts
+    sha256: 4accb6fb6089d003a99bb1b51c2af6ba2e2bfd1a61d7d7f6c6602a113cadb1d6
+  - path: packages/features/bookings/lib/getAllCredentialsForUsersOnEvent/getAllCredentials.ts
+    sha256: c071daaf9422f62e2e82746521ee4333ce8427d3e8a420ca46d6d66bec703e11
+  - path: packages/features/bookings/lib/getBookingFields.ts
+    sha256: 050896a02a80c13827aeeedf2b82f15ce4e06b3e6b14d7ca2042d3c218bbda6a
+  - path: packages/features/bookings/lib/handleCancelBooking.ts
+    sha256: 0597206bb1c84934c1dc2f473e072fa6dfaaf8521037170ad56a7a5c927a415b
+  - path: packages/features/bookings/lib/handleConfirmation.ts
+    sha256: 165a807c515242cd5e40735e2811ef50d35ea2ba12392749563b77fc27bad0e2
+  - path: packages/features/bookings/lib/handleNewBooking.ts
+    sha256: 118462c009029b67bb4ac5c2041f0acd8d9a99e077c559479ba69fd8fabc4a2c
+  - path: packages/features/bookings/lib/handleNewBooking/scheduleNoShowTriggers.ts
+    sha256: bd25c82ee480c866b5eb915cec8a2c2610469b18edc1794d076e91cf7521d330
+  - path: packages/features/bookings/lib/handleNewRecurringBooking.ts
+    sha256: 770d53a0a35e333fca06cdd63a2aa00e4bce51334ed120e3d95eb2832dc73604
+  - path: packages/features/bookings/lib/handlePayment.ts
+    sha256: 527f6076c29e1266707c4e2c99dfbebaa4b648a4f224c85036033ddc19caf97c
+  - path: packages/features/bookings/lib/handleSeats/handleSeats.ts
+    sha256: 8d03e8250f5881737c535c133f2a1f4705e0ac43944e93332ebac5c8bbf0633a
+  - path: packages/features/bookings/lib/handleWebhookTrigger.ts
+    sha256: e9f0ea88b11e3c1f31258dd34127956a59a8a061fcae5414ec528085a8a04276
+  - path: packages/features/bookings/lib/payment/handleNoShowFee.ts
+    sha256: 9584a58cee86eb2db1e0a4d534a393d97f4999dd007ce3cde4e18cf94cce7a38
+  - path: packages/features/bookings/lib/payment/processPaymentRefund.ts
+    sha256: b18fcb24ce1f323824910056d0eb297fafed14bac580736cbfd921fca1eee7ad
+  - path: packages/features/calAIPhone/index.ts
+    sha256: d5e1a80c77e682d63d816cf86e2f80ddbbcae415096353f253415d3507e72d97
+  - path: packages/features/calAIPhone/providers/retellAI/RetellAIService.ts
+    sha256: 290da39e13f27ec40e9bb6f6bf63b882962c9e8674c4cabe917c41a69a5fdff5
+  - path: packages/features/calendar-cache/api/cron.ts
+    sha256: 2e66c40e9868bfc18c6881514900d7fa98ae6679d4f80a3bfca72b29d179a5ab
+  - path: packages/features/calendar-cache/calendar-cache.repository.ts
+    sha256: 3f5de83cdda7c5c1c989a9460de6827b603bd129f2499b581b35d66ef4ca5a55
+  - path: packages/features/calendar-cache/calendar-cache.ts
+    sha256: 6626f59e7453f6d9259da9f267a4816ea52949fa170716dbe3ec3e66495c77a8
+  - path: packages/features/calendar-subscription/lib/CalendarSubscriptionService.ts
+    sha256: 25f89220e65eb386094b9b073e22aa589b617b94442c45d7b85fcf7e122fcd67
+  - path: packages/features/calendar-subscription/lib/cache/CalendarCacheWrapper.ts
+    sha256: bf466ee8972600b989f6b5e84d3c4ea7dee0a429dbca10a968d0291288de443b
+  - path: packages/features/calendar-subscription/lib/sync/CalendarSyncService.ts
+    sha256: f1ad7708109acfb94b65ccf0c2bf4f5a25bbaf0b848900db5ddb07a0c172661d
+  - path: packages/features/calendars/DatePicker.tsx
+    sha256: c227053b17a54e66ff13b23e95744b6985d91b92a7fb944e144b91cf4ee1bf86
+  - path: packages/features/calendars/lib/CalendarManager.ts
+    sha256: 6b03f201e87a6ac57f83fe31bd22912065becb8425b8f56316ee4004f287f414
+  - path: packages/features/calendars/weeklyview/index.tsx
+    sha256: 415f3d0b0ca58b1167cc98370d0b29b481e03f412be51971dcd65f03fc6e5ea2
+  - path: packages/features/data-table/DataTableProvider.tsx
+    sha256: fdd39ba956bfb970226f753c571e3e7913bd115b78830564be571737132371f9
+  - path: packages/features/data-table/hooks/useDataTable.ts
+    sha256: 5671bc107365854d86149710f1ed39d48e5e1865a88824dbebb4b123a7bbe10d
+  - path: packages/features/data-table/index.ts
+    sha256: 091590782c073c422d711dde8e772b280841c96824a31de09a643d2f8f37551c
+  - path: packages/features/di/bookings/containers/RegularBookingService.container.ts
+    sha256: f506d47dd91d1f568315fb644fc612bd689a32c16bbe4f6766f5f00ef4e840fa
+  - path: packages/features/di/containers/AvailableSlots.ts
+    sha256: 28aad5d8e837e291099eddff4dfe7327059b6b91c21b3eec8c9ec13bd16c59b3
+  - path: packages/features/di/containers/BusyTimes.ts
+    sha256: c4c97cdfb336654c9a559e7ad2b135da313fd92712f99a918d1c95ebbf4a74ea
+  - path: packages/features/ee/payments/api/webhook.ts
+    sha256: b3e070a2a15ada0e56a6276ec6504b9484ce0bee973d15cc7ce6606f4ff99636
+  - path: packages/features/ee/workflows/lib/reminders/aiPhoneCallManager.ts
+    sha256: d0adaebd874e3049a13dfec2f46e9e47656e4b6ef00a932ae498f2cb182f5c83
+  - path: packages/features/ee/workflows/lib/reminders/reminderScheduler.ts
+    sha256: e52032c63e045eb3245c993ac4f9abca193e409f2ec0b74fa42c9913d868ffe9
+  - path: packages/features/embed/Embed.tsx
+    sha256: 64d6d03ef1885e5d08ca76a456c43b51e941d8a145181bd6c63550d63698de2d
+  - path: packages/features/flags/features.repository.ts
+    sha256: 110b4c4aaec759c60de6c7a9daa6ca5b973c0b2e395cd3885acb87b39e94c6df
+  - path: packages/features/form-builder/FormBuilder.tsx
+    sha256: 0007d48c76ad465149fba6637d819a3a532c45b1573c402c9859925a231f92e8
+  - path: packages/features/schedules/lib/use-schedule/useSchedule.ts
+    sha256: 724a4b3ded560429285915793df5da203098f9fa7b7d64ee0f112bbf5be2200c
+  - path: packages/features/tasker/internal-tasker.ts
+    sha256: 94116bfb2846e5f0281f64dc4063844109131a2f38482dd97c14bc0a5b80955b
+  - path: packages/features/tasker/tasker.ts
+    sha256: 45b5146471feaddffbdb0007a97c6572f0517c6f1a236e0beec02a3f6a985439
+  - path: packages/features/tasker/tasks/analytics/analyticsManager.ts
+    sha256: a0d5c0deae8e9239a920877c9f2e594261fef8fc25286717776440de211c69d7
+  - path: packages/features/tasker/tasks/analytics/sendAnalyticsEvent.ts
+    sha256: f541c70db01b57c0f525b1034b03c218a0a74c2357064e053cb5fe2b01087f0e
+  - path: packages/features/tasker/tasks/executeAIPhoneCall.ts
+    sha256: 17d6a6a3af88132d5a5ff6f4df01f418cdeb821ac812c34b2ab69d4e61bcfc6f
+  - path: packages/features/tasker/tasks/index.ts
+    sha256: 6898b0f6bedd3d225667d6541b52e8b407fffa2ac4ddeb8c655157495c060785
+  - path: packages/features/tasker/tasks/sendWorkflowEmails.ts
+    sha256: 1c6dd0bac7776259b95e1bf8935e1e18c34395a0a88b1a82730d089adb2947c3
+  - path: packages/features/tasker/tasks/triggerNoShow/triggerHostNoShow.ts
+    sha256: 0c8c2f81c7e978370db7535d5b220cbbe92a9e1965f3576a60801f8e5e655658
+  - path: packages/features/webhooks/lib/getWebhooks.ts
+    sha256: 7209d9d43ffc81353d9fbc2c42b00103d7f228926d8d7198e57ee420be49437b
+  - path: packages/features/webhooks/lib/scheduleTrigger.ts
+    sha256: 84ec0d38bd6a3f030a637906db3908717bf57291f25132a5bd8085d8c49a14ee
+  - path: packages/features/webhooks/lib/sendOrSchedulePayload.ts
+    sha256: fbab2673fe25e5340f63d30e37503dce12c8b4c8b914f455ea7ebe537ab16e35
+  - path: packages/features/webhooks/lib/sendPayload.ts
+    sha256: a9be1cb73a8e721ba58406f741f86243bdf504e49c09d5d651172b49c2e2f84c
+  - path: packages/features/webhooks/lib/service/WebhookNotifier.ts
+    sha256: 515d68be45a9a0ea3d6b2ccd7183adb0bdd89f163b6ab3d6ab8c140dcb5fcd15
+  - path: packages/lib/crmManager/crmManager.ts
+    sha256: e00f8c7193c24d31a206919e1f01d7153f604b55d8ccaa31188b506f195b5b5d
+  - path: packages/lib/getBusyTimes.ts
+    sha256: 186498505b6ebc022284230a7a363d09cf9e6e2aed953156a1a38536b41e2566
+  - path: packages/lib/getUserAvailability.ts
+    sha256: b38fcf306889489047f0e5e3bcace6a677ce2e71e574684454248906294dd533
+  - path: packages/prisma/schema.prisma
+    sha256: f1b32404f3ca5ac88316612e4fa9a800336132d9fbd61a544917d145ddb45bf7
+  - path: packages/trpc/server/routers/viewer/_router.tsx
+    sha256: 2cd47d4e591b6fda776fb9f66a8bfb168e83f060c2c284af81838c1442c83854
+  - path: packages/trpc/server/routers/viewer/aiVoiceAgent/_router.ts
+    sha256: 0baaf9c14528f0d201c4a71af3d3de964b2fa30b5e761f603c0e2ee82ceeeac1
+  - path: packages/trpc/server/routers/viewer/apps/_router.tsx
+    sha256: 12fc9ef707928b580d027d07ad6cb44a64a439c0fb8ee31624739a5df8460f7a
+  - path: packages/trpc/server/routers/viewer/availability/schedule/update.handler.ts
+    sha256: 76ee0f3406abe9d972c7ea5b9829dc1a00ce0163eda03d3f771313b6a01abe18
+  - path: packages/trpc/server/routers/viewer/bookings/confirm.handler.ts
+    sha256: 2b78d4846fd0ad8e40b17e0a78e31fe1f4b3f95a5794073b1ec01c845c69ebff
+  - path: packages/trpc/server/routers/viewer/bookings/requestReschedule.handler.ts
+    sha256: 41b64b609d65eea802dfa2673434816a7854b4655acad813bd65d2801b27b5f9
+  - path: packages/trpc/server/routers/viewer/calendars/connectedCalendars.handler.ts
+    sha256: acc7eaef623220ae0cec263596b8b0b06323202cfc890d44b558351febe8dddd
+  - path: packages/trpc/server/routers/viewer/eventTypes/heavy/update.handler.ts
+    sha256: 4e966f1fd733e4f2f8d233134e02554cc5a079ad31f2d0c80afe639a5fed176c
+  - path: packages/trpc/server/routers/viewer/filterSegments/_router.tsx
+    sha256: b8aef1c5ed6f523636ef3d54cd1dbacf7e0a23feda3dc66b5c5b39a254851a5c
+  - path: packages/trpc/server/routers/viewer/filterSegments/create.handler.ts
+    sha256: 4142c2e2584e323a65e42c5377e3041c34d1717ce93336215b65adf9c018f444
+  - path: packages/trpc/server/routers/viewer/ooo/outOfOfficeCreateOrUpdate.handler.ts
+    sha256: d36a1d585a0d6c369a2dbacc5dce89d1cb106f3e46f10b0409517c2f3344527a
+  - path: packages/trpc/server/routers/viewer/phoneNumber/_router.ts
+    sha256: 733e7239a23491a48b1c2e400d0d62cbad9a87fb600d07d7af3d2f0758d3b5dd
+  - path: packages/trpc/server/routers/viewer/slots/_router.tsx
+    sha256: d138b3c19392ac1b0a9110945600b21b678c328aa55da5a4966e1a85732f9642
+  - path: packages/trpc/server/routers/viewer/slots/reserveSlot.handler.ts
+    sha256: 81da6fb352291f702c366c5e59d04dca5321fc330525e942bfbbfe0ff9dc174e
+  - path: packages/trpc/server/routers/viewer/slots/util.ts
+    sha256: b0c42a7e20b0b44084d2163f63f90eb0ed13fb5eeba40cb46da7473b15f83b1e
+  - path: packages/trpc/server/routers/viewer/webhook/create.handler.ts
+    sha256: 5e6e75e726dbce404b9dd15203e017f5518ea63dd50c00e2eb40bac9ec7f8603

@@ -9,6 +9,7 @@ import { createAssistantMessageEventStream, getCurrentTools, InMemoryCredentialS
 import { ModelRuntime } from '@earendil-works/pi-coding-agent';
 import { checkPi, DEFAULT_MODEL, executePi, runPiSession, toolNames } from '../pi.mjs';
 import { DraftGraph, parseYaml, yaml } from '../graph.mjs';
+import { changedFiles, fetchCommit, seedDraft } from '../seed.mjs';
 import { runExperiment, TEAM_ROOT, verifyRun } from '../runner.mjs';
 import { createGraphTools } from '../source-server.mjs';
 import { assertOutsideRepository, git, prepareCheckout, Source } from '../source.mjs';
@@ -108,7 +109,7 @@ test('incremental graph validation adds exact evidence and hashes without changi
   const result = graph.finalize();
   assert.equal(result.nodes.length, 2);
   assert.equal(result.edges.length, 1);
-  assert.equal(result.edges[0]['x-source-evidence'][0].excerpt, '  return book();');
+  assert.deepEqual(result.edges[0]['x-source-evidence'][0], { path: 'src/page.ts', start_line: 3, end_line: 3 });
   assert.equal(result.edges[0].evidence[0].line, 3);
   assert.equal(result.nodes[0].provenance, 'inferred');
   assert.equal(result['x-source-files'].length, 2);
@@ -125,7 +126,6 @@ test('schema, graph consistency and source errors remain repairable', async t =>
     ['parent cycle', g => { g.groups[0].parent = 'booking'; }, /cycle/],
     ['missing parent', g => { g.groups[0].parent = 'missing'; }, /Unknown parent/],
     ['missing member evidence', g => { g.nodes[0].files.push('AGENTS.md'); }, /membership evidence/],
-    ['false excerpt', g => { g.edges[0]['x-source-evidence'][0].excerpt = 'invented'; }, /differs/],
     ['source range', g => { g.edges[0]['x-source-evidence'][0].end_line = 999; }, /range/],
     ['source provenance', g => { g.nodes[0].provenance = 'manual'; }, /inferred/],
     ['standard citation mismatch', g => { g.edges[0].evidence = [{ file: 'src/service.ts', line: 1 }]; }, /standard evidence/],
@@ -219,8 +219,16 @@ test('orchestration: fresh prepare, full mock generation, repeat isolation and t
   const report = JSON.parse(readFileSync(reportPath, 'utf8'));
   writeFileSync(reportPath, JSON.stringify({ ...report, nodes: 500 }));
   assert.throws(() => verifyRun(second.runDir), /report differs/);
-  writeFileSync(join(completed.runDir, 'graph.yaml'), readFileSync(join(completed.runDir, 'graph.yaml'), 'utf8').replace('return book();', 'return fake();'));
-  assert.throws(() => verifyRun(completed.runDir), /differs/);
+  const frozen = join(completed.runDir, 'graph.yaml');
+  const original = readFileSync(frozen, 'utf8');
+  for (const [from, to] of [['Page calls book.', 'Page calls nothing.'], ['start_line: 2', 'start_line: 1']]) {
+    const tampered = original.replace(from, to);
+    assert.notEqual(tampered, original);
+    writeFileSync(frozen, tampered);
+    assert.throws(() => verifyRun(completed.runDir), /differ|checksum mismatch/);
+  }
+  writeFileSync(frozen, original);
+  verifyRun(completed.runDir);
 });
 test('failed runs preserve metadata and drafts but never claim a prediction', async () => {
   let failure;
@@ -385,4 +393,71 @@ test('Pi orchestration records Astra selection, actual SDK usage and estimated c
   assert.equal(result.metadata.execution.toolAttempts, 4);
   assert.equal(result.metadata.inspection.tool_calls, 4);
   assert.equal(verifyRun(result.runDir).nodes, 2);
+});
+
+test('evidence in the wrong shape is rejected on update, naming the entry and the expected keys', () => {
+  const { source } = fixture();
+  const graph = new DraftGraph(source, schema, target.repo);
+  assert.throws(() => graph.update(yaml({ nodes: [{ id: 'page', 'x-source-evidence': [{ file: 'src/page.ts', line: 2 }] }] })), /page: x-source-evidence entries are \{path, start_line, end_line\}/);
+  assert.throws(() => graph.update(yaml({ edges: [{ id: 'e', 'x-source-evidence': { path: 'src/page.ts' } }] })), /e: x-source-evidence must be an array/);
+  assert.equal(graph.document.nodes.length, 0);
+});
+
+test('finalization reports every evidence error with its entry', () => {
+  const { source } = fixture();
+  const graph = new DraftGraph(source, schema, target.repo);
+  const node = (id, path) => ({ id, label: id, kind: 'service', group: 'g', summary: 's', description: 'd', files: [path], 'x-source-evidence': [{ path, start_line: 1, end_line: 1 }] });
+  graph.update(yaml({ title: 't', description: 'd', 'x-scope': { included: ['a'], excluded: ['b'] }, groups: [{ id: 'g', label: 'G' }], nodes: [node('page', 'src/page.ts'), node('service', 'src/service.ts')], edges: [{ id: 'e', from: 'page', to: 'service', kind: 'calls', label: 'c', description: 'd', 'x-source-evidence': [{ path: 'src/page.ts', start_line: 3, end_line: 3 }] }] }));
+  assert.throws(() => graph.validate(), error => /3 evidence error/.test(error.message) && /page: Evidence was not read/.test(error.message) && /service: Evidence was not read/.test(error.message));
+});
+
+test('the wide scope and commit options select their own prompt, group rule and checkout', async () => {
+  const outputRoot = mkdtempSync(join(root, 'wide-'));
+  const { runDir } = await runExperiment({ outputRoot, prepareOnly: true, scope: 'wide', commit }, { target: { ...target, commit: '0'.repeat(40) } });
+  const config = JSON.parse(readFileSync(join(runDir, 'server.json'), 'utf8'));
+  assert.equal(config.commit, commit);
+  assert.equal(config.groups.min_groups, 6);
+  assert.match(readFileSync(join(runDir, 'instructions.md'), 'utf8'), /Cal\.com web product/);
+  await assert.rejects(runExperiment({ outputRoot, prepareOnly: true, scope: 'nope' }, { target }), /Unknown scope/);
+});
+
+test('a seeded draft carries unchanged evidence, and changed entries must be resubmitted or removed', () => {
+  const repo = join(root, 'chain-upstream');
+  git(root, ['clone', '--quiet', origin, repo]);
+  writeFileSync(join(repo, 'src/page.ts'), '// moved down\nimport { book } from "./service";\nexport function Page(renamed) {\n  return book();\n}\n');
+  git(repo, ['add', '.']);
+  git(repo, ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '--quiet', '-m', 'next']);
+  const next = git(repo, ['rev-parse', 'HEAD']).trim();
+  const { source: before } = fixture();
+  before.read({ path: 'src/page.ts' }); before.read({ path: 'src/service.ts' });
+  const first = new DraftGraph(before, schema, target.repo);
+  const node = (id, path) => ({ id, label: id, kind: 'service', group: 'g', summary: 's', description: 'd', files: [path], 'x-source-evidence': [{ path, start_line: 1, end_line: 3 }] });
+  first.update(yaml({ title: 't', description: 'd', 'x-scope': { included: ['a'], excluded: ['b'] }, groups: [{ id: 'g', label: 'G' }], nodes: [node('page', 'src/page.ts'), node('service', 'src/service.ts')], edges: [{ id: 'e', from: 'page', to: 'service', kind: 'calls', label: 'c', description: 'd', 'x-source-evidence': [{ path: 'src/page.ts', start_line: 3, end_line: 3 }, { path: 'src/service.ts', start_line: 1, end_line: 1 }] }] }));
+  const text = yaml(first.finalize());
+  const source = prepareCheckout({ directory: join(mkdtempSync(join(root, 'chain-')), 'calcom'), remote: repo, commit: next });
+  fetchCommit(source.root, repo, commit);
+  const seed = seedDraft(text, source);
+  assert.deepEqual([...seed.pending.keys()], ['page']);
+  assert.deepEqual(seed.document.edges[0]['x-source-evidence'][0], { path: 'src/page.ts', start_line: 4, end_line: 4 });
+  const graph = new DraftGraph(source, schema, target.repo, { seed });
+  assert.throws(() => graph.validate(), /1 entries cite changed code.*page/);
+  graph.update(yaml({ nodes: [node('page', 'src/page.ts')] }));
+  assert.throws(() => graph.validate(), /page: Evidence was not read/);
+  source.read({ path: 'src/page.ts' });
+  const updated = graph.finalize();
+  assert.equal(updated.commit, next);
+  assert.equal(updated['x-variant'], 'llm-only-chained');
+  assert.deepEqual(changedFiles(source.root, commit, next), [{ status: 'M', path: 'src/page.ts' }]);
+});
+
+test('graphs store locations only; a frozen graph that carries code still checks against the source', () => {
+  const { source } = fixture();
+  readBoth(source);
+  const graph = new DraftGraph(source, schema, target.repo);
+  const given = prediction();
+  given.edges[0]['x-source-evidence'][0].excerpt = 'invented';
+  graph.update(yaml(given));
+  assert.doesNotMatch(yaml(graph.finalize()), /excerpt/);
+  assert.equal(source.evidence({ path: 'src/page.ts', start_line: 3, end_line: 3, excerpt: '  return book();' }).excerpt, '  return book();');
+  assert.throws(() => source.evidence({ path: 'src/page.ts', start_line: 3, end_line: 3, excerpt: 'invented' }), /differs/);
 });

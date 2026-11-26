@@ -131,6 +131,7 @@ export class Source {
     }
     const exact = lines.slice(start_line - 1, end_line).join('\n');
     if (excerpt !== undefined && excerpt !== exact) throw new Error(`Evidence excerpt differs from source: ${path}:${start_line}`);
-    return { path, start_line, end_line, excerpt: exact };
+    // New graphs store only the location. Graphs frozen before 2026-11-25 carry a copy of the code; keep it when verifying them.
+    return { path, start_line, end_line, ...(excerpt === undefined ? {} : { excerpt: exact }) };
   }
 }

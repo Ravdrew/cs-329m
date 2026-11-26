@@ -94,7 +94,7 @@ export async function runPiSession(config, emit = () => {}, runtime) {
     sessionManager: SessionManager.inMemory(config.checkout), settingsManager,
     resourceLoader: isolatedResources(instructions),
     customTools: toolDefinitions.map(def => ({
-      name: def.name, label: def.name, description: def.description, parameters: def.inputSchema,
+      name: def.name, label: def.name, description: config.seed ? def.description.replace('This draft starts empty for every run.', 'This draft starts as the previous graph.') : def.description, parameters: def.inputSchema,
       executionMode: 'sequential',
       execute: async (_id, args, signal) => {
         if (signal?.aborted || stopReason) throw new Error(stopReason ?? 'Interrupted');
@@ -160,7 +160,7 @@ export async function runPiSession(config, emit = () => {}, runtime) {
     process.once('SIGINT', interrupted);
     process.once('SIGTERM', interrupted);
     monitor = setInterval(() => { if (Date.now() >= config.deadline) stop('Time limit reached'); }, 100);
-    await session.prompt(`Build the booking component graph for ${config.repo} at ${config.commit}. You have at most ${config.maxTools} tool calls and ${config.maxMinutes} minutes. Start by discovering source files.`, { expandPromptTemplates: false });
+    await session.prompt(`${config.seed ? 'Update' : 'Build'} the ${config.scope === 'wide' ? 'web product' : 'booking'} component graph for ${config.repo} at ${config.commit}. ${config.scope === 'wide' ? '' : `You have at most ${config.maxTools} tool calls and ${config.maxMinutes} minutes. `}Start by ${config.seed ? 'looking at what changed' : 'discovering source files'}.`, { expandPromptTemplates: false });
   } catch (error) {
     lastError = error.message;
   } finally {
