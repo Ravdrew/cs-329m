@@ -5,6 +5,8 @@
 //   node tools/llm-only/pr-coverage.mjs GRAPH.yaml PULL [EDIT.yaml] [--json]
 //
 //   in_graph         PR files that some component lists
+//   existing_*       the same, counting only PR files that exist at the base commit (modified, deleted or renamed);
+//                    files the PR adds cannot be in a graph of the code before it
 //   in_changed       (with EDIT) PR files listed by a component the edit marks, or by an endpoint of a marked edge
 //   within_one_step  (with EDIT) ... or by a direct neighbour of one
 import { existsSync, readFileSync } from 'node:fs';
@@ -18,19 +20,24 @@ const TEAM_ROOT = resolve(process.env.TASK_DATA_ROOT ?? resolve(new URL('.', imp
 const CHANGED = new Set(['new', 'modify', 'delete']);
 
 /** The PR's source files as harness.py counts them: renames by new path, hidden support files left out. */
-export function prFiles(pull, root = TEAM_ROOT) {
+export function prFiles(pull, root = TEAM_ROOT, { existingOnly = false } = {}) {
   const task = JSON.parse(readFileSync(join(root, 'benchmark/tasks.json'), 'utf8')).find(t => t.pull_number === Number(pull));
   if (!task) throw new Error(`No task ${pull}`);
   const overridesFile = join(root, 'q2q3-tools/task_overrides.json');
   const support = new Set(existsSync(overridesFile) ? JSON.parse(readFileSync(overridesFile, 'utf8'))[String(pull)]?.hidden_support_files ?? [] : []);
-  return [...new Set(task.source_files.map(e => e.slice(e.indexOf(':') + 1).split('\t').at(-1)))].filter(p => !support.has(p)).sort();
+  // Entries are STATUS:path (renames STATUS:old<TAB>new); A is a file the PR adds.
+  const entries = task.source_files.filter(e => !existingOnly || !e.startsWith('A'));
+  return [...new Set(entries.map(e => e.slice(e.indexOf(':') + 1).split('\t').at(-1)))].filter(p => !support.has(p)).sort();
 }
 
 export function prCoverage(graph, pull, edit) {
   const gold = prFiles(pull);
   const filesOf = n => (n?.files ?? []).map(f => (typeof f === 'string' ? f : f.path));
   const owned = new Set(graph.nodes.flatMap(filesOf));
-  const out = { pull: Number(pull), pr_files: gold.length, in_graph: gold.filter(p => owned.has(p)).length };
+  const existing = new Set(prFiles(pull, TEAM_ROOT, { existingOnly: true }));
+  const ex = list => list.filter(p => existing.has(p)).length;
+  const out = { pull: Number(pull), pr_files: gold.length, in_graph: gold.filter(p => owned.has(p)).length,
+    existing_pr_files: existing.size, existing_in_graph: ex(gold.filter(p => owned.has(p))) };
   if (edit) {
     const nodes = new Map(edit.nodes.map(n => [n.id, n]));
     const changed = new Set(edit.nodes.filter(n => CHANGED.has(n.status)).map(n => n.id));
@@ -39,7 +46,8 @@ export function prCoverage(graph, pull, edit) {
     for (const e of edit.edges) { if (changed.has(e.from)) near.add(e.to); if (changed.has(e.to)) near.add(e.from); }
     const inSet = ids => new Set([...ids].flatMap(id => filesOf(nodes.get(id))));
     const c = inSet(changed), n = inSet(near);
-    Object.assign(out, { changed_components: changed.size, in_changed: gold.filter(p => c.has(p)).length, within_one_step: gold.filter(p => n.has(p)).length });
+    Object.assign(out, { changed_components: changed.size, in_changed: gold.filter(p => c.has(p)).length, within_one_step: gold.filter(p => n.has(p)).length,
+      existing_in_changed: ex(gold.filter(p => c.has(p))), existing_within_one_step: ex(gold.filter(p => n.has(p))) });
   }
   return out;
 }
