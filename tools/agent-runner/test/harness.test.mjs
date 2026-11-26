@@ -56,6 +56,7 @@ test('real harness: prepare, runs with reset between them, grading with the hidd
   assert.equal(solved.status, 'completed', solved.error);
   assert.equal(solved.resolved, true, JSON.stringify(solved));
   assert.equal(solved.f2p_passed, 1);
+  assert.deepEqual([solved.fair_resolved, solved.fair_passed, solved.fair_total], [true, 1, 1], 'fair-only score from TEST_FAIRNESS');
   assert.deepEqual(solved.agent_files.sort(), ['notes.txt', 'src/booking.mjs'], '.env is ignored, so not counted');
   assert.equal(solved.file_recall, 1);
   assert.equal(solved.graph_tool_calls, 1);
@@ -73,6 +74,7 @@ test('real harness: prepare, runs with reset between them, grading with the hidd
   assert.equal(unsolved.status, 'completed', unsolved.error);
   assert.equal(unsolved.resolved, false);
   assert.equal(unsolved.f2p_passed, 0);
+  assert.deepEqual([unsolved.fair_resolved, unsolved.fair_passed, unsolved.fair_total], [false, 0, 1]);
   assert.equal(seen[1], BOOKING, 'reset removed the previous run\'s change');
   assert.match(readFileSync(join(unsolved.runDir, 'prompt.md'), 'utf8'), /Add cancelBooking next to book/);
 

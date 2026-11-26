@@ -8,7 +8,7 @@ import { after, test } from 'node:test';
 import { parse } from 'yaml';
 import { TEAM_ROOT, UNGROUPED, edgeId } from '../graph.mjs';
 import { graphHeader } from '../render.mjs';
-import { createGraphTools, toolDefinitions } from '../tools.mjs';
+import { createGraphTools, queryWords, toolDefinitions } from '../tools.mjs';
 
 const GRAPHS = join(TEAM_ROOT, 'graphs');
 const HANDMADE_EDIT = join(GRAPHS, 'booking-handmade-edit.yaml');
@@ -42,7 +42,12 @@ test('get_requested_change and the graph header match the text channel byte for 
 
 test('an unedited graph reports no requested change', () => {
   const tools = createGraphTools({ graph: join(GRAPHS, 'booking-handmade.yaml') });
-  assert.match(ok(tools, 'get_requested_change'), /^## Requested change\n\nNone\./);
+  const text = ok(tools, 'get_requested_change');
+  assert.match(text, /^## Requested change\n\nNone\./);
+  assert.match(text, /The graph still maps the current code: use find_components/, 'an empty change does not read as an empty graph');
+  const description = tools.definitions.find(d => d.name === 'get_requested_change').description;
+  assert.doesNotMatch(description, /start here/i);
+  assert.match(description, /find_components/);
 });
 
 test('no x-* field content or code reaches the agent', () => {
@@ -108,6 +113,29 @@ test('find_components finds owners of files and directories, and searches by wor
   const words = ok(tools, 'find_components', { query: 'booked appointments' });
   assert.match(words.split('\n')[1], /\[booked-appointments-page\]/);
   assert.match(ok(tools, 'find_components', { query: 'booking', kind: 'model' }), /\[booking-model\]/);
+});
+
+test('find_components ranks by how many query words match, so one unknown word does not empty the result', () => {
+  const tools = createGraphTools({ graph: HANDMADE_EDIT });
+  const lines = q => ok(tools, 'find_components', { query: q }).split('\n');
+  // "zzzz" matches nothing; the components matching the other two words still come first.
+  const partial = lines('booking success zzzz');
+  assert.match(partial[0], /most matching words first/);
+  assert.match(partial[1], /\[booking-success-page\].*matched 2\/3 words \(booking, success\)/);
+  // Matching more words beats matching fewer words in heavier fields: both 3/3 pages before the 2/3 cancel service,
+  // although "Cancel booking service" has two of the words in its name.
+  const ids = lines('cancel booking page').slice(1, 4).map(l => l.match(/\[([^\]]+)\]/)[1]);
+  assert.deepEqual(ids, ['booking-success-page', 'bookings-list-page', 'cancel-service']);
+  assert.match(lines('reschedule email')[1], /\[email-manager\]/);
+  assert.match(ok(tools, 'find_components', { query: 'zzzz qqqq' }), /No component matches any word of "zzzz qqqq"/);
+});
+
+test('find_components ignores stopwords and repeated words unless nothing else is left', () => {
+  assert.deepEqual(queryWords('Phone number OR email or  email'), ['phone', 'number', 'email']);
+  assert.deepEqual(queryWords('the or'), ['the', 'or']);
+  const tools = createGraphTools({ graph: HANDMADE_EDIT });
+  const text = ok(tools, 'find_components', { query: 'the email or manager' });
+  assert.match(text.split('\n')[1], /\[email-manager\].*matched 2\/2 words \(email, manager\)/);
 });
 
 test('get_node and get_edge show developer notes, change marks and every code location', () => {

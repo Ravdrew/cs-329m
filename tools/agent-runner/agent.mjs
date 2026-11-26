@@ -19,7 +19,7 @@ function trimResult(result) {
 
 /**
  * config: { workdir, runDir, prompt, condition: { channel, graph, codegraph }, codegraphServer?, provider, model,
- *           effort, maxMinutes, maxToolCalls, maxCostUsd, authFile?, graphTools?, maxChars? }
+ *           effort, maxMinutes, maxToolCalls, maxCostUsd, authFile?, graphTools?, maxChars?, sandbox? (sandboxSpec) }
  */
 export async function runAgent(config, emit = () => {}, runtime) {
   if (!runtime) {
@@ -38,7 +38,7 @@ export async function runAgent(config, emit = () => {}, runtime) {
   const { session, model, expectedTools, allowedPrefixes } = await createGraphSession({
     graph: condition.graph, runDir: config.runDir, cwd: config.workdir, channel: condition.channel, extraMcpServers,
     provider: config.provider, model: config.model, effort: config.effort, authFile: config.authFile,
-    tools: config.graphTools, maxChars: config.maxChars, builtinTools: config.builtinTools,
+    tools: config.graphTools, maxChars: config.maxChars, builtinTools: config.builtinTools, sandbox: config.sandbox,
   }, runtime);
 
   const deadline = Date.now() + config.maxMinutes * 60_000;

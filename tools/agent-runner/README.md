@@ -55,7 +55,7 @@ Each run writes `OUT/PULL/CONDITION-rN/`:
 
 | File | Contents |
 |---|---|
-| `run.json` | The record: status (`completed`, `limit`, `error`, `invalid`), stop reason, model, Pi version, limits, usage and cost, tool calls, graph tool calls, bash and search commands, audit flag, and the grading (resolved, FAIL_TO_PASS passed, file recall and precision, agent files, regressions); sha256 of the prompt and every input |
+| `run.json` | The record: status (`completed`, `limit`, `error`, `invalid`), stop reason, model, Pi version, limits, usage and cost, tool calls, graph tool calls, bash and search commands, audit flag, and the grading (resolved, FAIL_TO_PASS passed, the fair-only score `fair_resolved`/`fair_passed`/`fair_total` over the tests labelled fair or convention in `q2q3-tools/test_fairness.json`, file recall and precision, agent files, regressions); sha256 of the prompt and every input |
 | `prompt.md`, `effective-system-prompt.md` | Exactly what the agent was told |
 | `events.jsonl` | Every model response (with usage) and tool call, in order; long tool results trimmed to 20k characters |
 | `tools.jsonl`, `mcp.log` | The graph server's own log (tool conditions) |
@@ -74,7 +74,18 @@ Cal.com's own Yarn.
 is still graded on what it changed. `invalid` means the agent was offered other tools than the condition's (it is not
 graded). A subprocess that hangs is killed 5 minutes after its time limit.
 
-**Audit.** Pi's `bash` cannot be restricted per command, so the prompt's rules are checked afterwards: absolute paths
+**Sandbox (macOS).** By default (`"sandbox": "auto"`) the agent's `bash`, `read`, `edit` and `write` run sandboxed
+(`tools/graph-mcp/sandbox.mjs`): every bash command under `sandbox-exec` with a profile written to `RUN_DIR/sandbox.sb`,
+the file tools limited to the checkout. The agent cannot reach the network (localhost servers and DNS lookups still
+work), cannot read anything under `/Users` except the checkout, `env.sh` and the Node toolchain (`~/.nvm`,
+`~/.cache/node`, `~/.yarn`), so not the team repo, earlier runs or `~/.pi`, and can never read `PILOT_PRIVATE` (the real
+git history and hidden test reports). Writes go only to the checkout, temporary directories and the toolchain caches.
+The tools keep Pi's names, schemas and descriptions, so the model sees the same prompt either way. `run.json` records
+`sandbox` (`sandbox-exec` or `off`) and `sandbox_refusals` (tool results the sandbox refused). `"sandbox": true`
+fails where `sandbox-exec` is missing; `false` turns it off. On Linux it is off for now (`bwrap` would be the
+equivalent), so there the audit flags below are the only check. `fileloc.mjs` uses the same setting.
+
+**Audit.** The prompt's rules are also checked afterwards from the commands' text: absolute paths
 outside the checkout (except the env script, `/tmp`, `/dev/null` and system binaries), network commands, git history
 commands, and `../..` escapes. Flagged runs are marked (`audit_flagged`) for review, not dropped. `search_commands`
 counts bash commands that search (`grep`, `rg`, `find`, `git grep`, `ls -R`, ...), one of the proposal's cost metrics.
