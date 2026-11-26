@@ -13,6 +13,8 @@ export const GROUP_RULE = Object.freeze({ min_nodes: 20, min_groups: 3 });
 export const SCOPES = Object.freeze({
   booking: { prompt: 'shared-core.md', groups: GROUP_RULE },
   wide: { prompt: 'shared-core-wide.md', groups: Object.freeze({ min_nodes: 20, min_groups: 6 }) },
+  // The per-PR graphs, 2026-11-26: wide scope, and every component lists all the files it owns (prompt-full.md).
+  'wide-full': { prompt: 'shared-core-wide.md', howTo: 'prompt-full.md', membership: 'full', groups: Object.freeze({ min_nodes: 20, min_groups: 6 }) },
 });
 export const TEAM_ROOT = resolve(HERE, '../..');
 const json = (path, value) => writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
@@ -37,7 +39,7 @@ export function verifyRun(runDir) {
   if (document.commit !== config.commit || document.repo !== config.repo || document['x-variant'] !== (config.seed ? 'llm-only-chained' : 'llm-only')) throw new Error('Graph header differs from run configuration');
   const seed = config.seed ? seedDraft(readFileSync(join(runDir, 'seed.yaml'), 'utf8'), source) : undefined;
   // Every entry that had to be reviewed was resubmitted or removed before the graph could be frozen.
-  const draft = new DraftGraph(source, schema, config.repo, { groups: config.groups, seed: seed && { ...seed, pending: new Map() } });
+  const draft = new DraftGraph(source, schema, config.repo, { groups: config.groups, membership: config.membership, seed: seed && { ...seed, pending: new Map() } });
   draft.document = document;
   const verified = draft.validate();
   if (yaml(verified) !== content) throw new Error('Frozen YAML/evidence/hashes differ from validated canonical output');
@@ -63,7 +65,7 @@ export async function runExperiment(options, dependencies = {}) {
     provider: options.provider ?? DEFAULT_PROVIDER, effort: options.effort ?? 'medium',
     authFile: options.authFile ? resolve(options.authFile) : null,
     maxTools: options.maxTools ?? 600, maxMinutes: options.maxMinutes ?? 45,
-    groups: SCOPES[scope].groups, scope, seed: options.seed ? { path: resolve(options.seed) } : null,
+    groups: SCOPES[scope].groups, membership: SCOPES[scope].membership ?? 'evidence', scope, seed: options.seed ? { path: resolve(options.seed) } : null,
   };
   const metadata = {
     version: 1, variant: 'llm-only', backend: 'pi-sdk', status: 'preparing', started_at: new Date(started).toISOString(),
@@ -84,7 +86,7 @@ export async function runExperiment(options, dependencies = {}) {
     // The task, scope, quality bar and evidence rules are shared with the hot-start runner; prompt.md says only how
     // this condition builds the graph.
     const sharedPrompt = readFileSync(join(TEAM_ROOT, 'tools/prompts', SCOPES[scope].prompt), 'utf8');
-    let prompt = `${sharedPrompt}\n${readFileSync(join(HERE, 'prompt.md'), 'utf8')}`;
+    let prompt = `${sharedPrompt}\n${readFileSync(join(HERE, SCOPES[scope].howTo ?? 'prompt.md'), 'utf8')}`;
     if (options.seed) {
       const seedText = readFileSync(config.seed.path, 'utf8');
       writeFileSync(join(runDir, 'seed.yaml'), seedText);
@@ -108,7 +110,7 @@ export async function runExperiment(options, dependencies = {}) {
     metadata.schema_sha256 = sha256(schemaText);
     metadata.source_manifest_sha256 = sha256(readFileSync(join(runDir, 'source-manifest.json')));
     metadata.runner_revision = git(TEAM_ROOT, ['rev-parse', 'HEAD']).trim();
-    metadata.runner_files = Object.fromEntries(['package-lock.json', 'prompt.md', 'prompt-update.md', 'seed.mjs', 'source.mjs', 'graph.mjs', 'source-server.mjs', 'pi.mjs', 'runner.mjs', 'cli.mjs'].map(file => [file, sha256(readFileSync(join(HERE, file)))]));
+    metadata.runner_files = Object.fromEntries(['package-lock.json', 'prompt.md', 'prompt-full.md', 'prompt-update.md', 'seed.mjs', 'source.mjs', 'graph.mjs', 'source-server.mjs', 'pi.mjs', 'runner.mjs', 'cli.mjs'].map(file => [file, sha256(readFileSync(join(HERE, file)))]));
     metadata.runner_files[`../prompts/${SCOPES[scope].prompt}`] = sha256(sharedPrompt);
     metadata.source_file_count = source.files.length;
     metadata.status = options.prepareOnly ? 'prepared' : 'running';

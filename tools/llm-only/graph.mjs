@@ -24,12 +24,40 @@ function checkEvidenceShape(item) {
 }
 const requireValue = (condition, message) => { if (!condition) throw new Error(message); };
 
+// Full membership (scope wide-full): a component lists every source file it owns, and may name a directory (trailing
+// slash) for all its non-test source files. Membership is then a claim about ownership, checked for existence; the
+// evidence shows the component's responsibility in at least one member file, not one range per file.
+export const SOURCE_FILE = /\.(?:[cm]?[jt]sx?|prisma)$/;
+export const TEST_FILE = /(^|\/)(__tests__|__mocks__|__snapshots__|test|tests|e2e|playwright)\/|\.(test|spec|e2e|stories)\.[cm]?[jt]sx?$/;
+export const MAX_DIRECTORY_FILES = 300;
+/** A node's files with directory entries expanded to their tracked non-test source files; throws on bad entries. */
+export function expandMemberFiles(node, source) {
+  const out = [];
+  const seen = new Set();
+  const add = entry => { const path = typeof entry === 'string' ? entry : entry.path; if (!seen.has(path)) { seen.add(path); out.push(entry); } };
+  for (const entry of node.files ?? []) {
+    const path = typeof entry === 'string' ? entry : entry?.path;
+    requireValue(typeof path === 'string' && path.trim(), `${node.id}: each files entry needs a path`);
+    if (path.endsWith('/')) {
+      const files = source.files.filter(p => p.startsWith(path) && SOURCE_FILE.test(p) && !TEST_FILE.test(p));
+      requireValue(files.length, `${node.id}: directory ${path} has no tracked non-test source files at this commit`);
+      requireValue(files.length <= MAX_DIRECTORY_FILES, `${node.id}: directory ${path} has ${files.length} source files (more than ${MAX_DIRECTORY_FILES}); name its subdirectories or files instead`);
+      files.forEach(add);
+    } else {
+      requireValue(source.allowed.has(path), `${node.id}: ${path} is not a tracked file at this commit`);
+      add(entry);
+    }
+  }
+  return out;
+}
+
 export class DraftGraph {
   // options.groups ({ min_nodes, min_groups }, recorded per run in server.json): above min_nodes components every
   // component needs a group and at least min_groups groups are used. Runs recorded before it existed have none.
   constructor(source, schema, repo, options = {}) {
     this.source = source;
     this.groupRule = options.groups ?? null;
+    this.membership = options.membership ?? 'evidence'; // 'evidence': every member file cited; 'full': see expandMemberFiles
     this.validateSchema = new Ajv2020({ allErrors: true, strict: false }).compile(schema);
     this.document = { version: 1, repo, commit: source.commit, groups: [], nodes: [], edges: [], 'x-variant': 'llm-only' };
     this.frozen = false;
@@ -131,11 +159,18 @@ export class DraftGraph {
     for (const node of graph.nodes) {
       requireValue(!node.group || groups.has(node.group), `${node.id}: unknown group`);
       requireValue(node.summary?.trim() && node.description?.trim(), `${node.id}: summary and description required`);
-      requireValue(node.files.length > 0, `${node.id}: member files required`);
+      requireValue(node.files?.length > 0, `${node.id}: member files required`);
+      if (this.membership === 'full') {
+        node.files = expandMemberFiles(node, this.source);
+        const members = new Set(node.files.map(f => (typeof f === 'string' ? f : f.path)));
+        requireValue(node['x-source-evidence'].some(e => members.has(e.path)), `${node.id}: cite the component's responsibility in at least one of its member files`);
+      }
       for (const file of node.files) {
         const path = typeof file === 'string' ? file : file.path;
-        const evidence = node['x-source-evidence'].filter(e => e.path === path);
-        requireValue(evidence.length, `${node.id}: no membership evidence for ${path}`);
+        if (this.membership !== 'full') {
+          const evidence = node['x-source-evidence'].filter(e => e.path === path);
+          requireValue(evidence.length, `${node.id}: no membership evidence for ${path}`);
+        }
         if (typeof file === 'object' && file.lines) this.source.evidence({ path, start_line: file.lines[0], end_line: file.lines[1] });
         paths.add(path);
       }

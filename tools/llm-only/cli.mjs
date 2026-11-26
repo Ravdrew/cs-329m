@@ -19,7 +19,8 @@ Options:
   --output-root PATH    New run directories here; must be outside all Git checkouts
   --commit SHA          Full commit to graph (default: the pin in targets/calcom.env)
   --seed GRAPH          Update this graph of an earlier commit instead of starting empty (--scope wide)
-  --scope NAME          booking (default) or wide (the whole web product)
+  --scope NAME          booking (default), wide (the whole web product) or wide-full (wide, and every component
+                        lists all the files it owns)
   --max-tools N         Maximum source/graph tool calls (default: 600)
   --max-minutes N       Maximum generation time (default: 45)
   --prepare-only        Prepare clean checkout and inputs without calling a model

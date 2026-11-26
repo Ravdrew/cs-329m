@@ -461,3 +461,37 @@ test('graphs store locations only; a frozen graph that carries code still checks
   assert.equal(source.evidence({ path: 'src/page.ts', start_line: 3, end_line: 3, excerpt: '  return book();' }).excerpt, '  return book();');
   assert.throws(() => source.evidence({ path: 'src/page.ts', start_line: 3, end_line: 3, excerpt: 'invented' }), /differs/);
 });
+
+test('wide-full membership: directories expand to tracked non-test source files, one cited member file is enough', () => {
+  const repo = join(root, 'full-members');
+  mkdirSync(join(repo, 'pkg/form/utils'), { recursive: true });
+  mkdirSync(join(repo, 'pkg/form/__tests__'), { recursive: true });
+  for (const [p, text] of [['pkg/form/Builder.tsx', 'export const Builder = () => null;\n'], ['pkg/form/schema.ts', 'export const schema = 1;\n'],
+    ['pkg/form/utils/id.ts', 'export const id = 1;\n'], ['pkg/form/Builder.test.tsx', 'test\n'], ['pkg/form/__tests__/x.ts', 'x\n'],
+    ['pkg/form/README.md', 'docs\n'], ['pkg/other.ts', 'export const other = 1;\n']]) writeFileSync(join(repo, p), text);
+  git(repo, ['init', '--quiet', '--template=']);
+  git(repo, ['add', '.']);
+  git(repo, ['-c', 'user.name=F', '-c', 'user.email=f@example.invalid', 'commit', '--quiet', '-m', 'f']);
+  const commit = git(repo, ['rev-parse', 'HEAD']).trim();
+  const source = new Source(repo, commit);
+  source.read({ path: 'pkg/form/Builder.tsx', start_line: 1, end_line: 1 });
+  source.read({ path: 'pkg/other.ts', start_line: 1, end_line: 1 });
+  const node = (id, files, evidence) => ({ id, label: id, kind: 'component', group: 'g', summary: 's', description: 'd', files,
+    'x-source-evidence': evidence.map(path => ({ path, start_line: 1, end_line: 1 })) });
+  const draft = (nodes, membership = 'full') => {
+    const graph = new DraftGraph(source, schema, target.repo, { membership });
+    graph.update(yaml({ title: 'T', description: 'D', 'x-scope': { included: ['form'], excluded: ['none'] }, groups: [{ id: 'g', label: 'G' }], nodes,
+      edges: [{ id: 'e', from: nodes[0].id, to: nodes.at(-1).id, kind: 'uses', label: 'uses', description: 'd', 'x-source-evidence': [{ path: 'pkg/other.ts', start_line: 1, end_line: 1 }] }] }));
+    return graph;
+  };
+  const ok = draft([node('form', ['pkg/form/'], ['pkg/form/Builder.tsx']), node('other', ['pkg/other.ts'], ['pkg/other.ts'])]).finalize();
+  assert.deepEqual(ok.nodes.find(n => n.id === 'form').files, ['pkg/form/Builder.tsx', 'pkg/form/schema.ts', 'pkg/form/utils/id.ts'], 'tests and docs left out');
+  assert.ok(ok['x-source-files'].some(f => f.path === 'pkg/form/schema.ts'));
+  // The default (evidence) membership still wants a citation per member file.
+  assert.throws(() => draft([node('form', ['pkg/form/Builder.tsx', 'pkg/form/schema.ts'], ['pkg/form/Builder.tsx']), node('other', ['pkg/other.ts'], ['pkg/other.ts'])], 'evidence').finalize(), /membership evidence/);
+  for (const [files, evidence, error] of [
+    [['pkg/missing.ts'], ['pkg/form/Builder.tsx'], /not a tracked file/],
+    [['pkg/nothing/'], ['pkg/form/Builder.tsx'], /no tracked non-test source files/],
+    [['pkg/form/schema.ts'], ['pkg/form/Builder.tsx'], /at least one of its member files/],
+  ]) assert.throws(() => draft([node('form', files, evidence), node('other', ['pkg/other.ts'], ['pkg/other.ts'])]).finalize(), error);
+});

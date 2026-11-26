@@ -24,7 +24,7 @@ export const toolDefinitions = [
 
 export function createGraphTools(config) {
   const source = new Source(config.checkout, config.commit);
-  const graph = new DraftGraph(source, JSON.parse(readFileSync(join(config.runDir, 'schema.json'), 'utf8')), config.repo, { groups: config.groups, seed: config.seed ? seedDraft(readFileSync(join(config.runDir, 'seed.yaml'), 'utf8'), source) : undefined });
+  const graph = new DraftGraph(source, JSON.parse(readFileSync(join(config.runDir, 'schema.json'), 'utf8')), config.repo, { groups: config.groups, membership: config.membership, seed: config.seed ? seedDraft(readFileSync(join(config.runDir, 'seed.yaml'), 'utf8'), source) : undefined });
   const ajv = new Ajv({ allErrors: true });
   const validators = new Map(toolDefinitions.map(def => [def.name, ajv.compile(def.inputSchema)]));
   let calls = 0;
