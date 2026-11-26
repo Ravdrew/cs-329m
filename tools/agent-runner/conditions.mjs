@@ -8,6 +8,7 @@ export const CONDITIONS = {
   'prose-intent': { prompt: ['--intent', '{intent}'], channel: 'none', needs: ['intent'] },
   text: { prompt: ['--graph', '{edit}'], channel: 'none', needs: ['edit'] },
   tool: { prompt: ['--graph-tools', 'graph'], channel: 'mcp', graph: 'edit', needs: ['edit'] },
+  'tool-guided': { prompt: ['--graph-tools', 'graph-guided'], channel: 'mcp', graph: 'edit', needs: ['edit'] },
   'tool-noedit': { prompt: ['--graph-tools', 'graph'], channel: 'mcp', graph: 'base', needs: ['base'] },
   codegraph: { prompt: ['--graph-tools', 'codegraph'], channel: 'none', codegraph: true, needs: [] },
 };

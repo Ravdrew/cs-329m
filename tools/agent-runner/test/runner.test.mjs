@@ -56,6 +56,7 @@ test('conditions resolve to make_prompt.py blocks and graph channels', () => {
   assert.deepEqual(resolveCondition('prose-intent', inputs).promptArgs, ['--intent', '/i.md']);
   assert.deepEqual(resolveCondition('text', inputs).promptArgs, ['--graph', EDIT]);
   assert.deepEqual(resolveCondition('tool', inputs), { name: 'tool', channel: 'mcp', codegraph: false, graph: EDIT, promptArgs: ['--graph-tools', 'graph'] });
+  assert.deepEqual(resolveCondition('tool-guided', inputs), { name: 'tool-guided', channel: 'mcp', codegraph: false, graph: EDIT, promptArgs: ['--graph-tools', 'graph-guided'] });
   assert.equal(resolveCondition('tool-noedit', inputs).graph, BASE);
   assert.equal(resolveCondition('codegraph', {}).codegraph, true);
   assert.throws(() => resolveCondition('tool', {}), /needs task inputs: edit/);

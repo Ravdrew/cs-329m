@@ -43,6 +43,21 @@ TOOLS_INTRO = {
               'The developer also gave you a component graph of the codebase as it is in your checkout. '
               'If the graph marks a requested change, that is part of the task. '
               'Read it with the graph tools (their names start with `mcp__graph__`).'),
+    # Same graph and tools as 'graph', plus what the graph is for and how to use it (tool-guided condition).
+    'graph-guided': ('## Component graph\n\n'
+                     'The developer also gave you a component graph of the codebase as it is in your checkout. '
+                     'If the graph marks a requested change, that is part of the task.\n\n'
+                     'The graph is a map of the codebase, written to help you find your way around it. Each component '
+                     'lists the source files it owns, and each dependency says how two components connect (calls, '
+                     'renders, reads, writes or emits) and where in the code that happens. Use it to find the code '
+                     'you need before you search for it:\n\n'
+                     '1. Call `mcp__graph__get_requested_change` to see what the developer marked.\n'
+                     '2. For each component it names, call `mcp__graph__get_node` to see its files and what it '
+                     'connects to, and `mcp__graph__neighbors` to see what else the change will touch.\n'
+                     '3. When you meet a file or a feature you do not know, `mcp__graph__find_components` tells you '
+                     'which component owns it, and `mcp__graph__get_edge` shows where two components connect.\n\n'
+                     'Open the files the graph points to, and search the code for what the graph does not cover. '
+                     'The graph can be incomplete, so check what it says against the code.'),
     'codegraph': ('## Code graph\n\n'
                   'A code graph of the repository as it is in your checkout is available through the CodeGraph '
                   'tools (their names start with `mcp__codegraph__`).'),

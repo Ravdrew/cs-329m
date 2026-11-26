@@ -38,7 +38,7 @@ export async function runAgent(config, emit = () => {}, runtime) {
   const { session, model, expectedTools, allowedPrefixes } = await createGraphSession({
     graph: condition.graph, runDir: config.runDir, cwd: config.workdir, channel: condition.channel, extraMcpServers,
     provider: config.provider, model: config.model, effort: config.effort, authFile: config.authFile,
-    tools: config.graphTools, maxChars: config.maxChars,
+    tools: config.graphTools, maxChars: config.maxChars, builtinTools: config.builtinTools,
   }, runtime);
 
   const deadline = Date.now() + config.maxMinutes * 60_000;
