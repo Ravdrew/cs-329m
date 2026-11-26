@@ -1,0 +1,344 @@
+{
+  "unchanged": [
+    {
+      "id": "booker-slot-hooks",
+      "reason": "useSchedule only gained team/API v2 query options; still calls slots.getSchedule and reserve hooks"
+    },
+    {
+      "id": "booking-success-page",
+      "reason": "Refactors in getServerSideProps and view; still loads booking and payment and posts cancel"
+    },
+    {
+      "id": "crm-integrations-family",
+      "reason": "Salesforce/HubSpot internals changed but they remain CRM services behind CrmManager"
+    },
+    {
+      "id": "embed-core",
+      "reason": "Embed script grew features (EmbedElement base class) but still creates iframes and messages the booking page"
+    },
+    {
+      "id": "embed-dialog",
+      "reason": "Embed dialog refactor; still chooses embed type and generates code"
+    },
+    {
+      "id": "event-type-api",
+      "reason": "update handler gained fields (cal video settings, restriction schedule) but still updates the EventType"
+    },
+    {
+      "id": "model-payment",
+      "reason": "Payment model unchanged by schema growth"
+    },
+    {
+      "id": "model-webhook",
+      "reason": "Webhook model unchanged by schema growth"
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/ui-playground/",
+      "reason": "example app",
+      "files": [
+        "apps/ui-playground/content/design/components/section.basic.tsx",
+        "apps/ui-playground/content/design/components/section.subsection.tsx",
+        "apps/ui-playground/content/design/components/section.withIcon.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/instrumentation-client.ts",
+      "reason": "build/monitoring setup",
+      "files": [
+        "apps/web/instrumentation-client.ts"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/(main-nav)/teams/",
+      "reason": "team management UI outside booking scope",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/(main-nav)/teams/actions.ts",
+        "apps/web/app/(use-page-wrapper)/(main-nav)/teams/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/(main-nav)/teams/server-page.tsx",
+        "apps/web/app/(use-page-wrapper)/(main-nav)/teams/skeleton.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/apps/(homepage)/",
+      "reason": "app store marketing listing shell",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/apps/(homepage)/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/apps/(homepage)/skeleton.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/settings/",
+      "reason": "settings, org and admin pages outside scope",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/organizations/[id]/edit/error.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/users/[id]/edit/error.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/developer/api-keys/actions.ts",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/developer/api-keys/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/developer/webhooks/new/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/(org-admin-only)/billing/page.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/(org-admin-only)/layout.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/layout.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/teams/other/(main-page)/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/teams/other/(main-page)/page.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/teams/other/(main-page)/skeleton.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/organizations/(org-admin-only)/layout.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/organizations/(org-user-only)/[id]/members/layout.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/organizations/(org-user-only)/[id]/members/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/organizations/(org-user-only)/[id]/members/page.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/organizations/(org-user-only)/layout.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/organizations/(org-user-only)/members/actions.ts",
+        "apps/web/app/(use-page-wrapper)/settings/organizations/(org-user-only)/members/layout.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/organizations/(org-user-only)/members/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/organizations/(org-user-only)/members/page.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/platform/members/layout.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/platform/members/loading.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/notFoundClient.tsx",
+      "reason": "generic error UI",
+      "files": [
+        "apps/web/app/notFoundClient.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/api/cron/checkSmsPrices/route.ts",
+      "reason": "billing cron",
+      "files": [
+        "apps/web/app/api/cron/checkSmsPrices/route.ts"
+      ]
+    },
+    {
+      "path": "apps/web/lib/hooks/settings/",
+      "reason": "platform billing hooks",
+      "files": [
+        "apps/web/lib/hooks/settings/platform/billing/useUnsubscribeTeamToStripe.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/settings/",
+      "reason": "settings UI",
+      "files": [
+        "apps/web/modules/settings/billing/components/BillingCredits.tsx",
+        "apps/web/modules/settings/billing/components/BillingCreditsSkeleton.tsx",
+        "apps/web/modules/settings/developer/api-keys-skeleton.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/pages/api/router/index.ts",
+      "reason": "generic router entry",
+      "files": [
+        "apps/web/pages/api/router/index.ts"
+      ]
+    },
+    {
+      "path": "apps/web/pages/api/trpc/credits/",
+      "reason": "credits billing router",
+      "files": [
+        "apps/web/pages/api/trpc/credits/[trpc].ts"
+      ]
+    },
+    {
+      "path": "apps/web/pages/api/trpc/pbac/",
+      "reason": "enterprise permissions",
+      "files": [
+        "apps/web/pages/api/trpc/pbac/[trpc].ts"
+      ]
+    },
+    {
+      "path": "packages/embeds/embed-core/playground/",
+      "reason": "playground example",
+      "files": [
+        "packages/embeds/embed-core/playground/lib/playground-init.ts"
+      ]
+    },
+    {
+      "path": "packages/features/pbac/",
+      "reason": "enterprise permission system",
+      "files": [
+        "packages/features/pbac/context/PermissionProvider.tsx",
+        "packages/features/pbac/hooks/usePermission.ts",
+        "packages/features/pbac/lib/constants.ts",
+        "packages/features/pbac/lib/server/checkPermissions.ts",
+        "packages/features/pbac/repository/permission.repository.ts",
+        "packages/features/pbac/repository/role.repository.ts",
+        "packages/features/pbac/services/permission-check.service.ts",
+        "packages/features/pbac/services/permission.service.ts",
+        "packages/features/pbac/services/role.service.ts",
+        "packages/features/pbac/store/permission-store.ts",
+        "packages/features/pbac/types/permission-registry.ts"
+      ]
+    },
+    {
+      "path": "packages/features/platform-oauth-client/",
+      "reason": "platform feature",
+      "files": [
+        "packages/features/platform-oauth-client/get-platform-params.ts",
+        "packages/features/platform-oauth-client/platform-oauth-client.repository.interface.ts",
+        "packages/features/platform-oauth-client/platform-oauth-client.repository.ts"
+      ]
+    },
+    {
+      "path": "packages/features/users/components/UserTable/",
+      "reason": "org user table UI",
+      "files": [
+        "packages/features/users/components/UserTable/UserListTableSkeleton.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/webhooks/pages/",
+      "reason": "webhook settings skeletons",
+      "files": [
+        "packages/features/webhooks/pages/webhook-new-skeleton.tsx",
+        "packages/features/webhooks/pages/webhooks-skeleton.tsx"
+      ]
+    },
+    {
+      "path": "packages/lib/entityPermissionUtils.shared.ts",
+      "reason": "permission helper",
+      "files": [
+        "packages/lib/entityPermissionUtils.shared.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/hideBranding.ts",
+      "reason": "small helper",
+      "files": [
+        "packages/lib/hideBranding.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/redactSensitiveData.ts",
+      "reason": "small helper",
+      "files": [
+        "packages/lib/redactSensitiveData.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/dayjs/timeZone.schema.ts",
+      "reason": "schema helper",
+      "files": [
+        "packages/lib/dayjs/timeZone.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/intervalLimits/utils.ts",
+      "reason": "limit helper",
+      "files": [
+        "packages/lib/intervalLimits/utils.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/repository/apiKey.ts",
+      "reason": "api key repository outside scope",
+      "files": [
+        "packages/lib/server/repository/apiKey.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/repository/calVideoSettings.ts",
+      "reason": "settings repository used by event type update",
+      "files": [
+        "packages/lib/server/repository/calVideoSettings.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/repository/credits.ts",
+      "reason": "credits billing",
+      "files": [
+        "packages/lib/server/repository/credits.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/repository/deployment.interface.ts",
+      "reason": "deployment setup",
+      "files": [
+        "packages/lib/server/repository/deployment.interface.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/repository/deployment.ts",
+      "reason": "deployment setup",
+      "files": [
+        "packages/lib/server/repository/deployment.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/service/",
+      "reason": "insights services (enterprise)",
+      "files": [
+        "packages/lib/server/service/insightsBooking.ts",
+        "packages/lib/server/service/insightsRouting.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/admin/",
+      "reason": "admin routers",
+      "files": [
+        "packages/trpc/server/routers/viewer/admin/whitelistUserWorkflows.handler.ts",
+        "packages/trpc/server/routers/viewer/admin/whitelistUserWorkflows.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/credits/",
+      "reason": "credits billing router",
+      "files": [
+        "packages/trpc/server/routers/viewer/credits/_router.tsx",
+        "packages/trpc/server/routers/viewer/credits/buyCredits.handler.ts",
+        "packages/trpc/server/routers/viewer/credits/buyCredits.schema.ts",
+        "packages/trpc/server/routers/viewer/credits/downloadExpenseLog.handler.ts",
+        "packages/trpc/server/routers/viewer/credits/downloadExpenseLog.schema.ts",
+        "packages/trpc/server/routers/viewer/credits/getAllCredits.handler.ts",
+        "packages/trpc/server/routers/viewer/credits/getAllCredits.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/delegationCredential/",
+      "reason": "enterprise delegation credentials",
+      "files": [
+        "packages/trpc/server/routers/viewer/delegationCredential/getAffectedMembersForDisable.handler.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/organizations/",
+      "reason": "organizations (enterprise)",
+      "files": [
+        "packages/trpc/server/routers/viewer/organizations/createSelfHosted.handler.ts",
+        "packages/trpc/server/routers/viewer/organizations/createSelfHosted.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/pbac/",
+      "reason": "enterprise permissions",
+      "files": [
+        "packages/trpc/server/routers/viewer/pbac/_router.tsx"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/teams/",
+      "reason": "teams billing",
+      "files": [
+        "packages/trpc/server/routers/viewer/teams/skipTeamTrials.handler.ts",
+        "packages/trpc/server/routers/viewer/teams/skipTeamTrials.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/repository/host.ts",
+      "reason": "small repository helper not tied to a graph component",
+      "files": [
+        "packages/lib/server/repository/host.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/repository/verificationToken.ts",
+      "reason": "small repository helper not tied to a graph component",
+      "files": [
+        "packages/lib/server/repository/verificationToken.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}
