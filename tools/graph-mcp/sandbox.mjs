@@ -21,6 +21,12 @@ import {
 
 export const SANDBOX_EXEC = '/usr/bin/sandbox-exec';
 export const SANDBOX_REFUSAL = 'Sandbox: outside the checkout';
+/** Environment for sandboxed commands: tools that read config from the home directory get an empty one. */
+export const SANDBOX_ENV = {
+  GIT_CONFIG_GLOBAL: '/dev/null', // and the XDG files git reads by default (~/.config/git/ignore, attributes):
+  GIT_CONFIG_COUNT: '2', GIT_CONFIG_KEY_0: 'core.excludesFile', GIT_CONFIG_VALUE_0: '/dev/null',
+  GIT_CONFIG_KEY_1: 'core.attributesFile', GIT_CONFIG_VALUE_1: '/dev/null',
+};
 
 export const sandboxSupported = () => process.platform === 'darwin' && existsSync(SANDBOX_EXEC);
 
@@ -92,7 +98,10 @@ export function sandboxedToolDefinitions(cwd, spec, profileFile, names = ['read'
   };
   const make = {
     bash: () => createBashToolDefinition(cwd, {
-      spawnHook: ctx => ({ ...ctx, command: `${SANDBOX_EXEC} -f ${shellQuote(profileFile)} /bin/bash -c ${shellQuote(ctx.command)}` }),
+      // git aborts when it cannot read ~/.gitconfig (unreadable here, and it holds the user's name and email): give it
+      // an empty global config instead.
+      spawnHook: ctx => ({ ...ctx, env: { ...ctx.env, ...SANDBOX_ENV },
+        command: `${SANDBOX_EXEC} -f ${shellQuote(profileFile)} /bin/bash -c ${shellQuote(ctx.command)}` }),
     }),
     read: () => createReadToolDefinition(cwd, { operations: {
       readFile: p => readFile(check(p, readRoots)), access: p => access(check(p, readRoots)),
@@ -110,5 +119,5 @@ export function sandboxedToolDefinitions(cwd, spec, profileFile, names = ['read'
 
 /** Run one command under the profile (for tests and a quick manual check). */
 export function runSandboxed(profileFile, command, cwd) {
-  return spawnSync(SANDBOX_EXEC, ['-f', profileFile, '/bin/bash', '-c', command], { cwd, encoding: 'utf8' });
+  return spawnSync(SANDBOX_EXEC, ['-f', profileFile, '/bin/bash', '-c', command], { cwd, encoding: 'utf8', env: { ...process.env, ...SANDBOX_ENV } });
 }

@@ -91,6 +91,7 @@ test('Pi in the sandbox: same tools and system prompt, every escape refused', { 
       toolCall('write', { path: `${f.dir}/escape.txt`, content: 'x' }),
       toolCall('edit', { path: '../install.log', edits: [{ oldText: 'NOT', newText: 'YES' }] }),
       toolCall('read', { path: 'src/booking.ts' }),
+      toolCall('bash', { command: 'git init -q . 2>&1; git status --short 2>&1 | head -3; echo git-exit=$?' }),
     ]]);
     const runDir = join(f.dir, sandbox ? 'run-sandboxed' : 'run-open');
     const { session } = await createGraphSession({ cwd: f.checkout, runDir, channel: 'none', sandbox, systemPrompt: 'You are a test agent.' }, runtime);
@@ -120,6 +121,8 @@ test('Pi in the sandbox: same tools and system prompt, every escape refused', { 
   // (Pi runs a turn's tool calls in parallel, so check the edit on disk, not through the read in the same turn.)
   assert.equal(readFileSync(join(f.checkout, 'src/booking.ts'), 'utf8'), 'export const book = 1;\nedited\n');
   assert.match(boxed.results[5], /export const book = 1;/, 'the read tool works inside the checkout');
+  assert.doesNotMatch(boxed.results[6], /fatal|Operation not permitted/, 'git works in the checkout (no ~/.gitconfig needed)');
+  assert.match(boxed.results[6], /src\//);
   assert.ok(!existsSync(join(f.dir, 'escape.txt')));
   assert.equal(readFileSync(join(f.dir, 'install.log'), 'utf8'), 'NOT_FOR_THE_AGENT\n');
 });
