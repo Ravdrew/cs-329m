@@ -1,0 +1,102 @@
+{
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > createReport > should create a report with all fields": {
+    "label": "fair",
+    "reason": "Asserts create({data: input, select: {id: true}}) and returns {id}. Input fields match the spec signature one to one, and select {id:true} returning Promise<{id}> mirrors the base PrismaBookingReportRepository.createReport (packages/features/bookingReport/repositories/PrismaBookingReportRepository.ts)."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > createReport > should create a report with empty additionalNotes": {
+    "label": "fair",
+    "reason": "Same create({data, select:{id:true}}) call with additionalNotes \"\"; passing input fields through unchanged follows from the spec signature and the base createReport pattern."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > createReport > should create a report with null optional fields": {
+    "label": "fair",
+    "reason": "Same call with null correctAssignee/teamId/routingFormId passed through; the spec types those fields as nullable and the base repository passes input fields straight to data."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > createReport > should propagate database errors": {
+    "label": "fair",
+    "reason": "Only checks that a rejected prisma create rejects createReport; any implementation that does not swallow errors passes."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > createReport > should propagate foreign key constraint errors": {
+    "label": "fair",
+    "reason": "Same as the other error test: rejection from create must propagate, which a plain pass-through does."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > existsByBookingUid > should handle empty string bookingUid": {
+    "label": "fair",
+    "reason": "Asserts findUnique({where:{bookingUid:\"\"}, select:{id:true}}) and false. The spec says the stub has only findUnique, the description says bookingUid is unique (findUnique), and selecting only id is the base repository convention."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > existsByBookingUid > should return false when no report exists for the booking": {
+    "label": "fair",
+    "reason": "findUnique returns null -> false, with where {bookingUid} and select {id:true}; follows from the spec (findUnique stub, boolean result) and base select-minimal convention."
+  },
+  "packages/features/bookings/repositories/WrongAssignmentReportRepository.test.ts::WrongAssignmentReportRepository > existsByBookingUid > should return true when a report exists for the booking": {
+    "label": "fair",
+    "reason": "findUnique returns a row -> true; same call shape as above, determined by the spec and description (findUnique on unique bookingUid)."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > access control > should throw BAD_REQUEST when a report already exists for the booking": {
+    "label": "fair",
+    "reason": "Expects BAD_REQUEST with the translated wrong_assignment_already_reported message and no createReport call. The description states duplicates are rejected with 400 via t(\"wrong_assignment_already_reported\"), and the spec names the key and the mocked getTranslation."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > access control > should throw FORBIDDEN when user doesn't have access to booking": {
+    "label": "fair",
+    "reason": "Exact FORBIDDEN message \"You don't have access to this booking\" is already in the base handler; this test only fails at base because the file mocks the new WrongAssignmentReportRepository module."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > access control > should throw NOT_FOUND when booking doesn't exist": {
+    "label": "fair",
+    "reason": "NOT_FOUND \"Booking not found\" is existing base handler behavior; fails at base only because the new repository module is missing."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > database persistence > should persist report even when webhooks fail": {
+    "label": "fair",
+    "reason": "Checks createReport is called and success true when getWebhooks throws; base already catches webhook errors, and the description says reports are persisted."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > database persistence > should persist report to database with all fields": {
+    "label": "fair",
+    "reason": "Asserts createReport({bookingUid, reportedById: user.id, correctAssignee, additionalNotes, teamId: eventType.teamId, routingFormId: null}); fields come from the spec signature, teamId matches the base handler's teamId variable, and routingFormId comes from routedFromRoutingFormReponse.formId per spec/description (null here)."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > database persistence > should persist report with null optional fields": {
+    "label": "fair",
+    "reason": "eventType null -> teamId null and missing correctAssignee -> null; the base handler already computes teamId as eventType?.teamId || null and correctAssignee || null, and the spec types both as nullable."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > database persistence > should return reportId in response": {
+    "label": "fair",
+    "reason": "Spec says the handler result gains reportId: string; the test checks it equals createReport's id."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > database persistence > should throw if database write fails": {
+    "label": "fair",
+    "reason": "A generic createReport error must propagate; the description says only P2002 is caught and mapped, so rethrowing other errors is the stated behavior."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > edge cases > should handle booking without assignmentReason": {
+    "label": "fair",
+    "reason": "Checks webhook routingReason null; unchanged base behavior (assignmentReason?.reasonString || null). Fails at base only due to the missing new module."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > edge cases > should handle booking without attendees": {
+    "label": "fair",
+    "reason": "Checks webhook guest \"\"; unchanged base behavior (attendees[0]?.email || \"\")."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > edge cases > should handle booking without eventType": {
+    "label": "fair",
+    "reason": "Checks getWebhooks teamId null and payload eventType null; unchanged base behavior."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > edge cases > should handle booking without user": {
+    "label": "fair",
+    "reason": "Checks success and getWebhooks userId null; unchanged base behavior."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > successful report > should successfully report with all fields": {
+    "label": "fair",
+    "reason": "Checks success true and message \"Wrong assignment reported successfully\", both already returned by the base handler."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > successful report > should successfully report with only required fields (no correctAssignee)": {
+    "label": "fair",
+    "reason": "Same success/message assertions as base; passes once the report is persisted without throwing."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > webhook integration > should handle webhook failures gracefully": {
+    "label": "fair",
+    "reason": "sendGenericWebhookPayload rejection is already caught per webhook in the base handler; success/message unchanged."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > webhook integration > should not fail when getWebhooks throws": {
+    "label": "fair",
+    "reason": "Base handler already wraps getWebhooks in try/catch; success true."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportWrongAssignment.handler.test.ts::reportWrongAssignmentHandler > webhook integration > should send webhook with correct payload structure": {
+    "label": "fair",
+    "reason": "Asserts the getWebhooks args and payload shape that the base handler already builds; nothing new is required beyond not breaking it."
+  }
+}

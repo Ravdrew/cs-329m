@@ -3,7 +3,8 @@
 Tooling for the Q2/Q3 agent runs: a harness that runs a coding agent on a benchmark task and grades it with the PR's
 own hidden tests, plus the interface specs every agent gets. Nothing here comes from the booking reference graph
 (no graph, ownership, adjudications or Q1 scores). The decisions behind it are summarized in
-`HAND-EDITS.md` (spec rule) and `REGRESSION.md` (regression proposal).
+`HAND-EDITS.md` (spec rule), `REGRESSION.md` (regression proposal) and `TEST-FAIRNESS.md` (which hidden tests to
+remove or clarify).
 
 | File | What it is |
 |---|---|
@@ -18,6 +19,7 @@ own hidden tests, plus the interface specs every agent gets. Nothing here comes 
 | `HAND-EDITS.md` | The interface/behaviour rule, every hand edit, and what is left out on purpose. |
 | `SPEC-REVIEW-2026-11-02.md` | The four reviews and what each one changed. |
 | `REGRESSION.md` | Proposed regression check (full unit suite against a per-task baseline), with measured times. |
+| `TEST-FAIRNESS.md` | **Hidden-test fairness labels for all 20 tasks** (366 tests: 246 fair, 44 to clarify, 76 to remove) and what to do with them. Labels in `test_fairness.json`, built by `test_fairness.py` from its own entries and `fairness/<PR>.json`; draft spec clarifications in `fairness/CLARIFICATIONS-draft.md`. |
 | `results/` | Gold checks for the three tasks with test helpers, and the gold-patch regression check for #24207. |
 | `env/` | `env.sh` and the Yarn shim used on the cloud box (Node 20, bundled Yarn, Prisma engine workarounds). |
 | `graph_to_text.py` | **Text channel.** Renders a graph YAML as prose: the requested change first (nodes and edges marked `new`/`modify`/`delete`, with their notes), then every component with its files and dependencies. No code excerpts (`x-*` fields dropped, fenced code removed), evidence as `file:line` only. Deterministic. |

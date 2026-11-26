@@ -1,0 +1,107 @@
+{
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::checkSheetActive > returns false when focused element is inside a Radix portal (overlay)": {
+    "label": "fair",
+    "reason": "Focus inside a [data-radix-portal] ancestor that is not the sheet -> false; stated in the description's checkSheetActive rule and the spec's data-radix-portal note."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::checkSheetActive > returns false when sheetContent is null": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "A focused button in document.body, outside any portal, with sheetContent null must return false. The description's rule (\"focus is not inside any Radix portal -> shortcuts work\") gives true for this input, and nothing says what a null sheet means, so returning true is an equally valid reading."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::checkSheetActive > returns true when document.body is focused": {
+    "label": "fair",
+    "reason": "Body focus is the DOM's 'no element focused' state and is also outside any portal, so the description's rule gives true either way."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::checkSheetActive > returns true when focused element is inside sheetContent": {
+    "label": "fair",
+    "reason": "Stated in the description: focus inside the sheet content -> shortcuts work."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::checkSheetActive > returns true when focused element is outside any Radix portal": {
+    "label": "fair",
+    "reason": "Stated in the description: focus not inside any Radix portal -> shortcuts work."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::checkSheetActive > returns true when no element has focus": {
+    "label": "fair",
+    "reason": "Stated in the description: if no element has focus -> shortcuts work (activeElement null)."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > ArrowDown > navigates to next when canGoNext is true": {
+    "label": "fair",
+    "reason": "ArrowDown calls preventDefault, stopPropagation and handleNext; stated in the description (Down = next, arrows always consumed)."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > ArrowDown > stops propagation but does NOT navigate when canGoNext is false": {
+    "label": "fair",
+    "reason": "The description says arrow keys always preventDefault/stopPropagation even at list boundaries, but navigate only when possible."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > ArrowDown > stops propagation but does NOT navigate when transitioning": {
+    "label": "fair",
+    "reason": "Arrows always consumed (description); not navigating while isTransitioning follows from the config field and the base buttons being disabled when navigation.isTransitioning (BookingDetailsSheet.tsx)."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > ArrowUp > navigates to previous when canGoPrev is true": {
+    "label": "fair",
+    "reason": "Up = previous and arrows consumed with preventDefault+stopPropagation, per the description."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > ArrowUp > stops propagation but does NOT navigate when canGoPrev is false": {
+    "label": "fair",
+    "reason": "Boundary case explicitly described: event consumed, no navigation."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > ArrowUp > stops propagation but does NOT navigate when transitioning": {
+    "label": "fair",
+    "reason": "Same as the ArrowDown transitioning case; follows from isTransitioning in the config and the base disabled-button logic."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > Enter > clicks join link when available": {
+    "label": "fair",
+    "reason": "Enter joins the meeting via the join link and stopPropagation is called when a link is present, per the description; getJoinLink returning an anchor makes .click() the natural action, and preventDefault alongside is standard."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > Enter > does nothing when no join link is available": {
+    "label": "fair",
+    "reason": "Only asserts no preventDefault without a join link; the description says Enter consumes the event only when a join link is present."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > editable targets > ignores events from contenteditable elements": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "The test sets div.contentEditable = \"true\" under jsdom 22, which implements neither contentEditable nor isContentEditable, so only an implementation that reads the expando property `contentEditable === \"true\"` passes. The common `isContentEditable` or `getAttribute(\"contenteditable\")` checks fail, and nothing in the description, spec or base code picks the check.",
+    "clarification": "isEditableTarget detects contenteditable elements by checking `element.contentEditable === \"true\"` (the jsdom test environment does not implement isContentEditable or reflect the contenteditable attribute)."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > editable targets > ignores events from input elements": {
+    "label": "fair",
+    "reason": "The handler skips events whose target is editable; this follows from the exported isEditableTarget helper named in the description/spec, and an input is unambiguously editable."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > editable targets > ignores events from textarea elements": {
+    "label": "fair",
+    "reason": "Same as the input case; a textarea is detected by any standard check."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > sheet inactive > does not handle any keys when sheet is inactive": {
+    "label": "fair",
+    "reason": "The description says shortcuts are suppressed when the sheet is not active (isSheetActive false), so no stopPropagation and no navigation."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::createBookingSheetKeydownHandler > unhandled keys > does not preventDefault or stopPropagation for unhandled keys": {
+    "label": "fair",
+    "reason": "Only the listed keys are shortcuts; leaving Tab untouched is the default for any switch on e.key."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::isEditableTarget > returns false for button elements": {
+    "label": "fair",
+    "reason": "A button is not editable; any standard check returns false."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::isEditableTarget > returns false for null": {
+    "label": "fair",
+    "reason": "Follows from the EventTarget | null signature."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::isEditableTarget > returns false for regular div elements": {
+    "label": "fair",
+    "reason": "A plain div is not editable under any implementation."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::isEditableTarget > returns true for contenteditable elements": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Same jsdom issue: div.contentEditable = \"true\" only sets an expando property in jsdom 22, so `isContentEditable` (undefined) or the attribute check returns false. Only `el.contentEditable === \"true\"` passes, and nothing in 1-3 says which check to use.",
+    "clarification": "isEditableTarget detects contenteditable elements by checking `element.contentEditable === \"true\"` (the jsdom test environment does not implement isContentEditable or reflect the contenteditable attribute)."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::isEditableTarget > returns true for input elements": {
+    "label": "fair",
+    "reason": "Inputs are editable targets under any standard check."
+  },
+  "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.test.ts::isEditableTarget > returns true for textarea elements": {
+    "label": "fair",
+    "reason": "Textareas are editable targets under any standard check."
+  }
+}

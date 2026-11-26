@@ -1,0 +1,90 @@
+{
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createContacts > should create contacts successfully": {
+    "label": "fair",
+    "reason": "Asserts the firstname/lastname/email split and the {id,email} result, which the base hubspot CrmService.createContacts already does. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createContacts > should handle existing contact error gracefully": {
+    "label": "fair",
+    "reason": "Asserts that the ID is parsed from the 'Contact already exists. Existing ID:' error, which is existing base behavior. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should associate meeting with contacts": {
+    "label": "fair",
+    "reason": "Asserts the existing batchApi.create('meetings','contacts',{inputs:[...meeting_event_to_contact]}) call from the base hubspotAssociate. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines. It also needs custom fields off when options are {}."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should create a meeting without custom fields when feature is disabled": {
+    "label": "fair",
+    "reason": "Asserts the base standard properties (hs_meeting_title, SCHEDULED) and no extra fields when onBookingWriteToEventObject is unset. Gating on that flag follows from the description ('enable On booking writes') and the zod field named in the spec."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should create meeting successfully when owner lookup fails due to missing scope": {
+    "label": "fair",
+    "reason": "Asserts the base handleMeetingCreation return shape, and that no hubspot_owner_id is set when getPage rejects. The base getHubspotOwnerIdByEmail already catches the error. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should handle multiple custom fields of different types": {
+    "label": "fair",
+    "reason": "Combines static text, {name}, a boolean checkbox and an ISO start date. Each is a value source named in the description, and the formats follow the base Salesforce write-to-record code (packages/app-store/salesforce/lib/CrmService.ts in the base code: checkbox !!value, dates via toISOString)."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include checkbox field with boolean value": {
+    "label": "fair",
+    "reason": "Asserts the property is boolean true. The schema in the spec allows a boolean value, and the base Salesforce checkbox handling writes !!fieldConfig.value."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include custom text field with UTM tracking value": {
+    "label": "fair",
+    "reason": "{utm:source} resolves to tracking.utm_source through trackingRepository.findByBookingUid. The UTM source is in the description, the repository is in the spec, and the utm_${param} lookup copies the base Salesforce getTextValueFromBookingTracking."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include custom text field with booking response placeholder": {
+    "label": "fair",
+    "reason": "{name} resolves to responses.name.value ('John Doe'). The description names {fieldId} booking-response placeholders, and the base Salesforce getTextValueFromBookingResponse does the same replacement."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include custom text field with static value": {
+    "label": "fair",
+    "reason": "Static text 'Cal.com Booking' is written unchanged. The description lists static text as a value source."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include date field with booking created date": {
+    "label": "fair",
+    "reason": "Asserts booking.createdAt from bookingRepository.findBookingByUid as the ISO string '2024-01-10T09:00:00.000Z'. The repository method is in the spec, and the ISO format follows the base Salesforce getDateFieldValue and the hubspot toISOString usage."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include date field with booking start date": {
+    "label": "fair",
+    "reason": "Asserts BOOKING_START_DATE gives new Date(startTime).toISOString(). The description lists booking start date, and the format matches the base Salesforce getDateFieldValue and the hubspot hs_meeting_start_time."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should include phone field with static value": {
+    "label": "fair",
+    "reason": "A static phone value is written unchanged. The description lists phone and static values."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should set hubspot owner when organizer email matches": {
+    "label": "fair",
+    "reason": "Asserts hubspot_owner_id from the base getHubspotOwnerIdByEmail. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should skip fields that do not exist on HubSpot meeting object": {
+    "label": "fair",
+    "reason": "The description says it 'validates properties against the HubSpot Meeting object and skips any missing fields', and the spec names coreApi.getAll('meetings')."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > createEvent > should skip fields with unknown placeholders that cannot be resolved": {
+    "label": "fair",
+    "reason": "An unresolved {unknown_placeholder} must be left out of the properties entirely. The base Salesforce write-to-record code (packages/app-store/salesforce/lib/CrmService.ts in the base code) returns undefined for an unresolved placeholder ('Don't return the field name') and only adds truthy values. One risk: copying Salesforce's event-object variant instead would assign the key an undefined value."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > deleteEvent > should archive meeting when organizer has changed": {
+    "label": "fair",
+    "reason": "Existing base behavior: deleteEvent archives the meeting when hasOrganizerChanged is set. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > deleteEvent > should cancel meeting when organizer has not changed": {
+    "label": "fair",
+    "reason": "Existing base hubspotCancelMeeting sets hs_meeting_outcome CANCELED. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > getContacts > should handle single email string input": {
+    "label": "fair",
+    "reason": "Existing base getContacts behavior. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > getContacts > should return contacts when found": {
+    "label": "fair",
+    "reason": "Existing base getContacts mapping to {id,email}. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > getContacts > should return empty array when no contacts found": {
+    "label": "fair",
+    "reason": "Existing base behavior. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  },
+  "packages/app-store/hubspot/lib/CrmService.test.ts::HubspotCalendarService > updateEvent > should update meeting with standard properties": {
+    "label": "fair",
+    "reason": "Existing base hubspotUpdateMeeting with RESCHEDULED. It only fails at base because the test file imports the new ../../_lib/crm-enums, which the spec defines."
+  }
+}

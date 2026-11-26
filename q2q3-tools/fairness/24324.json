@@ -1,0 +1,57 @@
+{
+  "packages/lib/server/repository/bookingReport.test.ts::PrismaBookingReportRepository > createReport > should create a booking report with all fields": {
+    "label": "fair",
+    "reason": "Asserts create({data: {all CreateBookingReportInput fields}, select: {id: true}}) -> {id}. The fields come from the spec's interface, and select {id:true} follows from the Promise<{id: string}> return type and the base repositories' select-minimal convention."
+  },
+  "packages/lib/server/repository/bookingReport.test.ts::PrismaBookingReportRepository > createReport > should create a booking report without optional fields": {
+    "label": "fair",
+    "reason": "Same call with description/organizationId undefined. toHaveBeenCalledWith treats undefined keys as absent, so passing the input through or listing fields both pass."
+  },
+  "packages/lib/server/repository/bookingReport.test.ts::PrismaBookingReportRepository > findAllReportedBookings > should find all reported bookings with pagination": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "An exact findMany call is asserted: skip/take, a select matching the BookingReportSummary fields (follows from the spec), and orderBy {createdAt: \"desc\"}. No ordering is stated in the description or spec, so an implementation without orderBy, or with another order, fails.",
+    "clarification": "findAllReportedBookings passes skip/take to prisma findMany, selects only the BookingReportSummary fields, and orders by createdAt descending."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > access control > should throw FORBIDDEN when user doesn't have access to booking": {
+    "label": "unfair",
+    "reason": "Asserts FORBIDDEN with the exact message \"You don't have access to this booking\". The access check is implied by the BookingAccessService spec, but neither the description nor the spec gives this string, and BookingAccessService and any handler using it are new in this PR."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > access control > should throw NOT_FOUND when booking doesn't exist": {
+    "label": "fair",
+    "reason": "NOT_FOUND with message \"Booking not found\" when findByUidIncludeReport returns null; this is the standard wording across the base code (e.g. getBookingAttendees.handler.ts throws \"Booking not found\")."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > duplicate report prevention > should throw BAD_REQUEST when booking already has a report": {
+    "label": "unfair",
+    "reason": "Rejecting a second report follows from the one-to-one Booking.report in the spec, but the test requires code BAD_REQUEST and the exact invented message \"This booking has already been reported\", stated nowhere. The description even mentions a report 'count', which suggests multiple reports."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > successful report creation > should create report without description for past booking": {
+    "label": "unfair",
+    "reason": "Requires the exact message \"Booking reported successfully\" plus createReport args with cancelled:false and organizationId undefined; the return message strings are not given in the description or spec."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > successful report creation > should successfully create a single booking report and auto-cancel upcoming booking": {
+    "label": "unfair",
+    "reason": "Requires the exact message \"Booking reported and cancelled successfully\", which is invented. reportedCount 1 and the createReport args (bookerEmail from attendees[0], cancelled:true, organizationId undefined) are only partly inferable."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > cancellation integration > should cancel booking when cancelBooking is true": {
+    "label": "unfair",
+    "reason": "Requires the invented message \"Booking reported and cancelled successfully\" and an exact handleCancelBooking({bookingData: {uid, cancelledBy: user.email, skipCancellationReasonValidation: true}, userId}) call. skipCancellationReasonValidation is in the spec, but cancelledBy and the exact object shape are not."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > cancellation integration > should handle cancellation failure gracefully": {
+    "label": "unfair",
+    "reason": "Requires that the report still succeeds when cancellation throws, with the exact invented message \"Booking reported successfully, but cancellation failed\" and no cancellationError property. None of this is in the description or spec."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > cancellation integration > should not cancel booking if it's in the past": {
+    "label": "unfair",
+    "reason": "Not cancelling past bookings follows from the description ('Upcoming booking ... would get cancelled'), but the test also asserts the invented message \"Booking reported successfully\"."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > cancellation integration > should pass seatReferenceUid for seated events": {
+    "label": "unfair",
+    "reason": "Requires matching the reporting user's email against booking.seatsReferences[].attendee.email and passing that seat's referenceUid as seatReferenceUid to handleCancelBooking. Seats are never mentioned in the description or spec, and nothing says the reporter's own seat should be cancelled."
+  },
+  "packages/trpc/server/routers/viewer/bookings/reportBooking.handler.test.ts::reportBookingHandler > cancellation integration > should use cancelSubsequentBookings for recurring events": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "For a recurring booking it requires handleCancelBooking bookingData to include cancelSubsequentBookings: true. The description never mentions recurring bookings; the spec only names getActiveRecurringBookingsFromDate. Cancelling just this occurrence, or using the existing allRemainingBookings flag in base bookingCancelSchema (packages/prisma/zod-utils.ts), are equally valid readings."
+  }
+}
