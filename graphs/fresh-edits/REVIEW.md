@@ -14,10 +14,10 @@ counts only PR files that exist before the PR (a graph of the base cannot contai
 
 | PR | build $ | scope cov. | existing PR files in graph | in changed comps | within 1 step | marked (mod/new nodes/new edges) | check |
 |---|---|---|---|---|---|---|---|
-| 19997 | 2.54 | 0.335 | 10/11 | 7/11 | 8/11 | 3/0/1 |  |
-| 20646 | 2.05 | 0.362 | 10/15 | 9/15 | 9/15 | 1/2/2 |  |
+| 19997 | 2.54 | 0.346 | 10/11 | 7/11 | 8/11 | 3/0/1 |  |
+| 20646 | 2.05 | 0.375 | 10/15 | 9/15 | 9/15 | 1/2/2 |  |
 | 24124 | 2.24 | 0.245 | 2/4 | 2/4 | 2/4 | 4/0/2 |  |
-| 24880 | 4.38 | 0.292 | 4/6 | 4/6 | 4/6 | 1/1/1 |  |
+| 24880 | 4.38 | 0.301 | 4/6 | 4/6 | 4/6 | 1/1/1 |  |
 | 25313 | 3.48 | 0.276 | 3/9 | 5/9 | 5/9 | 1/3/3 | new nodes trpc-oauth-router, model-oauth-client list files that already exist (graph had no node for them) |
 | 26039 | 5.35 (2 builds) | 0.198 | 0/4 | 0/4 | 0/4 | 1/3/4 | graph failed the quality check twice (scope coverage 0.198 / 0.175); kept the better; covers 0 of 4 existing PR files |
 | 26217 | 3.09 | 0.237 | 2/4 | 2/4 | 2/4 | 1/1/1 |  |

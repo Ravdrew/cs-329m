@@ -18,7 +18,7 @@ import { git } from './source.mjs';
 // marketing and example apps, generic UI primitives, build tooling), plus the per-app integrations the prompt says to
 // represent by their family rather than one component per app.
 const OUT_OF_SCOPE = [
-  /^apps\/(api|website|ai|console|swagger|storybook|docs)\//, /^packages\/platform\//, /^packages\/(features\/)?ee\//,
+  /^apps\/(api|website|ai|console|swagger|storybook|docs|ui-playground)\//, /^packages\/platform\//, /^packages\/(features\/)?ee\//,
   /^packages\/ui\//, /^packages\/(config|tsconfig|eslint-plugin|eslint-config|dayjs|debugging)\//, /^example-apps\//,
   /^packages\/app-store\/(?!_utils\/|_lib\/|_components\/|_pages\/|components\/|utils\/|server\/|[^/]+\.[cm]?[jt]sx?$)/,
   /(^|\/)(scripts|playwright|cypress)\//, /\.d\.ts$/, /\.(config|setup)\.[cm]?[jt]s$/,
