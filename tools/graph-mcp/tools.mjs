@@ -21,7 +21,7 @@ const tool = (name, description, properties = {}, required = []) => ({
 const EDGE_KINDS = ['renders', 'navigates', 'calls', 'reads', 'writes', 'emits', 'uses'];
 
 export const toolDefinitions = [
-  tool('get_requested_change', 'Start here. Lists the components and dependencies the developer marked as new, changed or removed in the component graph, with their notes. This is the change you are asked to implement.'),
+  tool('get_requested_change', 'Lists the components and dependencies the developer marked as new, changed or removed in the component graph, with their notes, if any. Whether or not anything is marked, the rest of the graph maps the current code: use find_components, get_node and neighbors to locate the components and files a change involves.'),
   tool('graph_overview', 'The component graph at its highest level: what it covers and its groups of components (or, if it has no groups, every component in one line each). Use get_group or get_node to zoom in.',
     { offset: integer(0, 100_000), limit: integer(1, 200) }),
   tool('get_group', 'One group of components: its summary, subgroups, member components, and how many dependencies link it to each other group. Use the id "(ungrouped)" for components outside any group.',
@@ -65,7 +65,9 @@ const changedCount = index => index.graph.nodes.filter(changeOf).length + index.
 
 function getRequestedChange(index, config) {
   const out = requestedChange(index, config.maxFiles);
-  if (changedCount(index)) out.push('', 'Use get_node with any id above for its files and dependencies.');
+  out.push('', changedCount(index)
+    ? 'Use get_node with any id above for its files and dependencies.'
+    : 'The graph still maps the current code: use find_components with words from the task (or a file path) to find the components involved, then get_node for their files and dependencies.');
   return out;
 }
 
@@ -225,6 +227,16 @@ function getEdge(index, config, { id, from, to, kind, offset = 0, limit = 100 })
   return out;
 }
 
+// Words too common to rank by ("phone number or email" would otherwise match every summary with "or" in it).
+const STOPWORDS = new Set(['a', 'an', 'and', 'or', 'the', 'of', 'to', 'in', 'on', 'for', 'with', 'by', 'at', 'is', 'from', 'as', 'it']);
+
+/** A query's words for find_components: lower case, no duplicates, no stopwords (unless that leaves none). */
+export function queryWords(query) {
+  const words = [...new Set(query.toLowerCase().split(/\s+/).filter(Boolean))];
+  const kept = words.filter(w => !STOPWORDS.has(w));
+  return kept.length ? kept : words;
+}
+
 function findComponents(index, config, { query, file, kind, limit = 20 }) {
   if (!query && !file) throw new ToolError('Pass query (words to search for) or file (a path).');
   let nodes = [...index.nodes.values()].filter(n => !kind || n.kind === kind);
@@ -250,7 +262,7 @@ function findComponents(index, config, { query, file, kind, limit = 20 }) {
     }
   }
   if (query) {
-    const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
+    const tokens = queryWords(query);
     const scored = [];
     for (const n of nodes) {
       const fields = [
@@ -259,21 +271,25 @@ function findComponents(index, config, { query, file, kind, limit = 20 }) {
         [`${n.summary ?? ''} ${n.description ?? ''}`.toLowerCase(), 1, 'description'],
         [(n.files ?? []).map(filePath).join(' ').toLowerCase(), 1, 'files'],
       ];
+      // Any word may match: rank by how many query words match, then by where (name 3, routes 2, description/files 1).
       let score = 0;
       const where = new Set();
-      const allMatch = tokens.every(t => {
+      const matched = tokens.filter(t => {
         let hit = false;
         for (const [text, weight, label] of fields) if (text.includes(t)) { score += weight; where.add(label); hit = true; }
         return hit;
       });
-      if (allMatch) scored.push({ n, score, where });
+      if (matched.length) scored.push({ n, score, where, matched });
     }
-    scored.sort((a, b) => b.score - a.score || clean(a.n.label).localeCompare(clean(b.n.label)));
+    scored.sort((a, b) => b.matched.length - a.matched.length || b.score - a.score || clean(a.n.label).localeCompare(clean(b.n.label)));
     if (out.length) out.push('');
-    if (!scored.length) out.push(`No component matches "${query}". Try fewer or broader words, or graph_overview.`);
+    if (!scored.length) out.push(`No component matches any word of "${query}". Try other words, a file path, or graph_overview.`);
     else {
-      out.push(`Components matching "${query}" (${scored.length}):`);
-      for (const s of scored.slice(0, limit)) out.push(`${nodeLine(index, s.n)} (matched in ${[...s.where].join(', ')})`);
+      out.push(`Components matching "${query}" (${scored.length}), most matching words first:`);
+      for (const s of scored.slice(0, limit)) {
+        const words = tokens.length > 1 ? `${s.matched.length}/${tokens.length} words (${s.matched.join(', ')}), ` : '';
+        out.push(`${nodeLine(index, s.n)} (matched ${words}in ${[...s.where].join(', ')})`);
+      }
       if (scored.length > limit) out.push(`${scored.length - limit} more; narrow the query or raise limit.`);
     }
   }

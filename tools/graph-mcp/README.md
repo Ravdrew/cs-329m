@@ -75,12 +75,12 @@ It streams the answer, logs tool calls to stderr, and writes `events.jsonl`, `ef
 
 | Tool | Returns |
 |---|---|
-| `get_requested_change` | The nodes and edges the developer marked `new`, `modify` or `delete`, with notes. **Identical to the text channel's "Requested change" section.** "None." for an unedited graph. |
+| `get_requested_change` | The nodes and edges the developer marked `new`, `modify` or `delete`, with notes. **Identical to the text channel's "Requested change" section.** "None." for an unedited graph, followed (MCP only) by a pointer to `find_components`, so an empty change does not read as an empty graph. |
 | `graph_overview` | The text channel's header (title, repo, commit, counts, description), whether anything is marked as changed, and the group tree with component counts. A graph without groups lists every component instead (paged). |
 | `get_group` | A group's summary, parent, subgroups, members (nested by default) and its dependencies with other groups, rolled up by group and kind. `(ungrouped)` is the components outside any group. |
 | `get_node` | A component's kind, group, summary, description, routes, developer note, files (summarised as in the text channel; `files_offset` lists all), what it depends on (the text channel's lines) and what depends on it. |
 | `get_edge` | The dependencies between two components (or one by `id`), with every code location as `file:line`, paged. |
-| `find_components` | Components matching all words of a query in name, routes, description or file paths; or the owners of a file or directory. |
+| `find_components` | Components matching any word of a query (stopwords ignored) in name, routes, description or file paths, ranked by how many words match and then by field (name, routes, description/files); or the owners of a file or directory. |
 | `neighbors` | Components up to two steps away, by direction and dependency kind, and the dependencies between them. |
 
 ## Same facts as the text channel

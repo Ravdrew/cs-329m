@@ -103,8 +103,8 @@ async function runOneLoc(config, task, gold, condition, repeat) {
   const promptFile = join(runDir, 'prompt.md');
   writeFileSync(promptFile, buildPrompt(task, condition, workdir));
   const graph = condition !== 'none' ? resolve(config.graphs[task.pull_number]) : undefined;
-  // graph-noreq: the unedited graph without get_requested_change, whose "Start here" description draws the agent to a
-  // tool that, on an unedited graph, only says nothing is marked.
+  // graph-noreq: the unedited graph without get_requested_change, which on an unedited graph only says nothing is marked
+  // (added when its description still said "Start here", which drew every agent to it first).
   const graphTools = condition === 'graph-noreq' ? GRAPH_TOOLS.filter(t => t !== 'get_requested_change') : undefined;
   const worker = {
     workdir, runDir, promptFile, condition: { channel: graph ? 'mcp' : 'none', graph, codegraph: false },
