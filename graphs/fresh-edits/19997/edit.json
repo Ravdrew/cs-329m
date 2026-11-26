@@ -1,0 +1,10 @@
+{
+  "modify": [
+    { "id": "form-builder", "note": "Booking questions can carry a fee: a field, or each option of a field, can have a price. Pricing is only offered for Number, Select, MultiSelect, Checkbox, Checkbox group and Radio group fields; the field dialog shows a price input (per option for option-based fields) only when the host has turned the price field on, labelled with the event's payment currency." },
+    { "id": "payment-collection", "note": "handlePayment adds the fees of the booker's paid answers (priced fields and selected priced options) to the event type's base price before creating or holding the payment; with no booking fields or no priced answers the amount is unchanged." },
+    { "id": "e-hnb-payment", "note": "handleNewBooking now also passes the event type's booking fields and the booker's locale to handlePayment so the add-on fees can be worked out." }
+  ],
+  "add_edges": [
+    { "id": "e-eventtypeui-formbuilder-pricing", "from": "event-type-ui", "to": "form-builder", "kind": "renders", "label": "booking questions editor with pricing", "note": "The event type editor renders the FormBuilder for booking questions and turns on the price inputs for paid event types, passing the event type's payment currency." }
+  ]
+}

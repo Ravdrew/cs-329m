@@ -1,0 +1,42 @@
+{
+  "modify": [
+    {
+      "id": "booking-list-ui",
+      "note": "BookingDetailsSheet gets keyboard shortcuts: Up goes to the previous booking, Down to the next, Escape closes, Enter opens the join-meeting link when one is shown. Each of these buttons (previous, next, close, join) shows a tooltip naming its shortcut, with new translated labels in common.json; JoinMeetingButton accepts a ref from the sheet and can optionally render its own tooltip. Clicking another booking in either the list or the calendar view must keep the sheet open instead of closing and reopening it."
+    },
+    {
+      "id": "calendar-views",
+      "note": "Booking events in the weekly calendar (Event.tsx) carry the booking uid and a marker that identifies them as booking calendar events, so the bookings sheet can tell a click on another event from a click outside."
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "booking-sheet-keyboard-handler",
+      "label": "Booking sheet keyboard handler",
+      "kind": "service",
+      "group": "booking-ui",
+      "summary": "Keydown logic for the booking details sheet's shortcuts, testable on its own.",
+      "description": "Decides when the sheet's shortcuts apply and what each key does. Shortcuts are ignored while typing in an editable field and while focus is inside an open overlay (dialog, dropdown, popover) other than the sheet itself.",
+      "files": ["apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.ts"],
+      "note": "The sheet counts as active when nothing has focus, when focus is inside the sheet, or when focus is not inside any Radix portal; otherwise shortcuts are suppressed. While active, Up/Down are always consumed (default prevented and propagation stopped) even at the first or last booking, so the actions dropdown never opens from an arrow key; navigation only happens when a previous/next booking exists and no transition is in progress. Enter opens the join link and is consumed only when a join link exists; all other keys pass through untouched."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-bookinglist-sheet-keyboard",
+      "from": "booking-list-ui",
+      "to": "booking-sheet-keyboard-handler",
+      "kind": "uses",
+      "label": "sheet keyboard shortcuts",
+      "note": "BookingDetailsSheet registers the handler on keydown in the capture phase, so shortcuts run before a focused button reacts, and gives it the sheet's navigation state, previous/next actions and join link."
+    },
+    {
+      "id": "e-bookinglist-calendar-events",
+      "from": "booking-list-ui",
+      "to": "calendar-views",
+      "kind": "uses",
+      "label": "recognises calendar event clicks",
+      "note": "The sheet's outside-interaction check treats clicks on both booking list items and booking calendar events as in-app navigation and keeps the sheet open."
+    }
+  ]
+}

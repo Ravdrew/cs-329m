@@ -1,0 +1,33 @@
+{
+  "modify": [
+    {
+      "id": "signup",
+      "note": "When a signup carries a team/org invite token, both calcomHandler and selfHostedHandler check whether a user with the invited email already exists before creating the account; if one does, they stop and return a 409 'user already exists' error instead of continuing the signup flow. Signups with an invite token for a new email, and signups without a token, behave as before."
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "signup-fetch-client",
+      "label": "Signup fetch client",
+      "kind": "service",
+      "group": "g-auth",
+      "summary": "Client-side module that posts signup data to the signup API and returns a typed result.",
+      "description": "Replaces the inline signup fetch logic used by the signup form. Wraps the request with proper error handling and shared signup error codes, so callers can tell a user-already-exists response and a checkout-session response apart from other failures.",
+      "files": [
+        "packages/features/auth/signup/lib/fetchSignup.ts",
+        "packages/features/auth/signup/constants.ts"
+      ],
+      "note": "Move the signup request out of the signup form into this module. It must never throw on a bad response: an unreadable server response is reported as an invalid-server-response error, and a 409 is recognised as user-already-exists. When the signup form gets user-already-exists for an invite token, it shows a translated toast telling the user they already have an account and redirects them to the login page."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-signup-fetch-client-signup",
+      "from": "signup-fetch-client",
+      "to": "signup",
+      "kind": "calls",
+      "label": "posts signup request",
+      "note": "Sends the signup data (including any invite token and Turnstile token) to the signup API and turns the response, including the 409 user-already-exists case, into a result the form can act on."
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "modify": [
+    {
+      "id": "user-availability",
+      "note": "Add getUserAvailabilityIncludingBusyTimesFromLimits: when the limit busy times are not already in initialData it fetches them (user and team limits) and then runs the normal availability computation. Busy times from limits already passed in initialData must be passed through unchanged, never replaced by an empty list, and left out entirely when there are none. Every busy time in detailedBusyTimes must carry a source (source becomes required on EventBusyDetails); date override entries use source \"date-override\". The source is only included in the response when withSource is requested."
+    },
+    {
+      "id": "busy-times",
+      "note": "Every busy time it produces gets a title (a busy_time.* translation key) and a descriptive debug source. Booking, duration and team booking limits get these from a new LimitSources helper in limitManager, and LimitManager.addBusyTime takes both title and source (e.g. title busy_time.event_booking_limit, source \"Event Booking Limit for User: 5 per day\"). Seated-event buffer times get title busy_time.buffer_time with descriptive sources. External calendar busy times keep their own source (e.g. \"google-calendar\"); busy_time.calendar is only the fallback when they have none. Subtracting busy ranges must keep their source."
+    },
+    {
+      "id": "e-avail-busy",
+      "note": "Besides the regular busy times, UserAvailabilityService now also asks BusyTimesService for the busy times caused by booking/duration limits and team limits when they were not provided up front."
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "troubleshooter-calendar",
+      "label": "Troubleshooter LargeCalendar",
+      "kind": "component",
+      "group": "availability",
+      "summary": "Troubleshooter calendar that displays a user's busy times with readable source names.",
+      "note": "Show each busy time with its translated title (\"Event Booking Limit\", \"Event Duration Limit\", \"Team Booking Limit\", \"Buffer Time\", \"Calendar\"), falling back to busy_time.busy (not \"busy\") when there is no title. Add the busy_time.* keys to the common.json translations. Put the source on each calendar event as a data-calendar-event-source attribute for debugging. Date override entries must show correctly."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-troubleshooter-avail",
+      "from": "troubleshooter-calendar",
+      "to": "user-availability",
+      "kind": "reads",
+      "label": "busy times with source",
+      "note": "The troubleshooter shows the detailed busy times (with title and source) that the user availability computation returns when source is requested."
+    }
+  ]
+}

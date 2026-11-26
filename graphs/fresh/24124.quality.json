@@ -1,0 +1,17 @@
+{
+  "commit": "5d65a0f09199abeab9729d2665e9bed399692f55",
+  "nodes": 60,
+  "edges": 96,
+  "groups": 11,
+  "owned_files": 1035,
+  "in_scope_files": 3750,
+  "scope_coverage": 0.245,
+  "evidence_ranges": 169,
+  "weak_evidence": 0,
+  "single_file_nodes": 0.05,
+  "median_files_per_node": 11,
+  "verdict": "ok",
+  "reasons": [],
+  "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/runs/24124-1/2026-11-26T09-04-28.054Z-UJuKxv",
+  "attempts": 1
+}

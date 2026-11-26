@@ -1,0 +1,24 @@
+{
+  "modify": [
+    { "id": "embeds", "note": "Inline and modal embeds stop showing the plain rotating loader while the booking page loads and instead show a skeleton that mimics the page being loaded. Embed setup detects the page type (user or team event, slots or booking form) and the layout, and passes them so the right skeleton is chosen; when no page type is known, the default loader is shown as before. The inline HTML template becomes a function of layout and page type." }
+  ],
+  "add_nodes": [
+    { "id": "embed-element", "label": "EmbedElement base custom element", "kind": "component", "group": "booking-ui",
+      "summary": "Shared base for the inline and modal embed elements that shows the skeleton or default loader.",
+      "description": "Holds theme, layout and page type for an embed, picks the skeleton content for them, toggles between skeleton and loader, and keeps the skeleton sized and themed.",
+      "files": ["packages/embeds/embed-core/src/EmbedElement.ts"],
+      "note": "Shows the skeleton when a page type is known, otherwise the default loader, and hides both when told the page has loaded. Skeleton follows the embed theme (light/dark), falling back to the system colour scheme and updating live when it changes; it adapts to the layout (mobile on small screens) and resizes with the window. The skeleton container keeps a height so the embed does not jump when the real content arrives; in a modal it is capped to the modal height." },
+    { "id": "embed-ui-utils", "label": "Embed UI utilities", "kind": "service", "group": "booking-ui",
+      "summary": "Helpers for embed theme class, true layout, modal max height and dark colour scheme listening.",
+      "files": ["packages/embeds/embed-core/src/ui-utils.ts"],
+      "note": "Resolves the effective layout (mobile below a small width), whether a theme was explicitly chosen and the theme class to apply, and the max height for a modal. Provides one shared dark colour scheme query that listeners can subscribe to and unsubscribe from." }
+  ],
+  "add_edges": [
+    { "id": "embeds-renders-embed-element", "from": "embeds", "to": "embed-element", "kind": "renders",
+      "label": "inline/modal extend EmbedElement",
+      "note": "Inline and modal embed elements build on EmbedElement, supplying whether they are a modal and how to get skeleton content for a layout and page type; the parent hides the skeleton/loader once the iframe reports the page is ready." },
+    { "id": "embed-element-uses-ui-utils", "from": "embed-element", "to": "embed-ui-utils", "kind": "uses",
+      "label": "theme, layout and colour scheme",
+      "note": "EmbedElement uses these helpers for theme class, effective layout, modal height and to subscribe to system dark mode changes while connected, unsubscribing when removed." }
+  ]
+}
