@@ -50,8 +50,8 @@ function graphs(base) {
 }
 
 /**
- * Build the fixture under `root` (a real path) with `workers` pilot directories. Sets BENCH_TASKS, SPECS_DIR and
- * TASK_OVERRIDES in this process's environment, which make_prompt.py and harness.py inherit.
+ * Build the fixture under `root` (a real path) with `workers` pilot directories. Sets BENCH_TASKS, SPECS_DIR,
+ * TASK_OVERRIDES and TEST_FAIRNESS in this process's environment, which make_prompt.py and harness.py inherit.
  */
 export function makeFixture(root, workers = 1) {
   const git = (cwd, ...args) => execFileSync('git', ['-c', 'user.name=Fixture', '-c', 'user.email=f@example.invalid', ...args], { cwd, encoding: 'utf8' }).trim();
@@ -79,6 +79,7 @@ export function makeFixture(root, workers = 1) {
   writeFileSync(join(inputs, `${TASK}.md`), '## Interface the tests expect\n\n`src/booking.mjs` exports `cancelBooking(id)`.\n');
   writeFileSync(join(inputs, 'intent.md'), 'Add cancelBooking next to book in src/booking.mjs.\n');
   writeFileSync(join(inputs, 'overrides.json'), '{}');
+  writeFileSync(join(inputs, 'fairness.json'), JSON.stringify({ [TASK]: { 'src/booking.test.mjs::cancels a booking': { label: 'fair', reason: 'spec names cancelBooking' } } }));
   const g = graphs(base);
   writeFileSync(join(inputs, 'base.json'), JSON.stringify(g.base, null, 2));
   writeFileSync(join(inputs, 'edit.json'), JSON.stringify(g.edit, null, 2));
@@ -95,7 +96,8 @@ export function makeFixture(root, workers = 1) {
     chmodSync(join(pilotDir, 'calcom/node_modules/.bin/turbo'), 0o755);
     return { pilotDir, pilotPrivate: join(root, `private-${i}`) };
   });
-  Object.assign(process.env, { BENCH_TASKS: join(inputs, 'tasks.json'), SPECS_DIR: inputs, TASK_OVERRIDES: join(inputs, 'overrides.json') });
+  Object.assign(process.env, { BENCH_TASKS: join(inputs, 'tasks.json'), SPECS_DIR: inputs, TASK_OVERRIDES: join(inputs, 'overrides.json'),
+    TEST_FAIRNESS: join(inputs, 'fairness.json') });
   return {
     pilots, base, merge,
     inputs: { base: join(inputs, 'base.json'), edit: join(inputs, 'edit.json'), intent: join(inputs, 'intent.md') },

@@ -7,7 +7,7 @@
 //             codegraphServer? }
 // The task must have been prepared (`python3 q2q3-tools/harness.py prepare PULL` with the same PILOT_DIR).
 // Writes OUT/PULL/CONDITION-rREPEAT/: prompt.md, worker.json, events.jsonl, agent.stderr.log, tools.jsonl (graph
-// tool channel), audit.json, evaluation.json, run.json. A run whose run.json exists is skipped (resumable batches),
+// tool channel), audit.json, evaluation.json, run.json (full F2P score and the fair-only score next to it). A run whose run.json exists is skipped (resumable batches),
 // unless it ended in an error; then it is redone and the failed attempt kept as CONDITION-rREPEAT.error-N.
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -166,6 +166,8 @@ export async function runOne(config, deps = {}) {
     tool_calls: report.tool_calls, graph_tool_calls: report.graph_tool_calls, bash_commands: report.bash_commands,
     search_commands: report.search_commands, audit_flagged: report.flagged,
     resolved: evaluation?.resolved ?? null, f2p_passed: evaluation?.f2p_passed ?? null, f2p_total: evaluation?.f2p_total ?? null,
+    // Fair-only score: the hidden tests labelled fair or convention in q2q3-tools/test_fairness.json (null if unlabelled).
+    fair_resolved: evaluation?.fair_resolved ?? null, fair_passed: evaluation?.fair_passed ?? null, fair_total: evaluation?.fair_total ?? null,
     file_recall: evaluation?.file_recall ?? null, file_precision: evaluation?.file_precision ?? null,
     agent_files: evaluation?.agent_files ?? null, regressions: evaluation?.regressions?.broken ?? null,
   });
@@ -178,7 +180,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   if (!values.config) { console.error('Usage: node run.mjs --config RUN.json'); process.exit(2); }
   runOne(JSON.parse(readFileSync(values.config, 'utf8')))
     .then(r => console.log(JSON.stringify({ runDir: r.runDir, skipped: r.skipped ?? false, status: r.status, resolved: r.resolved,
-      f2p: `${r.f2p_passed}/${r.f2p_total}`, cost: r.usage?.cost, tool_calls: r.tool_calls, graph_tool_calls: r.graph_tool_calls,
+      f2p: `${r.f2p_passed}/${r.f2p_total}`, fair_resolved: r.fair_resolved, fair: `${r.fair_passed}/${r.fair_total}`, cost: r.usage?.cost, tool_calls: r.tool_calls, graph_tool_calls: r.graph_tool_calls,
       flagged: r.audit_flagged })))
     .catch(error => { console.error(error.message); process.exitCode = 1; });
 }

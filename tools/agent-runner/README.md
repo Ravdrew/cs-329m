@@ -55,7 +55,7 @@ Each run writes `OUT/PULL/CONDITION-rN/`:
 
 | File | Contents |
 |---|---|
-| `run.json` | The record: status (`completed`, `limit`, `error`, `invalid`), stop reason, model, Pi version, limits, usage and cost, tool calls, graph tool calls, bash and search commands, audit flag, and the grading (resolved, FAIL_TO_PASS passed, file recall and precision, agent files, regressions); sha256 of the prompt and every input |
+| `run.json` | The record: status (`completed`, `limit`, `error`, `invalid`), stop reason, model, Pi version, limits, usage and cost, tool calls, graph tool calls, bash and search commands, audit flag, and the grading (resolved, FAIL_TO_PASS passed, the fair-only score `fair_resolved`/`fair_passed`/`fair_total` over the tests labelled fair or convention in `q2q3-tools/test_fairness.json`, file recall and precision, agent files, regressions); sha256 of the prompt and every input |
 | `prompt.md`, `effective-system-prompt.md` | Exactly what the agent was told |
 | `events.jsonl` | Every model response (with usage) and tool call, in order; long tool results trimmed to 20k characters |
 | `tools.jsonl`, `mcp.log` | The graph server's own log (tool conditions) |

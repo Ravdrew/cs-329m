@@ -54,7 +54,7 @@ export function plan(matrix) {
 }
 
 const SUMMARY_FIELDS = ['task', 'condition', 'repeat', 'status', 'stop_reason', 'resolved', 'f2p_passed', 'f2p_total',
-  'file_recall', 'file_precision', 'regressions', 'tool_calls', 'graph_tool_calls', 'bash_commands', 'search_commands',
+  'fair_resolved', 'fair_passed', 'fair_total', 'file_recall', 'file_precision', 'regressions', 'tool_calls', 'graph_tool_calls', 'bash_commands', 'search_commands',
   'responses', 'duration_ms', 'audit_flagged'];
 
 export function summarize(out) {
@@ -98,7 +98,7 @@ export async function runBatch(matrix, { log = console.log, deps = {} } = {}) {
         log(`[worker ${wi}] ${task} ${c.condition} r${c.repeat}: start`);
         try {
           const r = await one(c);
-          log(`[worker ${wi}] ${task} ${c.condition} r${c.repeat}: ${r.status}, resolved=${r.resolved}, f2p=${r.f2p_passed}/${r.f2p_total}, $${(r.usage?.cost ?? 0).toFixed(2)}`);
+          log(`[worker ${wi}] ${task} ${c.condition} r${c.repeat}: ${r.status}, resolved=${r.resolved}, f2p=${r.f2p_passed}/${r.f2p_total}, fair=${r.fair_passed}/${r.fair_total}, $${(r.usage?.cost ?? 0).toFixed(2)}`);
         } catch (error) {
           // No run.json is written, so the run is retried when the batch is resumed.
           log(`[worker ${wi}] ${task} ${c.condition} r${c.repeat}: FAILED ${error.message.split('\n')[0]}`);

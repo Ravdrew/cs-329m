@@ -44,7 +44,8 @@ function fakeDeps(steps, { cost, calls } = {}) {
       },
       evaluate: label => {
         log.evaluated.push(label);
-        return { resolved: true, f2p_passed: 3, f2p_total: 3, file_recall: 0.5, file_precision: 1, agent_files: ['src/booking.ts'] };
+        return { resolved: false, f2p_passed: 2, f2p_total: 3, fair_resolved: true, fair_passed: 2, fair_total: 2,
+          file_recall: 0.5, file_precision: 1, agent_files: ['src/booking.ts'] };
       },
     },
   };
@@ -103,7 +104,8 @@ test('a tool run: prompt, Pi with the graph over MCP, audit, grading and a resum
   assert.equal(r.tool_calls, 3);
   assert.equal(r.graph_tool_calls, 2);
   assert.equal(r.responses, 3);
-  assert.equal(r.resolved, true);
+  assert.deepEqual([r.resolved, r.f2p_passed, r.f2p_total], [false, 2, 3]);
+  assert.deepEqual([r.fair_resolved, r.fair_passed, r.fair_total], [true, 2, 2], 'fair-only score recorded next to the full one');
   assert.equal(r.audit_flagged, false);
   assert.match(r.prompt_sha256, /^[0-9a-f]{64}$/);
   assert.match(r.edit_sha256, /^[0-9a-f]{64}$/);
@@ -149,7 +151,7 @@ test('limits stop the agent and are recorded', async () => {
   assert.equal(calls.status, 'limit');
   assert.equal(calls.stop_reason, 'Tool-call limit reached');
   assert.ok(calls.tool_calls <= 6, `stopped promptly (${calls.tool_calls} calls)`);
-  assert.equal(calls.resolved, true, 'a stopped run is still graded on what it changed');
+  assert.equal(calls.f2p_passed, 2, 'a stopped run is still graded on what it changed');
 
   const cost = await runOne({ task: 1, condition: 'prose', repeat: 2, out: join(root, 'out-limit'), pilotDir, maxMinutes: 2, maxCostUsd: 2.5 },
     fakeDeps(loop, { cost: 1 }).deps);
@@ -196,7 +198,8 @@ test('batches spread tasks over workers, shuffle reproducibly, prepare once per 
       ran.push(`${c.task}-${c.condition}-${c.repeat}`);
       const dir = join(c.out, String(c.task), `${c.condition}-r${c.repeat}`);
       mkdirSync(dir, { recursive: true });
-      const record = { task: c.task, condition: c.condition, repeat: c.repeat, status: 'completed', resolved: c.condition === 'text', usage: { cost: 0.5 } };
+      const record = { task: c.task, condition: c.condition, repeat: c.repeat, status: 'completed', resolved: c.condition === 'text',
+        fair_resolved: true, fair_passed: 4, fair_total: 4, usage: { cost: 0.5 } };
       writeFileSync(join(dir, 'run.json'), JSON.stringify(record));
       return record;
     },
@@ -204,7 +207,9 @@ test('batches spread tasks over workers, shuffle reproducibly, prepare once per 
   const rows = await runBatch(matrix, { log: () => {}, deps });
   assert.equal(rows.length, 12);
   assert.deepEqual(prepared.sort(), [1, 2, 3]);
-  assert.ok(readFileSync(join(matrix.out, 'summary.csv'), 'utf8').startsWith('task,condition,repeat,status'));
+  const csv = readFileSync(join(matrix.out, 'summary.csv'), 'utf8');
+  assert.ok(csv.startsWith('task,condition,repeat,status,stop_reason,resolved,f2p_passed,f2p_total,fair_resolved,fair_passed,fair_total,'));
+  assert.ok(rows.every(r => r.fair_resolved === true && r.fair_passed === 4 && r.fair_total === 4));
   // Resume: everything done, nothing prepared or run again.
   prepared.length = 0; ran.length = 0;
   await runBatch(matrix, { log: () => {}, deps });

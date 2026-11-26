@@ -13,10 +13,14 @@ v2 changes: tasks come from the benchmark's tasks.json (BENCH_TASKS) with per-ta
 hidden_support_files are copied in with the hidden tests, excluded from the gold diff, and not counted as PR files
 for file recall/precision; optional full-suite regression check against a per-task baseline.
 
+evaluate also reports a fair-only score next to the full F2P score: only the tests labelled `fair` or
+`ambiguous`/`convention` in test_fairness.json (TEST_FAIRNESS; see TEST-FAIRNESS.md) count. Tasks without labels get
+null fair fields.
+
 The agent works in CALCOM with .git moved aside and a throwaway git repo created at the base snapshot,
 so it cannot read the real PR from history. The PR's test files are added only at evaluation.
 """
-import json, os, re, shutil, subprocess, sys, time
+import hashlib, json, os, re, shutil, subprocess, sys, time
 from pathlib import Path
 
 # resolve(): Vitest reports real paths, and on macOS /tmp and /var are symlinks to /private/..., so test ids are only
@@ -30,6 +34,7 @@ TMP = PRIVATE / 'tmp'   # per PILOT_PRIVATE, so parallel workers never share tes
 TOOLS = Path(__file__).resolve().parent
 BENCH_TASKS = Path(os.environ.get('BENCH_TASKS', TOOLS.parent / 'benchmark' / 'tasks.json'))
 OVERRIDES = Path(os.environ.get('TASK_OVERRIDES', TOOLS / 'task_overrides.json'))
+FAIRNESS = Path(os.environ.get('TEST_FAIRNESS', TOOLS / 'test_fairness.json'))
 ENV = f"source {PILOT}/env.sh && cd {CALCOM} && "
 
 
@@ -235,6 +240,34 @@ def baseline(pull):
     print(f'baseline: {len(stable)} stable, {len(a ^ b)} flaky')
 
 
+def scored(entry):
+    """A fairness label the fair-only score keeps: fair, or ambiguous because of a convention (clarified in the spec)."""
+    return entry['label'] == 'fair' or (entry['label'] == 'ambiguous' and entry.get('kind') == 'convention')
+
+
+def fair_score(pull, f2p, test_error, labels_file=None):
+    """Fair-only F2P score: {fair_passed, fair_total, fair_resolved, fair_excluded, fairness_sha256, fair_error}.
+    All null when the task has no labels; null scores with fair_error when the labels do not cover exactly its tests."""
+    labels_file = Path(labels_file or FAIRNESS)
+    empty = {'fair_passed': None, 'fair_total': None, 'fair_resolved': None, 'fair_excluded': None, 'fairness_sha256': None}
+    if not labels_file.exists():
+        return empty | {'fair_error': f'no labels file {labels_file}'}
+    raw = labels_file.read_bytes()
+    labels = json.loads(raw).get(str(pull))
+    if labels is None:
+        return empty | {'fair_error': None}
+    digest = hashlib.sha256(raw).hexdigest()
+    unlabelled, stale = sorted(set(f2p) - set(labels)), sorted(set(labels) - set(f2p))
+    if unlabelled or stale:
+        return empty | {'fairness_sha256': digest,
+                        'fair_error': f'labels do not match the F2P tests: {len(unlabelled)} unlabelled, {len(stale)} not in F2P'}
+    keep = [k for k in f2p if scored(labels[k])]
+    passed = sum(f2p[k] == 'passed' for k in keep)
+    return {'fair_passed': passed, 'fair_total': len(keep),
+            'fair_resolved': test_error is None and bool(keep) and passed == len(keep),
+            'fair_excluded': sorted(set(f2p) - set(keep)), 'fairness_sha256': digest, 'fair_error': None}
+
+
 def evaluate(pull, label, regress=False):
     t = task(pull)
     diff = sh(ENV + 'git add -A . >/dev/null 2>&1; git diff --cached --stat -- . ":!**/node_modules"; git diff --cached --name-status', check=False).stdout
@@ -254,13 +287,14 @@ def evaluate(pull, label, regress=False):
            'file_recall': round(len(hit) / len(gold), 3) if gold else None,
            'file_precision': round(len(hit) / len(agent_src), 3) if agent_src else None,
            'f2p_status': f2p, 'test_execution_error': test_error}
+    out.update(fair_score(pull, f2p, test_error))
     if regress:
         base = set(json.load(open(RESULTS / f'{pull}-baseline.json'))['stable_passing'])
         now, error = full_suite(f'{pull}-{label}')
         broke = None if now is None else sorted(base - now - set(t['f2p']))
         out['regressions'] = {'baseline_stable_passing': len(base), 'broken': None if broke is None else len(broke),
                               'broken_tests': broke, 'execution_error': error}
-    print(json.dumps({k: v for k, v in out.items() if k not in ('f2p_status', 'regressions')}
+    print(json.dumps({k: v for k, v in out.items() if k not in ('f2p_status', 'regressions', 'fair_excluded')}
                      | ({'regressions': out['regressions']['broken']} if regress else {}), indent=1))
     json.dump(out, open(RESULTS / f'{pull}-{label}.json', 'w'), indent=1)
 
