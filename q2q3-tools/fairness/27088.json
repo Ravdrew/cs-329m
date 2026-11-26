@@ -1,66 +1,211 @@
 {
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > does not pass busyTimesFromLimitsBookings when no limits and no initialData bookings": {
     "label": "fair",
-    "reason": "Asserts the initialData passed to _getUserAvailability has no busyTimesFromLimitsBookings key; the description states the conditional spread `...(busyTimesFromLimitsBookings ? { busyTimesFromLimitsBookings } : {})` explicitly."
+    "reason": "Asserts the initialData passed to _getUserAvailability has no busyTimesFromLimitsBookings key; the description states the conditional spread `...(busyTimesFromLimitsBookings ? { busyTimesFromLimitsBookings } : {})` explicitly.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts the initialData passed to _getUserAvailability has no busyTimesFromLimitsBookings key; the description states the conditional spread `...(busyTimesFromLimitsBookings ? { busyTimesFromLimitsBookings } : {})` explicitly."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description explicitly: conditional spread so the property is not included when undefined.",
+      "confidence": "high"
+    }
   },
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > fetches busy times when eventType has booking limits": {
     "label": "ambiguous",
     "kind": "convention",
     "reason": "Asserts getStartEndDateforLimitCheck(DATE_FROM_ISO, DATE_TO_ISO, {PER_DAY:3}, null) with four args; the base slots/util.ts _getBusyTimesFromLimitsForUsers calls it as (from, to, bookingLimits || durationLimits), so copying that pattern fails. The getBusyTimesForLimitChecks args (userIds, eventType.id, limitDateFrom.format(), rescheduleUid, limits) follow the slots/util.ts pattern.",
-    "clarification": "Compute the limit window with getStartEndDateforLimitCheck(dateFrom.toISOString(), dateTo.toISOString(), bookingLimits, durationLimits), passing both parsed limits (null when absent) as separate arguments."
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Asserts getStartEndDateforLimitCheck(DATE_FROM_ISO, DATE_TO_ISO, {PER_DAY:3}, null) with four args; the base slots/util.ts _getBusyTimesFromLimitsForUsers calls it as (from, to, bookingLimits || durationLimits), so copying that pattern fails. The getBusyTimesForLimitChecks args (userIds, eventType.id, limitDateFrom.format(), rescheduleUid, limits) follow the slots/util.ts pattern.",
+      "clarification": "Compute the limit window with getStartEndDateforLimitCheck(dateFrom.toISOString(), dateTo.toISOString(), bookingLimits, durationLimits), passing both parsed limits (null when absent) as separate arguments."
+    },
+    "second_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Exact getBusyTimesForLimitChecks args mostly follow base slots/util.ts:410-424 (limitDate.format(), parsed limits null), but details vary in base: rescheduleUid `?? undefined` (getUserAvailability.ts:550) vs `?? null` (ensureAvailableUsers.ts:88), and getStartEndDateforLimitCheck is called with 3 args `bookingLimits || durationLimits` in slots/util.ts:413 vs 4 args per its signature (getBusyTimes.ts:289).",
+      "confidence": "medium"
+    }
   },
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > fetches busy times when eventType has duration limits": {
     "label": "ambiguous",
     "kind": "convention",
     "reason": "Expects getStartEndDateforLimitCheck(..., null, {PER_WEEK:120}); the base slots/util.ts call passes `bookingLimits || durationLimits` as the third argument, which would give ({PER_WEEK:120}) and fail. The 4-param signature in getBusyTimes.ts allows the expected form, but neither the description nor the spec picks it.",
-    "clarification": "Compute the limit window with getStartEndDateforLimitCheck(dateFrom.toISOString(), dateTo.toISOString(), bookingLimits, durationLimits), passing both parsed limits (null when absent) as separate arguments."
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Expects getStartEndDateforLimitCheck(..., null, {PER_WEEK:120}); the base slots/util.ts call passes `bookingLimits || durationLimits` as the third argument, which would give ({PER_WEEK:120}) and fail. The 4-param signature in getBusyTimes.ts allows the expected form, but neither the description nor the spec picks it.",
+      "clarification": "Compute the limit window with getStartEndDateforLimitCheck(dateFrom.toISOString(), dateTo.toISOString(), bookingLimits, durationLimits), passing both parsed limits (null when absent) as separate arguments."
+    },
+    "second_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Exact getBusyTimesForLimitChecks args mostly follow base slots/util.ts:410-424 (limitDate.format(), parsed limits null), but details vary in base: rescheduleUid `?? undefined` (getUserAvailability.ts:550) vs `?? null` (ensureAvailableUsers.ts:88), and getStartEndDateforLimitCheck is called with 3 args `bookingLimits || durationLimits` in slots/util.ts:413 vs 4 args per its signature (getBusyTimes.ts:289).",
+      "confidence": "medium"
+    }
   },
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > fetches eventType by eventTypeId when not provided in initialData": {
-    "label": "fair",
-    "reason": "Expects findByIdForUserAvailability({id:100}), which the existing this.getEventType does, mirroring _getUserAvailability's own `if (!eventType && eventTypeId) eventType = await this.getEventType(eventTypeId)`. The getBusyTimesForLimitChecks args follow the slots/util.ts pattern."
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Fetching via existing getEventType -> findByIdForUserAvailability({id}) follows base getUserAvailability.ts:285-296,373, but the test also asserts exact getBusyTimesForLimitChecks args. Exact getBusyTimesForLimitChecks args mostly follow base slots/util.ts:410-424 (limitDate.format(), parsed limits null), but details vary in base: rescheduleUid `?? undefined` (getUserAvailability.ts:550) vs `?? null` (ensureAvailableUsers.ts:88), and getStartEndDateforLimitCheck is called with 3 args `bookingLimits || durationLimits` in slots/util.ts:413 vs 4 args per its signature (getBusyTimes.ts:289).",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects findByIdForUserAvailability({id:100}), which the existing this.getEventType does, mirroring _getUserAvailability's own `if (!eventType && eventTypeId) eventType = await this.getEventType(eventTypeId)`. The getBusyTimesForLimitChecks args follow the slots/util.ts pattern."
+    },
+    "second_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Fetching via existing getEventType -> findByIdForUserAvailability({id}) follows base getUserAvailability.ts:285-296,373, but the test also asserts exact getBusyTimesForLimitChecks args. Exact getBusyTimesForLimitChecks args mostly follow base slots/util.ts:410-424 (limitDate.format(), parsed limits null), but details vary in base: rescheduleUid `?? undefined` (getUserAvailability.ts:550) vs `?? null` (ensureAvailableUsers.ts:88), and getStartEndDateforLimitCheck is called with 3 args `bookingLimits || durationLimits` in slots/util.ts:413 vs 4 args per its signature (getBusyTimes.ts:289).",
+      "confidence": "medium"
+    },
+    "resolution": "Fair in one review only (fair vs convention); fair requires both reviews, 2026-11-26."
   },
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > passes both bookingLimits and durationLimits separately to getStartEndDateforLimitCheck": {
     "label": "ambiguous",
     "kind": "convention",
     "reason": "Asserts both limits passed separately ({PER_DAY:3}, {PER_WEEK:120}); the analogous base call in slots/util.ts passes only `bookingLimits || durationLimits`, and the spec only names the stubbed member.",
-    "clarification": "Compute the limit window with getStartEndDateforLimitCheck(dateFrom.toISOString(), dateTo.toISOString(), bookingLimits, durationLimits), passing both parsed limits (null when absent) as separate arguments."
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Asserts both limits passed separately ({PER_DAY:3}, {PER_WEEK:120}); the analogous base call in slots/util.ts passes only `bookingLimits || durationLimits`, and the spec only names the stubbed member.",
+      "clarification": "Compute the limit window with getStartEndDateforLimitCheck(dateFrom.toISOString(), dateTo.toISOString(), bookingLimits, durationLimits), passing both parsed limits (null when absent) as separate arguments."
+    },
+    "second_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Signature getBusyTimes.ts:289 takes both limits separately, but the nearest base caller slots/util.ts:410-414 passes `bookingLimits || durationLimits` as a single 3rd arg; copying that convention fails.",
+      "confidence": "medium"
+    }
   },
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > passes fetched busyTimesFromLimitsBookings to _getUserAvailability": {
     "label": "fair",
-    "reason": "Fetched limit bookings must reach _getUserAvailability through the existing initialData.busyTimesFromLimitsBookings field. The description says the method 'sends busy times from limits' to it, and the spec says to call this._getUserAvailability."
+    "reason": "Fetched limit bookings must reach _getUserAvailability through the existing initialData.busyTimesFromLimitsBookings field. The description says the method 'sends busy times from limits' to it, and the spec says to call this._getUserAvailability.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Fetched limit bookings must reach _getUserAvailability through the existing initialData.busyTimesFromLimitsBookings field. The description says the method 'sends busy times from limits' to it, and the spec says to call this._getUserAvailability."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Spec says call this._getUserAvailability; description says the method fetches limit busy times and passes them; params passed unchanged.",
+      "confidence": "high"
+    }
   },
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > passes fetched eventType to _getUserAvailability to avoid duplicate DB query": {
     "label": "ambiguous",
     "kind": "behavior",
-    "reason": "Asserts that the eventType the method fetched is forwarded in initialData. Neither the description nor the spec mentions this. Passing initialData unchanged, so that _getUserAvailability refetches it as it already does, is a valid alternative."
+    "reason": "Asserts that the eventType the method fetched is forwarded in initialData. Neither the description nor the spec mentions this. Passing initialData unchanged, so that _getUserAvailability refetches it as it already does, is a valid alternative.",
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "Asserts that the eventType the method fetched is forwarded in initialData. Neither the description nor the spec mentions this. Passing initialData unchanged, so that _getUserAvailability refetches it as it already does, is a valid alternative."
+    },
+    "second_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "Not mentioned in description or spec; _getUserAvailability re-fetches eventType itself (getUserAvailability.ts:373), so forwarding it is an optional optimisation an agent may skip.",
+      "confidence": "medium"
+    }
   },
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > passes rescheduleUid to getBusyTimesForLimitChecks when provided": {
-    "label": "fair",
-    "reason": "Passes initialData.rescheduleUid through as rescheduleUid, which is how base _getUserAvailability (`initialData?.rescheduleUid ?? undefined`) and slots/util.ts already pass it. The description lists reschedules as a case to handle."
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Passing initialData.rescheduleUid follows base (getUserAvailability.ts:134,550), but exact call also depends on the format/4-arg conventions. Exact getBusyTimesForLimitChecks args mostly follow base slots/util.ts:410-424 (limitDate.format(), parsed limits null), but details vary in base: rescheduleUid `?? undefined` (getUserAvailability.ts:550) vs `?? null` (ensureAvailableUsers.ts:88), and getStartEndDateforLimitCheck is called with 3 args `bookingLimits || durationLimits` in slots/util.ts:413 vs 4 args per its signature (getBusyTimes.ts:289).",
+    "first_review": {
+      "label": "fair",
+      "reason": "Passes initialData.rescheduleUid through as rescheduleUid, which is how base _getUserAvailability (`initialData?.rescheduleUid ?? undefined`) and slots/util.ts already pass it. The description lists reschedules as a case to handle."
+    },
+    "second_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Passing initialData.rescheduleUid follows base (getUserAvailability.ts:134,550), but exact call also depends on the format/4-arg conventions. Exact getBusyTimesForLimitChecks args mostly follow base slots/util.ts:410-424 (limitDate.format(), parsed limits null), but details vary in base: rescheduleUid `?? undefined` (getUserAvailability.ts:550) vs `?? null` (ensureAvailableUsers.ts:88), and getStartEndDateforLimitCheck is called with 3 args `bookingLimits || durationLimits` in slots/util.ts:413 vs 4 args per its signature (getBusyTimes.ts:289).",
+      "confidence": "medium"
+    },
+    "resolution": "Fair in one review only (fair vs convention); fair requires both reviews, 2026-11-26."
   },
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > preserves pre-existing busyTimesFromLimitsBookings from initialData instead of overwriting with empty array": {
     "label": "fair",
-    "reason": "The description's 'Updates since last revision' says the method initializes from initialData.busyTimesFromLimitsBookings and passes it through instead of []."
+    "reason": "The description's 'Updates since last revision' says the method initializes from initialData.busyTimesFromLimitsBookings and passes it through instead of [].",
+    "first_review": {
+      "label": "fair",
+      "reason": "The description's 'Updates since last revision' says the method initializes from initialData.busyTimesFromLimitsBookings and passes it through instead of []."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description 'Updates since last revision' states this fix explicitly.",
+      "confidence": "high"
+    }
   },
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > skips fetching limit busy times when busyTimesFromLimitsBookings is already in initialData": {
     "label": "fair",
-    "reason": "The description says to fetch limit busy times only 'when not in initialData'. The test checks that getBusyTimesForLimitChecks is not called and that a result with busy is returned."
+    "reason": "The description says to fetch limit busy times only 'when not in initialData'. The test checks that getBusyTimesForLimitChecks is not called and that a result with busy is returned.",
+    "first_review": {
+      "label": "fair",
+      "reason": "The description says to fetch limit busy times only 'when not in initialData'. The test checks that getBusyTimesForLimitChecks is not called and that a result with busy is returned."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description: 'properly fetch busy times from limits when not in initialData'.",
+      "confidence": "high"
+    }
   },
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > skips fetching limit busy times when eventType has no limits": {
     "label": "fair",
-    "reason": "No limit calls without booking/duration limits; base code guards limit fetching with `eventType && (bookingLimits || durationLimits)`."
+    "reason": "No limit calls without booking/duration limits; base code guards limit fetching with `eventType && (bookingLimits || durationLimits)`.",
+    "first_review": {
+      "label": "fair",
+      "reason": "No limit calls without booking/duration limits; base code guards limit fetching with `eventType && (bookingLimits || durationLimits)`."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Follows from the method's purpose and base guard `eventType && (bookingLimits || durationLimits)` (slots/util.ts:871).",
+      "confidence": "high"
+    }
   },
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > skips fetching limit busy times when no eventType exists": {
     "label": "fair",
-    "reason": "There is nothing to fetch without an eventType, and the base code uses the same eventType guard."
+    "reason": "There is nothing to fetch without an eventType, and the base code uses the same eventType guard.",
+    "first_review": {
+      "label": "fair",
+      "reason": "There is nothing to fetch without an eventType, and the base code uses the same eventType guard."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "No eventType means no limits; base guard requires eventType.",
+      "confidence": "high"
+    }
   },
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > uses host user IDs for team events with booking limits": {
     "label": "ambiguous",
     "kind": "behavior",
-    "reason": "Expects userIds [1,2,3] taken from eventType.hosts. The description only says to handle 'team events', and since the method takes a single user, passing [user.id] is a valid reading. Base slots/util.ts passes all users being checked, not eventType.hosts."
+    "reason": "Expects userIds [1,2,3] taken from eventType.hosts. The description only says to handle 'team events', and since the method takes a single user, passing [user.id] is a valid reading. Base slots/util.ts passes all users being checked, not eventType.hosts.",
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "Expects userIds [1,2,3] taken from eventType.hosts. The description only says to handle 'team events', and since the method takes a single user, passing [user.id] is a valid reading. Base slots/util.ts passes all users being checked, not eventType.hosts."
+    },
+    "second_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "Description does not mention team hosts; for a single-user availability function using only user.id is a reasonable reading, and base callers use eventType.users / users (ensureAvailableUsers.ts:84, slots/util.ts:417), not hosts.",
+      "confidence": "medium"
+    }
   },
   "packages/features/availability/lib/getUserAvailabilityIncludingBusyTimesFromLimits.test.ts::UserAvailabilityService.getUserAvailabilityIncludingBusyTimesFromLimits > uses only the user ID for solo events with booking limits": {
-    "label": "fair",
-    "reason": "With no hosts, userIds [42] is the user's own id, so either reading of the team-event behavior gives this result. The other args follow the slots/util.ts pattern."
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Using user.id for a solo event is natural, but the exact call args carry the same convention risks. Exact getBusyTimesForLimitChecks args mostly follow base slots/util.ts:410-424 (limitDate.format(), parsed limits null), but details vary in base: rescheduleUid `?? undefined` (getUserAvailability.ts:550) vs `?? null` (ensureAvailableUsers.ts:88), and getStartEndDateforLimitCheck is called with 3 args `bookingLimits || durationLimits` in slots/util.ts:413 vs 4 args per its signature (getBusyTimes.ts:289).",
+    "first_review": {
+      "label": "fair",
+      "reason": "With no hosts, userIds [42] is the user's own id, so either reading of the team-event behavior gives this result. The other args follow the slots/util.ts pattern."
+    },
+    "second_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Using user.id for a solo event is natural, but the exact call args carry the same convention risks. Exact getBusyTimesForLimitChecks args mostly follow base slots/util.ts:410-424 (limitDate.format(), parsed limits null), but details vary in base: rescheduleUid `?? undefined` (getUserAvailability.ts:550) vs `?? null` (ensureAvailableUsers.ts:88), and getStartEndDateforLimitCheck is called with 3 args `bookingLimits || durationLimits` in slots/util.ts:413 vs 4 args per its signature (getBusyTimes.ts:289).",
+      "confidence": "medium"
+    },
+    "resolution": "Fair in one review only (fair vs convention); fair requires both reviews, 2026-11-26."
   }
 }

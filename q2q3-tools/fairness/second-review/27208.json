@@ -1,0 +1,57 @@
+{
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > empty accessible resources > removes all ID-based filters when no resources are accessible": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "If every ID in a multi-select filter is invalid, the test expects the whole filter removed. The description only says invalid values are 'filtered out', so keeping an empty MULTI_SELECT filter is also a reasonable reading.",
+    "confidence": "medium"
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > eventTypeId filter validation > keeps valid event type IDs in multi-select filter": {
+    "label": "fair",
+    "reason": "Description: validates eventTypeId filters against accessible resources and 'filters out invalid values'; spec gives the AccessibleResources shape.",
+    "confidence": "high"
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > eventTypeId filter validation > removes filter when all event type IDs are invalid in multi-select": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "If every ID in a multi-select filter is invalid, the test expects the whole filter removed. The description only says invalid values are 'filtered out', so keeping an empty MULTI_SELECT filter is also a reasonable reading.",
+    "confidence": "medium"
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > mixed filters > validates multiple filters correctly": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Depends on dropping the eventTypeId filter whose IDs are all invalid (expects length 3). If every ID in a multi-select filter is invalid, the test expects the whole filter removed. The description only says invalid values are 'filtered out', so keeping an empty MULTI_SELECT filter is also a reasonable reading.",
+    "confidence": "medium"
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > other filters > preserves filters that are not userId, eventTypeId, or teamId": {
+    "label": "fair",
+    "reason": "Description limits validation to userId, eventTypeId and teamId.",
+    "confidence": "high"
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > other filters > preserves filters without a value": {
+    "label": "fair",
+    "reason": "There is nothing to validate when v is undefined; passing it through unchanged is the natural behavior.",
+    "confidence": "medium"
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > teamId filter validation > keeps valid team IDs in multi-select filter": {
+    "label": "fair",
+    "reason": "Description: teamId filters are validated, and invalid values are filtered out.",
+    "confidence": "high"
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > teamId filter validation > removes filter when all team IDs are invalid in multi-select": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "If every ID in a multi-select filter is invalid, the test expects the whole filter removed. The description only says invalid values are 'filtered out', so keeping an empty MULTI_SELECT filter is also a reasonable reading.",
+    "confidence": "medium"
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > userId filter validation > keeps valid user IDs in multi-select filter": {
+    "label": "fair",
+    "reason": "Description: 'invalid user ID should be silently filtered out ... only valid filter values'.",
+    "confidence": "high"
+  },
+  "apps/web/modules/bookings/hooks/useActiveFiltersValidator.test.ts::createActiveFiltersValidator > userId filter validation > removes filter when all user IDs are invalid in multi-select": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "If every ID in a multi-select filter is invalid, the test expects the whole filter removed. The description only says invalid values are 'filtered out', so keeping an empty MULTI_SELECT filter is also a reasonable reading.",
+    "confidence": "medium"
+  }
+}

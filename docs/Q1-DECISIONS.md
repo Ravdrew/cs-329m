@@ -370,3 +370,27 @@ measured in Q1.
 Pending pairs: 1 (LLM-only) and 17 (hot-start), not covered by the 213 adjudications; blind-review bundles with 10 controls
 in each output folder. Not reviewed; bounds as shown. Restoring dropped edges (`scoring/with_dropped.py`) not yet scored.
 Still open: runs 2 and 3 of both v2 builders before choosing a builder for Q2/Q3.
+
+## 2026-11-26 — Hidden tests: spec clarifications rejected, three-tier scoring, second review resolved
+Context: Andres's fairness audit (`q2q3-tools/TEST-FAIRNESS.md`, 2026-11-25) labelled all 366 FAIL_TO_PASS tests and
+drafted 16 spec sentences for the 44 "ambiguous convention" tests, pending Jo's agreement because they change the
+2026-11-02 interface rule. Decisions (Jo):
+1. **Interface rule kept; all 16 clarifications rejected.** Most stated asserted values or call arguments (#24880
+   defaults 80/8/60 and layout formula, #27088 call arguments, #24324 findMany arguments, #27378 log fields). #25313's
+   sentence cites RFC 6749 but the `grant_type` test expects `invalid_request` where the RFC says
+   `unsupported_grant_type`, and its `S256` default (RFC 7636 says `plain`) is the hint removed on 2026-11-02.
+   An unanchored reviewer agent, given the options without a recommendation, reached the same conclusion. The rule was
+   set by Jo on 2026-11-02 and never formally agreed by the team; it goes to the group for objections.
+2. **Three-tier scoring replaces "remove ambiguous tests".** Fair (tier 1, competence check), underdetermined
+   (tier 2, all ambiguous tests: where intent or graph can add information) and the full F2P score, reported for every
+   run. Only `unfair` tests are excluded. Reason: removing ambiguous-behavior tests would remove exactly the tests where a
+   condition effect can show. Condition material (graph edits, intents) must be written blind to the hidden tests.
+   This changes the 2026-11-02 note that "the primary metric stays the fraction of tests passed".
+3. **Blind second review** of the 11 subagent-labelled PRs with non-fair labels (252 tests; fresh Claude agents without
+   the first labels): same label 203/252; same keep/remove 225/252; first-review "convention" labels confirmed for only
+   14 of 37. Jo decided 31 disagreements one by one, mostly kept vs excluded (`OVERRIDES` in
+   `q2q3-tools/fairness/resolve_second_review.py`, each with a reason); tests fair in only one review go to tier 2.
+   Checked by hand: #26217 invite-path tests need an unmentioned change at base `selfHostedHandler.ts:115` (excluded).
+Result: 366 tests = 237 fair + 74 underdetermined + 55 excluded; 311 scored (the 2026-11-25 plan had 290).
+Branch `fairness-second-review` (local; not pushed). Still open: harness reports the three scores; tag the frozen
+labels before any experiment run; task selection.

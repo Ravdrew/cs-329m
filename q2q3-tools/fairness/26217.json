@@ -1,125 +1,401 @@
 {
   "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > returns 409 when target includes 'email'": {
-    "label": "fair",
-    "reason": "Expects 409 with {message: SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS} when user.create rejects with P2002 on ['email']. The spec says non-token signups use user.create and that tests stub unique-constraint errors as Prisma.PrismaClientKnownRequestError, and the description says an existing user yields 409 with the new USER_ALREADY_EXISTS code; mapping an email unique violation to that response is the natural reading."
+    "label": "unfair",
+    "reason": "The description limits the 409 to the invite-token flow; nothing says the non-token user.create should catch P2002, or which targets map to USER_ALREADY_EXISTS.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects 409 with {message: SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS} when user.create rejects with P2002 on ['email']. The spec says non-token signups use user.create and that tests stub unique-constraint errors as Prisma.PrismaClientKnownRequestError, and the description says an existing user yields 409 with the new USER_ALREADY_EXISTS code; mapping an email unique violation to that response is the natural reading."
+    },
+    "second_review": {
+      "label": "unfair",
+      "reason": "The description scopes the 409 to the invite-token flow. Nothing describes catching Prisma P2002 on the non-token user.create, nor the rule that an email or username target gives 409 with USER_ALREADY_EXISTS while other targets rethrow. The spec only says the mocked error class exists.",
+      "confidence": "medium"
+    },
+    "resolution": "Disagreement (fair vs unfair) resolved by Jo, 2026-11-26."
   },
   "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > returns 409 when target includes 'email' among other fields": {
-    "label": "fair",
-    "reason": "Same as the email case with meta.target ['id','email','username']; any check that the target contains 'email' passes, and that follows from handling an email unique violation."
+    "label": "unfair",
+    "reason": "The description limits the 409 to the invite-token flow; nothing says the non-token user.create should catch P2002, or which targets map to USER_ALREADY_EXISTS.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Same as the email case with meta.target ['id','email','username']; any check that the target contains 'email' passes, and that follows from handling an email unique violation."
+    },
+    "second_review": {
+      "label": "unfair",
+      "reason": "The description scopes the 409 to the invite-token flow. Nothing describes catching Prisma P2002 on the non-token user.create, nor the rule that an email or username target gives 409 with USER_ALREADY_EXISTS while other targets rethrow. The spec only says the mocked error class exists.",
+      "confidence": "medium"
+    },
+    "resolution": "Disagreement (fair vs unfair) resolved by Jo, 2026-11-26."
   },
   "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > returns 409 when target is 'username' only": {
-    "label": "ambiguous",
-    "kind": "behavior",
-    "reason": "Expects a username-only P2002 to map to 409 with message USER_ALREADY_EXISTS (the code the frontend uses to redirect to login). Neither description nor spec says a username clash counts as 'user already exists'; base code reports it as a distinct 'Username or email is already taken'/'A user exists with that username' error, so returning a different message or re-throwing is a valid reading."
+    "label": "unfair",
+    "reason": "The description limits the 409 to the invite-token flow; nothing says the non-token user.create should catch P2002, or which targets map to USER_ALREADY_EXISTS.",
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "Expects a username-only P2002 to map to 409 with message USER_ALREADY_EXISTS (the code the frontend uses to redirect to login). Neither description nor spec says a username clash counts as 'user already exists'; base code reports it as a distinct 'Username or email is already taken'/'A user exists with that username' error, so returning a different message or re-throwing is a valid reading."
+    },
+    "second_review": {
+      "label": "unfair",
+      "reason": "The description scopes the 409 to the invite-token flow. Nothing describes catching Prisma P2002 on the non-token user.create, nor the rule that an email or username target gives 409 with USER_ALREADY_EXISTS while other targets rethrow. The spec only says the mocked error class exists.",
+      "confidence": "medium"
+    },
+    "resolution": "Disagreement (behavior vs unfair) resolved by Jo, 2026-11-26."
   },
   "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws when target is empty": {
-    "label": "ambiguous",
-    "kind": "behavior",
-    "reason": "Expects a P2002 whose meta has no target ({}) to be re-thrown rather than turned into 409. Nothing in the description or spec says the mapping depends on meta.target; treating every P2002 on user creation as 'user already exists' is an equally valid implementation and fails this test."
+    "label": "fair",
+    "reason": "Re-throwing is the base behavior (base user.create has no try/catch); the test fails at base only through the spec-named constants import, and fails an agent only if it catches P2002 too broadly.",
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "Expects a P2002 whose meta has no target ({}) to be re-thrown rather than turned into 409. Nothing in the description or spec says the mapping depends on meta.target; treating every P2002 on user creation as 'user already exists' is an equally valid implementation and fails this test."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Rethrowing is the base behavior: the base user.create has no try/catch. The test only fails at base because the suite imports the spec-mandated ../../constants. It would fail only if an agent caught P2002 too broadly.",
+      "confidence": "medium"
+    },
+    "resolution": "Disagreement (behavior vs fair) resolved by Jo, 2026-11-26."
   },
   "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws when target is undefined": {
-    "label": "ambiguous",
-    "kind": "behavior",
-    "reason": "Expects a P2002 with meta undefined to be re-thrown. The target-based condition is unstated; mapping any P2002 to 409 USER_ALREADY_EXISTS is a valid reading that fails this test."
+    "label": "fair",
+    "reason": "Re-throwing is the base behavior (base user.create has no try/catch); the test fails at base only through the spec-named constants import, and fails an agent only if it catches P2002 too broadly.",
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "Expects a P2002 with meta undefined to be re-thrown. The target-based condition is unstated; mapping any P2002 to 409 USER_ALREADY_EXISTS is a valid reading that fails this test."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Rethrowing is the base behavior: the base user.create has no try/catch. The test only fails at base because the suite imports the spec-mandated ../../constants. It would fail only if an agent caught P2002 too broadly.",
+      "confidence": "medium"
+    },
+    "resolution": "Disagreement (behavior vs fair) resolved by Jo, 2026-11-26."
   },
   "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws non-P2002 Prisma errors": {
     "label": "fair",
-    "reason": "Expects a P2025 error from user.create to propagate. Base handlers let errors propagate, and only unique violations relate to 'user already exists'."
+    "reason": "Expects a P2025 error from user.create to propagate. Base handlers let errors propagate, and only unique violations relate to 'user already exists'.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects a P2025 error from user.create to propagate. Base handlers let errors propagate, and only unique violations relate to 'user already exists'."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Rethrowing is the base behavior: the base user.create has no try/catch. The test only fails at base because the suite imports the spec-mandated ../../constants. It would fail only if an agent caught P2002 too broadly.",
+      "confidence": "medium"
+    }
   },
   "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws generic errors": {
     "label": "fair",
-    "reason": "Expects a plain Error from user.create to propagate, which is the base behavior."
+    "reason": "Expects a plain Error from user.create to propagate, which is the base behavior.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects a plain Error from user.create to propagate, which is the base behavior."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Rethrowing is the base behavior: the base user.create has no try/catch. The test only fails at base because the suite imports the spec-mandated ../../constants. It would fail only if an agent caught P2002 too broadly.",
+      "confidence": "medium"
+    }
   },
   "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler – signup P2002 contract > Successful Creation > returns 201 when user is created (non-token flow)": {
     "label": "fair",
-    "reason": "Expects 201 when user.create resolves; base handlers already return 201 'Created user', and the spec says the non-token path uses user.create."
+    "reason": "Expects 201 when user.create resolves; base handlers already return 201 'Created user', and the spec says the non-token path uses user.create.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects 201 when user.create resolves; base handlers already return 201 'Created user', and the spec says the non-token path uses user.create."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "The base already returns 201 'Created user'. The test needs only the spec-mandated constants file and user.create, which the spec lists for both handlers.",
+      "confidence": "high"
+    }
   },
   "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler – signup P2002 contract > Invite flow - existing user validation > returns 409 when user exists but was not invited to this team": {
     "label": "fair",
-    "reason": "Expects 409 {message: USER_ALREADY_EXISTS} when user.findUnique returns an existing user for a token signup; the description says to return 409 when the user already exists with an invite token, and the spec lists user.findUnique and the constant."
+    "reason": "Expects 409 {message: USER_ALREADY_EXISTS} when user.findUnique returns an existing user for a token signup; the description says to return 409 when the user already exists with an invite token, and the spec lists user.findUnique and the constant.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects 409 {message: USER_ALREADY_EXISTS} when user.findUnique returns an existing user for a token signup; the description says to return 409 when the user already exists with an invite token, and the spec lists user.findUnique and the constant."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description: 'Return 409 status when user already exists with invite token'. The spec names prisma user.findUnique as the stubbed lookup and gives the SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS constant that the test compares against.",
+      "confidence": "medium"
+    }
   },
   "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler – signup P2002 contract > Successful Creation > returns 201 when user is created via invite (token flow)": {
     "label": "fair",
-    "reason": "Expects 201 when findUnique/findFirst return null and user.upsert resolves; base calcomHandler already upserts and returns 201 in the token flow, and the spec states user.upsert is used for token signups."
+    "reason": "Expects 201 when findUnique/findFirst return null and user.upsert resolves; base calcomHandler already upserts and returns 201 in the token flow, and the spec states user.upsert is used for token signups.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects 201 when findUnique/findFirst return null and user.upsert resolves; base calcomHandler already upserts and returns 201 in the token flow, and the spec states user.upsert is used for token signups."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "The happy invite path returns 201 in base. The stubs (findUnique and findFirst returning null, upsert) are listed in the spec, so any reasonable existence check passes.",
+      "confidence": "high"
+    }
   },
   "packages/features/auth/signup/handlers/__tests__/calcomHandler.test.ts::calcomHandler – signup P2002 contract > Invite flow - existing user validation > returns 201 when user exists and was invited to this team": {
     "label": "ambiguous",
     "kind": "behavior",
-    "reason": "Expects 201 when findUnique returns {invitedTo: 1} matching the token's teamId. The description says to return 409 whenever the user already exists with an invite token. Base inviteMember/utils.ts:350 does create placeholder users with invitedTo: teamId, so a careful engineer could infer the exception, but a literal implementation returns 409, and other placeholder checks (e.g. no password) fail with the mocked {id, invitedTo} row."
+    "reason": "Expects 201 when findUnique returns {invitedTo: 1} matching the token's teamId. The description says to return 409 whenever the user already exists with an invite token. Base inviteMember/utils.ts:350 does create placeholder users with invitedTo: teamId, so a careful engineer could infer the exception, but a literal implementation returns 409, and other placeholder checks (e.g. no password) fail with the mocked {id, invitedTo} row.",
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "Expects 201 when findUnique returns {invitedTo: 1} matching the token's teamId. The description says to return 409 whenever the user already exists with an invite token. Base inviteMember/utils.ts:350 does create placeholder users with invitedTo: teamId, so a careful engineer could infer the exception, but a literal implementation returns 409, and other placeholder checks (e.g. no password) fail with the mocked {id, invitedTo} row."
+    },
+    "second_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "The description only says to return 409 when the invited email already has an account. Passing requires exempting users whose invitedTo equals the token's teamId, which is never stated. It can only be inferred from the base invite flow, where invites create placeholder users with invitedTo set, so a reasonable 'any existing user means 409' rule fails here.",
+      "confidence": "medium"
+    }
   },
   "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > returns 409 when target includes 'email'": {
-    "label": "fair",
-    "reason": "Expects 409 with {message: SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS} when user.create rejects with P2002 on ['email']. The spec says non-token signups use user.create and that tests stub unique-constraint errors as Prisma.PrismaClientKnownRequestError, and the description says an existing user yields 409 with the new USER_ALREADY_EXISTS code; mapping an email unique violation to that response is the natural reading. selfHostedHandler must also switch the base user.upsert to user.create, which the spec states."
+    "label": "unfair",
+    "reason": "The description limits the 409 to the invite-token flow; nothing says the non-token user.create should catch P2002, or which targets map to USER_ALREADY_EXISTS.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects 409 with {message: SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS} when user.create rejects with P2002 on ['email']. The spec says non-token signups use user.create and that tests stub unique-constraint errors as Prisma.PrismaClientKnownRequestError, and the description says an existing user yields 409 with the new USER_ALREADY_EXISTS code; mapping an email unique violation to that response is the natural reading. selfHostedHandler must also switch the base user.upsert to user.create, which the spec states."
+    },
+    "second_review": {
+      "label": "unfair",
+      "reason": "The description scopes the 409 to the invite-token flow. Nothing describes catching Prisma P2002 on the non-token user.create, nor the rule that an email or username target gives 409 with USER_ALREADY_EXISTS while other targets rethrow. The spec only says the mocked error class exists. For selfHosted the base non-token path uses user.upsert (selfHostedHandler.ts:149); the spec line 'user.create for a signup without one (in both handlers)' tells the agent to switch to create.",
+      "confidence": "medium"
+    },
+    "resolution": "Disagreement (fair vs unfair) resolved by Jo, 2026-11-26."
   },
   "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > returns 409 when target includes 'email' among other fields": {
-    "label": "fair",
-    "reason": "Same as the email case with meta.target ['id','email','username']; any check that the target contains 'email' passes, and that follows from handling an email unique violation."
+    "label": "unfair",
+    "reason": "The description limits the 409 to the invite-token flow; nothing says the non-token user.create should catch P2002, or which targets map to USER_ALREADY_EXISTS.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Same as the email case with meta.target ['id','email','username']; any check that the target contains 'email' passes, and that follows from handling an email unique violation."
+    },
+    "second_review": {
+      "label": "unfair",
+      "reason": "The description scopes the 409 to the invite-token flow. Nothing describes catching Prisma P2002 on the non-token user.create, nor the rule that an email or username target gives 409 with USER_ALREADY_EXISTS while other targets rethrow. The spec only says the mocked error class exists. For selfHosted the base non-token path uses user.upsert (selfHostedHandler.ts:149); the spec line 'user.create for a signup without one (in both handlers)' tells the agent to switch to create.",
+      "confidence": "medium"
+    },
+    "resolution": "Disagreement (fair vs unfair) resolved by Jo, 2026-11-26."
   },
   "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > returns 409 when target is 'username' only": {
-    "label": "ambiguous",
-    "kind": "behavior",
-    "reason": "Expects a username-only P2002 to map to 409 with message USER_ALREADY_EXISTS (the code the frontend uses to redirect to login). Neither description nor spec says a username clash counts as 'user already exists'; base code reports it as a distinct 'Username or email is already taken'/'A user exists with that username' error, so returning a different message or re-throwing is a valid reading."
+    "label": "unfair",
+    "reason": "The description limits the 409 to the invite-token flow; nothing says the non-token user.create should catch P2002, or which targets map to USER_ALREADY_EXISTS.",
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "Expects a username-only P2002 to map to 409 with message USER_ALREADY_EXISTS (the code the frontend uses to redirect to login). Neither description nor spec says a username clash counts as 'user already exists'; base code reports it as a distinct 'Username or email is already taken'/'A user exists with that username' error, so returning a different message or re-throwing is a valid reading."
+    },
+    "second_review": {
+      "label": "unfair",
+      "reason": "The description scopes the 409 to the invite-token flow. Nothing describes catching Prisma P2002 on the non-token user.create, nor the rule that an email or username target gives 409 with USER_ALREADY_EXISTS while other targets rethrow. The spec only says the mocked error class exists. For selfHosted the base non-token path uses user.upsert (selfHostedHandler.ts:149); the spec line 'user.create for a signup without one (in both handlers)' tells the agent to switch to create.",
+      "confidence": "medium"
+    },
+    "resolution": "Disagreement (behavior vs unfair) resolved by Jo, 2026-11-26."
   },
   "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws when target is empty": {
-    "label": "ambiguous",
-    "kind": "behavior",
-    "reason": "Expects a P2002 whose meta has no target ({}) to be re-thrown rather than turned into 409. Nothing in the description or spec says the mapping depends on meta.target; treating every P2002 on user creation as 'user already exists' is an equally valid implementation and fails this test."
+    "label": "fair",
+    "reason": "Re-throwing is the base behavior (base user.create has no try/catch); the test fails at base only through the spec-named constants import, and fails an agent only if it catches P2002 too broadly.",
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "Expects a P2002 whose meta has no target ({}) to be re-thrown rather than turned into 409. Nothing in the description or spec says the mapping depends on meta.target; treating every P2002 on user creation as 'user already exists' is an equally valid implementation and fails this test."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Rethrowing is the base behavior: the base user.create has no try/catch. The test only fails at base because the suite imports the spec-mandated ../../constants. It would fail only if an agent caught P2002 too broadly. For selfHosted the base non-token path uses user.upsert (selfHostedHandler.ts:149); the spec line 'user.create for a signup without one (in both handlers)' tells the agent to switch to create.",
+      "confidence": "medium"
+    },
+    "resolution": "Disagreement (behavior vs fair) resolved by Jo, 2026-11-26."
   },
   "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws when target is undefined": {
-    "label": "ambiguous",
-    "kind": "behavior",
-    "reason": "Expects a P2002 with meta undefined to be re-thrown. The target-based condition is unstated; mapping any P2002 to 409 USER_ALREADY_EXISTS is a valid reading that fails this test."
+    "label": "fair",
+    "reason": "Re-throwing is the base behavior (base user.create has no try/catch); the test fails at base only through the spec-named constants import, and fails an agent only if it catches P2002 too broadly.",
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "Expects a P2002 with meta undefined to be re-thrown. The target-based condition is unstated; mapping any P2002 to 409 USER_ALREADY_EXISTS is a valid reading that fails this test."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Rethrowing is the base behavior: the base user.create has no try/catch. The test only fails at base because the suite imports the spec-mandated ../../constants. It would fail only if an agent caught P2002 too broadly. For selfHosted the base non-token path uses user.upsert (selfHostedHandler.ts:149); the spec line 'user.create for a signup without one (in both handlers)' tells the agent to switch to create.",
+      "confidence": "medium"
+    },
+    "resolution": "Disagreement (behavior vs fair) resolved by Jo, 2026-11-26."
   },
   "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws non-P2002 Prisma errors": {
     "label": "fair",
-    "reason": "Expects a P2025 error from user.create to propagate. Base handlers let errors propagate, and only unique violations relate to 'user already exists'. Requires the spec-stated switch from user.upsert to user.create in the non-token path."
+    "reason": "Expects a P2025 error from user.create to propagate. Base handlers let errors propagate, and only unique violations relate to 'user already exists'. Requires the spec-stated switch from user.upsert to user.create in the non-token path.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects a P2025 error from user.create to propagate. Base handlers let errors propagate, and only unique violations relate to 'user already exists'. Requires the spec-stated switch from user.upsert to user.create in the non-token path."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Rethrowing is the base behavior: the base user.create has no try/catch. The test only fails at base because the suite imports the spec-mandated ../../constants. It would fail only if an agent caught P2002 too broadly. For selfHosted the base non-token path uses user.upsert (selfHostedHandler.ts:149); the spec line 'user.create for a signup without one (in both handlers)' tells the agent to switch to create.",
+      "confidence": "medium"
+    }
   },
   "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler – signup P2002 contract > P2002 Error Handling (non-token flow) > re-throws generic errors": {
     "label": "fair",
-    "reason": "Expects a plain Error from user.create to propagate, which is the base behavior. Requires the spec-stated user.create in the non-token path."
+    "reason": "Expects a plain Error from user.create to propagate, which is the base behavior. Requires the spec-stated user.create in the non-token path.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects a plain Error from user.create to propagate, which is the base behavior. Requires the spec-stated user.create in the non-token path."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Rethrowing is the base behavior: the base user.create has no try/catch. The test only fails at base because the suite imports the spec-mandated ../../constants. It would fail only if an agent caught P2002 too broadly. For selfHosted the base non-token path uses user.upsert (selfHostedHandler.ts:149); the spec line 'user.create for a signup without one (in both handlers)' tells the agent to switch to create.",
+      "confidence": "medium"
+    }
   },
   "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler – signup P2002 contract > Successful Creation > returns 201 when user is created (non-token flow)": {
     "label": "fair",
-    "reason": "Expects 201 when user.create resolves; base handlers already return 201 'Created user', and the spec says the non-token path uses user.create."
+    "reason": "Expects 201 when user.create resolves; base handlers already return 201 'Created user', and the spec says the non-token path uses user.create.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects 201 when user.create resolves; base handlers already return 201 'Created user', and the spec says the non-token path uses user.create."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "The base already returns 201 'Created user'. The test needs only the spec-mandated constants file and user.create, which the spec lists for both handlers. For selfHosted the base non-token path uses user.upsert (selfHostedHandler.ts:149); the spec line 'user.create for a signup without one (in both handlers)' tells the agent to switch to create.",
+      "confidence": "medium"
+    }
   },
   "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler – signup P2002 contract > Invite flow - existing user validation > returns 409 when user exists but was not invited to this team": {
     "label": "fair",
-    "reason": "Expects 409 {message: USER_ALREADY_EXISTS} when user.findUnique returns an existing user for a token signup; the description says to return 409 when the user already exists with an invite token, and the spec lists user.findUnique and the constant."
+    "reason": "Expects 409 {message: USER_ALREADY_EXISTS} when user.findUnique returns an existing user for a token signup; the description says to return 409 when the user already exists with an invite token, and the spec lists user.findUnique and the constant.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects 409 {message: USER_ALREADY_EXISTS} when user.findUnique returns an existing user for a token signup; the description says to return 409 when the user already exists with an invite token, and the spec lists user.findUnique and the constant."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description: 'Return 409 status when user already exists with invite token'. The spec names prisma user.findUnique as the stubbed lookup and gives the SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS constant that the test compares against.",
+      "confidence": "medium"
+    }
   },
   "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler – signup P2002 contract > Successful Creation > returns 201 when user is created via invite (token flow)": {
     "label": "unfair",
-    "reason": "Expects 201 for a token signup with no existing user. The token flow reaches createOrUpdateMemberships, which the test mocks as vi.fn() returning undefined; base selfHostedHandler.ts (~L115) does `const { membership } = await createOrUpdateMemberships(...)` (membership unused), which throws a TypeError on undefined. The test only passes because the PR also dropped that unrelated destructuring, which nothing in the description or spec mentions."
+    "reason": "Base selfHostedHandler.ts:115 destructures { membership } from createOrUpdateMemberships, which the test mocks to return undefined, so passing needs an unmentioned change to that code (checked 2026-11-26).",
+    "first_review": {
+      "label": "unfair",
+      "reason": "Expects 201 for a token signup with no existing user. The token flow reaches createOrUpdateMemberships, which the test mocks as vi.fn() returning undefined; base selfHostedHandler.ts (~L115) does `const { membership } = await createOrUpdateMemberships(...)` (membership unused), which throws a TypeError on undefined. The test only passes because the PR also dropped that unrelated destructuring, which nothing in the description or spec mentions."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "The happy invite path returns 201 in base. The stubs (findUnique and findFirst returning null, upsert) are listed in the spec, so any reasonable existence check passes.",
+      "confidence": "high"
+    },
+    "resolution": "Disagreement (unfair vs fair) resolved by Jo, 2026-11-26."
   },
   "packages/features/auth/signup/handlers/__tests__/selfHostedHandler.test.ts::selfHostedHandler – signup P2002 contract > Invite flow - existing user validation > returns 201 when user exists and was invited to this team": {
     "label": "unfair",
-    "reason": "Expects 201 when the existing user has invitedTo equal to the token's teamId. Beyond the unstated invitedTo exception (the description says 409 whenever the user already exists with a token), the token flow reaches createOrUpdateMemberships, which the test mocks as vi.fn() returning undefined; base selfHostedHandler.ts (~L115) does `const { membership } = await createOrUpdateMemberships(...)` (membership unused), which throws a TypeError on undefined. The test only passes because the PR also dropped that unrelated destructuring, which nothing in the description or spec mentions."
+    "reason": "Needs the unstated invitedTo exception and also the unmentioned createOrUpdateMemberships change (base selfHostedHandler.ts:115).",
+    "first_review": {
+      "label": "unfair",
+      "reason": "Expects 201 when the existing user has invitedTo equal to the token's teamId. Beyond the unstated invitedTo exception (the description says 409 whenever the user already exists with a token), the token flow reaches createOrUpdateMemberships, which the test mocks as vi.fn() returning undefined; base selfHostedHandler.ts (~L115) does `const { membership } = await createOrUpdateMemberships(...)` (membership unused), which throws a TypeError on undefined. The test only passes because the PR also dropped that unrelated destructuring, which nothing in the description or spec mentions."
+    },
+    "second_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "The description only says to return 409 when the invited email already has an account. Passing requires exempting users whose invitedTo equals the token's teamId, which is never stated. It can only be inferred from the base invite flow, where invites create placeholder users with invitedTo set, so a reasonable 'any existing user means 409' rule fails here.",
+      "confidence": "medium"
+    },
+    "resolution": "Disagreement (unfair vs behavior) resolved by Jo, 2026-11-26."
   },
   "packages/features/auth/signup/lib/fetchSignup.test.ts::fetchSignup > returns success when signup completes": {
     "label": "fair",
-    "reason": "Expects ok: true for a 200 JSON response; follows from the SignupResult signature in the spec."
+    "reason": "Expects ok: true for a 200 JSON response; follows from the SignupResult signature in the spec.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects ok: true for a 200 JSON response; follows from the SignupResult signature in the spec."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "The spec SignupResult type defines ok:true for a successful response.",
+      "confidence": "high"
+    }
   },
   "packages/features/auth/signup/lib/fetchSignup.test.ts::fetchSignup > returns error with status code when signup fails": {
     "label": "fair",
-    "reason": "Expects ok: false and status 409 for a 409 JSON response; follows from the SignupResult type {ok:false; status; error}."
+    "reason": "Expects ok: false and status 409 for a 409 JSON response; follows from the SignupResult type {ok:false; status; error}.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects ok: false and status 409 for a 409 JSON response; follows from the SignupResult type {ok:false; status; error}."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "The spec gives the SignupResult union { ok:false; status; error }, so mapping a non-ok fetch to ok:false with the status follows from the types.",
+      "confidence": "high"
+    }
   },
   "packages/features/auth/signup/lib/fetchSignup.test.ts::hasCheckoutSession > returns false when checkoutSessionId is absent": {
     "label": "fair",
-    "reason": "Follows from the type guard name and signature (error has checkoutSessionId)."
+    "reason": "Follows from the type guard name and signature (error has checkoutSessionId).",
+    "first_review": {
+      "label": "fair",
+      "reason": "Follows from the type guard name and signature (error has checkoutSessionId)."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "The spec's type-guard signature (error & { checkoutSessionId: string }) determines the check.",
+      "confidence": "high"
+    }
   },
   "packages/features/auth/signup/lib/fetchSignup.test.ts::hasCheckoutSession > returns true when checkoutSessionId exists": {
     "label": "fair",
-    "reason": "Follows from the type guard name and signature."
+    "reason": "Follows from the type guard name and signature.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Follows from the type guard name and signature."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "The spec's type-guard signature determines the check.",
+      "confidence": "high"
+    }
   },
   "packages/features/auth/signup/lib/fetchSignup.test.ts::isUserAlreadyExistsError > returns false for other error messages": {
     "label": "fair",
-    "reason": "Expects false for 409 with message 'Username is already taken'; base code already uses 409 for other conflicts, and the dedicated SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS code implies matching the message, not only the status."
+    "reason": "Expects false for 409 with message 'Username is already taken'; base code already uses 409 for other conflicts, and the dedicated SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS code implies matching the message, not only the status.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects false for 409 with message 'Username is already taken'; base code already uses 409 for other conflicts, and the dedicated SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS code implies matching the message, not only the status."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "The test uses the SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS constant named in the spec, and the description ties 409 to the user-exists case. A message comparison is the natural implementation.",
+      "confidence": "medium"
+    }
   },
   "packages/features/auth/signup/lib/fetchSignup.test.ts::isUserAlreadyExistsError > returns false for success responses": {
     "label": "fair",
-    "reason": "Follows from the name and the SignupResult union."
+    "reason": "Follows from the name and the SignupResult union.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Follows from the name and the SignupResult union."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "A success result cannot be an error. This follows from the SignupResult union in the spec.",
+      "confidence": "high"
+    }
   },
   "packages/features/auth/signup/lib/fetchSignup.test.ts::isUserAlreadyExistsError > returns true for 409 with user_already_exists message": {
     "label": "fair",
-    "reason": "Expects true for status 409 with message SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS (compared via the constant); stated by the description (409 when user exists) and spec."
+    "reason": "Expects true for status 409 with message SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS (compared via the constant); stated by the description (409 when user exists) and spec.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects true for status 409 with message SIGNUP_ERROR_CODES.USER_ALREADY_EXISTS (compared via the constant); stated by the description (409 when user exists) and spec."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "The test compares against the spec-named constant at status 409, which the description states.",
+      "confidence": "high"
+    }
   }
 }

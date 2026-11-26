@@ -1,0 +1,112 @@
+{
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should group two overlapping events together": {
+    "label": "fair",
+    "reason": "Core meaning of buildOverlapGroups; order preserved from sorted input.",
+    "confidence": "high"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should handle chain overlaps (A overlaps B, B overlaps C)": {
+    "label": "fair",
+    "reason": "Returning a partition (CalendarEvent[][]) implies transitive/connected grouping; C overlaps B strictly so boundary choice does not matter.",
+    "confidence": "medium"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should handle events that start at the same time": {
+    "label": "fair",
+    "reason": "Same-start events clearly overlap.",
+    "confidence": "high"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should handle multiple separate overlap groups": {
+    "label": "fair",
+    "reason": "Clear gaps between groups; follows from grouping semantics.",
+    "confidence": "high"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should return empty array for no events": {
+    "label": "fair",
+    "reason": "Signature CalendarEvent[][]; empty input -> [] is the obvious result.",
+    "confidence": "high"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should return single group for single event": {
+    "label": "fair",
+    "reason": "Directly follows from the grouping signature.",
+    "confidence": "high"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > buildOverlapGroups > should separate non-overlapping events into different groups": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Events touch exactly (10-11, 11-12); whether touching counts as overlap is unstated and base mergeOverlappingDateRanges (utils/index.ts:92) uses >= i.e. merges touching ranges, the opposite of what is asserted.",
+    "confidence": "medium"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should calculate cascading layout for three overlapping events": {
+    "label": "unfair",
+    "reason": "Asserts offsets 8/16 and zIndex 60/61/62. Defaults 80% width / 8% step / zIndex 60 appear nowhere in description, spec or base (base EventList.tsx:38-41 uses width 90, zIndex 61/65); exact style constants are invented.",
+    "confidence": "high"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should calculate cascading layout for two overlapping events": {
+    "label": "unfair",
+    "reason": "Asserts width 80, offset 8, zIndex 60/61. Defaults 80% width / 8% step / zIndex 60 appear nowhere in description, spec or base (base EventList.tsx:38-41 uses width 90, zIndex 61/65); exact style constants are invented.",
+    "confidence": "high"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should calculate layout for single event": {
+    "label": "unfair",
+    "reason": "Asserts widthPercent 80 and baseZIndex 60. Defaults 80% width / 8% step / zIndex 60 appear nowhere in description, spec or base (base EventList.tsx:38-41 uses width 90, zIndex 61/65); exact style constants are invented.",
+    "confidence": "high"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should compress offset step for dense overlaps while maintaining cascade": {
+    "label": "fair",
+    "reason": "Description bug 2 (10+ overlapping events must not bleed into adjacent columns) implies left+width <= 100 with a strictly increasing cascade; no exact constants asserted.",
+    "confidence": "medium"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should handle non-overlapping events in separate groups": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "groupIndex/indexInGroup fields come from spec, but events touch exactly (10-11, 11-12) so passing depends on the unstated touching-is-not-overlap boundary, contrary to base mergeOverlappingDateRanges (>=).",
+    "confidence": "medium"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should maintain full width for small overlap groups": {
+    "label": "unfair",
+    "reason": "Asserts width 80 and offsets 0/8/16. Defaults 80% width / 8% step / zIndex 60 appear nowhere in description, spec or base (base EventList.tsx:38-41 uses width 90, zIndex 61/65); exact style constants are invented.",
+    "confidence": "high"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should prevent overflow with many overlapping events (dense scenario)": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "No-overflow is in the description, but the bound is 99.5; spec names safetyMarginPercent but not its 0.5 default, so an agent with margin 0 (cap at 100) fails.",
+    "confidence": "medium"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should respect custom configuration": {
+    "label": "fair",
+    "reason": "Config names in spec (baseWidthPercent, offsetStepPercent, baseZIndex) map directly to width 70, step 10, zIndex 50 and +1 per cascade level; no defaults involved.",
+    "confidence": "medium"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > calculateEventLayouts > should respect safety margin with 20+ overlapping events": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Requires left+width <= 99.5; safetyMarginPercent exists in spec but its default value 0.5 is undocumented.",
+    "confidence": "medium"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > createLayoutMap > should create a map from event ID to layout": {
+    "label": "unfair",
+    "reason": "Map keyed by event id is derivable from Map<number, EventLayout>, but the test also asserts leftOffsetPercent 8 for the second event, which depends on the invented default 8% step.",
+    "confidence": "medium"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > createLayoutMap > should handle empty layouts": {
+    "label": "fair",
+    "reason": "Empty input -> empty Map follows from signature.",
+    "confidence": "high"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > sortEvents > should not mutate the original array": {
+    "label": "fair",
+    "reason": "Returning a new CalendarEvent[] from a pure utility is the expected convention; in-place sort is possible but less natural.",
+    "confidence": "medium"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > sortEvents > should sort events by start time ascending": {
+    "label": "fair",
+    "reason": "sortEvents name plus buildOverlapGroups(sortedEvents) in spec imply ascending start order.",
+    "confidence": "high"
+  },
+  "packages/features/calendars/weeklyview/utils/overlap.test.ts::overlap utility > sortEvents > should sort events with same start time by end time descending (longer first)": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Tie-break order is not stated anywhere; longer-first is a common calendar convention but end-ascending (or stable order) is an equally reasonable reading.",
+    "confidence": "medium"
+  }
+}

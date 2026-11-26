@@ -1,6 +1,6 @@
 # Draft spec clarifications (ambiguous convention tests)
 
-Not applied to specs-final. One block per PR; identical sentences are merged.
+**Rejected 2026-11-26 (Jo); not applied to specs-final.** They state asserted values or call arguments, which the 2026-11-02 interface rule keeps out of specs; see TEST-FAIRNESS.md. Kept for the record. One block per PR; identical sentences are merged.
 
 ## #19997
 
