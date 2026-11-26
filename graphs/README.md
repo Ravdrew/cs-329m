@@ -33,6 +33,8 @@ or `calcom` (the whole repository). The date is the day the graph was generated.
 | `booking-hotstart-sonnet55-2026-11-11-run01.yaml` | Cal.com booking subsystem | PR #9 at `5c4c6af` (required policy); Q1 grading set, run 1 of 3 (111 dropped) | `54343aa` | 48 / 148 / 9 | local run bundle `codegraph-llm-runs/2026-11-11T20-12-48.071Z-w01Pvs` |
 | `booking-hotstart-sonnet55-2026-11-11-run02.yaml` | Cal.com booking subsystem | PR #9 at `5c4c6af`, run 2 of 3 | `54343aa` | 54 / 136 / 12 | local run bundle `codegraph-llm-runs/2026-11-12T01-00-18.764Z-DbpouJ` |
 | `booking-hotstart-sonnet55-2026-11-11-run03.yaml` | Cal.com booking subsystem | PR #9 at `5c4c6af`, run 3 of 3 | `54343aa` | 46 / 122 / 11 | local run bundle `codegraph-llm-runs/2026-11-12T01-00-20.361Z-7fYtou` |
+| `booking-llm-only-sonnet55-v2-2026-11-18-run01.yaml` | Cal.diy booking subsystem | LLM-only runner with the v2 prompts (`tools/prompts/shared-core.md`), claude-sonnet-5-5 medium via Pi; run 1 | `54343aa` | 38 / 77 / 8 | local run bundle `llm-only-runs/2026-11-19T00-28-17.988Z-QxIVdp` |
+| `booking-hotstart-sonnet55-v2-2026-11-18-run01.yaml` | Cal.com booking subsystem | Hot-started runner with the v2 prompts and drop rules (categories; reads/writes dropped only as mis-resolved with a code site), claude-sonnet-5-5 medium; run 1 (85 dropped) | `54343aa` | 47 / 173 / 9 | local run bundle `codegraph-llm-runs/2026-11-19T00-28-18.008Z-P2Sfla` |
 
 The two hand-built graphs target an earlier Cal.com commit than everything else; see the top-level README.
 

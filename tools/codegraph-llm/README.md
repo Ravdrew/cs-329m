@@ -3,7 +3,9 @@
 This runner starts Astra with the **raw booking-scoped CodeGraph graph**, and asks
 it to choose component boundaries, memberships, names, summaries and descriptions.
 The host aggregates the underlying static edges after those assignments. Astra
-cannot author component edges. The output uses `schema/graph.schema.json` and
+cannot add, delete or re-point component edges, but it may **retype** a host edge
+or **consolidate** several host edges between the same two components into one
+edge it names and describes. The output uses `schema/graph.schema.json` and
 opens in the existing viewer.
 
 The Pi SDK integration is adapted from the LLM-only runner in `tools/llm-only`
@@ -86,12 +88,35 @@ The host then:
    counts and up to three source evidence sites per component edge.
 
 There is **no confidence threshold or lean edge pruning**. Low-confidence and
-unknown-confidence dependencies remain visible and counted. No database
-read/write, render or workflow edges are invented. Raw edge IDs are retained in
-an audit sidecar. The validator rejects model-authored edges, unknown members,
-overlapping assignments, unassigned nodes, empty components, invalid references,
-unread evidence and schema violations. Successful finalization freezes output
-and stops further model requests.
+unknown-confidence dependencies remain visible and counted. Raw edge IDs are
+retained in an audit sidecar. The validator rejects model-authored edges, unknown
+members, overlapping assignments, unassigned nodes, empty components, invalid
+references, unread evidence and schema violations. Successful finalization
+freezes output and stops further model requests.
+
+### Edge operations
+
+After membership is stable, Astra reviews the host edges with `inspect_edges`
+and may submit two kinds of operation through `update_edges`:
+
+- `retype`: change the kind, label and description of one host edge.
+- `consolidate`: replace two or more host edges that share the same `from` and
+  `to` components with one new edge (new ID, kind, description). The common case
+  is a `uses` edge and a `calls` edge between the same pair becoming one edge that
+  names the relationship.
+
+Endpoints, raw edges and counts are fixed by the host. Every raw static edge
+still ends in exactly one output edge, and finalization checks that total.
+Operated edges carry `provenance: inferred` and record `host_kinds`, `raw_kinds`,
+`edge_op` and `replaces` under `x-codegraph`; untouched host edges stay
+`provenance: extracted`. Choosing a kind the static analysis did not already
+report for those edges (`renders`, `reads`, `writes`, `emits`, or `calls` on a
+pure import edge) is a semantic claim and requires `x-source-evidence` ranges
+read in the same run from a member file of either endpoint. Operations that no
+longer apply after a membership change are dropped and reported in the
+`update_graph` result as `dropped_edge_ops`. `reset_ids` undoes operations.
+Deleting an edge outright is not possible; a thin dependency the model considers
+noise stays visible with its raw count.
 
 The model has no shell, web, arbitrary local file access, inherited project
 instructions, extensions, skills or previous session. This is tool-level
@@ -108,8 +133,9 @@ The CLI prints `run_directory`. A **completed** run contains:
 | --- | --- |
 | `graph.yaml`, `graph.json` | Shared-format component graph, no saved layout |
 | `components.yaml` | Astra's component definitions and membership selectors |
+| `edge-ops.yaml` | Astra's retype/consolidate operations over host edges (empty list if none) |
 | `membership.json` | Every static node ID → its component ID |
-| `aggregation.json` | Component edge ID → raw edge IDs, mapping policy and conservation counts |
+| `aggregation.json` | Output edge ID → raw edge IDs, host edge ID → raw edge IDs, edge operations, mapping policy and conservation counts |
 | `static-input.json` | Sanitized structural input, scope, source hashes and original export fingerprint |
 | `validation.json` | Counts and graph/input/membership/aggregation hashes |
 | `run.json` | Status, pin, model, limits, input counts, inspection counts, usage and runner hashes |
@@ -133,7 +159,7 @@ npm run dev --prefix viewer
 Open Vite's printed URL and choose **Open…**, then the run's `graph.yaml` or
 `graph.json`. Click a component for files, summary and connections; click an edge
 for source evidence. The large structural snapshot and sidecars are audit data,
-not viewer inputs. Full verification replays the successful read/update/finalize
+not viewer inputs. Full verification replays the successful read/update/update_edges/finalize
 tool transcript against pinned source and compares the graph and sidecars; it
 does not need model access. Schema validity and full static coverage do not prove
 that Astra's component boundaries or summaries are semantically correct.
@@ -147,5 +173,7 @@ npm test --prefix tools/codegraph-llm
 Tests exercise the real Pi session with a fake model transport, including repaired
 tool errors, session isolation, finalization stopping requests, and usage capture.
 They also check complete membership, symbol splits, edge conservation, confidence
-retention, source evidence, input/output tampering and failed-run reporting. They
+retention, edge retyping and consolidation (evidence rules, same-pair rule,
+supersession, reset, stale-operation dropping, transcript replay), source
+evidence, input/output tampering and failed-run reporting. They
 make no live model requests and are not generated Cal.com predictions.

@@ -12,8 +12,11 @@ export function parseYaml(text) {
 const requireValue = (condition, message) => { if (!condition) throw new Error(message); };
 
 export class DraftGraph {
-  constructor(source, schema, repo) {
+  // options.groups ({ min_nodes, min_groups }, recorded per run in server.json): above min_nodes components every
+  // component needs a group and at least min_groups groups are used. Runs recorded before it existed have none.
+  constructor(source, schema, repo, options = {}) {
     this.source = source;
+    this.groupRule = options.groups ?? null;
     this.validateSchema = new Ajv2020({ allErrors: true, strict: false }).compile(schema);
     this.document = { version: 1, repo, commit: source.commit, groups: [], nodes: [], edges: [], 'x-variant': 'llm-only' };
     this.frozen = false;
@@ -81,6 +84,12 @@ export class DraftGraph {
         seen.add(parent);
         parent = groups.get(parent).parent;
       }
+    }
+    if (this.groupRule && graph.nodes.length > this.groupRule.min_nodes) {
+      const ungrouped = graph.nodes.filter(n => !n.group).map(n => n.id);
+      requireValue(!ungrouped.length, `With more than ${this.groupRule.min_nodes} components every component needs a group; missing: ${ungrouped.slice(0, 10).join(', ')}`);
+      const used = new Set(graph.nodes.map(n => n.group));
+      requireValue(used.size >= this.groupRule.min_groups, `With more than ${this.groupRule.min_nodes} components use at least ${this.groupRule.min_groups} groups (${used.size} used)`);
     }
     const paths = new Set();
     const triples = new Set();

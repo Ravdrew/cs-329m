@@ -6,6 +6,8 @@ import { DraftGraph, parseYaml, yaml } from './graph.mjs';
 import { assertOutsideRepository, git, prepareCheckout, sha256, Source } from './source.mjs';
 
 export const HERE = dirname(fileURLToPath(import.meta.url));
+// Same group requirement as the hot-start runner's required policy, so the shared prompt is enforced for both.
+export const GROUP_RULE = Object.freeze({ min_nodes: 20, min_groups: 3 });
 export const TEAM_ROOT = resolve(HERE, '../..');
 const json = (path, value) => writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
 export function targetConfig() {
@@ -27,7 +29,7 @@ export function verifyRun(runDir) {
   const content = readFileSync(join(runDir, 'graph.yaml'), 'utf8');
   const document = parseYaml(content);
   if (document.commit !== config.commit || document.repo !== config.repo || document['x-variant'] !== 'llm-only') throw new Error('Graph header differs from run configuration');
-  const draft = new DraftGraph(source, schema, config.repo);
+  const draft = new DraftGraph(source, schema, config.repo, { groups: config.groups });
   draft.document = document;
   const verified = draft.validate();
   if (yaml(verified) !== content) throw new Error('Frozen YAML/evidence/hashes differ from validated canonical output');
@@ -51,6 +53,7 @@ export async function runExperiment(options, dependencies = {}) {
     provider: options.provider ?? DEFAULT_PROVIDER, effort: options.effort ?? 'medium',
     authFile: options.authFile ? resolve(options.authFile) : null,
     maxTools: options.maxTools ?? 600, maxMinutes: options.maxMinutes ?? 45,
+    groups: GROUP_RULE,
   };
   const metadata = {
     version: 1, variant: 'llm-only', backend: 'pi-sdk', status: 'preparing', started_at: new Date(started).toISOString(),
@@ -68,7 +71,10 @@ export async function runExperiment(options, dependencies = {}) {
     }
     const source = prepareCheckout({ directory: config.checkout, ...target, source: options.source ? resolve(options.source) : target.remote });
     const schemaText = readFileSync(join(TEAM_ROOT, 'schema/graph.schema.json'), 'utf8');
-    const prompt = readFileSync(join(HERE, 'prompt.md'), 'utf8');
+    // The task, scope, quality bar and evidence rules are shared with the hot-start runner; prompt.md says only how
+    // this condition builds the graph.
+    const sharedPrompt = readFileSync(join(TEAM_ROOT, 'tools/prompts/shared-core.md'), 'utf8');
+    const prompt = `${sharedPrompt}\n${readFileSync(join(HERE, 'prompt.md'), 'utf8')}`;
     const instructions = `${prompt}\nTarget: ${target.repo}, commit ${target.commit}.\n\nShared graph schema (format only; no example graph):\n${schemaText}`;
     writeFileSync(join(runDir, 'schema.json'), schemaText);
     writeFileSync(join(runDir, 'instructions.md'), instructions);
@@ -77,7 +83,8 @@ export async function runExperiment(options, dependencies = {}) {
     metadata.schema_sha256 = sha256(schemaText);
     metadata.source_manifest_sha256 = sha256(readFileSync(join(runDir, 'source-manifest.json')));
     metadata.runner_revision = git(TEAM_ROOT, ['rev-parse', 'HEAD']).trim();
-    metadata.runner_files = Object.fromEntries(['package-lock.json', 'source.mjs', 'graph.mjs', 'source-server.mjs', 'pi.mjs', 'runner.mjs', 'cli.mjs'].map(file => [file, sha256(readFileSync(join(HERE, file)))]));
+    metadata.runner_files = Object.fromEntries(['package-lock.json', 'prompt.md', 'source.mjs', 'graph.mjs', 'source-server.mjs', 'pi.mjs', 'runner.mjs', 'cli.mjs'].map(file => [file, sha256(readFileSync(join(HERE, file)))]));
+    metadata.runner_files['../prompts/shared-core.md'] = sha256(sharedPrompt);
     metadata.source_file_count = source.files.length;
     metadata.status = options.prepareOnly ? 'prepared' : 'running';
     config.deadline = Date.now() + config.maxMinutes * 60_000;

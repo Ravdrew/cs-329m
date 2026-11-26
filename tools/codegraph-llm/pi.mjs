@@ -160,7 +160,7 @@ export async function runPiSession(config, emit = () => {}, runtime) {
     process.once('SIGINT', interrupted);
     process.once('SIGTERM', interrupted);
     monitor = setInterval(() => { if (Date.now() >= config.deadline) stop('Time limit reached'); }, 100);
-    await session.prompt(`Group the supplied CodeGraph structural graph for ${config.repo} at ${config.commit} into components. Author memberships, names and summaries; do not author edges. Use the static graph and source tools, then finalize_graph. You have at most ${config.maxTools} tool calls and ${config.maxMinutes} minutes. Start with graph_overview.`, { expandPromptTemplates: false });
+    await session.prompt(`Build the booking component graph for ${config.repo} at ${config.commit} from the supplied CodeGraph static graph. You have at most ${config.maxTools} tool calls and ${config.maxMinutes} minutes. Start with graph_overview.`, { expandPromptTemplates: false });
   } catch (error) {
     lastError = error.message;
   } finally {
