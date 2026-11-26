@@ -12,7 +12,9 @@ import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseYaml } from './graph.mjs';
 
-const TEAM_ROOT = resolve(new URL('.', import.meta.url).pathname, '../..');
+// Task data (benchmark/tasks.json, q2q3-tools/task_overrides.json) from TASK_DATA_ROOT, e.g. the master checkout when
+// this branch predates them; default this checkout.
+const TEAM_ROOT = resolve(process.env.TASK_DATA_ROOT ?? resolve(new URL('.', import.meta.url).pathname, '../..'));
 const CHANGED = new Set(['new', 'modify', 'delete']);
 
 /** The PR's source files as harness.py counts them: renames by new path, hidden support files left out. */

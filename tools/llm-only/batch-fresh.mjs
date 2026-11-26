@@ -33,9 +33,11 @@ const results = existsSync(resultsFile) ? JSON.parse(readFileSync(resultsFile, '
 const save = () => writeFileSync(resultsFile, `${JSON.stringify(results, null, 2)}\n`);
 const log = msg => console.log(`[${new Date().toISOString().slice(11, 19)}] ${msg}`);
 
-const labelled = Object.keys(JSON.parse(readFileSync(join(TEAM_ROOT, 'q2q3-tools/test_fairness.json'), 'utf8'))).map(Number);
-const tasks = JSON.parse(readFileSync(join(TEAM_ROOT, 'benchmark/tasks.json'), 'utf8'));
-const pulls = values.pulls ? values.pulls.split(',').map(Number) : labelled;
+// Task data from TASK_DATA_ROOT (see pr-coverage.mjs); default this checkout.
+const DATA = resolve(process.env.TASK_DATA_ROOT ?? TEAM_ROOT);
+const tasks = JSON.parse(readFileSync(join(DATA, 'benchmark/tasks.json'), 'utf8'));
+const pulls = values.pulls ? values.pulls.split(',').map(Number)
+  : Object.keys(JSON.parse(readFileSync(join(DATA, 'q2q3-tools/test_fairness.json'), 'utf8'))).map(Number);
 const baseOf = pull => tasks.find(t => t.pull_number === pull).base_commit;
 
 // Spend so far: every build recorded in results, plus --spent.
