@@ -1,0 +1,127 @@
+{
+  "unchanged": [
+    {
+      "id": "booker-booking-hooks",
+      "reason": "added instant-booking cooldown only"
+    },
+    {
+      "id": "booker-ui",
+      "reason": "same responsibility"
+    },
+    {
+      "id": "crm-integrations-family",
+      "reason": "Salesforce logging/internals refactor"
+    },
+    {
+      "id": "data-table",
+      "reason": "minor option rename"
+    },
+    {
+      "id": "event-type-api",
+      "reason": "import moves and refactor"
+    },
+    {
+      "id": "event-type-editor-ui",
+      "reason": "UI tweaks"
+    },
+    {
+      "id": "handle-new-booking",
+      "reason": "import path moves"
+    },
+    {
+      "id": "model-booking",
+      "reason": "schema additions only"
+    },
+    {
+      "id": "model-credential",
+      "reason": "schema additions only"
+    },
+    {
+      "id": "model-event-type",
+      "reason": "timestamps added"
+    },
+    {
+      "id": "model-payment",
+      "reason": "unchanged"
+    },
+    {
+      "id": "model-webhook",
+      "reason": "unchanged"
+    },
+    {
+      "id": "payment-lib",
+      "reason": "adds add-on pricing, same role"
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/actions/",
+      "reason": "org settings, enterprise",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/actions/validateUserHasOrgPerms.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/isValidEmail.ts",
+      "reason": "helper",
+      "files": [
+        "packages/features/isValidEmail.ts"
+      ]
+    },
+    {
+      "path": "packages/features/calAIPhone/",
+      "reason": "AI phone, outside scope",
+      "files": [
+        "packages/features/calAIPhone/providers/retellAI/services/VoiceService.ts"
+      ]
+    },
+    {
+      "path": "packages/features/insights/",
+      "reason": "insights, enterprise",
+      "files": [
+        "packages/features/insights/filters/DateTargetSelector.tsx",
+        "packages/features/insights/lib/bookingUtils.ts"
+      ]
+    },
+    {
+      "path": "packages/features/pbac/",
+      "reason": "enterprise permissions",
+      "files": [
+        "packages/features/pbac/client/components/WorkflowTabPermissionGuard.tsx",
+        "packages/features/pbac/client/context/EventPermissionContext.tsx",
+        "packages/features/pbac/client/hooks/useEventPermission.ts",
+        "packages/features/pbac/services/legacy-role-manager.service.ts",
+        "packages/features/pbac/services/pbac-role-manager.service.ts",
+        "packages/features/pbac/services/role-manager.interface.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/currencyConversions.ts",
+      "reason": "helper",
+      "files": [
+        "packages/lib/currencyConversions.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/aiVoiceAgent/",
+      "reason": "AI phone, outside scope",
+      "files": [
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/listVoices.handler.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/teams/removeMember/",
+      "reason": "team management, outside scope",
+      "files": [
+        "packages/trpc/server/routers/viewer/teams/removeMember/BaseRemoveMemberService.ts",
+        "packages/trpc/server/routers/viewer/teams/removeMember/IRemoveMemberService.ts",
+        "packages/trpc/server/routers/viewer/teams/removeMember/LegacyRemoveMemberService.ts",
+        "packages/trpc/server/routers/viewer/teams/removeMember/PBACRemoveMemberService.ts",
+        "packages/trpc/server/routers/viewer/teams/removeMember/RemoveMemberServiceFactory.ts",
+        "packages/trpc/server/routers/viewer/teams/removeMember/index.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

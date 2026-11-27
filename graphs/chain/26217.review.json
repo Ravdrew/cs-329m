@@ -1,0 +1,21 @@
+{
+  "unchanged": [],
+  "out_of_scope": [
+    {
+      "path": "packages/lib/server/repository/PrismaTrackingRepository.ts",
+      "reason": "tracking repository, not part of graph components",
+      "files": [
+        "packages/lib/server/repository/PrismaTrackingRepository.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/repository/TrackingRepository.interface.ts",
+      "reason": "tracking repository interface",
+      "files": [
+        "packages/lib/server/repository/TrackingRepository.interface.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

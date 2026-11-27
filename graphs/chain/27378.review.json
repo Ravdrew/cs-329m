@@ -1,0 +1,165 @@
+{
+  "unchanged": [
+    {
+      "id": "booker-ui",
+      "reason": "Overlay calendar refactor; responsibility unchanged"
+    },
+    {
+      "id": "booking-list-query",
+      "reason": "get.handler tweak; same role"
+    },
+    {
+      "id": "bookings-list-page",
+      "reason": "minor page refactor"
+    },
+    {
+      "id": "crm-integrations-family",
+      "reason": "CRM service internals changed, same responsibility"
+    },
+    {
+      "id": "email-sms-notifications",
+      "reason": "added billing emails within same service"
+    },
+    {
+      "id": "embed-core",
+      "reason": "embed.ts refactor only"
+    },
+    {
+      "id": "event-type-editor-ui",
+      "reason": "tab edits, same role"
+    },
+    {
+      "id": "feature-flags",
+      "reason": "opt-in config changes, same role"
+    },
+    {
+      "id": "model-credential",
+      "reason": "schema additions; models unchanged"
+    },
+    {
+      "id": "model-event-type",
+      "reason": "schema additions; models unchanged"
+    },
+    {
+      "id": "model-payment",
+      "reason": "schema additions; models unchanged"
+    },
+    {
+      "id": "model-webhook",
+      "reason": "schema additions; models unchanged"
+    },
+    {
+      "id": "oauth-provider",
+      "reason": "admin view refactor only"
+    },
+    {
+      "id": "signup",
+      "reason": "membership util refactor"
+    },
+    {
+      "id": "workflow-reminders",
+      "reason": "code removals only"
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/web/trigger.version.ts",
+      "reason": "build config",
+      "files": [
+        "apps/web/trigger.version.ts"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/onboarding/",
+      "reason": "org onboarding, enterprise",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/onboarding/organization/migrate-members/page.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/organization/migrate-teams/page.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/ee/billing/",
+      "reason": "billing enterprise",
+      "files": [
+        "apps/web/modules/ee/billing/components/DueInvoiceBanner.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/formbricks/",
+      "reason": "analytics helper",
+      "files": [
+        "apps/web/modules/formbricks/lib/trackFormbricksAction.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/notifications/",
+      "reason": "UI hook",
+      "files": [
+        "apps/web/modules/notifications/hooks/useWebPush.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/onboarding/",
+      "reason": "org onboarding",
+      "files": [
+        "apps/web/modules/onboarding/components/onboarding-migrate-members-browser-view.tsx",
+        "apps/web/modules/onboarding/components/onboarding-migrate-teams-browser-view.tsx",
+        "apps/web/modules/onboarding/hooks/useMigrationFlow.ts",
+        "apps/web/modules/onboarding/organization/migrate-members/organization-migrate-members-view.tsx",
+        "apps/web/modules/onboarding/organization/migrate-teams/organization-migrate-teams-view.tsx",
+        "apps/web/modules/onboarding/organization/migrate-teams/utils.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/shell/",
+      "reason": "shell UI",
+      "files": [
+        "apps/web/modules/shell/user-dropdown/DownloadIcons.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/timezone/",
+      "reason": "UI primitive",
+      "files": [
+        "apps/web/modules/timezone/components/TimezoneSelect.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/auth/signup/utils/createOrUpdateMemberships.integration-test.ts",
+      "reason": "test",
+      "files": [
+        "packages/features/auth/signup/utils/createOrUpdateMemberships.integration-test.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/hooks/useUserAgentData.ts",
+      "reason": "generic hook",
+      "files": [
+        "packages/lib/hooks/useUserAgentData.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/me/getDueInvoiceBannerData.handler.ts",
+      "reason": "billing",
+      "files": [
+        "packages/trpc/server/routers/viewer/me/getDueInvoiceBannerData.handler.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/organizations/sendPasswordReset.handler.ts",
+      "reason": "org admin",
+      "files": [
+        "packages/trpc/server/routers/viewer/organizations/sendPasswordReset.handler.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/organizations/sendPasswordReset.schema.ts",
+      "reason": "org admin",
+      "files": [
+        "packages/trpc/server/routers/viewer/organizations/sendPasswordReset.schema.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

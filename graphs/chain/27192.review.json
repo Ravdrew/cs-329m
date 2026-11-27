@@ -1,0 +1,294 @@
+{
+  "unchanged": [
+    {
+      "id": "booking-audit",
+      "reason": "Still the audit queue/store and history view; changes are action-service refactors and error handling in the viewer"
+    },
+    {
+      "id": "booking-list-query",
+      "reason": "Router/handler refactors only; still list/find/addGuests/editLocation handlers"
+    },
+    {
+      "id": "booking-seats",
+      "reason": "Added audit event args inside handleSeats; responsibility unchanged"
+    },
+    {
+      "id": "booking-success-page",
+      "reason": "Small action-disabled edits; same page and actions"
+    },
+    {
+      "id": "calendar-integrations-family",
+      "reason": "Per-service typing/export tweaks; same CalendarService adapters"
+    },
+    {
+      "id": "calendar-weekly-view",
+      "reason": "File moves and DatePicker tweaks only"
+    },
+    {
+      "id": "crm-integrations-family",
+      "reason": "CrmService internals changed; same CRM adapters"
+    },
+    {
+      "id": "embed-core",
+      "reason": "Added a UI config option and iframe refactor; same embed script behavior"
+    },
+    {
+      "id": "handle-confirmation",
+      "reason": "Now also reports accepted bookings to audit (edge added); responsibility unchanged"
+    },
+    {
+      "id": "model-booking",
+      "reason": "Schema grew (e.g. HostLocation) but model roles unchanged"
+    },
+    {
+      "id": "model-credential",
+      "reason": "Schema grew but model roles unchanged"
+    },
+    {
+      "id": "model-event-type",
+      "reason": "Schema grew (HostLocation) but model roles unchanged"
+    },
+    {
+      "id": "model-payment",
+      "reason": "Schema grew but model roles unchanged"
+    },
+    {
+      "id": "model-webhook",
+      "reason": "Schema grew but model roles unchanged"
+    },
+    {
+      "id": "payment-webhooks",
+      "reason": "Webhooks still look up Payment and call handlePaymentSuccess"
+    },
+    {
+      "id": "routing-forms",
+      "reason": "Label/UI changes only"
+    },
+    {
+      "id": "video-integrations-family",
+      "reason": "Adapter internals changed; same video adapters"
+    },
+    {
+      "id": "workflow-reminders",
+      "reason": "Reminder manager tweaks; same responsibility"
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/web/app/(use-page-wrapper)/(main-nav)/members/",
+      "reason": "Organization members page (enterprise/org admin)",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/(main-nav)/members/actions.ts",
+        "apps/web/app/(use-page-wrapper)/(main-nav)/members/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/(main-nav)/members/page.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/members/",
+      "reason": "Organization members page data (enterprise)",
+      "files": [
+        "apps/web/modules/members/getOrgMembersPageData.ts"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/security/compliance/",
+      "reason": "Compliance documents settings, outside scope",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/security/compliance/page.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/(org-admin-only)/attributes/",
+      "reason": "Organization attribute sync page, enterprise",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/(org-admin-only)/attributes/sync/page.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/api/compliance/",
+      "reason": "Compliance document download, outside scope",
+      "files": [
+        "apps/web/app/api/compliance/download/route.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/settings/security/",
+      "reason": "Compliance settings UI, outside scope",
+      "files": [
+        "apps/web/modules/settings/security/compliance-view.tsx",
+        "apps/web/modules/settings/security/compliance/ComplianceDocumentCard.tsx",
+        "apps/web/modules/settings/security/compliance/compliance-documents.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/settings/admin/billing-view.tsx",
+      "reason": "Admin billing UI, enterprise",
+      "files": [
+        "apps/web/modules/settings/admin/billing-view.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/settings/admin/license-view.tsx",
+      "reason": "Admin license UI, enterprise",
+      "files": [
+        "apps/web/modules/settings/admin/license-view.tsx"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/admin/billingPortalLink.handler.ts",
+      "reason": "Billing admin, enterprise",
+      "files": [
+        "packages/trpc/server/routers/viewer/admin/billingPortalLink.handler.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/admin/billingPortalLink.schema.ts",
+      "reason": "Billing admin, enterprise",
+      "files": [
+        "packages/trpc/server/routers/viewer/admin/billingPortalLink.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/admin/resendPurchaseCompleteEmail.handler.ts",
+      "reason": "Billing admin, enterprise",
+      "files": [
+        "packages/trpc/server/routers/viewer/admin/resendPurchaseCompleteEmail.handler.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/admin/resendPurchaseCompleteEmail.schema.ts",
+      "reason": "Billing admin, enterprise",
+      "files": [
+        "packages/trpc/server/routers/viewer/admin/resendPurchaseCompleteEmail.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/teams/",
+      "reason": "Team billing/subscription handlers, enterprise",
+      "files": [
+        "packages/trpc/server/routers/viewer/teams/getSubscriptionStatus.handler.ts",
+        "packages/trpc/server/routers/viewer/teams/getSubscriptionStatus.schema.ts",
+        "packages/trpc/server/routers/viewer/teams/hasTeamMembership.handler.ts",
+        "packages/trpc/server/routers/viewer/teams/skipTrialForTeam.handler.ts",
+        "packages/trpc/server/routers/viewer/teams/skipTrialForTeam.schema.ts"
+      ]
+    },
+    {
+      "path": "apps/web/components/ui/LimitedBadges.tsx",
+      "reason": "Generic UI primitive",
+      "files": [
+        "apps/web/components/ui/LimitedBadges.tsx"
+      ]
+    },
+    {
+      "path": "packages/coss-ui/",
+      "reason": "Generic UI primitives",
+      "files": [
+        "packages/coss-ui/src/components/command.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/attributes/",
+      "reason": "Organization attributes, enterprise",
+      "files": [
+        "packages/features/attributes/di/AttributeService.container.ts",
+        "packages/features/attributes/di/AttributeService.module.ts",
+        "packages/features/attributes/di/AttributeToUserRepository.module.ts",
+        "packages/features/attributes/di/tokens.ts",
+        "packages/features/attributes/services/AttributeService.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/attribute-sync/",
+      "reason": "Organization attribute sync, enterprise",
+      "files": [
+        "packages/trpc/server/routers/viewer/attribute-sync/_router.ts",
+        "packages/trpc/server/routers/viewer/attribute-sync/createAttributeSync.handler.ts",
+        "packages/trpc/server/routers/viewer/attribute-sync/createAttributeSync.schema.ts",
+        "packages/trpc/server/routers/viewer/attribute-sync/deleteAttributeSync.handler.ts",
+        "packages/trpc/server/routers/viewer/attribute-sync/deleteAttributeSync.schema.ts",
+        "packages/trpc/server/routers/viewer/attribute-sync/getAllAttributeSyncs.handler.ts",
+        "packages/trpc/server/routers/viewer/attribute-sync/getAllAttributeSyncs.schema.ts",
+        "packages/trpc/server/routers/viewer/attribute-sync/updateAttributeSync.handler.ts",
+        "packages/trpc/server/routers/viewer/attribute-sync/updateAttributeSync.schema.ts",
+        "packages/trpc/server/routers/viewer/attribute-sync/util.ts"
+      ]
+    },
+    {
+      "path": "packages/features/cache/",
+      "reason": "Generic memoization utility",
+      "files": [
+        "packages/features/cache/decorators/Memoize.ts",
+        "packages/features/cache/decorators/Unmemoize.ts",
+        "packages/features/cache/decorators/types.ts",
+        "packages/features/cache/index.ts"
+      ]
+    },
+    {
+      "path": "packages/features/di/containers/Redis.ts",
+      "reason": "Generic DI infrastructure",
+      "files": [
+        "packages/features/di/containers/Redis.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/dateTimeFormatter.ts",
+      "reason": "Formatting helper",
+      "files": [
+        "packages/lib/dateTimeFormatter.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/getTldPlus1.ts",
+      "reason": "Generic helper",
+      "files": [
+        "packages/lib/getTldPlus1.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/ssrfProtection.ts",
+      "reason": "Generic security helper",
+      "files": [
+        "packages/lib/ssrfProtection.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/zod/ssrfSafeUrl.ts",
+      "reason": "Generic zod helper",
+      "files": [
+        "packages/lib/zod/ssrfSafeUrl.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/hooks/useIsStandalone.ts",
+      "reason": "Generic hook",
+      "files": [
+        "packages/lib/hooks/useIsStandalone.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/trpcErrorUtils.ts",
+      "reason": "Generic error helper",
+      "files": [
+        "packages/lib/server/trpcErrorUtils.ts"
+      ]
+    },
+    {
+      "path": "packages/testing/",
+      "reason": "Test tooling",
+      "files": [
+        "packages/testing/src/lib/types.ts",
+        "packages/testing/src/setupVitest.ts"
+      ]
+    },
+    {
+      "path": "packages/features/membership/repositories/MembershipRepository.integration-test.ts",
+      "reason": "Test file",
+      "files": [
+        "packages/features/membership/repositories/MembershipRepository.integration-test.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

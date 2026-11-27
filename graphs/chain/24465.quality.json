@@ -1,0 +1,18 @@
+{
+  "commit": "b81a307bd98328289acf5bf5c5acdc97e554c7f4",
+  "nodes": 68,
+  "edges": 104,
+  "groups": 14,
+  "owned_files": 1303,
+  "in_scope_files": 2801,
+  "scope_coverage": 0.356,
+  "evidence_ranges": 196,
+  "weak_evidence": 0,
+  "single_file_nodes": 0.103,
+  "median_files_per_node": 10,
+  "verdict": "ok",
+  "reasons": [],
+  "run_dir": "/Users/andg/Desktop/llm-only-runs/chain-v2/runs/24465-1/2026-11-27T00-06-03.879Z-Peba3y",
+  "attempts": 1,
+  "previous": 24324
+}

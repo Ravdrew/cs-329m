@@ -1,0 +1,248 @@
+{
+  "unchanged": [
+    {
+      "id": "availability-ui",
+      "reason": "minor prop/UI tweaks"
+    },
+    {
+      "id": "booker-ui",
+      "reason": "refactor of types and hooks; responsibility unchanged"
+    },
+    {
+      "id": "booking-audit",
+      "reason": "internal refactor of services"
+    },
+    {
+      "id": "booking-fields",
+      "reason": "response schema tweaks only"
+    },
+    {
+      "id": "booking-seats",
+      "reason": "createNewSeat refactor, same responsibility"
+    },
+    {
+      "id": "bookings-list-page",
+      "reason": "types and dropdown changes only"
+    },
+    {
+      "id": "calendar-subscription",
+      "reason": "repository additions, same role"
+    },
+    {
+      "id": "calendar-weekly-view",
+      "reason": "UI tweaks"
+    },
+    {
+      "id": "crm-integrations-family",
+      "reason": "Salesforce client enhancements"
+    },
+    {
+      "id": "email-sms-notifications",
+      "reason": "billing email tweaks"
+    },
+    {
+      "id": "event-type-api",
+      "reason": "type/handler refactor"
+    },
+    {
+      "id": "event-type-editor-ui",
+      "reason": "UI tweaks"
+    },
+    {
+      "id": "form-builder",
+      "reason": "minor"
+    },
+    {
+      "id": "google-calendar-integration",
+      "reason": "service changes internal"
+    },
+    {
+      "id": "handle-cancel-booking",
+      "reason": "small refactor"
+    },
+    {
+      "id": "handle-new-booking",
+      "reason": "refactor of RegularBookingService"
+    },
+    {
+      "id": "no-show-tasks",
+      "reason": "same responsibility"
+    },
+    {
+      "id": "oauth-provider",
+      "reason": "error field changes"
+    },
+    {
+      "id": "routing-forms",
+      "reason": "adds routing trace, same responsibility"
+    },
+    {
+      "id": "stripe-integration",
+      "reason": "setup props change"
+    },
+    {
+      "id": "webhook-dispatch",
+      "reason": "DI changes"
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/web/app/(use-page-wrapper)/settings/teams/new/invite/",
+      "reason": "team settings pages",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/settings/teams/new/invite/email/page.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/teams/new/invite/page.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/components/booking/RoutingTraceSheet.tsx",
+      "reason": "routing trace UI",
+      "files": [
+        "apps/web/components/booking/RoutingTraceSheet.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/ee/",
+      "reason": "enterprise",
+      "files": [
+        "apps/web/modules/ee/deployment/components/CreateLicenseKeyForm.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/schedules/components/Schedule.tsx",
+      "reason": "schedule UI component",
+      "files": [
+        "apps/web/modules/schedules/components/Schedule.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/settings/",
+      "reason": "settings/billing/team pages",
+      "files": [
+        "apps/web/modules/settings/billing/components/InvoicesTable.tsx",
+        "apps/web/modules/settings/billing/components/InvoicesTableSkeleton.tsx",
+        "apps/web/modules/settings/teams/new/invite/csv-upload-modal.tsx",
+        "apps/web/modules/settings/teams/new/invite/email/team-invite-email-view.tsx",
+        "apps/web/modules/settings/teams/new/invite/team-invite-view.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/shell/",
+      "reason": "nav",
+      "files": [
+        "apps/web/modules/shell/navigation/useMobileMoreItems.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/webhooks/components/dialogs/DeleteWebhookDialog.tsx",
+      "reason": "dialog",
+      "files": [
+        "apps/web/modules/webhooks/components/dialogs/DeleteWebhookDialog.tsx"
+      ]
+    },
+    {
+      "path": "packages/app-store/redirect-apps.generated.ts",
+      "reason": "generated",
+      "files": [
+        "packages/app-store/redirect-apps.generated.ts"
+      ]
+    },
+    {
+      "path": "packages/features/credentials/services/CredentialDataService.ts",
+      "reason": "helper",
+      "files": [
+        "packages/features/credentials/services/CredentialDataService.ts"
+      ]
+    },
+    {
+      "path": "packages/features/di/containers/FeatureRepository.integration-test.ts",
+      "reason": "test",
+      "files": [
+        "packages/features/di/containers/FeatureRepository.integration-test.ts"
+      ]
+    },
+    {
+      "path": "packages/features/tasker/tasks/",
+      "reason": "billing proration tasks",
+      "files": [
+        "packages/features/tasker/tasks/cancelProrationReminder.ts",
+        "packages/features/tasker/tasks/sendProrationInvoiceEmail.ts",
+        "packages/features/tasker/tasks/sendProrationReminderEmail.ts"
+      ]
+    },
+    {
+      "path": "packages/features/troubleshooter/components/",
+      "reason": "troubleshooter UI",
+      "files": [
+        "packages/features/troubleshooter/components/CalendarToggleContainerComponent.tsx",
+        "packages/features/troubleshooter/components/EventScheduleItemComponent.tsx",
+        "packages/features/troubleshooter/components/EventTypeSelectComponent.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/webhooks/lib/tasker/",
+      "reason": "webhook tasker internals",
+      "files": [
+        "packages/features/webhooks/lib/tasker/WebhookSyncTasker.ts",
+        "packages/features/webhooks/lib/tasker/WebhookTasker.ts",
+        "packages/features/webhooks/lib/tasker/WebhookTriggerTasker.ts",
+        "packages/features/webhooks/lib/tasker/trigger/config.ts",
+        "packages/features/webhooks/lib/tasker/trigger/deliver-webhook.ts",
+        "packages/features/webhooks/lib/tasker/trigger/schema.ts",
+        "packages/features/webhooks/lib/tasker/types.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/crypto/keyring.ts",
+      "reason": "crypto util",
+      "files": [
+        "packages/lib/crypto/keyring.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/admin/createCoupon.handler.ts",
+      "reason": "admin billing",
+      "files": [
+        "packages/trpc/server/routers/viewer/admin/createCoupon.handler.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/admin/createCoupon.schema.ts",
+      "reason": "admin billing",
+      "files": [
+        "packages/trpc/server/routers/viewer/admin/createCoupon.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/bookings/getRoutingTrace.handler.ts",
+      "reason": "routing trace",
+      "files": [
+        "packages/trpc/server/routers/viewer/bookings/getRoutingTrace.handler.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/bookings/getRoutingTrace.schema.ts",
+      "reason": "routing trace",
+      "files": [
+        "packages/trpc/server/routers/viewer/bookings/getRoutingTrace.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/feedback/_router.ts",
+      "reason": "covered by router",
+      "files": [
+        "packages/trpc/server/routers/viewer/feedback/_router.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/teams/",
+      "reason": "team invoices",
+      "files": [
+        "packages/trpc/server/routers/viewer/teams/listInvoices.handler.ts",
+        "packages/trpc/server/routers/viewer/teams/listInvoices.schema.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

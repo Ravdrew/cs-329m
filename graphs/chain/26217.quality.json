@@ -1,0 +1,18 @@
+{
+  "commit": "8b5d9202db719c29a5222dce2fe1fc0fffee6792",
+  "nodes": 69,
+  "edges": 107,
+  "groups": 14,
+  "owned_files": 1596,
+  "in_scope_files": 3371,
+  "scope_coverage": 0.383,
+  "evidence_ranges": 199,
+  "weak_evidence": 0,
+  "single_file_nodes": 0.101,
+  "median_files_per_node": 13,
+  "verdict": "ok",
+  "reasons": [],
+  "run_dir": "/Users/andg/Desktop/llm-only-runs/chain-v2/runs/26217-1/2026-11-27T00-18-25.214Z-ssXoWW",
+  "attempts": 1,
+  "previous": 26039
+}
