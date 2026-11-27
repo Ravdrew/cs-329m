@@ -1,0 +1,792 @@
+{
+  "19626": {
+    "pull": 19626,
+    "base_commit": "d131d58b19fd5a5dbc19b6447227fbbcacd8e2af",
+    "attempts": [],
+    "stopped": "budget",
+    "accepted": null
+  },
+  "19997": {
+    "pull": 19997,
+    "base_commit": "65448c017f4d33600912e7cb75c4f46be1bd95c8",
+    "note": "test build, run by hand before the batch",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/2026-11-26T08-54-24.506Z-Y0Uzt9",
+        "status": "completed",
+        "cost_usd": 2.5361947000000002,
+        "elapsed_s": 515.78,
+        "error": null,
+        "quality": {
+          "commit": "65448c017f4d33600912e7cb75c4f46be1bd95c8",
+          "nodes": 63,
+          "edges": 86,
+          "groups": 15,
+          "owned_files": 1120,
+          "in_scope_files": 2808,
+          "scope_coverage": 0.335,
+          "evidence_ranges": 171,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.159,
+          "median_files_per_node": 8,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 19997,
+      "pr_files": 11,
+      "in_graph": 10
+    }
+  },
+  "20646": {
+    "pull": 20646,
+    "base_commit": "15aaf7f51bd14b97f54a678b15dd75771943332e",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/runs/20646-1/2026-11-26T09-30-28.587Z-xbUtPd",
+        "status": "completed",
+        "cost_usd": 2.0451158,
+        "elapsed_s": 496.463,
+        "error": null,
+        "quality": {
+          "commit": "15aaf7f51bd14b97f54a678b15dd75771943332e",
+          "nodes": 70,
+          "edges": 92,
+          "groups": 11,
+          "owned_files": 1052,
+          "in_scope_files": 2384,
+          "scope_coverage": 0.362,
+          "evidence_ranges": 180,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.257,
+          "median_files_per_node": 6,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 20646,
+      "pr_files": 18,
+      "in_graph": 10
+    }
+  },
+  "22024": {
+    "pull": 22024,
+    "base_commit": "0a3b3a69e30562d94e4cbfd5e8492b70065682c4",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full-2/runs/22024-1/2026-11-26T23-55-49.553Z-naeb2f",
+        "status": "completed",
+        "cost_usd": 1.5737439999999998,
+        "elapsed_s": 384.437,
+        "error": null,
+        "quality": {
+          "commit": "0a3b3a69e30562d94e4cbfd5e8492b70065682c4",
+          "nodes": 46,
+          "edges": 73,
+          "groups": 12,
+          "owned_files": 769,
+          "in_scope_files": 2399,
+          "scope_coverage": 0.268,
+          "evidence_ranges": 137,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.152,
+          "median_files_per_node": 10,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 22024,
+      "pr_files": 5,
+      "in_graph": 3,
+      "existing_pr_files": 5,
+      "existing_in_graph": 3
+    }
+  },
+  "24124": {
+    "pull": 24124,
+    "base_commit": "5d65a0f09199abeab9729d2665e9bed399692f55",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/runs/24124-1/2026-11-26T09-04-28.054Z-UJuKxv",
+        "status": "completed",
+        "cost_usd": 2.242028900000001,
+        "elapsed_s": 466.342,
+        "error": null,
+        "quality": {
+          "commit": "5d65a0f09199abeab9729d2665e9bed399692f55",
+          "nodes": 60,
+          "edges": 96,
+          "groups": 11,
+          "owned_files": 1035,
+          "in_scope_files": 3750,
+          "scope_coverage": 0.245,
+          "evidence_ranges": 169,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.05,
+          "median_files_per_node": 11,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 24124,
+      "pr_files": 4,
+      "in_graph": 2
+    }
+  },
+  "24207": {
+    "pull": 24207,
+    "base_commit": "f3269a3ddf5156eac9b6ca4663c68c938c231252",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full-2/runs/24207-1/2026-11-26T23-55-49.553Z-akU2Qh",
+        "status": "completed",
+        "cost_usd": 2.0841957999999994,
+        "elapsed_s": 455.046,
+        "error": null,
+        "quality": {
+          "commit": "f3269a3ddf5156eac9b6ca4663c68c938c231252",
+          "nodes": 73,
+          "edges": 112,
+          "groups": 13,
+          "owned_files": 846,
+          "in_scope_files": 2752,
+          "scope_coverage": 0.251,
+          "evidence_ranges": 196,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.315,
+          "median_files_per_node": 4,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 24207,
+      "pr_files": 9,
+      "in_graph": 3,
+      "existing_pr_files": 7,
+      "existing_in_graph": 3
+    }
+  },
+  "24324": {
+    "pull": 24324,
+    "base_commit": "a2bee76da6c0d5d7e3edeaccfbbaf14f146e21bf",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full-2/runs/24324-1/2026-11-26T23-55-49.553Z-rMNxu0",
+        "status": "completed",
+        "cost_usd": 3.247703600000001,
+        "elapsed_s": 505.545,
+        "error": null,
+        "quality": {
+          "commit": "a2bee76da6c0d5d7e3edeaccfbbaf14f146e21bf",
+          "nodes": 58,
+          "edges": 77,
+          "groups": 10,
+          "owned_files": 909,
+          "in_scope_files": 2788,
+          "scope_coverage": 0.28,
+          "evidence_ranges": 157,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.172,
+          "median_files_per_node": 9,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 24324,
+      "pr_files": 14,
+      "in_graph": 3,
+      "existing_pr_files": 8,
+      "existing_in_graph": 3
+    }
+  },
+  "24465": {
+    "pull": 24465,
+    "base_commit": "b81a307bd98328289acf5bf5c5acdc97e554c7f4",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full-2/runs/24465-1/2026-11-27T00-02-14.957Z-UWGTne",
+        "status": "completed",
+        "cost_usd": 4.096176600000001,
+        "elapsed_s": 728.878,
+        "error": null,
+        "quality": {
+          "commit": "b81a307bd98328289acf5bf5c5acdc97e554c7f4",
+          "nodes": 81,
+          "edges": 136,
+          "groups": 15,
+          "owned_files": 1348,
+          "in_scope_files": 2801,
+          "scope_coverage": 0.361,
+          "evidence_ranges": 256,
+          "weak_evidence": 0.004,
+          "single_file_nodes": 0.049,
+          "median_files_per_node": 7,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 24465,
+      "pr_files": 2,
+      "in_graph": 2,
+      "existing_pr_files": 2,
+      "existing_in_graph": 2
+    }
+  },
+  "24880": {
+    "pull": 24880,
+    "base_commit": "c48f2043f21656290f9f20b5785b48fe3c661308",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/runs/24880-1/2026-11-26T09-30-17.161Z-zSUlkS",
+        "status": "completed",
+        "cost_usd": 4.3838477,
+        "elapsed_s": 727.435,
+        "error": null,
+        "quality": {
+          "commit": "c48f2043f21656290f9f20b5785b48fe3c661308",
+          "nodes": 74,
+          "edges": 120,
+          "groups": 14,
+          "owned_files": 1203,
+          "in_scope_files": 3005,
+          "scope_coverage": 0.292,
+          "evidence_ranges": 234,
+          "weak_evidence": 0.004,
+          "single_file_nodes": 0.203,
+          "median_files_per_node": 6,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 24880,
+      "pr_files": 8,
+      "in_graph": 4
+    }
+  },
+  "25313": {
+    "pull": 25313,
+    "base_commit": "c95b0833c13a57b4800ed57d69a63a798bf21589",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/runs/25313-1/2026-11-26T09-19-01.718Z-8wHaif",
+        "status": "completed",
+        "cost_usd": 3.4791302,
+        "elapsed_s": 674.41,
+        "error": null,
+        "quality": {
+          "commit": "c95b0833c13a57b4800ed57d69a63a798bf21589",
+          "nodes": 76,
+          "edges": 101,
+          "groups": 17,
+          "owned_files": 1028,
+          "in_scope_files": 2954,
+          "scope_coverage": 0.276,
+          "evidence_ranges": 206,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.237,
+          "median_files_per_node": 4,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 25313,
+      "pr_files": 13,
+      "in_graph": 3
+    }
+  },
+  "25315": {
+    "pull": 25315,
+    "base_commit": "44311f51badd99513e0774500444da72d2230658",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full-2/runs/25315-1/2026-11-27T00-03-25.369Z-W1dFcb",
+        "status": "completed",
+        "cost_usd": 2.3357049000000005,
+        "elapsed_s": 464.254,
+        "error": null,
+        "quality": {
+          "commit": "44311f51badd99513e0774500444da72d2230658",
+          "nodes": 64,
+          "edges": 74,
+          "groups": 12,
+          "owned_files": 941,
+          "in_scope_files": 2943,
+          "scope_coverage": 0.27,
+          "evidence_ranges": 158,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.234,
+          "median_files_per_node": 7,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 25315,
+      "pr_files": 2,
+      "in_graph": 1,
+      "existing_pr_files": 1,
+      "existing_in_graph": 1
+    }
+  },
+  "26039": {
+    "pull": 26039,
+    "base_commit": "8ad5f7bf55df95123709f0f3c1bbe2e9118f4b9a",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/runs/26039-1/2026-11-26T09-15-08.351Z-f7Mnc8",
+        "status": "completed",
+        "cost_usd": 2.6340889,
+        "elapsed_s": 594.132,
+        "error": null,
+        "quality": {
+          "commit": "8ad5f7bf55df95123709f0f3c1bbe2e9118f4b9a",
+          "nodes": 69,
+          "edges": 94,
+          "groups": 11,
+          "owned_files": 712,
+          "in_scope_files": 3364,
+          "scope_coverage": 0.198,
+          "evidence_ranges": 185,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.275,
+          "median_files_per_node": 4,
+          "verdict": "rebuild",
+          "reasons": [
+            "scope coverage 0.198 < 0.2"
+          ]
+        }
+      },
+      {
+        "attempt": 2,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/runs/26039-2/2026-11-26T09-25-03.342Z-sPFw66",
+        "status": "completed",
+        "cost_usd": 2.7143158,
+        "elapsed_s": 540.138,
+        "error": null,
+        "quality": {
+          "commit": "8ad5f7bf55df95123709f0f3c1bbe2e9118f4b9a",
+          "nodes": 65,
+          "edges": 106,
+          "groups": 13,
+          "owned_files": 651,
+          "in_scope_files": 3364,
+          "scope_coverage": 0.175,
+          "evidence_ranges": 195,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.108,
+          "median_files_per_node": 5,
+          "verdict": "rebuild",
+          "reasons": [
+            "scope coverage 0.175 < 0.2"
+          ]
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [
+      "scope coverage 0.198 < 0.2"
+    ],
+    "pr_coverage": {
+      "pull": 26039,
+      "pr_files": 11,
+      "in_graph": 0
+    }
+  },
+  "26217": {
+    "pull": 26217,
+    "base_commit": "8b5d9202db719c29a5222dce2fe1fc0fffee6792",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/runs/26217-1/2026-11-26T09-22-56.411Z-Vd6IbK",
+        "status": "completed",
+        "cost_usd": 3.0905993999999994,
+        "elapsed_s": 451.381,
+        "error": null,
+        "quality": {
+          "commit": "8b5d9202db719c29a5222dce2fe1fc0fffee6792",
+          "nodes": 64,
+          "edges": 95,
+          "groups": 12,
+          "owned_files": 904,
+          "in_scope_files": 3371,
+          "scope_coverage": 0.237,
+          "evidence_ranges": 180,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.109,
+          "median_files_per_node": 6,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 26217,
+      "pr_files": 6,
+      "in_graph": 2
+    }
+  },
+  "27088": {
+    "pull": 27088,
+    "base_commit": "3e874917ec369bdd31a8ae73e8dbe02b02ca21d3",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/runs/27088-1/2026-11-26T09-34-04.293Z-D7iKkY",
+        "status": "completed",
+        "cost_usd": 3.5551169,
+        "elapsed_s": 691.171,
+        "error": null,
+        "quality": {
+          "commit": "3e874917ec369bdd31a8ae73e8dbe02b02ca21d3",
+          "nodes": 84,
+          "edges": 116,
+          "groups": 14,
+          "owned_files": 1358,
+          "in_scope_files": 3776,
+          "scope_coverage": 0.279,
+          "evidence_ranges": 233,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.238,
+          "median_files_per_node": 7,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 27088,
+      "pr_files": 10,
+      "in_graph": 6
+    }
+  },
+  "27192": {
+    "pull": 27192,
+    "base_commit": "d9658a5a2780ff6ba131f3e7bf34e209845e37b9",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full-2/runs/27192-1/2026-11-27T00-04-15.910Z-0ftVZA",
+        "status": "completed",
+        "cost_usd": 2.7743962999999994,
+        "elapsed_s": 523.75,
+        "error": null,
+        "quality": {
+          "commit": "d9658a5a2780ff6ba131f3e7bf34e209845e37b9",
+          "nodes": 59,
+          "edges": 102,
+          "groups": 15,
+          "owned_files": 721,
+          "in_scope_files": 3605,
+          "scope_coverage": 0.183,
+          "evidence_ranges": 181,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.119,
+          "median_files_per_node": 7,
+          "verdict": "rebuild",
+          "reasons": [
+            "scope coverage 0.183 < 0.2"
+          ]
+        }
+      }
+    ],
+    "stopped": "budget",
+    "accepted": 1,
+    "problems": [
+      "scope coverage 0.183 < 0.2"
+    ],
+    "pr_coverage": {
+      "pull": 27192,
+      "pr_files": 10,
+      "in_graph": 5,
+      "existing_pr_files": 9,
+      "existing_in_graph": 5
+    }
+  },
+  "27208": {
+    "pull": 27208,
+    "base_commit": "267686704d38c88b31a692c00a703fa7d1ed44fc",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full-2/runs/27208-1/2026-11-27T00-11-10.365Z-IHqrcu",
+        "status": "completed",
+        "cost_usd": 2.3517033,
+        "elapsed_s": 458.811,
+        "error": null,
+        "quality": {
+          "commit": "267686704d38c88b31a692c00a703fa7d1ed44fc",
+          "nodes": 48,
+          "edges": 68,
+          "groups": 11,
+          "owned_files": 300,
+          "in_scope_files": 3696,
+          "scope_coverage": 0.078,
+          "evidence_ranges": 138,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.208,
+          "median_files_per_node": 3,
+          "verdict": "rebuild",
+          "reasons": [
+            "scope coverage 0.078 < 0.2"
+          ]
+        }
+      },
+      {
+        "attempt": 2,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full-2/runs/27208-2/2026-11-27T00-18-49.691Z-aybzw3",
+        "status": "completed",
+        "cost_usd": 3.2717121999999983,
+        "elapsed_s": 618.423,
+        "error": null,
+        "quality": {
+          "commit": "267686704d38c88b31a692c00a703fa7d1ed44fc",
+          "nodes": 79,
+          "edges": 110,
+          "groups": 13,
+          "owned_files": 703,
+          "in_scope_files": 3696,
+          "scope_coverage": 0.184,
+          "evidence_ranges": 214,
+          "weak_evidence": 0.005,
+          "single_file_nodes": 0.241,
+          "median_files_per_node": 5,
+          "verdict": "rebuild",
+          "reasons": [
+            "scope coverage 0.184 < 0.2"
+          ]
+        }
+      }
+    ],
+    "accepted": 2,
+    "problems": [
+      "scope coverage 0.184 < 0.2"
+    ],
+    "pr_coverage": {
+      "pull": 27208,
+      "pr_files": 9,
+      "in_graph": 4,
+      "existing_pr_files": 4,
+      "existing_in_graph": 4
+    }
+  },
+  "27378": {
+    "pull": 27378,
+    "base_commit": "db7547fd6d90a3d9013eb67cafbfcd737b29da0f",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/runs/27378-1/2026-11-26T09-12-15.211Z-OQn98J",
+        "status": "completed",
+        "cost_usd": 3.049161200000001,
+        "elapsed_s": 640.143,
+        "error": null,
+        "quality": {
+          "commit": "db7547fd6d90a3d9013eb67cafbfcd737b29da0f",
+          "nodes": 70,
+          "edges": 84,
+          "groups": 10,
+          "owned_files": 1230,
+          "in_scope_files": 3649,
+          "scope_coverage": 0.276,
+          "evidence_ranges": 203,
+          "weak_evidence": 0.005,
+          "single_file_nodes": 0.186,
+          "median_files_per_node": 9,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 27378,
+      "pr_files": 16,
+      "in_graph": 1
+    }
+  },
+  "27405": {
+    "pull": 27405,
+    "base_commit": "c3a8301b0cdc5bea32102bd2b2696253f7c3e04f",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/runs/27405-1/2026-11-26T09-04-28.053Z-TR7HYl",
+        "status": "completed",
+        "cost_usd": 2.2383306999999997,
+        "elapsed_s": 499.259,
+        "error": null,
+        "quality": {
+          "commit": "c3a8301b0cdc5bea32102bd2b2696253f7c3e04f",
+          "nodes": 53,
+          "edges": 77,
+          "groups": 11,
+          "owned_files": 1106,
+          "in_scope_files": 3701,
+          "scope_coverage": 0.21,
+          "evidence_ranges": 141,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.094,
+          "median_files_per_node": 11,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 27405,
+      "pr_files": 7,
+      "in_graph": 3
+    }
+  },
+  "27428": {
+    "pull": 27428,
+    "base_commit": "5d65df9c05a2bf55bac89a5c821d6f5c0db02df9",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/runs/27428-1/2026-11-26T09-12-47.844Z-T3oqsq",
+        "status": "completed",
+        "cost_usd": 1.8759549999999998,
+        "elapsed_s": 373.064,
+        "error": null,
+        "quality": {
+          "commit": "5d65df9c05a2bf55bac89a5c821d6f5c0db02df9",
+          "nodes": 46,
+          "edges": 74,
+          "groups": 11,
+          "owned_files": 1070,
+          "in_scope_files": 3734,
+          "scope_coverage": 0.246,
+          "evidence_ranges": 146,
+          "weak_evidence": 0.007,
+          "single_file_nodes": 0.152,
+          "median_files_per_node": 12,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 27428,
+      "pr_files": 4,
+      "in_graph": 2
+    }
+  },
+  "30354": {
+    "pull": 30354,
+    "base_commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full/runs/30354-1/2026-11-26T09-04-28.053Z-hKVruw",
+        "status": "completed",
+        "cost_usd": 4.013503999999999,
+        "elapsed_s": 639.412,
+        "error": null,
+        "quality": {
+          "commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+          "nodes": 80,
+          "edges": 122,
+          "groups": 13,
+          "owned_files": 1032,
+          "in_scope_files": 2630,
+          "scope_coverage": 0.302,
+          "evidence_ranges": 243,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.188,
+          "median_files_per_node": 6,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "problems": [],
+    "pr_coverage": {
+      "pull": 30354,
+      "pr_files": 21,
+      "in_graph": 11
+    }
+  }
+}

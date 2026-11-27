@@ -1,0 +1,43 @@
+{
+  "modify": [
+    {
+      "id": "booking-list-ui",
+      "note": "BookingDetailsSheet: connect the extracted keyboard utility with a capture-phase keydown listener. Remove the listener when it is no longer needed and keep its navigation state current. Preserve the existing Escape-to-close behavior. Add translated shortcut tooltips to previous, next, close, and join controls, using the JoinMeetingButton ref to locate its link. Keep the sheet open when switching bookings through either list rows or weekly-calendar events by recognizing both interaction markers."
+    },
+    {
+      "id": "calendar-views",
+      "note": "Place the booking UID on calendar event buttons (and the weekly-calendar event interaction marker) so the booking details sheet stays open when switching bookings through weekly-calendar events."
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "booking-sheet-keyboard-handler",
+      "label": "Booking sheet keyboard handler",
+      "kind": "other",
+      "group": "booking-ui",
+      "summary": "Keyboard shortcut handling for the booking details sheet.",
+      "files": [
+        "apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.ts"
+      ],
+      "note": "Extract booking-sheet keyboard handling into the specified utility (apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.ts). Only handle shortcuts while the sheet is active and the target is not editable. Treat focus inside a different Radix portal as an active overlay whose keys belong to that overlay, while allowing shortcuts when focus is inside the sheet or outside any portal. For ArrowUp and ArrowDown, always prevent the default action and stop propagation when the sheet owns the event, including at the first and last booking. Call the previous or next handler only when that direction is available and a transition is not already in progress. For Enter, activate the current join link when present and consume the event so a focused actions button cannot also open; leave unrelated keys and Enter without a join action alone."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-bookinglist-sheet-keyboard",
+      "from": "booking-list-ui",
+      "to": "booking-sheet-keyboard-handler",
+      "kind": "uses",
+      "label": "capture-phase keydown handler",
+      "note": "BookingDetailsSheet connects the utility with a capture-phase keydown listener, removes the listener when it is no longer needed and keeps its navigation state current."
+    },
+    {
+      "id": "e-bookinglist-calviews-marker",
+      "from": "booking-list-ui",
+      "to": "calendar-views",
+      "kind": "uses",
+      "label": "recognizes calendar event marker",
+      "note": "BookingDetailsSheet recognizes the weekly-calendar event interaction marker (alongside the list-row marker) so switching bookings through weekly-calendar events keeps the sheet open."
+    }
+  ]
+}

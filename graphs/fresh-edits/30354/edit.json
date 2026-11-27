@@ -1,0 +1,15 @@
+{
+  "modify": [
+    { "id": "calendar-manager", "note": "getCalendarsEvents gains an \"overlay\" mode: only in that mode, and only for the logged-in user's own credentials, it asks a calendar service for busy times with event titles (when the service supports it), and falls back to plain getAvailability if fetching titles fails. Every other mode keeps returning untitled busy times, so titles never reach anyone but the calendar owner." },
+    { "id": "google-calendar-app", "note": "Google CalendarService implements getAvailabilityWithTitles, returning busy times that carry the event title. No change to the Google OAuth scopes." },
+    { "id": "other-calendar-apps", "note": "The Office365 CalendarService implements getAvailabilityWithTitles, returning busy times that carry the event title. Other calendar families are unchanged." },
+    { "id": "calendar-subscription-service", "note": "CalendarTelemetryWrapper passes getAvailabilityWithTitles through to the wrapped calendar service, so titled availability still works when telemetry wrapping is on." },
+    { "id": "trpc-server", "note": "The availability.user handler requests \"overlay\" mode only when the requested user is the logged-in user, compared by user id (usernames repeat across organizations); otherwise it keeps the normal mode." },
+    { "id": "availability-ui", "note": "The troubleshooter shows each calendar busy time's event title instead of \"Busy\", and multi-day events appear on every day they cover." },
+    { "id": "booker-ui", "note": "Overlay calendar starts with the calendars selected for conflict checking and loads them right away for the visible date range, instead of only the primary calendar after a manual toggle. The hover card of a conflicting slot on the confirm button shows the overlapping event's title and time range (with dates on both ends for events crossing midnight). The continue modal offers the instance's enabled social logins; signing in with Google or Microsoft also connects that calendar and returns the user to the booking page with the overlay on." },
+    { "id": "calendar-views-ui", "note": "The weekly view draws an event on every day it covers, clipped to that day, so events spanning midnight and all-day/multi-day events no longer show only on their first day; overlay busy times show their event titles." }
+  ],
+  "add_edges": [
+    { "id": "e-booker-overlay-social-login", "from": "booker-ui", "to": "session-auth", "kind": "calls", "label": "fetches enabled social logins and signs in", "note": "Once the overlay continue modal opens, the booker fetches the enabled social login providers from next-auth, and the Google or Microsoft buttons start that sign-in, coming back to the booking page with the overlay on." }
+  ]
+}

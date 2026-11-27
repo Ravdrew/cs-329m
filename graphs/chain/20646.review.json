@@ -1,0 +1,273 @@
+{
+  "unchanged": [
+    {
+      "id": "app-installation",
+      "reason": "Apps router gained locationOptions only; responsibility unchanged"
+    },
+    {
+      "id": "available-slots-service",
+      "reason": "util refactor to BookingRepo; still computes slots"
+    },
+    {
+      "id": "booking-list-query",
+      "reason": "router handler-cache removal; same query"
+    },
+    {
+      "id": "booking-success-page",
+      "reason": "adds previousBooking and refund policy props only"
+    },
+    {
+      "id": "calendar-cache",
+      "reason": "date helper UTC changes; same responsibility"
+    },
+    {
+      "id": "calendar-integrations-family",
+      "reason": "ICS service tweak"
+    },
+    {
+      "id": "calendar-weekly-view",
+      "reason": "DatePicker adds dialog; same"
+    },
+    {
+      "id": "crm-integrations-family",
+      "reason": "Salesforce typing/internal changes"
+    },
+    {
+      "id": "event-type-api",
+      "reason": "router handler-cache removal"
+    },
+    {
+      "id": "event-type-editor-ui",
+      "reason": "tab UI tweaks"
+    },
+    {
+      "id": "handle-new-booking",
+      "reason": "import cleanup and incremental changes"
+    },
+    {
+      "id": "model-booking",
+      "reason": "schema additions only"
+    },
+    {
+      "id": "model-event-type",
+      "reason": "adds disableCancelling/Rescheduling fields only"
+    },
+    {
+      "id": "model-payment",
+      "reason": "schema additions only"
+    },
+    {
+      "id": "model-webhook",
+      "reason": "schema additions only"
+    },
+    {
+      "id": "routing-forms",
+      "reason": "handleResponse adds CRM routing; same"
+    },
+    {
+      "id": "schedules-api",
+      "reason": "router handler-cache removal"
+    },
+    {
+      "id": "user-availability",
+      "reason": "uses BookingRepo; same"
+    },
+    {
+      "id": "video-integrations-family",
+      "reason": "tandem adapter config refactor"
+    },
+    {
+      "id": "workflow-reminders",
+      "reason": "email reminders moved to tasker; edge added"
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/ui-playground/",
+      "reason": "example/UI primitives app",
+      "files": [
+        "apps/ui-playground/app/(home)/layout.tsx",
+        "apps/ui-playground/app/(home)/page.tsx",
+        "apps/ui-playground/app/api/search/route.ts",
+        "apps/ui-playground/app/components/icon-swatch.tsx",
+        "apps/ui-playground/app/components/render.tsx",
+        "apps/ui-playground/app/components/row.tsx",
+        "apps/ui-playground/app/design/[[...slug]]/page.tsx",
+        "apps/ui-playground/app/design/layout.tsx",
+        "apps/ui-playground/app/layout.config.tsx",
+        "apps/ui-playground/app/layout.tsx",
+        "apps/ui-playground/app/source.ts",
+        "apps/ui-playground/components/MDXLayout.tsx",
+        "apps/ui-playground/components/ui/BorderRadiusTable.tsx",
+        "apps/ui-playground/components/ui/IconGrid.tsx",
+        "apps/ui-playground/components/ui/ShadowTable.tsx",
+        "apps/ui-playground/components/ui/SpacingTable.tsx",
+        "apps/ui-playground/components/ui/TypeTable.tsx",
+        "apps/ui-playground/components/ui/TypographyTable.tsx",
+        "apps/ui-playground/content/design/components/alert.actions.tsx",
+        "apps/ui-playground/content/design/components/alert.basic.tsx",
+        "apps/ui-playground/content/design/components/alert.customIconColor.tsx",
+        "apps/ui-playground/content/design/components/alert.customIcons.tsx",
+        "apps/ui-playground/content/design/components/alert.noTitle.tsx",
+        "apps/ui-playground/content/design/components/avatar.image.tsx",
+        "apps/ui-playground/content/design/components/avatar.indicator.tsx",
+        "apps/ui-playground/content/design/components/avatar.link.tsx",
+        "apps/ui-playground/content/design/components/avatar.sizes.tsx",
+        "apps/ui-playground/content/design/components/avatar.tooltip.tsx",
+        "apps/ui-playground/content/design/components/badge.dots.tsx",
+        "apps/ui-playground/content/design/components/badge.icons.tsx",
+        "apps/ui-playground/content/design/components/badge.interactive.tsx",
+        "apps/ui-playground/content/design/components/badge.rounded.tsx",
+        "apps/ui-playground/content/design/components/badge.variants.tsx",
+        "apps/ui-playground/content/design/components/button.buttongroup.tsx",
+        "apps/ui-playground/content/design/components/button.disabled.tsx",
+        "apps/ui-playground/content/design/components/button.icons.tsx",
+        "apps/ui-playground/content/design/components/button.loading.tsx",
+        "apps/ui-playground/content/design/components/button.onClick.tsx",
+        "apps/ui-playground/content/design/components/button.variant.tsx",
+        "apps/ui-playground/content/design/components/checkbox.basic.tsx",
+        "apps/ui-playground/content/design/components/checkbox.description.tsx",
+        "apps/ui-playground/content/design/components/checkbox.infoIcon.tsx",
+        "apps/ui-playground/content/design/components/checkbox.labelPosition.tsx",
+        "apps/ui-playground/content/design/components/dialog.basic.tsx",
+        "apps/ui-playground/content/design/components/dialog.confirmation.tsx",
+        "apps/ui-playground/content/design/components/dialog.form.tsx",
+        "apps/ui-playground/content/design/components/dialog.largeContent.tsx",
+        "apps/ui-playground/content/design/components/dropdown.avatarTrigger.tsx",
+        "apps/ui-playground/content/design/components/dropdown.buttonTrigger.tsx",
+        "apps/ui-playground/content/design/components/dropdown.complex.tsx",
+        "apps/ui-playground/content/design/components/emptyScreen.basic.tsx",
+        "apps/ui-playground/content/design/components/emptyScreen.border.tsx",
+        "apps/ui-playground/content/design/components/emptyScreen.customIcon.tsx",
+        "apps/ui-playground/content/design/components/emptyScreen.htmlContent.tsx",
+        "apps/ui-playground/content/design/components/emptyScreen.rawButton.tsx",
+        "apps/ui-playground/content/design/components/form.addOns.tsx",
+        "apps/ui-playground/content/design/components/form.basic.tsx",
+        "apps/ui-playground/content/design/components/form.specialFields.tsx",
+        "apps/ui-playground/content/design/components/input.states.tsx",
+        "apps/ui-playground/content/design/components/input.types.tsx",
+        "apps/ui-playground/content/design/components/input.values.tsx",
+        "apps/ui-playground/content/design/components/input.widths.tsx",
+        "apps/ui-playground/content/design/components/multiInputField.customization.tsx",
+        "apps/ui-playground/content/design/components/multiInputField.paste.tsx",
+        "apps/ui-playground/content/design/components/multiInputField.states.tsx",
+        "apps/ui-playground/content/design/components/navigation.items.tsx",
+        "apps/ui-playground/content/design/components/navigation.sidebar.tsx",
+        "apps/ui-playground/content/design/components/pagination.tsx",
+        "apps/ui-playground/content/design/components/rangeslider.basic.tsx",
+        "apps/ui-playground/content/design/components/rangeslider.popover.tsx",
+        "apps/ui-playground/content/design/components/select.async.tsx",
+        "apps/ui-playground/content/design/components/select.basic.tsx",
+        "apps/ui-playground/content/design/components/select.disabled.tsx",
+        "apps/ui-playground/content/design/components/select.field.tsx",
+        "apps/ui-playground/content/design/components/select.grouped.tsx",
+        "apps/ui-playground/content/design/components/select.loading.tsx",
+        "apps/ui-playground/content/design/components/select.multi.tsx",
+        "apps/ui-playground/content/design/components/switch.tsx",
+        "apps/ui-playground/content/design/components/tabs.horizontal.tsx",
+        "apps/ui-playground/content/design/components/tabs.vertical.tsx",
+        "apps/ui-playground/content/design/components/textarea.basic.tsx",
+        "apps/ui-playground/content/design/components/textarea.sizes.tsx",
+        "apps/ui-playground/content/design/components/textarea.states.tsx",
+        "apps/ui-playground/content/design/components/toast.basic.tsx",
+        "apps/ui-playground/content/design/components/toast.variants.tsx",
+        "apps/ui-playground/content/design/components/toggleGroup.basic.tsx",
+        "apps/ui-playground/lib/colorUtils.ts"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/refer/",
+      "reason": "referral page, not in scope",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/refer/DubReferralsPage.tsx",
+        "apps/web/app/(use-page-wrapper)/refer/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/refer/page.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/settings/",
+      "reason": "settings UI page",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/developer/webhooks/(with-loader)/actions.ts",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/developer/webhooks/(with-loader)/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/developer/webhooks/(with-loader)/page.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/AppRouterI18nProvider.tsx",
+      "reason": "client infrastructure",
+      "files": [
+        "apps/web/app/AppRouterI18nProvider.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/_trpc/",
+      "reason": "client infrastructure",
+      "files": [
+        "apps/web/app/_trpc/context.ts",
+        "apps/web/app/_trpc/query-client.ts",
+        "apps/web/app/_trpc/trpc-client.ts"
+      ]
+    },
+    {
+      "path": "apps/web/app/api/user/referrals-token/",
+      "reason": "referral feature",
+      "files": [
+        "apps/web/app/api/user/referrals-token/route.ts"
+      ]
+    },
+    {
+      "path": "packages/features/auth/lib/checkAdminOrOwner.ts",
+      "reason": "permission helper",
+      "files": [
+        "packages/features/auth/lib/checkAdminOrOwner.ts"
+      ]
+    },
+    {
+      "path": "packages/features/components/controlled-dialog/",
+      "reason": "UI primitive",
+      "files": [
+        "packages/features/components/controlled-dialog/index.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/insights/",
+      "reason": "insights is enterprise",
+      "files": [
+        "packages/features/insights/components/MostCancelledBookingsTables.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/watchlist/",
+      "reason": "outside scope",
+      "files": [
+        "packages/features/watchlist/lib/testUtils.ts",
+        "packages/features/watchlist/operations/check-if-users-are-blocked.controller.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/bulkUpdateTeamEventsToDefaultLocation.ts",
+      "reason": "utility",
+      "files": [
+        "packages/lib/bulkUpdateTeamEventsToDefaultLocation.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/imageUtils.ts",
+      "reason": "utility",
+      "files": [
+        "packages/lib/server/imageUtils.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/admin/",
+      "reason": "admin tooling",
+      "files": [
+        "packages/trpc/server/routers/viewer/admin/verifyWorkflows.handler.ts",
+        "packages/trpc/server/routers/viewer/admin/verifyWorkflows.schema.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

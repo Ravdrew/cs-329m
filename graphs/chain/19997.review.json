@@ -1,0 +1,632 @@
+{
+  "unchanged": [
+    {
+      "id": "availability-ui",
+      "reason": "Schedule editor UI refactors; responsibility and relationships unchanged."
+    },
+    {
+      "id": "booker-booking-hooks",
+      "reason": "Mapper/useBookings gained options but still post bookings to booking endpoints."
+    },
+    {
+      "id": "booking-fields",
+      "reason": "Added a system field; same responsibility."
+    },
+    {
+      "id": "booking-list-query",
+      "reason": "Handler additions; still reads bookings."
+    },
+    {
+      "id": "booking-request-reschedule",
+      "reason": "Same effects: deletes events, emails attendee; also cancels no-show tasks."
+    },
+    {
+      "id": "bookings-list-page",
+      "reason": "Page adds session handling; still renders data table and calls bookings.get."
+    },
+    {
+      "id": "calendar-weekly-view",
+      "reason": "Import path and DatePicker changes only."
+    },
+    {
+      "id": "crm-integrations-family",
+      "reason": "Added props and Salesforce settings; same CRM service family."
+    },
+    {
+      "id": "data-table",
+      "reason": "Server where-clause helpers and segment changes within same framework."
+    },
+    {
+      "id": "email-sms-notifications",
+      "reason": "Import moves and round-robin cancel tweaks; same responsibility."
+    },
+    {
+      "id": "embed-core",
+      "reason": "New autoscroll config; same iframe embed role."
+    },
+    {
+      "id": "google-calendar-integration",
+      "reason": "OAuth callback and service updates; same role."
+    },
+    {
+      "id": "handle-confirmation",
+      "reason": "Switches to WorkflowService but still confirms bookings and fires side effects."
+    },
+    {
+      "id": "model-payment",
+      "reason": "Payment model still has success, refunded and paymentOption as cited."
+    },
+    {
+      "id": "stripe-integration",
+      "reason": "PaymentService still creates Payment rows and refunds."
+    },
+    {
+      "id": "webhook-scheduled-triggers",
+      "reason": "Adds no-show task cancellation; same scheduled trigger responsibility."
+    },
+    {
+      "id": "booking-confirm-decline",
+      "reason": "Handler still confirms or rejects bookings; the added workflow scheduling is captured as a new edge."
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/web/app/(use-page-wrapper)/insights/",
+      "reason": "Insights is enterprise-only, excluded.",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/insights/call-history/page.tsx",
+        "apps/web/app/(use-page-wrapper)/insights/checkInsightsPagePermission.ts"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/settings/",
+      "reason": "Settings and admin pages (roles, playground, profile) outside booking scope.",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/playground/bookings-by-hour/page.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/playground/layout.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/playground/page.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/playground/routing-funnel/page.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/my-account/appearance/actions.ts",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/my-account/appearance/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/my-account/calendars/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/my-account/conferencing/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/my-account/general/actions.ts",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/my-account/general/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/my-account/profile/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/actions/validateUserHasOrg.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/actions/validateUserHasOrgAdmin.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/_components/AdvancedPermissionGroup.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/_components/CreateRoleCta.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/_components/DeleteRoleModal.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/_components/RoleColorPicker.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/_components/RoleSheet.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/_components/RolesList.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/_components/RolesSkeletonLoader.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/_components/SimplePermissionItem.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/_components/searchParams.ts",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/_components/usePermissions.ts",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/actions.ts",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/hooks/useRoleQueryStates.ts",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/loading.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/page.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/teams/[id]/roles/page.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/organizations/new/layout.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/api/calAIPhone/",
+      "reason": "Cal.ai phone feature outside scope.",
+      "files": [
+        "apps/web/app/api/calAIPhone/subscription/success/route.ts"
+      ]
+    },
+    {
+      "path": "apps/web/app/api/support/",
+      "reason": "Support chat endpoint, not booking.",
+      "files": [
+        "apps/web/app/api/support/conversation/route.ts"
+      ]
+    },
+    {
+      "path": "apps/web/app/api/webhooks/retell-ai/",
+      "reason": "Cal.ai phone feature outside scope.",
+      "files": [
+        "apps/web/app/api/webhooks/retell-ai/route.ts"
+      ]
+    },
+    {
+      "path": "apps/web/app/cache/",
+      "reason": "Next cache helpers for settings pages.",
+      "files": [
+        "apps/web/app/cache/membership.ts",
+        "apps/web/app/cache/path/settings/my-account/index.ts",
+        "apps/web/app/cache/travelSchedule.ts"
+      ]
+    },
+    {
+      "path": "apps/web/components/apps/btcpayserver/",
+      "reason": "Single payment app UI.",
+      "files": [
+        "apps/web/components/apps/btcpayserver/BtcpayPaymentComponent.tsx",
+        "apps/web/components/apps/btcpayserver/Setup.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/components/settings/",
+      "reason": "Admin settings UI.",
+      "files": [
+        "apps/web/components/settings/admin/RecentImpersonationsList.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/components/setup/",
+      "reason": "Setup wizard UI.",
+      "files": [
+        "apps/web/components/setup/LicenseSelection.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/lib/",
+      "reason": "Misc web helpers.",
+      "files": [
+        "apps/web/lib/handleOrgRedirect.ts",
+        "apps/web/lib/hooks/settings/platform/billing/useExternalRedirectHandler.ts",
+        "apps/web/lib/pages/auth/verify-email.ts",
+        "apps/web/lib/pages/document/_applyThemeForDocument.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/insights/",
+      "reason": "Insights is enterprise-only.",
+      "files": [
+        "apps/web/modules/insights/insights-call-history-view.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/settings/",
+      "reason": "Settings skeletons.",
+      "files": [
+        "apps/web/modules/settings/my-account/appearance-skeleton.tsx",
+        "apps/web/modules/settings/my-account/general-skeleton.tsx",
+        "apps/web/modules/settings/my-account/profile-skeleton.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/teams/",
+      "reason": "Team members settings view.",
+      "files": [
+        "apps/web/modules/teams/team-members-view.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/videos/",
+      "reason": "Video UI helper.",
+      "files": [
+        "apps/web/modules/videos/button-states.ts"
+      ]
+    },
+    {
+      "path": "apps/web/pages/api/trpc/aiVoiceAgent/",
+      "reason": "Cal.ai phone feature outside scope.",
+      "files": [
+        "apps/web/pages/api/trpc/aiVoiceAgent/[trpc].ts"
+      ]
+    },
+    {
+      "path": "apps/web/pages/api/trpc/phoneNumber/",
+      "reason": "Cal.ai phone feature outside scope.",
+      "files": [
+        "apps/web/pages/api/trpc/phoneNumber/[trpc].ts"
+      ]
+    },
+    {
+      "path": "packages/features/calAIPhone/",
+      "reason": "Cal.ai phone feature outside scope.",
+      "files": [
+        "packages/features/calAIPhone/AIPhoneServiceRegistry.ts",
+        "packages/features/calAIPhone/index.ts",
+        "packages/features/calAIPhone/initializeRegistry.ts",
+        "packages/features/calAIPhone/interfaces/AIPhoneService.interface.ts",
+        "packages/features/calAIPhone/phoneNumberSubscriptionWebhook.ts",
+        "packages/features/calAIPhone/providers/adapters/PrismaAgentRepositoryAdapter.ts",
+        "packages/features/calAIPhone/providers/adapters/PrismaPhoneNumberRepositoryAdapter.ts",
+        "packages/features/calAIPhone/providers/adapters/PrismaTransactionAdapter.ts",
+        "packages/features/calAIPhone/providers/interfaces/AgentRepositoryInterface.ts",
+        "packages/features/calAIPhone/providers/interfaces/PhoneNumberRepositoryInterface.ts",
+        "packages/features/calAIPhone/providers/interfaces/TransactionInterface.ts",
+        "packages/features/calAIPhone/providers/retellAI/RetellAIPhoneServiceProvider.ts",
+        "packages/features/calAIPhone/providers/retellAI/RetellAIPhoneServiceProviderFactory.ts",
+        "packages/features/calAIPhone/providers/retellAI/RetellAIService.ts",
+        "packages/features/calAIPhone/providers/retellAI/RetellAIServiceMapper.ts",
+        "packages/features/calAIPhone/providers/retellAI/RetellSDKClient.ts",
+        "packages/features/calAIPhone/providers/retellAI/errors.ts",
+        "packages/features/calAIPhone/providers/retellAI/index.ts",
+        "packages/features/calAIPhone/providers/retellAI/services/AIConfigurationService.ts",
+        "packages/features/calAIPhone/providers/retellAI/services/AgentService.ts",
+        "packages/features/calAIPhone/providers/retellAI/services/BillingService.ts",
+        "packages/features/calAIPhone/providers/retellAI/services/CallService.ts",
+        "packages/features/calAIPhone/providers/retellAI/services/PhoneNumberService.ts",
+        "packages/features/calAIPhone/providers/retellAI/types.ts",
+        "packages/features/calAIPhone/workflowTemplates.ts"
+      ]
+    },
+    {
+      "path": "packages/features/insights/",
+      "reason": "Insights is enterprise-only.",
+      "files": [
+        "packages/features/insights/components/ChartCard.tsx",
+        "packages/features/insights/components/UserStatsTable.tsx",
+        "packages/features/insights/components/booking/AverageEventDurationChart.tsx",
+        "packages/features/insights/components/booking/BookingKPICards.tsx",
+        "packages/features/insights/components/booking/BookingsByHourChart.tsx",
+        "packages/features/insights/components/booking/EventTrendsChart.tsx",
+        "packages/features/insights/components/booking/HighestNoShowHostTable.tsx",
+        "packages/features/insights/components/booking/HighestRatedMembersTable.tsx",
+        "packages/features/insights/components/booking/LeastBookedTeamMembersTable.tsx",
+        "packages/features/insights/components/booking/LeastCompletedBookings.tsx",
+        "packages/features/insights/components/booking/LowestRatedMembersTable.tsx",
+        "packages/features/insights/components/booking/MostBookedTeamMembersTable.tsx",
+        "packages/features/insights/components/booking/MostCancelledBookingsTables.tsx",
+        "packages/features/insights/components/booking/MostCompletedBookings.tsx",
+        "packages/features/insights/components/booking/PopularEventsTable.tsx",
+        "packages/features/insights/components/booking/RecentFeedbackTable.tsx",
+        "packages/features/insights/components/booking/RecentFeedbackTableContent.tsx",
+        "packages/features/insights/components/booking/RecentNoShowGuestsChart.tsx",
+        "packages/features/insights/components/booking/TimezoneBadge.tsx",
+        "packages/features/insights/components/booking/index.ts",
+        "packages/features/insights/components/routing/FailedBookingsByField.tsx",
+        "packages/features/insights/components/routing/RoutedToPerPeriod.tsx",
+        "packages/features/insights/components/routing/RoutingFunnel.tsx",
+        "packages/features/insights/components/routing/RoutingFunnelContent.tsx",
+        "packages/features/insights/components/routing/RoutingFunnelSkeleton.tsx",
+        "packages/features/insights/components/routing/RoutingKPICards.tsx",
+        "packages/features/insights/components/routing/index.ts",
+        "packages/features/insights/hooks/useInsightsBookingParameters.ts",
+        "packages/features/insights/hooks/useInsightsRoutingFacetedUniqueValues.ts",
+        "packages/features/insights/hooks/useInsightsRoutingParameters.ts",
+        "packages/features/insights/hooks/useToggleableLegend.ts",
+        "packages/features/insights/server/buildBaseWhereCondition.ts",
+        "packages/features/insights/server/hasInsightsPermission.ts",
+        "packages/features/insights/server/insightsDateUtils.ts"
+      ]
+    },
+    {
+      "path": "packages/features/pbac/",
+      "reason": "Permission-based access control, not booking.",
+      "files": [
+        "packages/features/pbac/domain/errors/role-management.error.ts",
+        "packages/features/pbac/domain/mappers/PermissionMapper.ts",
+        "packages/features/pbac/domain/models/Permission.ts",
+        "packages/features/pbac/domain/models/Role.ts",
+        "packages/features/pbac/domain/repositories/IPermissionRepository.ts",
+        "packages/features/pbac/domain/repositories/IRoleRepository.ts",
+        "packages/features/pbac/domain/types/permission-registry.ts",
+        "packages/features/pbac/infrastructure/mappers/RoleOutputMapper.ts",
+        "packages/features/pbac/infrastructure/repositories/PermissionRepository.ts",
+        "packages/features/pbac/infrastructure/repositories/RoleRepository.ts",
+        "packages/features/pbac/lib/resource-permissions.ts",
+        "packages/features/pbac/services/permission-diff.service.ts",
+        "packages/features/pbac/services/role-management.factory.ts",
+        "packages/features/pbac/utils/permissionTraversal.ts"
+      ]
+    },
+    {
+      "path": "packages/features/redis/",
+      "reason": "Redis infrastructure.",
+      "files": [
+        "packages/features/redis/NoopRedisService.ts",
+        "packages/features/redis/di/redisModule.ts"
+      ]
+    },
+    {
+      "path": "packages/features/shell/",
+      "reason": "App shell banner UI.",
+      "files": [
+        "packages/features/shell/CalAiBanner.tsx"
+      ]
+    },
+    {
+      "path": "packages/lib/di/",
+      "reason": "Dependency-injection wiring modules.",
+      "files": [
+        "packages/lib/di/bookings/containers/InstantBookingCreateService.container.ts",
+        "packages/lib/di/bookings/containers/RecurringBookingService.container.ts",
+        "packages/lib/di/bookings/containers/RegularBookingService.container.ts",
+        "packages/lib/di/bookings/modules/InstantBookingCreateService.module.ts",
+        "packages/lib/di/bookings/modules/RecurringBookingService.module.ts",
+        "packages/lib/di/bookings/modules/RegularBookingService.module.ts",
+        "packages/lib/di/bookings/tokens.ts",
+        "packages/lib/di/containers/AvailableSlots.ts",
+        "packages/lib/di/containers/BookingLimits.ts",
+        "packages/lib/di/containers/BusyTimes.ts",
+        "packages/lib/di/containers/Cache.ts",
+        "packages/lib/di/containers/FilterHosts.ts",
+        "packages/lib/di/containers/GetUserAvailability.ts",
+        "packages/lib/di/containers/InsightsBooking.ts",
+        "packages/lib/di/containers/InsightsRouting.ts",
+        "packages/lib/di/containers/LuckyUser.ts",
+        "packages/lib/di/containers/NoSlotsNotification.ts",
+        "packages/lib/di/containers/QualifiedHosts.ts",
+        "packages/lib/di/di.ts",
+        "packages/lib/di/modules/Attribute.ts",
+        "packages/lib/di/modules/AvailableSlots.ts",
+        "packages/lib/di/modules/Booking.ts",
+        "packages/lib/di/modules/BusyTimes.ts",
+        "packages/lib/di/modules/Cache.ts",
+        "packages/lib/di/modules/CheckBookingAndDurationLimits.ts",
+        "packages/lib/di/modules/CheckBookingLimits.ts",
+        "packages/lib/di/modules/EventType.ts",
+        "packages/lib/di/modules/Features.ts",
+        "packages/lib/di/modules/FilterHosts.ts",
+        "packages/lib/di/modules/GetUserAvailability.ts",
+        "packages/lib/di/modules/Host.ts",
+        "packages/lib/di/modules/InsightsBooking.ts",
+        "packages/lib/di/modules/InsightsRouting.ts",
+        "packages/lib/di/modules/LuckyUser.ts",
+        "packages/lib/di/modules/Membership.ts",
+        "packages/lib/di/modules/NoSlotsNotification.ts",
+        "packages/lib/di/modules/Ooo.ts",
+        "packages/lib/di/modules/QualifiedHosts.ts",
+        "packages/lib/di/modules/RoutingFormResponse.ts",
+        "packages/lib/di/modules/Schedule.ts",
+        "packages/lib/di/modules/SelectedSlots.ts",
+        "packages/lib/di/modules/Team.ts",
+        "packages/lib/di/modules/User.ts",
+        "packages/lib/di/shared/services/logger.service.ts",
+        "packages/lib/di/shared/services/tasker.service.ts",
+        "packages/lib/di/shared/shared.tokens.ts",
+        "packages/lib/di/tokens.ts",
+        "packages/lib/di/webhooks/Webhooks.tokens.ts",
+        "packages/lib/di/webhooks/containers/webhook.ts",
+        "packages/lib/di/webhooks/modules/Webhook.module.ts",
+        "packages/lib/di/webhooks/repositories/Webhook.repository.ts",
+        "packages/lib/di/webhooks/services/Webhook.service.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/repository/",
+      "reason": "Generic repository layer files.",
+      "files": [
+        "packages/lib/server/repository/BookingPaymentRepository.interface.ts",
+        "packages/lib/server/repository/ISelectedSlotRepository.ts",
+        "packages/lib/server/repository/PrismaAgentRepository.ts",
+        "packages/lib/server/repository/PrismaApiKeyRepository.ts",
+        "packages/lib/server/repository/PrismaAssignmentReasonRepository.ts",
+        "packages/lib/server/repository/PrismaAttributeRepository.ts",
+        "packages/lib/server/repository/PrismaBookingPaymentRepository.ts",
+        "packages/lib/server/repository/PrismaPhoneNumberRepository.ts",
+        "packages/lib/server/repository/PrismaRoutingFormRepository.ts",
+        "packages/lib/server/repository/PrismaRoutingFormRepositoryInterface.ts",
+        "packages/lib/server/repository/PrismaRoutingFormResponseRepository.ts",
+        "packages/lib/server/repository/PrismaSelectedSlotRepository.ts",
+        "packages/lib/server/repository/RoutingFormResponseRepository.interface.ts",
+        "packages/lib/server/repository/calAiPhoneNumber.ts",
+        "packages/lib/server/repository/dto/SelectedSlot.ts",
+        "packages/lib/server/repository/dto/hashedLinkSelect.ts",
+        "packages/lib/server/repository/dto/selectedSlotDeleteManyExpiredSlotsInput.ts",
+        "packages/lib/server/repository/dto/selectedSlotFindManyReservedByOthersInput.ts",
+        "packages/lib/server/repository/dto/selectedSlotFindManyUnexpiredSlotsInput.ts",
+        "packages/lib/server/repository/dto/selectedSlotFindReservedByOthersInput.ts",
+        "packages/lib/server/repository/hashedLinkRepository.ts",
+        "packages/lib/server/repository/ooo.ts",
+        "packages/lib/server/repository/workflow-permissions.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/service/",
+      "reason": "Misc server services.",
+      "files": [
+        "packages/lib/server/service/BookingWebhookFactory.ts",
+        "packages/lib/server/service/InsightsBookingBaseService.ts",
+        "packages/lib/server/service/InsightsBookingDIService.ts",
+        "packages/lib/server/service/InsightsRoutingBaseService.ts",
+        "packages/lib/server/service/InsightsRoutingDIService.ts",
+        "packages/lib/server/service/hashedLinkService.ts",
+        "packages/lib/server/service/membershipService.ts",
+        "packages/lib/server/service/teamService.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/PiiHasher.ts",
+      "reason": "Hashing utility.",
+      "files": [
+        "packages/lib/server/PiiHasher.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/unstable_cache/",
+      "reason": "Cache utility.",
+      "files": [
+        "packages/lib/unstable_cache/index.ts",
+        "packages/lib/unstable_cache/unstable_cache.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/bookings/",
+      "reason": "Small helper.",
+      "files": [
+        "packages/lib/bookings/hostGroupUtils.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/hooks/",
+      "reason": "Generic hook.",
+      "files": [
+        "packages/lib/hooks/useElementByClassName.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/intervalLimits/",
+      "reason": "Utility.",
+      "files": [
+        "packages/lib/intervalLimits/utils/getPeriodStartDatesBetween.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/fetchWithTimeout.ts",
+      "reason": "Utility.",
+      "files": [
+        "packages/lib/fetchWithTimeout.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/formatPhoneNumber.ts",
+      "reason": "Utility.",
+      "files": [
+        "packages/lib/formatPhoneNumber.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/getCalcomUrl.ts",
+      "reason": "Utility.",
+      "files": [
+        "packages/lib/getCalcomUrl.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/hashedLinksUtils.ts",
+      "reason": "Utility.",
+      "files": [
+        "packages/lib/hashedLinksUtils.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/intervalTree.ts",
+      "reason": "Utility.",
+      "files": [
+        "packages/lib/intervalTree.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/recentImpersonations.ts",
+      "reason": "Admin utility.",
+      "files": [
+        "packages/lib/recentImpersonations.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/stripe-error.ts",
+      "reason": "Utility.",
+      "files": [
+        "packages/lib/stripe-error.ts"
+      ]
+    },
+    {
+      "path": "packages/prisma/cleanup-pbac.ts",
+      "reason": "Seed script.",
+      "files": [
+        "packages/prisma/cleanup-pbac.ts"
+      ]
+    },
+    {
+      "path": "packages/prisma/prisma.module.ts",
+      "reason": "DI module.",
+      "files": [
+        "packages/prisma/prisma.module.ts"
+      ]
+    },
+    {
+      "path": "packages/prisma/seed-pbac-only.ts",
+      "reason": "Seed script.",
+      "files": [
+        "packages/prisma/seed-pbac-only.ts"
+      ]
+    },
+    {
+      "path": "packages/prisma/seed-pbac-organization.ts",
+      "reason": "Seed script.",
+      "files": [
+        "packages/prisma/seed-pbac-organization.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/aiVoiceAgent/",
+      "reason": "Cal.ai phone feature outside scope.",
+      "files": [
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/_router.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/create.handler.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/create.schema.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/createWebCall.handler.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/createWebCall.schema.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/delete.handler.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/delete.schema.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/get.handler.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/get.schema.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/list.handler.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/list.schema.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/listCalls.handler.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/listCalls.schema.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/testCall.handler.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/testCall.schema.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/update.handler.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/update.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/phoneNumber/",
+      "reason": "Cal.ai phone feature outside scope.",
+      "files": [
+        "packages/trpc/server/routers/viewer/phoneNumber/_router.ts",
+        "packages/trpc/server/routers/viewer/phoneNumber/buy.handler.ts",
+        "packages/trpc/server/routers/viewer/phoneNumber/buy.schema.ts",
+        "packages/trpc/server/routers/viewer/phoneNumber/cancel.handler.ts",
+        "packages/trpc/server/routers/viewer/phoneNumber/cancel.schema.ts",
+        "packages/trpc/server/routers/viewer/phoneNumber/delete.handler.ts",
+        "packages/trpc/server/routers/viewer/phoneNumber/delete.schema.ts",
+        "packages/trpc/server/routers/viewer/phoneNumber/import.handler.ts",
+        "packages/trpc/server/routers/viewer/phoneNumber/import.schema.ts",
+        "packages/trpc/server/routers/viewer/phoneNumber/list.handler.ts",
+        "packages/trpc/server/routers/viewer/phoneNumber/list.schema.ts",
+        "packages/trpc/server/routers/viewer/phoneNumber/update.handler.ts",
+        "packages/trpc/server/routers/viewer/phoneNumber/update.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/auth/util.ts",
+      "reason": "Auth router helper.",
+      "files": [
+        "packages/trpc/server/routers/viewer/auth/util.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/credits/",
+      "reason": "Credits billing outside scope.",
+      "files": [
+        "packages/trpc/server/routers/viewer/credits/hasAvailableCredits.handler.ts",
+        "packages/trpc/server/routers/viewer/credits/hasAvailableCredits.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/deploymentSetup/",
+      "reason": "License setup outside scope.",
+      "files": [
+        "packages/trpc/server/routers/viewer/deploymentSetup/validateLicense.handler.ts",
+        "packages/trpc/server/routers/viewer/deploymentSetup/validateLicense.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/teams/",
+      "reason": "Test file only.",
+      "files": [
+        "packages/trpc/server/routers/viewer/teams/inviteMember/inviteMember.handler.integration-test.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/calVideo/",
+      "reason": "Cal Video meeting info endpoint, minor.",
+      "files": [
+        "packages/trpc/server/routers/viewer/calVideo/getMeetingInformation.handler.ts",
+        "packages/trpc/server/routers/viewer/calVideo/getMeetingInformation.schema.ts"
+      ]
+    },
+    {
+      "path": "packages/features/bookings/lib/rating.ts",
+      "reason": "Rating helper.",
+      "files": [
+        "packages/features/bookings/lib/rating.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

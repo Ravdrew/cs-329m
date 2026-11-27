@@ -1,0 +1,66 @@
+{
+  "modify": [
+    {
+      "id": "oauth-provider",
+      "note": "OAuth clients become either confidential or public (PKCE). The token exchange and refresh routes require a valid client_secret for confidential clients and a code_verifier that matches the stored code challenge (S256 only) for public clients; a confidential client that used PKCE when getting its code must also send the code_verifier on token exchange and refresh. Refresh accepts the refresh token in the body or the Authorization header, and both routes return token_type and expires_in with no-store cache headers. The authorize page passes code_challenge and code_challenge_method through when requesting the code. Existing confidential clients keep working unchanged."
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "pkce-util",
+      "label": "PKCE helper",
+      "kind": "service",
+      "group": "auth",
+      "summary": "Checks PKCE code challenge methods and verifies a code verifier against a stored challenge.",
+      "files": ["packages/lib/pkce.ts"],
+      "note": "New shared helper. Only S256 is accepted as a challenge method; a verifier is valid only when it hashes to the stored challenge."
+    },
+    {
+      "id": "trpc-oauth-router",
+      "label": "tRPC OAuth client router",
+      "kind": "endpoint",
+      "group": "http-api",
+      "summary": "tRPC procedures for registering OAuth clients and generating authorization codes.",
+      "files": [
+        "packages/trpc/server/routers/viewer/oAuth/addClient.handler.ts",
+        "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.schema.ts"
+      ],
+      "note": "Adding a client takes a PKCE option: with it the client is stored as public with no client secret, without it as confidential with a generated secret as today. Generating an auth code accepts an optional code challenge and method (S256 required when given) and stores them on the access code. The admin OAuth settings form at /settings/admin/oAuth gets a \"Use PKCE\" switch that feeds this option."
+    },
+    {
+      "id": "model-oauth-client",
+      "label": "OAuthClient and AccessCode models",
+      "kind": "model",
+      "group": "persistence",
+      "summary": "OAuth client registrations and short-lived authorization codes.",
+      "files": ["packages/prisma/schema.prisma"],
+      "note": "OAuthClient gains a client type (confidential or public, defaulting to confidential) and its secret becomes optional; AccessCode stores the code challenge and method. Needs a Prisma migration."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-oauth-provider-pkce",
+      "from": "oauth-provider",
+      "to": "pkce-util",
+      "kind": "calls",
+      "label": "verifies code_verifier",
+      "note": "Token and refresh routes verify the code_verifier against the challenge stored with the access code for public clients and for confidential clients that used PKCE."
+    },
+    {
+      "id": "e-oauth-provider-oauth-models",
+      "from": "oauth-provider",
+      "to": "model-oauth-client",
+      "kind": "reads",
+      "label": "client type and code challenge",
+      "note": "Routes read the client's type to decide between secret and PKCE checks, and the stored challenge from the access code being consumed."
+    },
+    {
+      "id": "e-trpc-oauth-models",
+      "from": "trpc-oauth-router",
+      "to": "model-oauth-client",
+      "kind": "writes",
+      "label": "creates clients and access codes",
+      "note": "Creates public or confidential clients and access codes carrying the optional code challenge."
+    }
+  ]
+}

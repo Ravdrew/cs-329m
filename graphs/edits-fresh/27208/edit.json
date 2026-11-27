@@ -1,0 +1,16 @@
+{
+  "modify": [
+    {
+      "id": "bookings-list-ui",
+      "note": "Validate saved booking filter segments against the resources currently accessible to the viewer before applying them. Put the pure filtering logic in `createActiveFiltersValidator`: remove unavailable user, event-type, and team IDs from the corresponding filters while retaining valid selections and unrelated filter kinds. Have `useActiveFiltersValidator` fetch the resources appropriate to `canReadOthersBookings` and return a validator, `\"loading\"`, or the unsupported/unused state through the supplied interface. Keep the bookings query gated while validation is pending so it cannot briefly display an unfiltered result set."
+    },
+    {
+      "id": "e-list-datatable",
+      "note": "Pass the validator from `useActiveFiltersValidator` into DataTableProvider, which accepts it and applies it to saved booking filter segments before applying them."
+    },
+    {
+      "id": "data-table",
+      "note": "Accept the active-filters validator in DataTableProvider and wait for both the segments and validation data before applying a selected segment. Reapply the selected or preferred segment reliably after navigation, and ensure a delayed response for an older selection cannot overwrite a more recent choice. Split the provider into State, Segment, and Filters contexts, nested in that order, and expose their combined behavior through the compatibility bridge so existing `useDataTable()` consumers keep working. Model segment application with the requested idle, waiting-for-segments, waiting-for-validator, applying, and ready states. Keep transition decisions in the pure state-machine logic and React effects in the connecting hook, with bounded automatic transitions and explicit handling of null filter state."
+    }
+  ]
+}

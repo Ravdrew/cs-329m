@@ -1,0 +1,298 @@
+{
+  "unchanged": [
+    {
+      "id": "availability-ui",
+      "reason": "Schedule editor/list UI refactor (delete dialog); responsibility and relationships unchanged"
+    },
+    {
+      "id": "available-slots-service",
+      "reason": "getSchedule util changes are import moves and an OOO field; still computes slots from user availability"
+    },
+    {
+      "id": "booker-slot-hooks",
+      "reason": "useSchedule/useTimesForSchedule changes are internal prefetch args; still call getSchedule and reservation endpoints"
+    },
+    {
+      "id": "booker-ui",
+      "reason": "Booker component moves/refactors only; same responsibility"
+    },
+    {
+      "id": "crm-event-task",
+      "reason": "createCRMEvent batches credential lookups; still creates CRM events with retries"
+    },
+    {
+      "id": "crm-integrations-family",
+      "reason": "HubSpot options added within the same CRM integration family"
+    },
+    {
+      "id": "daily-video-integration",
+      "reason": "Daily zod schemas for meeting info added; same adapter responsibility"
+    },
+    {
+      "id": "data-table",
+      "reason": "Type and filter component changes; same data table framework"
+    },
+    {
+      "id": "email-sms-notifications",
+      "reason": "email-manager adds organization email setting checks; same email/SMS senders"
+    },
+    {
+      "id": "embed-core",
+      "reason": "Embed iframe reset and store additions inside the same embed core script"
+    },
+    {
+      "id": "model-booking",
+      "reason": "Schema additions elsewhere; Booking tables still described correctly"
+    },
+    {
+      "id": "model-credential",
+      "reason": "Schema additions elsewhere; Credential/CalendarCache unchanged in role"
+    },
+    {
+      "id": "model-event-type",
+      "reason": "Added EventType columns only; EventType/Host/Schedule role unchanged"
+    },
+    {
+      "id": "model-payment",
+      "reason": "Schema additions elsewhere; Payment model unchanged in role"
+    },
+    {
+      "id": "no-show-tasks",
+      "reason": "No-show handler refactors; same triggers"
+    },
+    {
+      "id": "stripe-integration",
+      "reason": "PaymentService now queues awaiting-payment email via tasker (edge added); otherwise same"
+    },
+    {
+      "id": "user-availability",
+      "reason": "getUserAvailability gained holiday blocking, captured by the new holidays edge"
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "packages/coss-ui/",
+      "reason": "generic UI primitives",
+      "files": [
+        "packages/coss-ui/src/components/accordion.tsx",
+        "packages/coss-ui/src/components/alert-dialog.tsx",
+        "packages/coss-ui/src/components/alert.tsx",
+        "packages/coss-ui/src/components/autocomplete.tsx",
+        "packages/coss-ui/src/components/avatar.tsx",
+        "packages/coss-ui/src/components/badge.tsx",
+        "packages/coss-ui/src/components/breadcrumb.tsx",
+        "packages/coss-ui/src/components/button.tsx",
+        "packages/coss-ui/src/components/card.tsx",
+        "packages/coss-ui/src/components/checkbox-group.tsx",
+        "packages/coss-ui/src/components/checkbox.tsx",
+        "packages/coss-ui/src/components/collapsible.tsx",
+        "packages/coss-ui/src/components/combobox.tsx",
+        "packages/coss-ui/src/components/dialog.tsx",
+        "packages/coss-ui/src/components/empty.tsx",
+        "packages/coss-ui/src/components/field.tsx",
+        "packages/coss-ui/src/components/fieldset.tsx",
+        "packages/coss-ui/src/components/form.tsx",
+        "packages/coss-ui/src/components/frame.tsx",
+        "packages/coss-ui/src/components/group.tsx",
+        "packages/coss-ui/src/components/input-group.tsx",
+        "packages/coss-ui/src/components/input.tsx",
+        "packages/coss-ui/src/components/kbd.tsx",
+        "packages/coss-ui/src/components/label.tsx",
+        "packages/coss-ui/src/components/menu.tsx",
+        "packages/coss-ui/src/components/meter.tsx",
+        "packages/coss-ui/src/components/number-field.tsx",
+        "packages/coss-ui/src/components/pagination.tsx",
+        "packages/coss-ui/src/components/popover.tsx",
+        "packages/coss-ui/src/components/preview-card.tsx",
+        "packages/coss-ui/src/components/progress.tsx",
+        "packages/coss-ui/src/components/radio-group.tsx",
+        "packages/coss-ui/src/components/scroll-area.tsx",
+        "packages/coss-ui/src/components/select.tsx",
+        "packages/coss-ui/src/components/separator.tsx",
+        "packages/coss-ui/src/components/sheet.tsx",
+        "packages/coss-ui/src/components/sidebar.tsx",
+        "packages/coss-ui/src/components/skeleton.tsx",
+        "packages/coss-ui/src/components/slider.tsx",
+        "packages/coss-ui/src/components/spinner.tsx",
+        "packages/coss-ui/src/components/switch.tsx",
+        "packages/coss-ui/src/components/table.tsx",
+        "packages/coss-ui/src/components/tabs.tsx",
+        "packages/coss-ui/src/components/textarea.tsx",
+        "packages/coss-ui/src/components/toast.tsx",
+        "packages/coss-ui/src/components/toggle-group.tsx",
+        "packages/coss-ui/src/components/toggle.tsx",
+        "packages/coss-ui/src/components/toolbar.tsx",
+        "packages/coss-ui/src/components/tooltip.tsx",
+        "packages/coss-ui/src/hooks/use-mobile.ts",
+        "packages/coss-ui/src/lib/utils.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/insights/",
+      "reason": "insights is enterprise-only",
+      "files": [
+        "apps/web/modules/insights/components/booking/LeastCompletedBookings.tsx",
+        "apps/web/modules/insights/components/booking/MostCompletedBookings.tsx",
+        "apps/web/modules/insights/components/booking/PopularEventsTable.tsx",
+        "apps/web/modules/insights/components/booking/RecentNoShowGuestsChart.tsx",
+        "apps/web/modules/insights/components/filters/index.tsx",
+        "apps/web/modules/insights/components/routing/RoutingKPICards.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/insights/",
+      "reason": "insights is enterprise-only",
+      "files": [
+        "packages/features/insights/lib/objectToCsv.ts",
+        "packages/features/insights/services/csvDataTransformer.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/insights/",
+      "reason": "insights is enterprise-only",
+      "files": [
+        "packages/trpc/server/routers/viewer/insights/procedures/userBelongsToTeam.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/ee/organizations/",
+      "reason": "organization enterprise settings",
+      "files": [
+        "apps/web/modules/ee/organizations/components/DisableGuestBookingEmailsSetting.tsx",
+        "apps/web/modules/ee/organizations/guest-notifications.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/",
+      "reason": "organization enterprise settings",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/(org-admin-only)/guest-notifications/page.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/organizations/",
+      "reason": "organization enterprise settings",
+      "files": [
+        "packages/features/organizations/repositories/OrganizationSettingsRepository.ts"
+      ]
+    },
+    {
+      "path": "packages/features/pbac/",
+      "reason": "enterprise permissions",
+      "files": [
+        "packages/features/pbac/lib/team-member-permissions.ts"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/playground/",
+      "reason": "admin playground page",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/playground/date-range-filter/page.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/GeoContext.tsx",
+      "reason": "generic app context",
+      "files": [
+        "apps/web/app/GeoContext.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/lib/hooks/useNuqsParams.ts",
+      "reason": "generic URL param hook",
+      "files": [
+        "apps/web/lib/hooks/useNuqsParams.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/billing/",
+      "reason": "billing UI is outside scope",
+      "files": [
+        "apps/web/modules/billing/components/UpgradeTeamsBadgeWebWrapper.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/shell/",
+      "reason": "app shell UI",
+      "files": [
+        "apps/web/modules/shell/Kbar.tsx",
+        "apps/web/modules/shell/Tips.tsx",
+        "apps/web/modules/shell/components/GatedFeaturesModal.tsx",
+        "apps/web/modules/shell/stores/gatedFeaturesStore.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/settings/outOfOffice/",
+      "reason": "out-of-office settings UI",
+      "files": [
+        "apps/web/modules/settings/outOfOffice/OutOfOfficeToggleGroup.tsx",
+        "apps/web/modules/settings/outOfOffice/types.ts"
+      ]
+    },
+    {
+      "path": "packages/emails/email-types.ts",
+      "reason": "type definitions only",
+      "files": [
+        "packages/emails/email-types.ts"
+      ]
+    },
+    {
+      "path": "packages/features/credentials/di/",
+      "reason": "DI wiring",
+      "files": [
+        "packages/features/credentials/di/CredentialRepository.module.ts"
+      ]
+    },
+    {
+      "path": "packages/features/di/modules/Credential.ts",
+      "reason": "DI wiring",
+      "files": [
+        "packages/features/di/modules/Credential.ts"
+      ]
+    },
+    {
+      "path": "packages/features/users/types/",
+      "reason": "type definitions only",
+      "files": [
+        "packages/features/users/types/invalidAppCredentials.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/slugify-lenient.ts",
+      "reason": "formatting helper",
+      "files": [
+        "packages/lib/slugify-lenient.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/timeShift.ts",
+      "reason": "generic helper",
+      "files": [
+        "packages/lib/timeShift.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/triggerDevLogger.ts",
+      "reason": "logger",
+      "files": [
+        "packages/lib/triggerDevLogger.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/zod/eventType.ts",
+      "reason": "schema helper",
+      "files": [
+        "packages/lib/zod/eventType.ts"
+      ]
+    },
+    {
+      "path": "packages/features/bookings/repositories/BookingRepository.integration-test.ts",
+      "reason": "test",
+      "files": [
+        "packages/features/bookings/repositories/BookingRepository.integration-test.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

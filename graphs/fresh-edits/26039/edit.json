@@ -1,0 +1,29 @@
+{
+  "modify": [
+    { "id": "crm-integrations", "note": "The HubSpot CRM service gains an optional 'write to HubSpot Meeting' step: when the HubSpot app's event-type settings enable writing on booking, each configured property mapping is resolved from the booking and set on the HubSpot Meeting when it is created. Before writing, the configured properties are checked against the HubSpot Meeting object's properties and any that do not exist there are skipped. The HubSpot app data schema gains the on/off switch and the property mappings. App options are read through the service's existing getAppOptions." }
+  ],
+  "add_nodes": [
+    { "id": "crm-write-to-object-config", "label": "CRM write-to-object field types and schemas", "kind": "other", "group": "app-store",
+      "summary": "Shared CRM field types, date sources, when-to-write rules and mapping-entry schemas.",
+      "description": "Shared definitions describing one CRM property mapping: its field type (text, date, phone, checkbox, custom and others), its value and when to write it. Used by the HubSpot settings and service, and reusable by other CRM apps.",
+      "files": ["packages/app-store/_lib/crm-enums.ts", "packages/app-store/_lib/crm-schemas.ts"],
+      "note": "New shared module so CRM apps describe field mappings the same way." },
+    { "id": "write-to-object-settings", "label": "Write to CRM object settings (app card)", "kind": "component", "group": "app-store",
+      "summary": "App card setting to turn on 'On booking' writes and edit property mappings.",
+      "note": "New settings UI on the HubSpot app card: a toggle to write to the meeting on booking, and a list of mappings from a HubSpot property name to a field type and value. Split into the component plus separate types and utils pieces." },
+    { "id": "tracking-repository", "label": "Tracking repository", "kind": "store", "group": "persistence",
+      "summary": "Looks up a booking's UTM tracking data by booking uid.",
+      "files": ["packages/lib/server/repository/TrackingRepository.interface.ts", "packages/lib/server/repository/PrismaTrackingRepository.ts"],
+      "note": "New repository (interface plus Prisma implementation) that returns the tracking record for a booking uid, or nothing if there is none." }
+  ],
+  "add_edges": [
+    { "id": "crm-integrations-reads-tracking-repository", "from": "crm-integrations", "to": "tracking-repository", "kind": "reads", "label": "UTM params for booking",
+      "note": "Values like {utm:source} or {utm:medium} are filled from the booking's tracking record; missing tracking gives no value." },
+    { "id": "crm-integrations-reads-booking-model", "from": "crm-integrations", "to": "booking-model", "kind": "reads", "label": "booking createdAt",
+      "note": "Date mappings use the booking start date or the booking's created date; the created date is fetched through the existing booking repository by booking uid." },
+    { "id": "crm-integrations-uses-crm-write-to-object-config", "from": "crm-integrations", "to": "crm-write-to-object-config", "kind": "uses", "label": "mapping types",
+      "note": "Each mapping's value is resolved by its field type: static text is written as-is, {fieldId} placeholders take the booking form response, {utm:...} placeholders take UTM tracking, date types take booking dates, checkboxes take booleans. Text mixing placeholders and static text (e.g. 'Hello {name}!') is filled in; text with no placeholder stays static." },
+    { "id": "write-to-object-settings-uses-crm-write-to-object-config", "from": "write-to-object-settings", "to": "crm-write-to-object-config", "kind": "uses", "label": "field types",
+      "note": "The settings UI offers the supported field types (text, date, phone, checkbox, custom) and booking date choices, and saves mappings in the shared entry shape." }
+  ]
+}

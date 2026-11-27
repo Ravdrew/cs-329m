@@ -1,0 +1,19 @@
+{
+  "commit": "d9658a5a2780ff6ba131f3e7bf34e209845e37b9",
+  "nodes": 59,
+  "edges": 102,
+  "groups": 15,
+  "owned_files": 721,
+  "in_scope_files": 3605,
+  "scope_coverage": 0.183,
+  "evidence_ranges": 181,
+  "weak_evidence": 0,
+  "single_file_nodes": 0.119,
+  "median_files_per_node": 7,
+  "verdict": "rebuild",
+  "reasons": [
+    "scope coverage 0.183 < 0.2"
+  ],
+  "run_dir": "/Users/andg/Desktop/llm-only-runs/fresh-full-2/runs/27192-1/2026-11-27T00-04-15.910Z-0ftVZA",
+  "attempts": 1
+}

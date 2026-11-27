@@ -1,0 +1,30 @@
+{
+  "modify": [
+    {
+      "id": "form-builder",
+      "note": "Make phone-only booking an option for personal events as well as team and organization events. Expose the phone-versus-email requirement control through the booking-field editor."
+    },
+    {
+      "id": "booker-ui",
+      "note": "Carry the phone-versus-email requirement choice made in the booking-field editor into the booker form, so a booking with a valid required phone number can be confirmed without asking the attendee for an email address. Keep the email-confirmation path working for event types that select it."
+    },
+    {
+      "id": "booking-fields",
+      "note": "Carry the phone-versus-email requirement choice into server-side validation. Reuse the existing phone-only attendee representation and phone validation so a booking with a valid required phone number can be confirmed without asking the attendee for an email address. Keep the email-confirmation path working for event types that select it."
+    },
+    {
+      "id": "email-sms-notifications",
+      "note": "Update SMSManager's send path so a phone-only attendee is eligible for notifications even when the calendar event has no team ID. The base implementation returns early for personal events and for teams outside an organization; remove those eligibility restrictions while preserving the organization's explicit `disablePhoneOnlySMSNotifications` preference where applicable. Continue using the existing SMS rate-limit check, sender selection and message templates. Send through this path only when the attendee has a phone number and is represented as a phone-only booking; ordinary email attendees should retain their current notification behavior. Apply the same eligibility decision to both single-attendee and all-attendee sends."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-sms-dispatch",
+      "from": "email-sms-notifications",
+      "to": "workflow-reminders",
+      "kind": "calls",
+      "label": "dispatches SMS via sendSmsOrFallbackEmail",
+      "note": "Continue using the existing `sendSmsOrFallbackEmail` dispatcher. Carry the organizer and optional team context through dispatch so personal bookings have a usable rate-limit identity without a fabricated team ID."
+    }
+  ]
+}

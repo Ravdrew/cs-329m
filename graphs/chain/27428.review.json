@@ -1,0 +1,165 @@
+{
+  "unchanged": [
+    {
+      "id": "booker-ui",
+      "reason": "Formatting/icon refactors; responsibility unchanged"
+    },
+    {
+      "id": "booking-fields",
+      "reason": "Formatting-only changes"
+    },
+    {
+      "id": "booking-seats",
+      "reason": "Minor webhook payload tweak"
+    },
+    {
+      "id": "booking-success-page",
+      "reason": "Icon import refactors"
+    },
+    {
+      "id": "calendar-weekly-view",
+      "reason": "Renames/formatting"
+    },
+    {
+      "id": "data-table",
+      "reason": "Import/icon refactors"
+    },
+    {
+      "id": "email-sms-notifications",
+      "reason": "Added an organizer add-attendee email; same service"
+    },
+    {
+      "id": "event-type-api",
+      "reason": "Formatting"
+    },
+    {
+      "id": "event-type-editor-ui",
+      "reason": "UI refactors"
+    },
+    {
+      "id": "feature-flags",
+      "reason": "New flag names only"
+    },
+    {
+      "id": "form-builder",
+      "reason": "Formatting"
+    },
+    {
+      "id": "handle-confirmation",
+      "reason": "Import reorder"
+    },
+    {
+      "id": "handle-new-booking",
+      "reason": "Formatting and payload tweaks"
+    },
+    {
+      "id": "holidays",
+      "reason": "Imports/view refactor"
+    },
+    {
+      "id": "nextauth-credentials",
+      "reason": "Formatting"
+    },
+    {
+      "id": "oauth-provider",
+      "reason": "Service signature tweak; same role"
+    },
+    {
+      "id": "payment-webhooks",
+      "reason": "Formatting only"
+    },
+    {
+      "id": "schedules-api",
+      "reason": "Schema moved into service"
+    },
+    {
+      "id": "signup",
+      "reason": "Handler gains watchlist checks; relationships already present"
+    },
+    {
+      "id": "tasker",
+      "reason": "Formatting"
+    },
+    {
+      "id": "user-availability",
+      "reason": "Batched limit-check busy times; same role"
+    },
+    {
+      "id": "watchlist",
+      "reason": "Service tweaks"
+    },
+    {
+      "id": "webhook-dispatch",
+      "reason": "Consumer refactor; same role"
+    },
+    {
+      "id": "workflow-reminders",
+      "reason": "Type additions"
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/web/modules/bookings/hooks/useSwitchToCorrectStatusTab.ts",
+      "reason": "covered by bookings-list-page hooks dir",
+      "files": [
+        "apps/web/modules/bookings/hooks/useSwitchToCorrectStatusTab.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/settings/billing/components/",
+      "reason": "billing UI, outside scope",
+      "files": [
+        "apps/web/modules/settings/billing/components/ActiveUserBreakdown.tsx",
+        "apps/web/modules/settings/billing/components/ActiveUserBreakdownSkeleton.tsx"
+      ]
+    },
+    {
+      "path": "packages/app-store-cli/",
+      "reason": "build tooling",
+      "files": [
+        "packages/app-store-cli/src/validateCreateAppFlags.ts"
+      ]
+    },
+    {
+      "path": "packages/coss-ui/",
+      "reason": "generic UI primitives",
+      "files": [
+        "packages/coss-ui/src/components/calendar.tsx",
+        "packages/coss-ui/src/icons.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/busyTimes/services/getBusyTimes.integration-test.ts",
+      "reason": "test",
+      "files": [
+        "packages/features/busyTimes/services/getBusyTimes.integration-test.ts"
+      ]
+    },
+    {
+      "path": "packages/testing/",
+      "reason": "test helpers",
+      "files": [
+        "packages/testing/src/lib/webhookProducer.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/bookings/get.handler.integration-test.ts",
+      "reason": "test",
+      "files": [
+        "packages/trpc/server/routers/viewer/bookings/get.handler.integration-test.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/teams/",
+      "reason": "team billing active-user breakdown, out of scope",
+      "files": [
+        "packages/trpc/server/routers/viewer/teams/getActiveUserBookings.handler.ts",
+        "packages/trpc/server/routers/viewer/teams/getActiveUserBookings.schema.ts",
+        "packages/trpc/server/routers/viewer/teams/getActiveUserBreakdown.handler.ts",
+        "packages/trpc/server/routers/viewer/teams/getActiveUserBreakdown.schema.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

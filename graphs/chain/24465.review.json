@@ -1,0 +1,39 @@
+{
+  "unchanged": [
+    {
+      "id": "booker-booking-hooks",
+      "reason": "useBookings refactor, adds decoy booking storage only"
+    },
+    {
+      "id": "booker-ui",
+      "reason": "minor hook changes"
+    },
+    {
+      "id": "handle-new-booking",
+      "reason": "spam check edge added separately; responsibilities same"
+    },
+    {
+      "id": "model-booking",
+      "reason": "schema adds BookingReport, descriptions still right"
+    },
+    {
+      "id": "model-credential",
+      "reason": "unchanged responsibility"
+    },
+    {
+      "id": "model-event-type",
+      "reason": "unchanged responsibility"
+    },
+    {
+      "id": "model-payment",
+      "reason": "unchanged responsibility"
+    },
+    {
+      "id": "model-webhook",
+      "reason": "unchanged responsibility"
+    }
+  ],
+  "out_of_scope": [],
+  "components_left": [],
+  "new_files_left": []
+}

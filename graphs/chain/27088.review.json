@@ -1,0 +1,144 @@
+{
+  "unchanged": [
+    {
+      "id": "booking-list-query",
+      "reason": "Attendee service tweak; responsibility same"
+    },
+    {
+      "id": "calendar-subscription",
+      "reason": "Sync service expanded internally; same responsibility"
+    },
+    {
+      "id": "event-type-editor-ui",
+      "reason": "Webhooks tab refactor only"
+    },
+    {
+      "id": "handle-cancel-booking",
+      "reason": "Internal changes; same responsibility"
+    },
+    {
+      "id": "nextauth-credentials",
+      "reason": "Auth options refactor; same responsibility"
+    },
+    {
+      "id": "routing-forms",
+      "reason": "UI refactor of Forms page"
+    },
+    {
+      "id": "webhook-dispatch",
+      "reason": "Edit view refactor only"
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/web/app/(use-page-wrapper)/insights/",
+      "reason": "insights banner, out of scope",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/insights/getInsightsUpgradeBanner.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/routing/",
+      "reason": "routing page wrapper, minor",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/routing/layout.tsx",
+        "apps/web/app/(use-page-wrapper)/routing/page.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/settings/",
+      "reason": "loading skeleton",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/developer/webhooks/[id]/loading.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/components/phone-input/",
+      "reason": "UI helper",
+      "files": [
+        "apps/web/components/phone-input/phone-masks.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/billing/",
+      "reason": "billing upgrade banners, out of scope",
+      "files": [
+        "apps/web/modules/billing/components/FullScreenUpgradeBanner.tsx",
+        "apps/web/modules/billing/components/PlanBadge.tsx",
+        "apps/web/modules/billing/components/UpgradePlanDialog.tsx",
+        "apps/web/modules/billing/components/WideUpgradeBanner.tsx",
+        "apps/web/modules/billing/components/types.ts",
+        "apps/web/modules/billing/upgrade-banners/FullscreenUpgradeBannerForInsightsPage.tsx",
+        "apps/web/modules/billing/upgrade-banners/FullscreenUpgradeBannerForRolesAndPermissions.tsx",
+        "apps/web/modules/billing/upgrade-banners/FullscreenUpgradeBannerForRoutingFormPage.tsx",
+        "apps/web/modules/billing/upgrade-banners/FullscreenUpgradeBannerForTeamsPage.tsx",
+        "apps/web/modules/billing/upgrade-banners/WideUpgradeBannerForMembers.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/onboarding/",
+      "reason": "onboarding UI",
+      "files": [
+        "apps/web/modules/onboarding/hooks/useOnboardingQueryParams.ts",
+        "apps/web/modules/onboarding/organization/details/company-email-required-view.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/webhooks/",
+      "reason": "webhook UI presentational components",
+      "files": [
+        "apps/web/modules/webhooks/components/WebhookVersionCTA.tsx",
+        "apps/web/modules/webhooks/views/webhook-form-header.tsx",
+        "apps/web/modules/webhooks/views/webhook-form-skeleton.tsx",
+        "apps/web/modules/webhooks/views/webhook-test-header.tsx",
+        "apps/web/modules/webhooks/views/webhooks-header.tsx"
+      ]
+    },
+    {
+      "path": "packages/coss-ui/",
+      "reason": "UI primitives",
+      "files": [
+        "packages/coss-ui/src/shared/app-header.tsx",
+        "packages/coss-ui/src/shared/list-item.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/auth/lib/identityProviders.ts",
+      "reason": "auth helper constants",
+      "files": [
+        "packages/features/auth/lib/identityProviders.ts"
+      ]
+    },
+    {
+      "path": "packages/features/auth/lib/outlook.ts",
+      "reason": "auth helper",
+      "files": [
+        "packages/features/auth/lib/outlook.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/hooks/",
+      "reason": "generic hooks",
+      "files": [
+        "packages/lib/hooks/useClientOnly.ts",
+        "packages/lib/hooks/useFillRemainingHeight.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/updateUserAvatarUrl.ts",
+      "reason": "helper",
+      "files": [
+        "packages/lib/server/updateUserAvatarUrl.ts"
+      ]
+    },
+    {
+      "path": "packages/prisma/run-enum-generator.js",
+      "reason": "build script",
+      "files": [
+        "packages/prisma/run-enum-generator.js"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

@@ -1,0 +1,144 @@
+{
+  "unchanged": [
+    {
+      "id": "app-installation",
+      "reason": "Dropdown trimmed and small handler tweaks; responsibility unchanged."
+    },
+    {
+      "id": "booker-ui",
+      "reason": "Store and form-value changes; same Booker UI responsibility."
+    },
+    {
+      "id": "booking-success-page",
+      "reason": "Refactors of view and actions; same behavior."
+    },
+    {
+      "id": "calendar-subscription",
+      "reason": "CalendarCacheWrapper internals changed; still wraps calendars with cached events."
+    },
+    {
+      "id": "data-table",
+      "reason": "Minor props changes in DataTable and wrapper."
+    },
+    {
+      "id": "feature-flags",
+      "reason": "Added repository methods; same responsibility."
+    },
+    {
+      "id": "handle-new-booking",
+      "reason": "RegularBookingService refactor; relationships unchanged."
+    },
+    {
+      "id": "model-booking",
+      "reason": "Schema additions; models still apply."
+    },
+    {
+      "id": "model-event-type",
+      "reason": "Schema additions; models still apply."
+    },
+    {
+      "id": "model-payment",
+      "reason": "Schema additions; models still apply."
+    },
+    {
+      "id": "model-webhook",
+      "reason": "Schema additions; models still apply."
+    },
+    {
+      "id": "no-show-tasks",
+      "reason": "Validation tweaks in form-submitted tasks; scheduleNoShowTriggers still cited."
+    },
+    {
+      "id": "tasker",
+      "reason": "AI phone call task refactor; task map responsibility same."
+    },
+    {
+      "id": "video-integrations-family",
+      "reason": "Office365 video adapter tweak only."
+    },
+    {
+      "id": "workflow-reminders",
+      "reason": "Reminder managers and templates updated; same responsibility."
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/web/app/api/ip/",
+      "reason": "Trivial IP helper endpoint.",
+      "files": [
+        "apps/web/app/api/ip/route.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/onboarding/",
+      "reason": "Onboarding flow UI is outside scope.",
+      "files": [
+        "apps/web/modules/onboarding/components/EmailInviteForm.tsx",
+        "apps/web/modules/onboarding/components/InviteOptions.tsx",
+        "apps/web/modules/onboarding/components/OnboardingCard.tsx",
+        "apps/web/modules/onboarding/components/OnboardingLayout.tsx",
+        "apps/web/modules/onboarding/components/RoleSelector.tsx",
+        "apps/web/modules/onboarding/components/onboarding-browser-view.tsx",
+        "apps/web/modules/onboarding/components/onboarding-calendar-browser-view.tsx",
+        "apps/web/modules/onboarding/components/onboarding-invite-browser-view.tsx",
+        "apps/web/modules/onboarding/components/onboarding-organization-browser-view.tsx",
+        "apps/web/modules/onboarding/components/onboarding-teams-browser-view.tsx",
+        "apps/web/modules/onboarding/hooks/useOnboardingCalendarEvents.ts",
+        "apps/web/modules/onboarding/hooks/useSubmitPersonalOnboarding.ts",
+        "apps/web/modules/onboarding/organization/invite/csv-upload-modal.tsx",
+        "apps/web/modules/onboarding/organization/invite/email/organization-invite-email-view.tsx",
+        "apps/web/modules/onboarding/teams/invite/csv-upload-modal.tsx",
+        "apps/web/modules/onboarding/teams/invite/email/team-invite-email-view.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/settings/",
+      "reason": "Settings views outside scope.",
+      "files": [
+        "apps/web/modules/settings/my-account/out-of-office-view.tsx",
+        "apps/web/modules/settings/organizations/new/_components/OrganizationWizardLayout.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/booking-audit/",
+      "reason": "Booking audit repositories not modelled.",
+      "files": [
+        "packages/features/booking-audit/lib/repository/IAuditActorRepository.ts",
+        "packages/features/booking-audit/lib/repository/IBookingAuditRepository.ts",
+        "packages/features/booking-audit/lib/repository/PrismaAuditActorRepository.ts",
+        "packages/features/booking-audit/lib/repository/PrismaBookingAuditRepository.ts"
+      ]
+    },
+    {
+      "path": "packages/features/eventtypes/lib/getEventTypeById.integration-test.ts",
+      "reason": "Test file.",
+      "files": [
+        "packages/features/eventtypes/lib/getEventTypeById.integration-test.ts"
+      ]
+    },
+    {
+      "path": "packages/features/settings/",
+      "reason": "Settings shell UI.",
+      "files": [
+        "packages/features/settings/appDir/SettingsHeaderWithBackButton.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/shell/",
+      "reason": "Shell welcome modal UI.",
+      "files": [
+        "packages/features/shell/components/WelcomeToCalcomModal.tsx",
+        "packages/features/shell/hooks/useWelcomeToCalcomModal.ts"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/playground/",
+      "reason": "Admin playground page.",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/settings/(admin-layout)/admin/playground/weekly-calendar/page.tsx"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

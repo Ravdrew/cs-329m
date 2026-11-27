@@ -1,0 +1,56 @@
+{
+  "modify": [
+    {
+      "id": "api.book",
+      "note": "Add BotID verification to the `/api/book/event` request path before booking creation can cause side effects. The route stays responsible for assembling the inputs to `checkBotDetection` (the request headers and the optional event type ID) and for reporting an unsuccessful verification through its normal error handling. Keep a disabled rollout from changing ordinary booking behavior. Preserve the route's existing Turnstile, rate limiting, session handling, and booking metadata."
+    },
+    {
+      "id": "e5",
+      "note": "The BotID check runs before this call, so booking creation cannot cause side effects first. When verification is enabled, a detected bot is rejected and a human result is allowed to continue to the existing booking handler. Keep a disabled rollout from changing ordinary booking behavior."
+    },
+    {
+      "id": "flags.features",
+      "note": "Register the team feature `booker-botid` with its default off. The feature repository is used to resolve whether the event type team has the `booker-botid` feature setting."
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "bot-detection-service",
+      "label": "BotDetectionService",
+      "kind": "service",
+      "group": "booking-core",
+      "summary": "Decides whether BotID verification is enabled for a booking request and runs it.",
+      "description": "Holds the decision and verification logic for BotID on the /api/book/event path. The feature and event-type repositories are injected through its constructor. checkBotDetection takes the request headers and an optional event type ID.",
+      "files": [
+        "packages/features/bot-detection/BotDetectionService.ts"
+      ],
+      "note": "Put the decision and verification logic in BotDetectionService, with the feature and event-type repositories injected through its constructor. `checkBotDetection` receives the request headers and optional event type ID. Use `NEXT_PUBLIC_VERCEL_USE_BOTID_IN_BOOKER` and the event type team's `booker-botid` feature setting to determine whether the check is enabled; add the environment setting to the example configuration. Make the behavior for a missing event type or personal event explicit without assuming a team exists. When verification is enabled, call `checkBotId` using the request context, reject a detected bot, and allow a human result to continue. Keep a disabled rollout from changing ordinary booking behavior. Distinguish a bot verdict from a verification-service failure in logging and error handling, with an explicit failure policy."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-bookapi-botdetection",
+      "from": "api.book",
+      "to": "bot-detection-service",
+      "kind": "calls",
+      "label": "checkBotDetection",
+      "note": "The route passes the request headers and optional event type ID into `checkBotDetection` before booking creation, and reports an unsuccessful verification through its normal error handling."
+    },
+    {
+      "id": "e-botdetection-flags",
+      "from": "bot-detection-service",
+      "to": "flags.features",
+      "kind": "reads",
+      "label": "checks booker-botid team feature",
+      "note": "Through the injected feature repository, check whether the event type team has the `booker-botid` feature setting, which together with `NEXT_PUBLIC_VERCEL_USE_BOTID_IN_BOOKER` determines whether the check is enabled."
+    },
+    {
+      "id": "e-botdetection-eventtype",
+      "from": "bot-detection-service",
+      "to": "model.event-type",
+      "kind": "reads",
+      "label": "getTeamIdByEventTypeId",
+      "note": "Resolve the team through `getTeamIdByEventTypeId` on the injected event-type repository. Make the behavior for a missing event type or personal event explicit without assuming a team exists."
+    }
+  ]
+}

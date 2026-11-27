@@ -1,0 +1,16 @@
+{
+  "modify": [
+    { "id": "calendar-views-ui", "note": "Fix three bugs in the weekly calendar's display of overlapping events. Each Calendar instance must get its own isolated weekly-view state instead of sharing one global Zustand store, so changing dates or events in one calendar on a page no longer affects other calendars. Overlapping events must stay inside their own day column even with 10 or more (up to 20+) overlapping events, and event positioning must no longer use the inset-x-1 class that sets both left and right and conflicts with the inline width." }
+  ],
+  "add_nodes": [
+    { "id": "weekly-overlap-layout", "label": "Weekly view overlap layout", "kind": "service", "group": "calendars",
+      "summary": "Pure layout helpers that place overlapping events in a weekly-view day column.",
+      "description": "Sorts a day's events, groups those that overlap in time, and computes a cascading horizontal offset, width and stacking order for each event so the cascade never exceeds the column width.",
+      "files": ["packages/features/calendars/weeklyview/utils/overlap.ts"],
+      "note": "Overlapping events are grouped and cascaded, with each event's offset plus width kept within the day column (allowing a safety margin) no matter how many events overlap; the base width, offset step, z-index and margin have defaults that callers can override." }
+  ],
+  "add_edges": [
+    { "id": "calendar-views-ui-uses-weekly-overlap-layout", "from": "calendar-views-ui", "to": "weekly-overlap-layout", "kind": "uses",
+      "label": "event overlap layout", "note": "The weekly view's event list takes each event's left offset, width and z-index from the overlap layout instead of computing the cascade itself." }
+  ]
+}

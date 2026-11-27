@@ -1,0 +1,103 @@
+{
+  "unchanged": [
+    {
+      "id": "available-slots-service",
+      "reason": "small timezone fix and import path"
+    },
+    {
+      "id": "booker-ui",
+      "reason": "prefetch hook refactor into utils; responsibility unchanged"
+    },
+    {
+      "id": "embed-core",
+      "reason": "internal refactor into lib files"
+    },
+    {
+      "id": "event-type-api",
+      "reason": "router option rename and util refactor; same responsibility"
+    },
+    {
+      "id": "event-type-editor-ui",
+      "reason": "permission logic moved out of page; no relationship change"
+    },
+    {
+      "id": "model-booking",
+      "reason": "schema additions elsewhere; described models unchanged"
+    },
+    {
+      "id": "model-credential",
+      "reason": "schema additions elsewhere; described models unchanged"
+    },
+    {
+      "id": "model-event-type",
+      "reason": "schema additions elsewhere; described models unchanged"
+    },
+    {
+      "id": "model-payment",
+      "reason": "schema additions elsewhere; described models unchanged"
+    },
+    {
+      "id": "model-webhook",
+      "reason": "schema additions elsewhere; described models unchanged"
+    },
+    {
+      "id": "routing-forms",
+      "reason": "added repository query and response fields; same responsibility"
+    },
+    {
+      "id": "webhook-dispatch",
+      "reason": "payload fields and repository query additions only"
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/web/app/(use-page-wrapper)/settings/",
+      "reason": "settings/enterprise PBAC UI",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/_components/FingerprintAnimation.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/_components/PbacOptInModal.tsx",
+        "apps/web/app/(use-page-wrapper)/settings/(settings-layout)/organizations/roles/_components/PbacOptInView.tsx"
+      ]
+    },
+    {
+      "path": "packages/app-store/getVideoAdapters.ts",
+      "reason": "generated-style helper",
+      "files": [
+        "packages/app-store/getVideoAdapters.ts"
+      ]
+    },
+    {
+      "path": "packages/features/pbac/",
+      "reason": "enterprise permissions",
+      "files": [
+        "packages/features/pbac/lib/event-type-permissions.ts"
+      ]
+    },
+    {
+      "path": "packages/features/users/lib/UserListTableUtils.ts",
+      "reason": "admin user list util",
+      "files": [
+        "packages/features/users/lib/UserListTableUtils.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/service/ApiKeyService.ts",
+      "reason": "API key service, out of scope",
+      "files": [
+        "packages/lib/server/service/ApiKeyService.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/aiVoiceAgent/",
+      "reason": "AI voice agent, outside scope",
+      "files": [
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/setupInboundAgent.handler.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/setupInboundAgent.schema.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/updateInboundAgentEventType.handler.ts",
+        "packages/trpc/server/routers/viewer/aiVoiceAgent/updateInboundAgentEventType.schema.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

@@ -1,0 +1,257 @@
+{
+  "unchanged": [
+    {
+      "id": "available-slots-service",
+      "reason": "util.ts refactor (imports, DI types); still computes slots"
+    },
+    {
+      "id": "booking-list-query",
+      "reason": "import move and addGuests changes; same responsibility"
+    },
+    {
+      "id": "booking-success-page",
+      "reason": "view/type refactor; same page and relationships"
+    },
+    {
+      "id": "calendar-integrations-family",
+      "reason": "Office365 timezone handling added; role unchanged"
+    },
+    {
+      "id": "data-table",
+      "reason": "FilterBar/DataTable prop and refactor changes; same responsibility"
+    },
+    {
+      "id": "email-sms-notifications",
+      "reason": "new add-guests email+SMS sender and template refactors; same responsibility"
+    },
+    {
+      "id": "event-type-api",
+      "reason": "import reordering and handler tweaks only"
+    },
+    {
+      "id": "model-credential",
+      "reason": "schema.prisma changes are generator config and unrelated models"
+    },
+    {
+      "id": "model-event-type",
+      "reason": "schema.prisma changes are generator config and unrelated models"
+    },
+    {
+      "id": "model-payment",
+      "reason": "schema.prisma changes are generator config and unrelated models"
+    },
+    {
+      "id": "model-webhook",
+      "reason": "schema.prisma changes are generator config and unrelated models"
+    },
+    {
+      "id": "no-show-tasks",
+      "reason": "refactor plus calVideoSettings select; same behaviour"
+    },
+    {
+      "id": "stripe-integration",
+      "reason": "import reorder and billing portal refactor only"
+    },
+    {
+      "id": "workflow-reminders",
+      "reason": "SMS reminder refactor and form action constants; same responsibility"
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/web/app/(use-page-wrapper)/onboarding/",
+      "reason": "onboarding flow pages, outside booking scope",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/onboarding/getting-started/page.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/layout.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/organization/brand/page.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/organization/details/page.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/organization/invite/page.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/organization/layout.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/organization/teams/page.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/personal/calendar/page.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/personal/profile/page.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/personal/settings/page.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/personal/video/page.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/teams/brand/page.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/teams/details/page.tsx",
+        "apps/web/app/(use-page-wrapper)/onboarding/teams/invite/page.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/(use-page-wrapper)/settings/organizations/new/resume/",
+      "reason": "organization onboarding, enterprise",
+      "files": [
+        "apps/web/app/(use-page-wrapper)/settings/organizations/new/resume/page.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/app/api/video/guest-session/",
+      "reason": "video guest session endpoint, minor",
+      "files": [
+        "apps/web/app/api/video/guest-session/route.ts"
+      ]
+    },
+    {
+      "path": "apps/web/modules/onboarding/",
+      "reason": "onboarding UI, outside scope",
+      "files": [
+        "apps/web/modules/onboarding/components/onboarding-continuation-prompt.tsx",
+        "apps/web/modules/onboarding/components/plan-icon.tsx",
+        "apps/web/modules/onboarding/getting-started/onboarding-view.tsx",
+        "apps/web/modules/onboarding/hooks/useCreateTeam.ts",
+        "apps/web/modules/onboarding/hooks/useSubmitOnboarding.ts",
+        "apps/web/modules/onboarding/organization/brand/organization-brand-view.tsx",
+        "apps/web/modules/onboarding/organization/details/action/check-slug-availability.ts",
+        "apps/web/modules/onboarding/organization/details/organization-details-view.tsx",
+        "apps/web/modules/onboarding/organization/details/validated-organization-slug.tsx",
+        "apps/web/modules/onboarding/organization/invite/organization-invite-view.tsx",
+        "apps/web/modules/onboarding/organization/teams/organization-teams-view.tsx",
+        "apps/web/modules/onboarding/personal/_components/InstallableAppCard.tsx",
+        "apps/web/modules/onboarding/personal/_components/OnboardingCard.tsx",
+        "apps/web/modules/onboarding/personal/_components/OnboardingLayout.tsx",
+        "apps/web/modules/onboarding/personal/_components/SkipButton.tsx",
+        "apps/web/modules/onboarding/personal/_components/useAppInstallation.ts",
+        "apps/web/modules/onboarding/personal/calendar/personal-calendar-view.tsx",
+        "apps/web/modules/onboarding/personal/profile/personal-profile-view.tsx",
+        "apps/web/modules/onboarding/personal/settings/personal-settings-view.tsx",
+        "apps/web/modules/onboarding/personal/video/personal-video-view.tsx",
+        "apps/web/modules/onboarding/store/onboarding-storage.ts",
+        "apps/web/modules/onboarding/store/onboarding-store.ts",
+        "apps/web/modules/onboarding/teams/brand/team-brand-view.tsx",
+        "apps/web/modules/onboarding/teams/details/action/check-team-slug-availability.ts",
+        "apps/web/modules/onboarding/teams/details/team-details-view.tsx",
+        "apps/web/modules/onboarding/teams/details/validated-team-slug.tsx",
+        "apps/web/modules/onboarding/teams/invite/team-invite-view.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/settings/my-account/components/",
+      "reason": "settings banner UI",
+      "files": [
+        "apps/web/modules/settings/my-account/components/CompanyEmailOrganizationBanner.tsx",
+        "apps/web/modules/settings/my-account/components/MailIcon.tsx"
+      ]
+    },
+    {
+      "path": "apps/web/modules/settings/organizations/new/",
+      "reason": "organization onboarding, enterprise",
+      "files": [
+        "apps/web/modules/settings/organizations/new/resume-view.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/auth/lib/onboardingUtils.ts",
+      "reason": "onboarding helper",
+      "files": [
+        "packages/features/auth/lib/onboardingUtils.ts"
+      ]
+    },
+    {
+      "path": "packages/features/credentials/handleDeleteCredential.integration-test.ts",
+      "reason": "test",
+      "files": [
+        "packages/features/credentials/handleDeleteCredential.integration-test.ts"
+      ]
+    },
+    {
+      "path": "packages/features/hashedLink/di/",
+      "reason": "DI wiring",
+      "files": [
+        "packages/features/hashedLink/di/HashedLinkRepository.module.ts",
+        "packages/features/hashedLink/di/HashedLinkService.module.ts",
+        "packages/features/hashedLink/di/tokens.ts"
+      ]
+    },
+    {
+      "path": "packages/features/insights/components/",
+      "reason": "insights is enterprise",
+      "files": [
+        "packages/features/insights/components/booking/CSATOverTimeChart.tsx",
+        "packages/features/insights/components/booking/NoShowHostsOverTimeChart.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/onboarding/lib/onboarding-path.service.ts",
+      "reason": "onboarding helper",
+      "files": [
+        "packages/features/onboarding/lib/onboarding-path.service.ts"
+      ]
+    },
+    {
+      "path": "packages/features/profile/lib/getBranding.ts",
+      "reason": "branding helper",
+      "files": [
+        "packages/features/profile/lib/getBranding.ts"
+      ]
+    },
+    {
+      "path": "packages/features/shell/DynamicModals.tsx",
+      "reason": "shell UI",
+      "files": [
+        "packages/features/shell/DynamicModals.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/users/di/",
+      "reason": "DI wiring for memberships",
+      "files": [
+        "packages/features/users/di/MembershipRepository.module.ts",
+        "packages/features/users/di/MembershipService.module.ts"
+      ]
+    },
+    {
+      "path": "packages/features/video-call-guest/repositories/VideoCallGuestRepository.ts",
+      "reason": "guest session repo, minor",
+      "files": [
+        "packages/features/video-call-guest/repositories/VideoCallGuestRepository.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/dbReadResponseSchema.ts",
+      "reason": "generic helper",
+      "files": [
+        "packages/lib/dbReadResponseSchema.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/logger.server.ts",
+      "reason": "logger",
+      "files": [
+        "packages/lib/logger.server.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/repository/PrismaOrgMembershipRepository.ts",
+      "reason": "membership repository, enterprise",
+      "files": [
+        "packages/lib/server/repository/PrismaOrgMembershipRepository.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/repository/bookingReference.integration-test.ts",
+      "reason": "test",
+      "files": [
+        "packages/lib/server/repository/bookingReference.integration-test.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/tracing/",
+      "reason": "tracing helpers",
+      "files": [
+        "packages/lib/tracing/error.ts",
+        "packages/lib/tracing/factory.ts",
+        "packages/lib/tracing/index.ts"
+      ]
+    },
+    {
+      "path": "packages/prisma/client/index.ts",
+      "reason": "barrel re-export",
+      "files": [
+        "packages/prisma/client/index.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

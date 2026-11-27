@@ -131,6 +131,80 @@ export class Source {
     }
     const exact = lines.slice(start_line - 1, end_line).join('\n');
     if (excerpt !== undefined && excerpt !== exact) throw new Error(`Evidence excerpt differs from source: ${path}:${start_line}`);
-    return { path, start_line, end_line, excerpt: exact };
+    // New graphs store only the location. Graphs frozen before 2026-11-25 carry a copy of the code; keep it when verifying them.
+    return { path, start_line, end_line, ...(excerpt === undefined ? {} : { excerpt: exact }) };
+  }
+}
+
+/**
+ * Read-only history between the previous graph's commit and the pinned one, for the update step. fetchHistory brings in
+ * every commit from the old commit's date up to the pinned commit and nothing after it; the tools then accept only
+ * commits in old..pinned, so nothing later than the pinned commit can be seen.
+ */
+export function fetchHistory(checkout, remote, from, to) {
+  git(checkout, ['fetch', '--quiet', '--depth=1', '--no-tags', '--no-recurse-submodules', remote, from], { timeout: 300_000 });
+  const since = Number(git(checkout, ['show', '-s', '--format=%ct', from]).trim()) - 86_400;
+  git(checkout, ['fetch', '--quiet', `--shallow-since=${since}`, '--no-tags', '--no-recurse-submodules', remote, to], { timeout: 900_000 });
+  try { git(checkout, ['merge-base', '--is-ancestor', from, to]); } catch { throw new Error(`${from} is not an ancestor of ${to} in the fetched history`); }
+}
+
+const MAX_TEXT = 24_000;
+const page = (text, offset, limit) => {
+  const lines = text.split('\n');
+  if (lines.at(-1) === '') lines.pop();
+  const slice = [];
+  let size = 0;
+  for (let i = offset; i < Math.min(lines.length, offset + limit); i++) {
+    const line = lines[i].length > 2_000 ? `${lines[i].slice(0, 2_000)} [line truncated]` : lines[i];
+    if (size + line.length > MAX_TEXT) break;
+    slice.push(line); size += line.length + 1;
+  }
+  const next = offset + slice.length;
+  return { text: slice.join('\n'), total_lines: lines.length, next_offset: next < lines.length ? next : null };
+};
+
+export class History {
+  constructor(root, from, to) {
+    this.root = realpathSync(root);
+    this.from = from;
+    this.to = to;
+    this.commits = git(this.root, ['rev-list', `${from}..${to}`], { maxBuffer: 64 * 1024 * 1024 }).split('\n').filter(Boolean);
+    this.inRange = new Set(this.commits);
+  }
+
+  commit(id) {
+    if (typeof id !== 'string' || !/^[a-f0-9]{7,40}$/.test(id)) throw new Error('Give a commit hash from git_log');
+    const full = this.commits.filter(c => c.startsWith(id));
+    if (full.length !== 1) throw new Error(full.length ? 'Ambiguous commit prefix; give more characters' : 'Only commits between the previous graph and the pinned commit are available');
+    return full[0];
+  }
+
+  paths(path) { return path ? ['--', `:(top,literal)${safePath(path)}`] : []; }
+
+  log({ path = '', offset = 0, limit = 50 } = {}) {
+    const out = git(this.root, ['log', '--no-color', '--format=%H%x1f%cs%x1f%s', `${this.from}..${this.to}`, ...this.paths(path)], { maxBuffer: 64 * 1024 * 1024 });
+    const all = out.split('\n').filter(Boolean).map(l => { const [commit, date, subject] = l.split('\x1f'); return { commit: commit.slice(0, 12), date, subject: subject.slice(0, 300) }; });
+    return { range: `${this.from.slice(0, 12)}..${this.to.slice(0, 12)}`, commits: all.slice(offset, offset + limit), total: all.length, next_offset: offset + limit < all.length ? offset + limit : null };
+  }
+
+  show({ commit, path = '', offset = 0, limit = 400 }) {
+    const id = this.commit(commit);
+    const text = path
+      ? git(this.root, ['show', '--no-color', '--format=', '-M', id, ...this.paths(path)], { maxBuffer: 64 * 1024 * 1024 })
+      : git(this.root, ['show', '--no-color', '--stat=200', '--stat-count=300', '--format=commit %H%nDate: %cs%n%n%B', id], { maxBuffer: 64 * 1024 * 1024 });
+    return { commit: id.slice(0, 12), path: path || null, ...page(text, offset, limit) };
+  }
+
+  diff({ path, offset = 0, limit = 400 }) {
+    if (!path) throw new Error('git_diff needs a path; use git_log or git_show for the overview');
+    const text = git(this.root, ['diff', '--no-color', this.from, this.to, ...this.paths(path)], { maxBuffer: 64 * 1024 * 1024 });
+    return { from: this.from.slice(0, 12), to: this.to.slice(0, 12), path, ...page(text, offset, limit) };
+  }
+
+  blame({ path, start_line = 1, end_line = start_line + 99 }) {
+    if (!Number.isInteger(start_line) || !Number.isInteger(end_line) || start_line < 1 || end_line < start_line || end_line - start_line >= 200) throw new Error('Blame a range of at most 200 lines');
+    const text = git(this.root, ['blame', '-s', '--date=short', '-L', `${start_line},${end_line}`, this.to, '--', safePath(path)], { maxBuffer: 16 * 1024 * 1024 });
+    // Lines last changed before the previous graph's commit show a ^boundary hash.
+    return { path, note: 'Lines marked ^ were last changed at or before the previous graph\'s commit.', ...page(text, 0, 200) };
   }
 }

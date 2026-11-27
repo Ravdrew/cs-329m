@@ -1,0 +1,35 @@
+{
+  "modify": [
+    { "id": "webhook-dispatch", "note": "WebhookTaskerProducerService stops queuing webhook deliveries through InternalTasker and hands them to the new WebhookTasker instead; its comments should say deliveries go through Trigger.dev, not InternalTasker. WebhookTaskConsumer stays the code that actually delivers a queued webhook." }
+  ],
+  "add_nodes": [
+    { "id": "webhook-tasker", "label": "WebhookTasker", "kind": "service", "group": "g-notify",
+      "summary": "Picks sync or Trigger.dev delivery for webhook tasks based on ENABLE_ASYNC_TASKER.",
+      "description": "Follows the BookingEmailAndSmsTasker pattern: a common webhook tasker contract with a sync implementation that runs the consumer immediately and a trigger implementation that queues to Trigger.dev, plus a main tasker that chooses between them. Wired through DI modules and tokens with the bindModuleToClassOnToken pattern.",
+      "files": [
+        "packages/features/webhooks/lib/tasker/types.ts",
+        "packages/features/webhooks/lib/tasker/WebhookTasker.ts",
+        "packages/features/webhooks/lib/tasker/WebhookSyncTasker.ts",
+        "packages/features/webhooks/lib/tasker/WebhookTriggerTasker.ts"
+      ],
+      "note": "When ENABLE_ASYNC_TASKER is true (production) deliveries are queued to Trigger.dev; when it is false (E2E) they run immediately so webhooks are delivered without the cron. Each delivery returns a task id." },
+    { "id": "webhook-delivery-trigger-task", "label": "Deliver webhook Trigger.dev task", "kind": "job", "group": "g-notify",
+      "summary": "Trigger.dev task that delivers one queued webhook.",
+      "files": [
+        "packages/features/webhooks/lib/tasker/trigger/deliver-webhook.ts",
+        "packages/features/webhooks/lib/tasker/trigger/config.ts",
+        "packages/features/webhooks/lib/tasker/trigger/schema.ts"
+      ],
+      "note": "Validates the payload against the existing webhook task payload schema, gets WebhookTaskConsumer from the DI container and runs it. Queue runs with concurrency 20 and retries up to 3 attempts." }
+  ],
+  "add_edges": [
+    { "id": "e-webhook-producer-webhook-tasker", "from": "webhook-dispatch", "to": "webhook-tasker", "kind": "calls",
+      "label": "delivers webhook task", "note": "The producer service sends each webhook task payload to WebhookTasker rather than InternalTasker." },
+    { "id": "e-webhook-tasker-sync-consumer", "from": "webhook-tasker", "to": "webhook-dispatch", "kind": "calls",
+      "label": "sync: runs WebhookTaskConsumer", "note": "In sync mode the webhook is processed right away by calling WebhookTaskConsumer directly." },
+    { "id": "e-webhook-tasker-trigger-task", "from": "webhook-tasker", "to": "webhook-delivery-trigger-task", "kind": "emits",
+      "label": "async: triggers deliver-webhook", "note": "In async mode the trigger tasker loads the deliver-webhook task lazily and triggers it with the payload." },
+    { "id": "e-webhook-trigger-task-consumer", "from": "webhook-delivery-trigger-task", "to": "webhook-dispatch", "kind": "calls",
+      "label": "runs WebhookTaskConsumer", "note": "The Trigger.dev task delivers the webhook through WebhookTaskConsumer." }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "modify": [
+    {
+      "id": "app-store-framework",
+      "note": "Add an optional title-aware availability method to the calendar service contract (the Calendar interface that getCalendar resolves). The busy-time data gains an optional title."
+    },
+    {
+      "id": "google-calendar-integration",
+      "note": "Implement the optional title-aware availability method for Google."
+    },
+    {
+      "id": "calendar-integrations-family",
+      "note": "Implement the optional title-aware availability method for Office365."
+    },
+    {
+      "id": "calendar-subscription",
+      "note": "Implement the optional title-aware availability method in the telemetry wrapper too."
+    },
+    {
+      "id": "calendar-manager",
+      "note": "Request titles only for overlay mode using the logged-in user's own credentials. Keep other availability requests on the ordinary path, and fall back to ordinary availability when a provider lacks the optional method or title retrieval fails."
+    },
+    {
+      "id": "schedules-api",
+      "note": "Request titles (overlay mode) only for the logged-in user's own credentials, with identity checked by user ID rather than username. Keep other availability requests on the ordinary path."
+    },
+    {
+      "id": "user-availability",
+      "note": "Carry the optional title through busy-time data to the troubleshooter, overlay week view, and conflicting-slot hover card."
+    },
+    {
+      "id": "availability-ui",
+      "note": "Troubleshooter shows the optional title carried through busy-time data."
+    },
+    {
+      "id": "booker-ui",
+      "note": "Overlay: initialize the overlay with the calendars already selected for conflict checking and fetch their availability immediately after authentication. Use the requested date-range helpers and `lastVisibleDate` input to cover the displayed range. Pass an overlapping event's title through `useCheckOverlapWithOverlay` so the confirmation hover card (conflicting-slot hover card) can show it with the relevant time range. Continue modal: fetch the enabled social-login providers when the continue modal opens and offer the corresponding Google or Microsoft action."
+    },
+    {
+      "id": "calendar-weekly-view",
+      "note": "Overlay week view shows the optional title from busy-time data. Split multi-day and all-day events into day-bounded display segments using `getEventSegmentForDay`, rendering each nonempty segment on its covered day. Keep end-boundary handling consistent so an event ending at midnight does not occupy the following day."
+    },
+    {
+      "id": "nextauth-credentials",
+      "note": "When the user picks the Google or Microsoft action from the overlay continue modal, connect that calendar during the existing sign-in flow and return to the booking page with overlay enabled, without broadening Google OAuth scopes."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-booker-social-providers",
+      "from": "booker-ui",
+      "to": "nextauth-credentials",
+      "kind": "calls",
+      "label": "enabled social-login providers",
+      "note": "Fetch the enabled social-login providers when the continue modal opens."
+    }
+  ]
+}

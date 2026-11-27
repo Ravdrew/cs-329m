@@ -1,0 +1,11 @@
+{
+  "unchanged": [
+    {
+      "id": "data-table",
+      "reason": "DataTableProvider split into state/segment/filters contexts; same responsibility; new contexts dir already added"
+    }
+  ],
+  "out_of_scope": [],
+  "components_left": [],
+  "new_files_left": []
+}

@@ -1,0 +1,12 @@
+{
+  "modify": [
+    { "id": "calendar-subscription", "note": "CalendarSyncService gets real cancel and reschedule handling for Cal.com-owned events that change in Google Calendar or Office365: only events whose UID maps to a Cal.com booking are processed; a deleted event cancels the booking, a moved event reschedules it (only when the start time actually changed). Errors are caught and logged, never thrown, so the sync run continues; bookings missing a user, user email or event type are skipped with a warning. Each sync, cancel and reschedule reports Sentry metrics (call counts by status success/error/skipped, events per sync, durations). The booking service is loaded lazily so the webhook endpoint does not pull in the query-builder UI library at module load." },
+    { "id": "cancel-booking", "note": "handleCancelBooking accepts a new skipCalendarSyncTaskCancellation flag (added to bookingCancelSchema in zod-utils). When set, it cancels the booking in Cal.com without deleting the external calendar event, so a cancellation that came from the external calendar does not loop back." },
+    { "id": "cancel-event-manager", "note": "Skipped when skipCalendarSyncTaskCancellation is true; otherwise unchanged." },
+    { "id": "cancel-writes", "note": "Booking references are always marked deleted, whether or not the calendar cancellation is skipped, since the external event is already gone." }
+  ],
+  "add_edges": [
+    { "id": "sync-cancels-booking", "from": "calendar-subscription", "to": "cancel-booking", "kind": "calls", "label": "Cancels booking from external delete", "note": "CalendarSyncService cancels a single booking (not the recurring series) as the booking's owner, with skipCalendarSyncTaskCancellation on." },
+    { "id": "sync-reschedules-booking", "from": "calendar-subscription", "to": "regular-booking-service", "kind": "calls", "label": "Reschedules booking from external move", "note": "CalendarSyncService calls createBooking with the booking's rescheduleUid and the new event times, reusing the booking's existing responses, with an idempotency key and skipCalendarSyncTaskCreation on so the external event is not written back." }
+  ]
+}

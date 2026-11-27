@@ -1,0 +1,100 @@
+{
+  "unchanged": [
+    {
+      "id": "booking-request-reschedule",
+      "reason": "Handler refactored to use BookingRepository and PBAC check; same responsibility."
+    },
+    {
+      "id": "calendar-weekly-view",
+      "reason": "Overlap layout/style changes only."
+    },
+    {
+      "id": "embed-core",
+      "reason": "Internal tweaks."
+    },
+    {
+      "id": "event-manager",
+      "reason": "Credential lookup refactor; same responsibility."
+    },
+    {
+      "id": "event-type-editor-ui",
+      "reason": "CSS class renames only."
+    },
+    {
+      "id": "routing-forms",
+      "reason": "CSS class renames only."
+    },
+    {
+      "id": "stripe-integration",
+      "reason": "Callback tweaks only."
+    },
+    {
+      "id": "workflow-reminders",
+      "reason": "Refactor of reminderScheduler."
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/web/app/api/mintlify-chat/",
+      "reason": "docs chat, not core",
+      "files": [
+        "apps/web/app/api/mintlify-chat/message/route.ts",
+        "apps/web/app/api/mintlify-chat/topic/route.ts"
+      ]
+    },
+    {
+      "path": "apps/web/app/api/organizations/payment-redirect/",
+      "reason": "org billing redirect",
+      "files": [
+        "apps/web/app/api/organizations/payment-redirect/route.ts"
+      ]
+    },
+    {
+      "path": "packages/coss-ui/",
+      "reason": "UI primitives",
+      "files": [
+        "packages/coss-ui/components/button.tsx",
+        "packages/coss-ui/components/input.tsx",
+        "packages/coss-ui/lib/utils.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/mintlifyChatValidation.ts",
+      "reason": "docs chat",
+      "files": [
+        "packages/lib/server/mintlifyChatValidation.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/server/service/VerificationTokenService.ts",
+      "reason": "misc util",
+      "files": [
+        "packages/lib/server/service/VerificationTokenService.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/tracking/",
+      "reason": "marketing tracking",
+      "files": [
+        "packages/lib/tracking/index.ts",
+        "packages/lib/tracking/server.ts"
+      ]
+    },
+    {
+      "path": "packages/trpc/server/routers/viewer/attributes/util.ts",
+      "reason": "enterprise attributes",
+      "files": [
+        "packages/trpc/server/routers/viewer/attributes/util.ts"
+      ]
+    },
+    {
+      "path": "packages/features/credentials/services/CredentialAccessService.ts",
+      "reason": "helper not tied to a component",
+      "files": [
+        "packages/features/credentials/services/CredentialAccessService.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

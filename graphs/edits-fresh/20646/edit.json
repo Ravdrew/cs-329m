@@ -1,0 +1,8 @@
+{
+  "modify": [
+    {
+      "id": "embeds",
+      "note": "Introduce a shared EmbedElement base class for the inline and modal embed elements so both use the same loading, layout, and theme lifecycle. Give it the skeleton-data callback described in the interface and derive its page type, layout, and theme from the embed configuration. Have the inline HTML factory and skeleton-data factory produce the appropriate booking-slots or booking-form placeholder for the requested user or team page and layout. Retain the existing loader when there is insufficient page-type information to choose a skeleton. Pass page-type and layout information through embed initialization and generated data attributes. On connection, find the loader and skeleton inside the element's shadow root, show the appropriate placeholder, and reserve space for it so loading the iframe does not cause an avoidable layout jump. Share responsive-layout and modal-height calculations through the UI utilities; update the placeholder when the viewport changes, and hide it when the embedded content is ready. Use an explicit light or dark preference when supplied and otherwise follow the system color scheme. Keep the media-query object stable, register theme and resize listeners for connected elements, and remove listeners and pending height timers on disconnection. Support the supplied constructor dataset in integration mode and the shadow-root lookup contract in the shared interface."
+    }
+  ]
+}

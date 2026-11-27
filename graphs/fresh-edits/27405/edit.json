@@ -1,0 +1,61 @@
+{
+  "modify": [
+    {
+      "id": "trpc-bookings-router",
+      "note": "reportWrongAssignment now saves the report (with the reporter, team and, when the booking came through a routing form, that form) as PENDING and returns the new report's id. A second report for the same booking is rejected with BAD_REQUEST and the translated wrong_assignment_already_reported message, including when two submissions race. A new hasWrongAssignmentReport query tells whether a booking already has a report, and throws UNAUTHORIZED if the user cannot access that booking."
+    },
+    {
+      "id": "m-booking",
+      "note": "Bookings gain a link to their wrong assignment reports, and the BookingRepository lookup the report handler uses also returns the id of the routing form the booking was routed from."
+    },
+    {
+      "id": "bookings-list-ui",
+      "note": "The Report wrong assignment dialog checks whether the booking already has a report; if so it shows a warning and disables Submit. Clearing the team member selection must reset the form value to empty."
+    },
+    {
+      "id": "e-list-router",
+      "note": "The bookings UI also calls viewer.bookings.hasWrongAssignmentReport when the wrong assignment dialog opens."
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "m-wrong-assignment-report",
+      "label": "WrongAssignmentReport model",
+      "kind": "model",
+      "group": "data",
+      "summary": "Persisted wrong assignment reports, at most one per booking.",
+      "description": "New table for reports that a booking was assigned to the wrong person, with a review status (PENDING, REVIEWED, RESOLVED, DISMISSED). Booking uid is unique. Linked to the booking, the reporting user, the team and the routing form; deleting the reporter or the team keeps the report and clears the link. Accessed through WrongAssignmentReportRepository.",
+      "files": [
+        "packages/prisma/schema.prisma",
+        "packages/features/bookings/repositories/WrongAssignmentReportRepository.ts"
+      ],
+      "note": "Store each wrong assignment report so it can be reviewed later, with a migration that creates a unique index on booking uid. New reports start as PENDING."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-router-wrong-report-write",
+      "from": "trpc-bookings-router",
+      "to": "m-wrong-assignment-report",
+      "kind": "writes",
+      "label": "creates report",
+      "note": "reportWrongAssignment creates the report row after checking none exists for the booking."
+    },
+    {
+      "id": "e-router-wrong-report-read",
+      "from": "trpc-bookings-router",
+      "to": "m-wrong-assignment-report",
+      "kind": "reads",
+      "label": "checks existing report",
+      "note": "Both reportWrongAssignment and hasWrongAssignmentReport check whether a report already exists for the booking uid."
+    },
+    {
+      "id": "e-wrong-report-booking",
+      "from": "m-wrong-assignment-report",
+      "to": "m-booking",
+      "kind": "uses",
+      "label": "belongs to booking",
+      "note": "Each report references its booking by uid."
+    }
+  ]
+}
