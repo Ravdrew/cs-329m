@@ -19,6 +19,10 @@ the interface spec, and the same work instructions and rules.
 | `tool-noedit` | same as `tool` | unedited graph, MCP | `base` | Q3 control |
 | `codegraph` | "a code graph is available through the CodeGraph tools" | CodeGraph's MCP server | | Q3 control |
 
+Any condition can name a graph set with `@SET` (`text@fresh`, `tool@chain`, `tool-noedit@chain`): the task's
+`inputs.sets.SET` gives that set's `edit` and `base`, and the other inputs (`intent`) are shared. Run folders and
+summaries carry the full name, so `text@fresh` and `text@chain` are separate conditions.
+
 Task inputs are files: `base` (the graph at the task's base commit), `edit` (the same graph with the developer's
 edit), `intent` (the same intent written as prose by someone who has not seen the patch). Every agent also gets Pi's
 `read`, `bash`, `edit` and `write` tools. The image channel was dropped (see the team decision of 2026-11-10).

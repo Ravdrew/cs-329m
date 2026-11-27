@@ -17,7 +17,7 @@ import { createInterface } from 'node:readline';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { audit } from './audit.mjs';
-import { resolveCondition } from './conditions.mjs';
+import { effectiveInputs, resolveCondition } from './conditions.mjs';
 import { sandboxSpec, sandboxSupported } from '../graph-mcp/sandbox.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -168,8 +168,8 @@ export async function runOne(config, deps = {}) {
   const condition = resolveCondition(config.condition, config.inputs);
   const started = new Date().toISOString();
   const record = { task: config.task, condition: config.condition, repeat: config.repeat, label, started,
-    pi_version: PI_VERSION, inputs: config.inputs ?? {} };
-  for (const [k, p] of Object.entries(config.inputs ?? {})) if (p && existsSync(p)) record[`${k}_sha256`] = sha256(readFileSync(p));
+    pi_version: PI_VERSION, inputs: effectiveInputs(config.condition, config.inputs) };
+  for (const [k, p] of Object.entries(record.inputs)) if (typeof p === 'string' && existsSync(p)) record[`${k}_sha256`] = sha256(readFileSync(p));
 
   // 1. Back to the base snapshot.
   (deps.reset ?? (() => python(config, 'harness.py', ['reset', String(config.task)])))();

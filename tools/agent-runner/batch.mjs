@@ -3,7 +3,8 @@
 //   node tools/agent-runner/batch.mjs --matrix MATRIX.json [--dry-run]
 //
 // MATRIX.json: { out, tasks: [PULL...], conditions: [...], repeats, seed?,
-//                inputs: { "PULL": { base?, edit?, intent? } },
+//                inputs: { "PULL": { base?, edit?, intent?, sets?: { NAME: { base?, edit? } } } },
+//                (a condition "text@chain" uses inputs.sets.chain's graphs; see conditions.mjs)
 //                workers: [{ pilotDir, pilotPrivate? }...], skipPrepare? (each worker already prepared its one task),
 //                ...any run.mjs setting shared by every run (model, effort, maxMinutes, maxToolCalls, maxCostUsd, ...) }
 // Each worker takes whole tasks (preparing a task reinstalls the checkout, so a task's runs stay on one worker) and runs
@@ -14,7 +15,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
-import { CONDITIONS, resolveCondition } from './conditions.mjs';
+import { conditionOf, resolveCondition } from './conditions.mjs';
 import { DEFAULTS, isDone, python, runDirOf, runOne } from './run.mjs';
 
 /** Deterministic shuffle (mulberry32), so a batch's order can be reproduced from its seed. */
@@ -83,7 +84,7 @@ export async function runBatch(matrix, { log = console.log, deps = {} } = {}) {
   const { workers: _w, tasks: _t, conditions: _c, repeats: _r, inputs, seed: _s, ...settings } = matrix;
   const shared = { ...DEFAULTS, ...settings };
   // A CodeGraph condition needs the index, built at prepare.
-  const indexed = matrix.conditions.some(c => CONDITIONS[c]?.codegraph);
+  const indexed = matrix.conditions.some(c => conditionOf(c)?.codegraph);
   const prepare = deps.prepare ?? ((w, task) => python({ ...shared, ...w }, 'harness.py', ['prepare', String(task), ...(indexed ? ['--codegraph'] : [])]));
   const one = deps.runOne ?? runOne;
   await Promise.all(plan(matrix).map(async (worker, wi) => {

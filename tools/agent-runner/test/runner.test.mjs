@@ -9,7 +9,7 @@ import { toolDefinitions } from '../../graph-mcp/tools.mjs';
 import { runAgent } from '../agent.mjs';
 import { audit } from '../audit.mjs';
 import { plan, runBatch, shuffle } from '../batch.mjs';
-import { resolveCondition } from '../conditions.mjs';
+import { effectiveInputs, resolveCondition } from '../conditions.mjs';
 import { executeAgent, runOne, TEAM_ROOT } from '../run.mjs';
 import { sandboxSupported } from '../../graph-mcp/sandbox.mjs';
 
@@ -63,6 +63,18 @@ test('conditions resolve to make_prompt.py blocks and graph channels', () => {
   assert.equal(resolveCondition('codegraph', {}).codegraph, true);
   assert.throws(() => resolveCondition('tool', {}), /needs task inputs: edit/);
   assert.throws(() => resolveCondition('image', inputs), /Unknown condition/);
+});
+
+test('a condition can name a graph set: text@chain uses that set\'s graphs and the shared intent', () => {
+  const inputs = { intent: '/i.md', sets: { fresh: { edit: EDIT, base: BASE }, chain: { edit: '/chain-edit.yaml', base: '/chain-base.yaml' } } };
+  assert.deepEqual(resolveCondition('text@chain', inputs).promptArgs, ['--graph', '/chain-edit.yaml']);
+  assert.deepEqual(resolveCondition('tool@fresh', inputs), { name: 'tool@fresh', channel: 'mcp', codegraph: false, graph: EDIT, promptArgs: ['--graph-tools', 'graph'] });
+  assert.equal(resolveCondition('tool-noedit@chain', inputs).graph, '/chain-base.yaml');
+  assert.deepEqual(resolveCondition('prose-intent', inputs).promptArgs, ['--intent', '/i.md'], 'conditions without a set still work');
+  assert.throws(() => resolveCondition('text@nope', inputs), /needs task inputs.sets.nope/);
+  assert.throws(() => resolveCondition('text', inputs), /needs task inputs: edit/, 'a graph condition needs a set when the task has only sets');
+  assert.throws(() => resolveCondition('image@chain', inputs), /Unknown condition/);
+  assert.deepEqual(effectiveInputs('tool@chain', inputs), { intent: '/i.md', edit: '/chain-edit.yaml', base: '/chain-base.yaml' }, 'run.json records and hashes these');
 });
 
 test('the audit counts searches and graph calls and flags rule breaks', () => {

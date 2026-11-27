@@ -16,9 +16,23 @@ export const CONDITIONS = {
 };
 
 /** make_prompt.py arguments and the graph the agent can query, for one condition and a task's inputs. */
+// A condition can name one of several graph sets for a task: "text@chain" is the text condition with the graph files
+// of inputs.sets.chain (edit, base) in place of the task's own; other inputs (intent) are shared by every set.
+export const conditionOf = name => CONDITIONS[String(name).split('@')[0]];
+
+/** The task inputs a condition sees: with "@SET", that set's graph files over the shared inputs. */
+export function effectiveInputs(name, inputs = {}) {
+  const set = String(name).split('@')[1];
+  const { sets, ...shared } = inputs;
+  if (set === undefined) return shared;
+  if (!sets?.[set]) throw new Error(`Condition ${name} needs task inputs.sets.${set}`);
+  return { ...shared, ...sets[set] };
+}
+
 export function resolveCondition(name, inputs = {}) {
-  const c = CONDITIONS[name];
-  if (!c) throw new Error(`Unknown condition "${name}". Conditions: ${Object.keys(CONDITIONS).join(', ')}`);
+  const c = conditionOf(name);
+  if (!c) throw new Error(`Unknown condition "${name}". Conditions: ${Object.keys(CONDITIONS).join(', ')}, each optionally @SET`);
+  inputs = effectiveInputs(name, inputs);
   const missing = c.needs.filter(k => !inputs[k]);
   if (missing.length) throw new Error(`Condition ${name} needs task inputs: ${missing.join(', ')}`);
   return {
