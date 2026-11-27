@@ -55,13 +55,15 @@ def test_no_scored_tests_is_never_resolved(tmp_path):
     assert (s['fair_passed'], s['fair_total'], s['fair_resolved']) == (0, 0, False)
 
 
-def test_real_labels_cover_their_tasks_and_keep_290_tests():
+def test_real_labels_cover_their_tasks_and_score_each_tier():
     tasks = {t['pull_number']: t for t in json.load(open(HERE.parent / 'benchmark' / 'tasks.json'))}
     labelled = json.load(open(HERE / 'test_fairness.json'))
-    total = 0
+    total = t1 = t12 = 0
     for pull in labelled:
         f2p = dict.fromkeys(tasks[int(pull)]['FAIL_TO_PASS'], 'passed')
         s = harness.fair_score(int(pull), f2p, None)
         assert s['fair_error'] is None, (pull, s['fair_error'])
-        total += s['fair_total']
-    assert (len(labelled), total) == (20, 290)
+        total += s['fair_total']; t1 += s['tier1_total']; t12 += s['tier12_total']
+        assert s['tier1_resolved'] is True and s['tier12_resolved'] is True
+    # fair_* is the older rule (fair, plus convention-ambiguous); the tiers are TEST-FAIRNESS.md's 237 and 237 + 74.
+    assert (len(labelled), total, t1, t12) == (20, 276, 237, 311)

@@ -215,6 +215,7 @@ export async function runOne(config, deps = {}) {
     resolved: evaluation?.resolved ?? null, f2p_passed: evaluation?.f2p_passed ?? null, f2p_total: evaluation?.f2p_total ?? null,
     // Fair-only score: the hidden tests labelled fair or convention in q2q3-tools/test_fairness.json (null if unlabelled).
     fair_resolved: evaluation?.fair_resolved ?? null, fair_passed: evaluation?.fair_passed ?? null, fair_total: evaluation?.fair_total ?? null,
+    ...Object.fromEntries(['tier1', 'tier12'].flatMap(t => ['resolved', 'passed', 'total'].map(f => [`${t}_${f}`, evaluation?.[`${t}_${f}`] ?? null]))),
     file_recall: evaluation?.file_recall ?? null, file_precision: evaluation?.file_precision ?? null,
     agent_files: evaluation?.agent_files ?? null, regressions: evaluation?.regressions?.broken ?? null,
   });
@@ -227,7 +228,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   if (!values.config) { console.error('Usage: node run.mjs --config RUN.json'); process.exit(2); }
   runOne(JSON.parse(readFileSync(values.config, 'utf8')))
     .then(r => console.log(JSON.stringify({ runDir: r.runDir, skipped: r.skipped ?? false, status: r.status, resolved: r.resolved,
-      f2p: `${r.f2p_passed}/${r.f2p_total}`, fair_resolved: r.fair_resolved, fair: `${r.fair_passed}/${r.fair_total}`, cost: r.usage?.cost, tool_calls: r.tool_calls, graph_tool_calls: r.graph_tool_calls,
+      f2p: `${r.f2p_passed}/${r.f2p_total}`, fair_resolved: r.fair_resolved, fair: `${r.fair_passed}/${r.fair_total}`, tier1: `${r.tier1_passed}/${r.tier1_total}`, tier12: `${r.tier12_passed}/${r.tier12_total}`, cost: r.usage?.cost, tool_calls: r.tool_calls, graph_tool_calls: r.graph_tool_calls,
       flagged: r.audit_flagged })))
     .catch(error => { console.error(error.message); process.exitCode = 1; });
 }

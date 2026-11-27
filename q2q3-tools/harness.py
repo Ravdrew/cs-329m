@@ -269,7 +269,8 @@ def fair_score(pull, f2p, test_error, labels_file=None):
     """Fair-only F2P score: {fair_passed, fair_total, fair_resolved, fair_excluded, fairness_sha256, fair_error}.
     All null when the task has no labels; null scores with fair_error when the labels do not cover exactly its tests."""
     labels_file = Path(labels_file or FAIRNESS)
-    empty = {'fair_passed': None, 'fair_total': None, 'fair_resolved': None, 'fair_excluded': None, 'fairness_sha256': None}
+    empty = {'fair_passed': None, 'fair_total': None, 'fair_resolved': None, 'fair_excluded': None, 'fairness_sha256': None,
+             **{f'{t}_{f}': None for t in ('tier1', 'tier12') for f in ('passed', 'total', 'resolved')}}
     if not labels_file.exists():
         return empty | {'fair_error': f'no labels file {labels_file}'}
     raw = labels_file.read_bytes()
@@ -283,9 +284,18 @@ def fair_score(pull, f2p, test_error, labels_file=None):
                         'fair_error': f'labels do not match the F2P tests: {len(unlabelled)} unlabelled, {len(stale)} not in F2P'}
     keep = [k for k in f2p if scored(labels[k])]
     passed = sum(f2p[k] == 'passed' for k in keep)
-    return {'fair_passed': passed, 'fair_total': len(keep),
-            'fair_resolved': test_error is None and bool(keep) and passed == len(keep),
-            'fair_excluded': sorted(set(f2p) - set(keep)), 'fairness_sha256': digest, 'fair_error': None}
+    out = {'fair_passed': passed, 'fair_total': len(keep),
+           'fair_resolved': test_error is None and bool(keep) and passed == len(keep),
+           'fair_excluded': sorted(set(f2p) - set(keep)), 'fairness_sha256': digest, 'fair_error': None}
+    # The tiers of TEST-FAIRNESS.md (fixed before any run): tier 1 = fair, tier 1+2 = fair + underdetermined.
+    for name, tiers in (('tier1', {'fair'}), ('tier12', {'fair', 'underdetermined'})):
+        if not all('tier' in labels[k] for k in f2p):
+            out |= {f'{name}_passed': None, f'{name}_total': None, f'{name}_resolved': None}
+            continue
+        ks = [k for k in f2p if labels[k]['tier'] in tiers]
+        p = sum(f2p[k] == 'passed' for k in ks)
+        out |= {f'{name}_passed': p, f'{name}_total': len(ks), f'{name}_resolved': test_error is None and bool(ks) and p == len(ks)}
+    return out
 
 
 def evaluate(pull, label, regress=False):
