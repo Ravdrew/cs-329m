@@ -2,6 +2,7 @@
 """Harness for one benchmark task (v2, 2026-11-02).
 
   harness.py prepare  PULL   check out the base commit, install, hide git history (agent workspace ready)
+  harness.py prepare  PULL --codegraph   also build CodeGraph's index (.codegraph/) for the codegraph conditions
   harness.py check    PULL   sanity check: PR tests fail at base, pass with the real PR's source changes
   harness.py evaluate PULL   after the agent: record its diff, add the PR's tests, run them, score files
   harness.py restore  PULL   put git history back
@@ -36,6 +37,9 @@ BENCH_TASKS = Path(os.environ.get('BENCH_TASKS', TOOLS.parent / 'benchmark' / 't
 OVERRIDES = Path(os.environ.get('TASK_OVERRIDES', TOOLS / 'task_overrides.json'))
 FAIRNESS = Path(os.environ.get('TEST_FAIRNESS', TOOLS / 'test_fairness.json'))
 ENV = f"source {PILOT}/env.sh && cd {CALCOM} && "
+CODEGRAPH_CLI = Path(os.environ.get('CODEGRAPH_CLI', TOOLS.parent / 'tools' / 'codegraph' / 'node_modules' / '.bin' / 'codegraph'))
+# No telemetry or update checks from CodeGraph (it honours DO_NOT_TRACK).
+CODEGRAPH = f'DO_NOT_TRACK=1 CODEGRAPH_NO_UPDATE_CHECK=1 {CODEGRAPH_CLI}'
 
 
 def sh(cmd, check=True, timeout=None):
@@ -73,8 +77,10 @@ def paths(entries):
     return out
 
 
-def prepare(pull):
+def prepare(pull, codegraph=False):
     t = task(pull)
+    if codegraph and not CODEGRAPH_CLI.exists():
+        raise SystemExit(f'CodeGraph is not installed ({CODEGRAPH_CLI}): npm ci --prefix tools/codegraph')
     restore(pull, quiet=True)
     sh(ENV + f'git fetch -q origin {t["base"]} {t["merge"]} || true; git checkout -q -f --detach {t["base"]} && git clean -q -fdx -e node_modules -e "**/node_modules" -e packages/prisma/generated -e packages/prisma/zod -e packages/kysely -e packages/prisma/enums')
     t0 = time.time()
@@ -89,6 +95,17 @@ def prepare(pull):
        'while ps -eo comm=,args= | awk \'{c=$1; sub(/.*\\//, "", c)} c=="git" && ($3=="gc" || $3=="maintenance" || $3=="repack")\' | grep -q .; do sleep 2; done')
     shutil.move(str(CALCOM / '.git'), str(HIDDEN))
     sh(ENV + 'git init -q && git config gc.auto 0 && git add -A . >/dev/null 2>&1 && git -c user.email=pilot@x -c user.name=pilot commit -q -m base --no-verify')
+    if codegraph:
+        # The index is part of the base: excluded from git (so evaluate never counts it as the agent's), recorded as
+        # ignored-at-base below (so reset keeps it), and re-synced to the base code by reset.
+        with open(CALCOM / '.git' / 'info' / 'exclude', 'a') as f:
+            f.write('\n.codegraph/\n')
+        t1 = time.time()
+        sh(ENV + f'{CODEGRAPH} init -y . > ../codegraph-{pull}.log 2>&1', timeout=3600)
+        changed = sh(ENV + 'git status --porcelain').stdout.strip()
+        if changed:
+            raise SystemExit(f'codegraph init changed the checkout:\n{changed[:2000]}')
+        print(f'codegraph index {time.time()-t1:.0f}s')
     # Ignored files present now (installs, generated clients) are part of the base; reset removes any others.
     (PRIVATE / f'{pull}-ignored-at-base.txt').write_text(ignored_files())
     print('workspace ready, history hidden')
@@ -117,6 +134,9 @@ def reset(pull):
         shutil.rmtree(path) if path.is_dir() else path.unlink(missing_ok=True)
     if schema:
         regen_prisma()
+    if (CALCOM / '.codegraph').exists():
+        # The server updated the index with the last run's edits; bring it back to the base code.
+        sh(ENV + f'{CODEGRAPH} sync . > /dev/null 2>&1', timeout=1800)
     left = sh(ENV + 'git status --porcelain -- . ":!**/node_modules"').stdout.strip()
     if left:
         raise SystemExit(f'workspace not clean after reset:\n{left[:2000]}')
@@ -316,4 +336,7 @@ if __name__ == '__main__':
     if cmd == 'evaluate':
         evaluate(pull, sys.argv[3], regress='--regress' in sys.argv[4:])
     else:
-        {'prepare': prepare, 'check': check, 'restore': restore, 'baseline': baseline, 'reset': reset}[cmd](pull)
+        if cmd == 'prepare':
+            prepare(pull, codegraph='--codegraph' in sys.argv[3:])
+        else:
+            {'check': check, 'restore': restore, 'baseline': baseline, 'reset': reset}[cmd](pull)
