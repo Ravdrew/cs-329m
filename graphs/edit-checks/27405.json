@@ -1,0 +1,36 @@
+{
+ "verdict": "fix",
+ "summary": "Both edits carry every part of the intent and place it sensibly, but both name a BookingRepository method the intent never mentions. Beyond that there is only repetition of the dialog and duplicate-check requirements.",
+ "findings": [
+  {
+   "arm": "both",
+   "type": "added",
+   "entry": "m-booking / model-booking",
+   "detail": "The note names the method \"(findByUidIncludeEventTypeAndTeamAndAssignmentReason)\", but the intent only says \"Include `routedFromRoutingFormReponse.formId` in the booking repository result\" and names no function. Neither graph lists this function."
+  },
+  {
+   "arm": "fresh",
+   "type": "repeated",
+   "entry": "e-list-router",
+   "detail": "\"calls the access-checked `hasWrongAssignmentReport` query to display the already-reported warning and disable submission\" repeats what the bookings-list-ui note already says (\"use the `hasWrongAssignmentReport` query to display the already-reported warning and disable submission\")."
+  },
+  {
+   "arm": "fresh",
+   "type": "repeated",
+   "entry": "bookings-list-ui",
+   "detail": "\"while keeping authorization and duplicate protection on the server\" is also on trpc-bookings-router (\"Keep authorization and duplicate protection on the server\"). The server-side rule belongs on the router only."
+  },
+  {
+   "arm": "chain",
+   "type": "repeated",
+   "entry": "booking-report",
+   "detail": "The one note says both \"Keep authorization and duplicate protection on the server\" and \"while keeping authorization and duplicate protection on the server\"."
+  },
+  {
+   "arm": "both",
+   "type": "repeated",
+   "entry": "e-wrong-assignment-handler-repo",
+   "detail": "\"reportWrongAssignment rejects an existing report, then creates the new record\" repeats the handler note and the repository node note (\"the handler checks for an existing report and creates the new record through it\")."
+  }
+ ]
+}

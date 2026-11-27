@@ -1,0 +1,24 @@
+{
+ "verdict": "fix",
+ "summary": "The two edits are identical and carry every part of the intent. Both add two details the intent does not give: a file path for the Slots type and the callback name onMonthChange. Both also state the slot-data requirement twice.",
+ "findings": [
+  {
+   "arm": "both",
+   "type": "added",
+   "entry": "booker-ui",
+   "detail": "\"Add the shared `Slots` type in packages/features/bookings/types.ts\": the intent says only \"Add the shared `Slots` type\" and names no file. The path is a placement choice that the intent leaves open."
+  },
+  {
+   "arm": "both",
+   "type": "added",
+   "entry": "e-booker-ui-renders-calendar-datepicker",
+   "detail": "\"month changes go through the existing month-change callback (`onMonthChange`)\": the intent says \"the existing month-change callback\" and does not name `onMonthChange`."
+  },
+  {
+   "arm": "both",
+   "type": "repeated",
+   "entry": "calendar-weekly-view",
+   "detail": "\"keep the actual slot data available to the calendar for rendering and out-of-office information\" is on calendar-weekly-view, and the new edge restates it as \"passes the actual slot data (`slots`) to the calendar DatePicker for rendering and out-of-office information\". The edge also repeats the month-change-callback rule from booker-ui."
+  }
+ ]
+}

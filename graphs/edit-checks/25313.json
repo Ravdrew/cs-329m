@@ -1,0 +1,30 @@
+{
+ "verdict": "minor",
+ "summary": "Both edits are identical and carry every part of the intent, with nothing added. The only issues are requirements repeated across the modify note, the new nodes and the edges, and in fresh a new reads edge that overlaps an existing one.",
+ "findings": [
+  {
+   "arm": "both",
+   "type": "repeated",
+   "entry": "oauth-provider",
+   "detail": "\"Persist the authorization request's challenge and method on its access code\" appears on the oauth-provider modify note, again on model-oauth-client (\"Persist the authorization request's challenge and method on its access code.\"), and a third time on e-oauth-provider-writes-oauth-models (\"authorization persists the request's challenge and method on its access code\")."
+  },
+  {
+   "arm": "both",
+   "type": "repeated",
+   "entry": "e-oauth-provider-writes-oauth-models",
+   "detail": "\"secret nullable for public clients\" and the stored client type repeat the model-oauth-client note (\"make the secret nullable for public clients\")."
+  },
+  {
+   "arm": "both",
+   "type": "repeated",
+   "entry": "e-oauth-provider-pkce",
+   "detail": "\"check the verifier against the saved challenge for public clients and for confidential clients that opted into PKCE\" restates the verifier requirements already in the oauth-provider modify note."
+  },
+  {
+   "arm": "fresh",
+   "type": "misplaced",
+   "entry": "e-oauth-provider-reads-oauth-models",
+   "detail": "The fresh graph already has oauth-provider reading OAuth client and access code rows through model-credential-calendar (\"The token route reads OAuth client and access code rows\"). The new reads edge to model-oauth-client duplicates that dependency, and the old edge is left in place, so it is unclear which model owns these tables. This is a small placement doubt."
+  }
+ ]
+}

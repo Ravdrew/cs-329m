@@ -1,0 +1,5 @@
+{
+ "verdict": "ok",
+ "summary": "Both edits carry the intent verbatim as a single modify note on the embed SDK component (fresh 'embeds', chain 'embed-core'), which holds the inline, modal, embed.ts and utils files; nothing missing, added, misplaced, repeated, or differing between arms.",
+ "findings": []
+}
