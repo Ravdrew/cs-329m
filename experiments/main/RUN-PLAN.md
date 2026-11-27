@@ -4,6 +4,17 @@ Everything is on the local branch `experiment-prep` (worktree `/Users/andg/Deskt
 plus `codegraph-intent`, Nathan's intents (`codex/prose-intents-2026-11-26`), Joseph's PR #15
 (`fairness-second-review`) and `fresh-graphs`, merged without conflicts. Not pushed.
 
+## Checked overnight (no decisions taken)
+
+- **All 20 tasks on this Mac** (`prepcheck.sh`, log `~/q2q3-main/prepcheck.log`): prepare (install, CodeGraph index)
+  works. All 366 hidden tests fail at the base commit and pass with the real PR. Prepare takes 1–2 minutes a task.
+- **Three workers** (`~/q2q3-pilot`, `-w1`, `-w2`, APFS clones): three tasks prepared and checked at the same time,
+  and each worker's history was restored.
+- **Dry run**: all 140 task × condition combinations build their prompt and graph tools, and prompts differ only in
+  the condition block.
+- **Real smoke test** (`~/q2q3-main/runs-smoke`, #24207, $0.34): `prose-intent`, `text@fresh` and `tool@chain` each
+  resolved 7/7. Each run.json records and hashes its set's graph, and the tool run used the graph tools.
+
 ## Conditions (default in make-matrix.mjs)
 
 | Condition | The agent gets | Input |
