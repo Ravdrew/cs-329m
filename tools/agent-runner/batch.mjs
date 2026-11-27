@@ -6,6 +6,7 @@
 //                inputs: { "PULL": { base?, edit?, intent?, sets?: { NAME: { base?, edit? } } } },
 //                (a condition "text@chain" uses inputs.sets.chain's graphs; see conditions.mjs)
 //                workers: [{ pilotDir, pilotPrivate? }...], skipPrepare? (each worker already prepared its one task),
+//                maxTotalUsd? (stop starting runs once the batch's spend plus one run's maxCostUsd would pass it),
 //                ...any run.mjs setting shared by every run (model, effort, maxMinutes, maxToolCalls, maxCostUsd, ...) }
 // Each worker takes whole tasks (preparing a task reinstalls the checkout, so a task's runs stay on one worker) and runs
 // that task's condition × repeat runs in a seeded random order, so no condition is always first or last. Runs that
@@ -87,20 +88,28 @@ export async function runBatch(matrix, { log = console.log, deps = {} } = {}) {
   const indexed = matrix.conditions.some(c => conditionOf(c)?.codegraph);
   const prepare = deps.prepare ?? ((w, task) => python({ ...shared, ...w }, 'harness.py', ['prepare', String(task), ...(indexed ? ['--codegraph'] : [])]));
   const one = deps.runOne ?? runOne;
+  // maxTotalUsd: no run starts unless the batch's spend so far (finished runs in OUT, this batch's included) plus one
+  // run's cap (maxCostUsd) stays within it. Runs not started are left for a resumed batch.
+  let spent = existsSync(out) ? summarize(out).reduce((s, r) => s + (r.cost_usd ?? 0), 0) : 0;
+  const budgetLeft = () => matrix.maxTotalUsd === undefined || spent + shared.maxCostUsd <= matrix.maxTotalUsd;
+  let stopped = false;
   await Promise.all(plan(matrix).map(async (worker, wi) => {
     for (const { task, runs } of worker.tasks) {
       const configs = runs.map(r => ({ ...shared, ...worker, tasks: undefined, out, task, inputs: inputs?.[task] ?? {}, ...r }));
       const todo = configs.filter(c => !isDone(runDirOf(c)));
       if (!todo.length) { log(`[worker ${wi}] ${task}: all ${configs.length} runs done`); continue; }
+      if (!budgetLeft()) { if (!stopped) log(`budget: $${spent.toFixed(2)} spent of $${matrix.maxTotalUsd}; no more runs start`); stopped = true; continue; }
       if (matrix.skipPrepare) log(`[worker ${wi}] ${task}: ${todo.length} of ${configs.length} runs to do (already prepared)`);
       else {
         log(`[worker ${wi}] ${task}: preparing (${todo.length} of ${configs.length} runs to do)`);
         prepare(worker, task);
       }
       for (const c of todo) {
+        if (!budgetLeft()) { if (!stopped) log(`budget: $${spent.toFixed(2)} spent of $${matrix.maxTotalUsd}; no more runs start`); stopped = true; break; }
         log(`[worker ${wi}] ${task} ${c.condition} r${c.repeat}: start`);
         try {
           const r = await one(c);
+          spent += r.usage?.cost ?? 0;
           log(`[worker ${wi}] ${task} ${c.condition} r${c.repeat}: ${r.status}, resolved=${r.resolved}, f2p=${r.f2p_passed}/${r.f2p_total}, fair=${r.fair_passed}/${r.fair_total}, t1=${r.tier1_passed}/${r.tier1_total}, t12=${r.tier12_passed}/${r.tier12_total}, $${(r.usage?.cost ?? 0).toFixed(2)}`);
         } catch (error) {
           // No run.json is written, so the run is retried when the batch is resumed.

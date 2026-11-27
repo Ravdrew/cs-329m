@@ -229,6 +229,22 @@ test('batches spread tasks over workers, shuffle reproducibly, prepare once per 
   assert.deepEqual([prepared.length, ran.length], [0, 0]);
 });
 
+test('a batch stops starting runs at maxTotalUsd and resumes the rest later', async () => {
+  const matrix = { out: join(root, 'batch-budget'), tasks: [1, 2], conditions: ['prose'], repeats: 3, seed: 1,
+    workers: [{ pilotDir: join(root, 'wb') }], maxCostUsd: 1, maxTotalUsd: 2.5 };
+  const runOne = async c => {
+    const dir = join(c.out, String(c.task), `${c.condition}-r${c.repeat}`);
+    mkdirSync(dir, { recursive: true });
+    const record = { task: c.task, condition: c.condition, repeat: c.repeat, status: 'completed', usage: { cost: 0.75 } };
+    writeFileSync(join(dir, 'run.json'), JSON.stringify(record));
+    return record;
+  };
+  const deps = { prepare: () => {}, runOne };
+  // 0 + 1 <= 2.5, 0.75 + 1, 1.5 + 1 <= 2.5, then 2.25 + 1 > 2.5: three runs.
+  assert.equal((await runBatch(matrix, { log: () => {}, deps })).length, 3);
+  assert.equal((await runBatch({ ...matrix, maxTotalUsd: 10 }, { log: () => {}, deps })).length, 6, 'a resumed batch with more budget finishes');
+});
+
 test('a run that ends in an error is redone on resume, and the failed attempt is kept', async () => {
   const pilotDir = pilot('pilot-retry');
   const out = join(root, 'out-retry');
