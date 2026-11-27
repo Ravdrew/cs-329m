@@ -1,126 +1,381 @@
 {
   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > CONFIDENTIAL clients > should accept CONFIDENTIAL client with code_verifier for enhanced security": {
     "label": "fair",
-    "reason": "Expects 200 with the base success body, generateSecret('plain_secret') and verifyCodeChallenge('test_verifier','test_challenge','S256'). The description says confidential clients that used PKCE must send code_verifier on exchange; passing the stored method as the third argument follows from the spec signature and the new codeChallengeMethod column."
+    "reason": "Expects 200 with the base success body, generateSecret('plain_secret') and verifyCodeChallenge('test_verifier','test_challenge','S256'). The description says confidential clients that used PKCE must send code_verifier on exchange; passing the stored method as the third argument follows from the spec signature and the new codeChallengeMethod column.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects 200 with the base success body, generateSecret('plain_secret') and verifyCodeChallenge('test_verifier','test_challenge','S256'). The description says confidential clients that used PKCE must send code_verifier on exchange; passing the stored method as the third argument follows from the spec signature and the new codeChallengeMethod column."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description: confidential clients 'can use PKCE and must send code_verifier'; response shape {access_token, token_type:'bearer', refresh_token, expires_in:1800} is unchanged from base token/route.ts; passing (verifier, challenge, method) to verifyCodeChallenge follows the spec signature.",
+      "confidence": "medium"
+    }
   },
   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > CONFIDENTIAL clients > should reject CONFIDENTIAL client with invalid client_secret": {
     "label": "ambiguous",
     "kind": "convention",
     "reason": "Expects 401 with data.error 'invalid_client'. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses. It also needs the secret compared in code against client.clientSecret, because the mocked findFirst ignores a base-style where: {clientSecret: hashedSecret} filter.",
-    "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Expects 401 with data.error 'invalid_client'. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses. It also needs the secret compared in code against client.clientSecret, because the mocked findFirst ignores a base-style where: {clientSecret: hashedSecret} filter.",
+      "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description says token endpoint validates client_secret for Confidential; RFC 6749 5.2 'invalid_client' with 401 (base already returned 401). Note: the mock findFirst ignores the where-clause, so the secret must be compared in code, not filtered in the query as base does.",
+      "confidence": "medium"
+    },
+    "resolution": "Fair in one review only (convention vs fair); fair requires both reviews, 2026-11-26."
   },
   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > CONFIDENTIAL clients > should reject CONFIDENTIAL client with invalid code_verifier": {
     "label": "ambiguous",
     "kind": "convention",
     "reason": "Expects 400 with data.error 'invalid_grant' (RFC 7636 §4.6 code) when verification fails. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
-    "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Expects 400 with data.error 'invalid_grant' (RFC 7636 §4.6 code) when verification fails. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
+      "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "RFC 7636 4.6 requires 'invalid_grant' when the verifier does not match; the description says confidential clients that used PKCE must pass verification.",
+      "confidence": "high"
+    },
+    "resolution": "Fair in one review only (convention vs fair); fair requires both reviews, 2026-11-26."
   },
   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > CONFIDENTIAL clients > should reject CONFIDENTIAL client without client_secret": {
     "label": "ambiguous",
     "kind": "convention",
     "reason": "Expects 401 with data.error 'invalid_client'; the behavior (reject) is stated ('enforce client_secret for Confidential') but the body shape is not. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
-    "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Expects 401 with data.error 'invalid_client'; the behavior (reject) is stated ('enforce client_secret for Confidential') but the body shape is not. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
+      "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description: 'enforce client_secret for Confidential'; RFC 6749 invalid_client with 401 matches base's 401 for auth failures.",
+      "confidence": "high"
+    },
+    "resolution": "Fair in one review only (convention vs fair); fair requires both reviews, 2026-11-26."
   },
   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > General validation > should reject expired authorization code": {
     "label": "ambiguous",
     "kind": "convention",
     "reason": "Expects 400 with data.error 'invalid_grant' when accessCode.findFirst returns null; base returns 401 {message:'Unauthorized'} for this case, and the description does not say the status or body changes.",
-    "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Expects 400 with data.error 'invalid_grant' when accessCode.findFirst returns null; base returns 401 {message:'Unauthorized'} for this case, and the description does not say the status or body changes.",
+      "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "RFC 6749 5.2: an expired code is 'invalid_grant' (400), and the description says the endpoints return standard OAuth fields. Base returned 401 {message:'Unauthorized'}, but the description points the agent to the RFC.",
+      "confidence": "medium"
+    },
+    "resolution": "Fair in one review only (convention vs fair); fair requires both reviews, 2026-11-26."
   },
   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > General validation > should reject invalid client_id": {
     "label": "ambiguous",
     "kind": "convention",
     "reason": "Expects 401 with data.error 'invalid_client'. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
-    "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Expects 401 with data.error 'invalid_client'. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
+      "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "RFC 6749 'invalid_client'; base token/route.ts already returns status 401 for an unknown client.",
+      "confidence": "high"
+    },
+    "resolution": "Fair in one review only (convention vs fair); fair requires both reviews, 2026-11-26."
   },
   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > General validation > should reject invalid grant_type": {
     "label": "unfair",
-    "reason": "Expects data.error 'invalid_request' for grant_type 'implicit'. Base returns {message:'grant_type invalid'} (400), and the OAuth standard the description points at (RFC 6749 §5.2) prescribes 'unsupported_grant_type' for this case, so nothing in the inputs leads to 'invalid_request'."
+    "reason": "Expects data.error 'invalid_request' for grant_type 'implicit'. Base returns {message:'grant_type invalid'} (400), and the OAuth standard the description points at (RFC 6749 §5.2) prescribes 'unsupported_grant_type' for this case, so nothing in the inputs leads to 'invalid_request'.",
+    "first_review": {
+      "label": "unfair",
+      "reason": "Expects data.error 'invalid_request' for grant_type 'implicit'. Base returns {message:'grant_type invalid'} (400), and the OAuth standard the description points at (RFC 6749 §5.2) prescribes 'unsupported_grant_type' for this case, so nothing in the inputs leads to 'invalid_request'."
+    },
+    "second_review": {
+      "label": "unfair",
+      "reason": "Test expects error 'invalid_request', but RFC 6749 5.2 (the 'standard OAuth fields' the description invokes) specifies 'unsupported_grant_type' for this case, and base returns {message:'grant_type invalid'}. Nothing points to invalid_request.",
+      "confidence": "medium"
+    }
   },
   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > General validation > should reject mismatched redirect_uri": {
     "label": "ambiguous",
     "kind": "convention",
     "reason": "Expects 400 with data.error 'invalid_grant'; base route.ts returns 401 {message:'Unauthorized'} for a redirect_uri mismatch, and the description doesn't say this changes (the RFC code is invalid_grant).",
-    "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Expects 400 with data.error 'invalid_grant'; base route.ts returns 401 {message:'Unauthorized'} for a redirect_uri mismatch, and the description doesn't say this changes (the RFC code is invalid_grant).",
+      "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "RFC 6749 5.2 lists a redirect_uri mismatch under 'invalid_grant' with 400. Base returned 401, so an agent that keeps base's status code would fail.",
+      "confidence": "medium"
+    },
+    "resolution": "Fair in one review only (convention vs fair); fair requires both reviews, 2026-11-26."
   },
   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > PUBLIC clients > should exchange authorization code for tokens with valid PKCE": {
     "label": "fair",
-    "reason": "Expects 200 with the base success body {access_token, token_type:'bearer', refresh_token, expires_in:1800}, verifyCodeChallenge('test_verifier','test_challenge','S256') and deleteMany called. All of this is stated in the description (public clients have no secret, S256 PKCE) or already in the base route."
+    "reason": "Expects 200 with the base success body {access_token, token_type:'bearer', refresh_token, expires_in:1800}, verifyCodeChallenge('test_verifier','test_challenge','S256') and deleteMany called. All of this is stated in the description (public clients have no secret, S256 PKCE) or already in the base route.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects 200 with the base success body {access_token, token_type:'bearer', refresh_token, expires_in:1800}, verifyCodeChallenge('test_verifier','test_challenge','S256') and deleteMany called. All of this is stated in the description (public clients have no secret, S256 PKCE) or already in the base route."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description step 4 and the cubic summary: a public client exchanges a code with code_verifier (S256) and gets the same token response as base. Mocked deps are listed in the spec.",
+      "confidence": "high"
+    }
   },
   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > PUBLIC clients > should reject PUBLIC client with invalid code_verifier": {
     "label": "ambiguous",
     "kind": "convention",
     "reason": "Expects 400 with data.error 'invalid_grant' and verifyCodeChallenge called with the stored S256 method. Rejecting is stated; the body/code is not. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
-    "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Expects 400 with data.error 'invalid_grant' and verifyCodeChallenge called with the stored S256 method. Rejecting is stated; the body/code is not. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
+      "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "RFC 7636 4.6 specifies invalid_grant when the verifier does not match; the description says PKCE is verified for public clients.",
+      "confidence": "high"
+    },
+    "resolution": "Fair in one review only (convention vs fair); fair requires both reviews, 2026-11-26."
   },
   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > PUBLIC clients > should reject PUBLIC client with missing code challenge in access code": {
     "label": "ambiguous",
     "kind": "convention",
     "reason": "Expects 400 with data.error 'invalid_request' when the stored access code has codeChallenge null; the RFCs don't fix this code either (invalid_grant is equally plausible), and base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
-    "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Expects 400 with data.error 'invalid_request' when the stored access code has codeChallenge null; the RFCs don't fix this code either (invalid_grant is equally plausible), and base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
+      "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    },
+    "second_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Rejection is implied, but the code is not: a stored code with no challenge could reasonably be 'invalid_grant' (bad grant) rather than the test's 'invalid_request'. RFC 7636 does not cover this case.",
+      "confidence": "medium"
+    }
   },
   "apps/web/app/api/auth/oauth/token/__tests__/route.test.ts::POST /api/auth/oauth/token > PUBLIC clients > should reject PUBLIC client without code_verifier": {
     "label": "ambiguous",
     "kind": "convention",
     "reason": "Expects 400 with data.error 'invalid_request' for a missing code_verifier. Rejecting is stated; the body shape and code are not. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
-    "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Expects 400 with data.error 'invalid_request' for a missing code_verifier. Rejecting is stated; the body shape and code are not. Base route.ts returns {message: 'Unauthorized'} (401) for every failure; the description only mentions 'standard OAuth fields' and never states the error body shape, codes or statuses.",
+      "clarification": "Token endpoint errors return RFC 6749 §5.2 bodies {error: code}: 400 invalid_request for an unsupported grant_type, a missing code_verifier or an access code stored without a code_challenge; 400 invalid_grant for an unknown/expired code, a redirect_uri mismatch or a failed PKCE check; 401 invalid_client for an unknown client or a missing/wrong client_secret."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "RFC 6749 5.2: a missing required parameter is 'invalid_request' (400); the description says code_verifier is required for public clients.",
+      "confidence": "medium"
+    },
+    "resolution": "Fair in one review only (convention vs fair); fair requires both reviews, 2026-11-26."
   },
   "packages/lib/pkce.test.ts::PKCE Functions > isValidCodeChallengeMethod > should accept S256 method": {
     "label": "fair",
-    "reason": "Description: PKCE is S256 only."
+    "reason": "Description: PKCE is S256 only.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Description: PKCE is S256 only."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description: 'verify PKCE (S256 only)'.",
+      "confidence": "high"
+    }
   },
   "packages/lib/pkce.test.ts::PKCE Functions > isValidCodeChallengeMethod > should reject unsupported methods": {
     "label": "fair",
-    "reason": "Expects false for plain, MD5, SHA1, invalid and ''; the description says S256 only ('S256 required')."
+    "reason": "Expects false for plain, MD5, SHA1, invalid and ''; the description says S256 only ('S256 required').",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects false for plain, MD5, SHA1, invalid and ''; the description says S256 only ('S256 required')."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description says 'S256 only' and 'S256 required', so rejecting 'plain' follows even though RFC 7636 allows it.",
+      "confidence": "high"
+    }
   },
   "packages/lib/pkce.test.ts::PKCE Functions > verifyCodeChallenge > should default to S256 method when none specified": {
     "label": "ambiguous",
-    "kind": "convention",
-    "reason": "Expects verifyCodeChallenge(verifier, challenge) with no method to verify as S256. The spec makes method optional but gives no default; RFC 7636 §4.3 defaults to 'plain', and with plain unsupported, returning false is also a valid reading.",
-    "clarification": "verifyCodeChallenge treats an omitted method as 'S256'."
+    "reason": "The spec makes method optional with no default; RFC 7636 4.3 defaults to plain, and returning false is also valid. The S256 hint was removed from the spec on 2026-11-02.",
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Expects verifyCodeChallenge(verifier, challenge) with no method to verify as S256. The spec makes method optional but gives no default; RFC 7636 §4.3 defaults to 'plain', and with plain unsupported, returning false is also a valid reading.",
+      "clarification": "verifyCodeChallenge treats an omitted method as 'S256'."
+    },
+    "second_review": {
+      "label": "ambiguous",
+      "kind": "behavior",
+      "reason": "The spec makes method optional but gives no default. RFC 7636 4.3 says a missing method defaults to 'plain', and an agent could also return false; the description's 'S256 only' makes S256 the likely choice but does not settle it.",
+      "confidence": "medium"
+    },
+    "resolution": "Disagreement (convention vs behavior) resolved by Jo, 2026-11-26.",
+    "kind": "behavior"
   },
   "packages/lib/pkce.test.ts::PKCE Functions > verifyCodeChallenge > should fail verification with wrong S256 code challenge": {
     "label": "fair",
-    "reason": "A wrong challenge must fail; follows from the function's purpose."
+    "reason": "A wrong challenge must fail; follows from the function's purpose.",
+    "first_review": {
+      "label": "fair",
+      "reason": "A wrong challenge must fail; follows from the function's purpose."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "RFC 7636 S256 = BASE64URL(SHA256(verifier)); the test vector is the RFC's own Appendix B example.",
+      "confidence": "high"
+    }
   },
   "packages/lib/pkce.test.ts::PKCE Functions > verifyCodeChallenge > should return false for unsupported method": {
     "label": "fair",
-    "reason": "Expects false for 'MD5'; the description says only S256 is supported."
+    "reason": "Expects false for 'MD5'; the description says only S256 is supported.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects false for 'MD5'; the description says only S256 is supported."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description says S256 only; spec gives a boolean return type, so false for MD5 follows.",
+      "confidence": "high"
+    }
   },
   "packages/lib/pkce.test.ts::PKCE Functions > verifyCodeChallenge > should verify S256 code challenge correctly": {
     "label": "fair",
-    "reason": "Uses the RFC 7636 Appendix B verifier/challenge pair; S256 = BASE64URL(SHA256(verifier)) without padding is the standard, and the description's openssl recipe shows the same encoding."
+    "reason": "Uses the RFC 7636 Appendix B verifier/challenge pair; S256 = BASE64URL(SHA256(verifier)) without padding is the standard, and the description's openssl recipe shows the same encoding.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Uses the RFC 7636 Appendix B verifier/challenge pair; S256 = BASE64URL(SHA256(verifier)) without padding is the standard, and the description's openssl recipe shows the same encoding."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "The test uses RFC 7636 Appendix B's verifier/challenge pair; the S256 transform comes from the public standard and the description's openssl recipe.",
+      "confidence": "high"
+    }
   },
   "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > CONFIDENTIAL clients > should accept CONFIDENTIAL client with valid PKCE for enhanced security": {
     "label": "fair",
-    "reason": "Expects accessCode.create called with exactly the base data fields plus codeChallenge 'test_challenge' and codeChallengeMethod 'S256'; the description says AccessCode stores codeChallenge/codeChallengeMethod, and the spec names the columns."
+    "reason": "Expects accessCode.create called with exactly the base data fields plus codeChallenge 'test_challenge' and codeChallengeMethod 'S256'; the description says AccessCode stores codeChallenge/codeChallengeMethod, and the spec names the columns.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects accessCode.create called with exactly the base data fields plus codeChallenge 'test_challenge' and codeChallengeMethod 'S256'; the description says AccessCode stores codeChallenge/codeChallengeMethod, and the spec names the columns."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Spec adds codeChallenge/codeChallengeMethod to the input and AccessCode; the exact create data equals base generateAuthCode.handler.ts data plus the two new fields, and the description says confidential clients may use PKCE.",
+      "confidence": "high"
+    }
   },
   "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > CONFIDENTIAL clients > should generate authorization code for CONFIDENTIAL client without PKCE": {
     "label": "fair",
-    "reason": "Expects create data to contain codeChallenge: undefined and codeChallengeMethod: undefined (objectContaining needs the keys present). Passing the optional input fields straight through, as the base does with teamId: undefined, satisfies this."
+    "reason": "Expects create data to contain codeChallenge: undefined and codeChallengeMethod: undefined (objectContaining needs the keys present). Passing the optional input fields straight through, as the base does with teamId: undefined, satisfies this.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects create data to contain codeChallenge: undefined and codeChallengeMethod: undefined (objectContaining needs the keys present). Passing the optional input fields straight through, as the base does with teamId: undefined, satisfies this."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description: existing confidential clients keep working. objectContaining with codeChallenge: undefined needs the key present, which passing input fields straight through gives (an agent using a conditional spread would fail).",
+      "confidence": "medium"
+    }
   },
   "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > CONFIDENTIAL clients > should reject CONFIDENTIAL client with code_challenge but missing method": {
     "label": "unfair",
-    "reason": "Expects a TRPCError with the exact message 'code_challenge_method must be S256 when PKCE is used' (toThrow compares the message). That string appears nowhere in the description or spec, and rejecting rather than defaulting the method to S256 is also unstated."
+    "reason": "Expects a TRPCError with the exact message 'code_challenge_method must be S256 when PKCE is used' (toThrow compares the message). That string appears nowhere in the description or spec, and rejecting rather than defaulting the method to S256 is also unstated.",
+    "first_review": {
+      "label": "unfair",
+      "reason": "Expects a TRPCError with the exact message 'code_challenge_method must be S256 when PKCE is used' (toThrow compares the message). That string appears nowhere in the description or spec, and rejecting rather than defaulting the method to S256 is also unstated."
+    },
+    "second_review": {
+      "label": "unfair",
+      "reason": "Asserts the exact TRPCError message 'code_challenge_method must be S256 when PKCE is used'. That string appears nowhere in the description or spec.",
+      "confidence": "high"
+    }
   },
   "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > Client validation > should accept only supported PKCE methods": {
     "label": "unfair",
-    "reason": "Expects SHA1 and plain to be rejected with the exact message 'code_challenge_method must be S256 for public clients', an invented string not in the description or spec. The handler is called directly, so the zod enum alone does not help."
+    "reason": "Expects SHA1 and plain to be rejected with the exact message 'code_challenge_method must be S256 for public clients', an invented string not in the description or spec. The handler is called directly, so the zod enum alone does not help.",
+    "first_review": {
+      "label": "unfair",
+      "reason": "Expects SHA1 and plain to be rejected with the exact message 'code_challenge_method must be S256 for public clients', an invented string not in the description or spec. The handler is called directly, so the zod enum alone does not help."
+    },
+    "second_review": {
+      "label": "unfair",
+      "reason": "The S256-only behavior is stated, but the test also asserts the invented message 'code_challenge_method must be S256 for public clients' for the SHA1 and plain cases.",
+      "confidence": "high"
+    }
   },
   "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > PUBLIC clients > should generate authorization code for PUBLIC client with valid PKCE": {
     "label": "fair",
-    "reason": "Expects result.client equal to the stubbed client and create data containing codeChallenge/codeChallengeMethod; stated in the description (generateAuthCode accepts and stores them)."
+    "reason": "Expects result.client equal to the stubbed client and create data containing codeChallenge/codeChallengeMethod; stated in the description (generateAuthCode accepts and stores them).",
+    "first_review": {
+      "label": "fair",
+      "reason": "Expects result.client equal to the stubbed client and create data containing codeChallenge/codeChallengeMethod; stated in the description (generateAuthCode accepts and stores them)."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description: generateAuthCode accepts codeChallenge/method and stores them on AccessCode. The asserted fields follow base handler conventions.",
+      "confidence": "high"
+    }
   },
   "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > PUBLIC clients > should reject PUBLIC client with invalid code_challenge_method": {
     "label": "unfair",
-    "reason": "Expects the exact TRPCError message 'code_challenge_method must be S256 for public clients' for MD5/plain; rejecting is stated, but the message string is invented."
+    "reason": "Expects the exact TRPCError message 'code_challenge_method must be S256 for public clients' for MD5/plain; rejecting is stated, but the message string is invented.",
+    "first_review": {
+      "label": "unfair",
+      "reason": "Expects the exact TRPCError message 'code_challenge_method must be S256 for public clients' for MD5/plain; rejecting is stated, but the message string is invented."
+    },
+    "second_review": {
+      "label": "unfair",
+      "reason": "Asserts the invented TRPCError message 'code_challenge_method must be S256 for public clients'.",
+      "confidence": "high"
+    }
   },
   "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > PUBLIC clients > should reject PUBLIC client without code_challenge": {
     "label": "unfair",
-    "reason": "Expects the exact TRPCError message 'code_challenge required for public clients'; rejecting is stated, but the message string is invented."
+    "reason": "Expects the exact TRPCError message 'code_challenge required for public clients'; rejecting is stated, but the message string is invented.",
+    "first_review": {
+      "label": "unfair",
+      "reason": "Expects the exact TRPCError message 'code_challenge required for public clients'; rejecting is stated, but the message string is invented."
+    },
+    "second_review": {
+      "label": "unfair",
+      "reason": "Asserts the invented TRPCError message 'code_challenge required for public clients' (toThrow with an Error instance compares the message).",
+      "confidence": "high"
+    }
   },
   "packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.test.ts::generateAuthCodeHandler > PUBLIC clients > should reject PUBLIC client without code_challenge_method": {
     "label": "unfair",
-    "reason": "Expects the exact message 'code_challenge_method must be S256 for public clients' when the method is missing; the string is invented, and defaulting a missing method to S256 would be a valid reading."
+    "reason": "Expects the exact message 'code_challenge_method must be S256 for public clients' when the method is missing; the string is invented, and defaulting a missing method to S256 would be a valid reading.",
+    "first_review": {
+      "label": "unfair",
+      "reason": "Expects the exact message 'code_challenge_method must be S256 for public clients' when the method is missing; the string is invented, and defaulting a missing method to S256 would be a valid reading."
+    },
+    "second_review": {
+      "label": "unfair",
+      "reason": "Asserts the invented message 'code_challenge_method must be S256 for public clients'. An agent might also default a missing method to S256 instead of rejecting.",
+      "confidence": "high"
+    }
   }
 }

@@ -1,0 +1,278 @@
+{
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > all fields updated simultaneously from external event": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Requires summary->title, description->notes and a location object with an extra `label` key (base get-booking.ts:40-43 uses only value/optionValue); the field shape is not given in description or spec.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > booking without existing responses uses fallback with event overrides": {
+    "label": "unfair",
+    "reason": "Fallback responses use name=booking.title, email=userPrimaryEmail, guests=[]; this mapping is invented and appears in neither the description nor the spec (base get-booking.ts uses attendee name).",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > description from external event overrides notes in responses": {
+    "label": "fair",
+    "reason": "Spec export mergeBookingResponsesWithEventData implies merging event data into responses, and base get-booking.ts:39 maps booking description to responses.notes.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > external event data is stored in metadata as calendarSubscriptionEvent": {
+    "label": "unfair",
+    "reason": "Description's review checklist says rescheduleBooking hardcodes `metadata: {}`; the calendarSubscriptionEvent key holding a JSON string is invented (spec gives only the buildMetadataFromCalendarEvent name).",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > location from external event overrides location in responses": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Merging event.location into responses is implied by the spec name mergeBookingResponsesWithEventData, and base get-booking.ts:40-43 uses {value, optionValue}; the extra `label` key in the toEqual is a format choice not in any input.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > null fields from external event do NOT override booking responses": {
+    "label": "fair",
+    "reason": "Merge semantics implied by mergeBookingResponsesWithEventData: null event fields leave existing responses untouched; the existing location object is passed through unchanged.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - booking data updated from external event > summary from external event overrides title in responses": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Spec name mergeBookingResponsesWithEventData implies overriding responses with event data, but mapping event.summary to responses.title (rather than ignoring it or using another key) is not stated anywhere.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - error isolation > cancelBooking: passes correct data to handleCancelBooking": {
+    "label": "unfair",
+    "reason": "Exact call args include the invented cancellationReason string \"Cancelled on user's calendar\" and actionSource \"SYSTEM\"; neither is in the description or spec.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - error isolation > handleEvents: DB error on one event does not block others": {
+    "label": "fair",
+    "reason": "Description: 'Errors are caught and logged but don't block the calendar sync operation'; base handleEvents already processes events via Promise.all.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - error isolation > handleEvents: correctly routes cancelled vs non-cancelled events": {
+    "label": "fair",
+    "reason": "Base CalendarSyncService.ts handleEvents routes status==='cancelled' to cancelBooking and others to rescheduleBooking; description says these use handleCancelBooking and createBooking.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - error isolation > handleEvents: failure in one event does not block others": {
+    "label": "fair",
+    "reason": "Description states errors are caught and logged, not thrown, so a cancel failure cannot block the reschedule.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - error isolation > handleEvents: non-cancelled statuses (tentative, confirmed) all route to reschedule": {
+    "label": "fair",
+    "reason": "Base handleEvents sends every non-'cancelled' status to rescheduleBooking.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - error isolation > rescheduleBooking: passes correct bookingMeta flags": {
+    "label": "unfair",
+    "reason": "Description mentions only skipCalendarSyncTaskCreation; the exact bookingMeta equality also requires skipAvailabilityCheck and skipEventLimitsCheck, which nothing asks for (they exist only as optional fields in dto/types.d.ts:30-31).",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::CalendarSyncService - skip reschedule when no time change > proceeds with reschedule when start time has changed": {
+    "label": "fair",
+    "reason": "Description: rescheduleBooking calls RegularBookingService.createBooking with rescheduleUid; the start time changed, so any implementation reaches createBooking.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildMetadataFromCalendarEvent > handles all-null optional fields": {
+    "label": "unfair",
+    "reason": "Requires the payload to contain exactly the 13 optional fields (excluding id/iCalUID/start/end, which are non-null) serialized as JSON under calendarSubscriptionEvent; the field selection and key are invented.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildMetadataFromCalendarEvent > serializes all event fields into calendarSubscriptionEvent": {
+    "label": "unfair",
+    "reason": "The calendarSubscriptionEvent key and JSON-string encoding are not in the spec (name only) and contradict the description's `metadata: {}`.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildMetadataFromCalendarEvent > serializes dates as ISO strings": {
+    "label": "unfair",
+    "reason": "ISO output follows from JSON.stringify, but the test parses result.calendarSubscriptionEvent, an invented key and string format.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData - duration edge cases > booking with very long duration (8 hours)": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Description only says rescheduleBooking 'updates booking times'; using the external event's end is an equally valid reading, and nothing states that the original booking duration is kept (the expected end differs under that reading).",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData - duration edge cases > booking with very short duration (1 minute)": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Description only says rescheduleBooking 'updates booking times'; using the external event's end is an equally valid reading, and nothing states that the original booking duration is kept (the expected end differs under that reading).",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData - duration edge cases > booking with zero duration: end equals start": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Description only says rescheduleBooking 'updates booking times'; using the external event's end is an equally valid reading, and nothing states that the original booking duration is kept (the expected end differs under that reading).",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > falls back to booking start when event start is null": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Falling back to booking.startTime is reasonable, but the expected end (11:00) requires preserving duration; an implementation using event.end (15:00) fails. The description is silent on this.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > handles cross-day rescheduling correctly": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Description only says rescheduleBooking 'updates booking times'; using the external event's end is an equally valid reading, and nothing states that the original booking duration is kept (the expected end differs under that reading).",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > preserves original 2-hour duration when event is shortened externally": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Description only says rescheduleBooking 'updates booking times'; using the external event's end is an equally valid reading, and nothing states that the original booking duration is kept (the expected end differs under that reading).",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > preserves original 30-min duration when event is stretched to 90min externally": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Description only says rescheduleBooking 'updates booking times'; using the external event's end is an equally valid reading, and nothing states that the original booking duration is kept (the expected end differs under that reading).",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > preserves original 60-min duration when event is moved": {
+    "label": "fair",
+    "reason": "Event end equals start plus the original 60 min here, so both the 'use event end' and 'preserve duration' readings give 15:00.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > sets eventTypeId from booking": {
+    "label": "fair",
+    "reason": "Description: booking.eventTypeId is checked before rescheduling and used for createBooking; CreateRegularBookingData requires eventTypeId.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > sets rescheduleUid to original booking uid": {
+    "label": "fair",
+    "reason": "Description: 'uses RegularBookingService.createBooking() directly with rescheduleUid'.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::buildRescheduleBookingData > uses event timezone, falls back to UTC": {
+    "label": "fair",
+    "reason": "Description checklist: `timeZone: event.timeZone ?? \"UTC\"`.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > builds fallback responses when responses is an array (invalid shape)": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Treating an array as invalid and building a fallback is a judgement call (a typeof==='object' check returns the array as-is); the fallback keys are conventional (get-booking.ts:33-44).",
+    "confidence": "low"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > builds fallback responses when responses is null": {
+    "label": "unfair",
+    "reason": "Exact toEqual on an invented fallback (name=booking.title, email=userPrimaryEmail, smsReminderNumber, location with a `label` key); none of it is specified.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > handles empty string location": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Base convention get-booking.ts:40-43 always emits a location object, even an empty one; the test needs it omitted. Both are valid choices.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > handles null description in fallback": {
+    "label": "fair",
+    "reason": "Base get-booking.ts:39 fallback uses `notes: rawBooking.description || \"\"`, so an empty string follows convention.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > handles null userPrimaryEmail in fallback": {
+    "label": "fair",
+    "reason": "Base get-booking.ts:35 fallback uses an empty-string email; userPrimaryEmail is the only email field on the booking.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > omits location from fallback when booking has no location": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Base get-booking.ts:40-43 always emits {value:'',optionValue:''}; the test needs undefined. Both are valid choices.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::extractBookingResponses > returns existing responses when present as object": {
+    "label": "fair",
+    "reason": "Follows directly from the function name and signature extractBookingResponses(booking): Record<string, unknown>.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::hasStartTimeChanged > detects 1-second difference": {
+    "label": "fair",
+    "reason": "Follows from the name hasStartTimeChanged(booking, event) with a plain Date comparison.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::hasStartTimeChanged > returns false when event start equals booking start": {
+    "label": "fair",
+    "reason": "Follows from the name and signature.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::hasStartTimeChanged > returns false when event start is null": {
+    "label": "fair",
+    "reason": "With no event start, reporting 'not changed' is the natural boolean answer; no other reasonable value exists for this signature.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::hasStartTimeChanged > returns true when event start differs from booking start": {
+    "label": "fair",
+    "reason": "Follows from the name and signature.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::hasStartTimeChanged > same timestamp in different timezone representations is equal": {
+    "label": "fair",
+    "reason": "Date objects represent instants; comparing getTime() is the standard approach.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::iCalUID parsing > iCalUID with multiple @ signs: only first part is used as bookingUid": {
+    "label": "fair",
+    "reason": "Base CalendarSyncService.ts already does `const [bookingUid] = event.iCalUID?.split(\"@\")`; handleCancelBooking is then called (the user ids match and an email is present).",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::mergeBookingResponsesWithEventData > does not override when event fields are null/empty": {
+    "label": "fair",
+    "reason": "Merge semantics follow from the function name: null event fields leave the base responses unchanged.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::mergeBookingResponsesWithEventData > overrides title, notes, and location from event": {
+    "label": "ambiguous",
+    "kind": "convention",
+    "reason": "Merging event.location into responses is implied by the spec name mergeBookingResponsesWithEventData, and base get-booking.ts:40-43 uses {value, optionValue}; the extra `label` key in the toEqual is a format choice not in any input. The summary->title mapping is also unstated.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.integration.test.ts::mergeBookingResponsesWithEventData > partially overrides — only summary changed": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Spec name mergeBookingResponsesWithEventData implies overriding responses with event data, but mapping event.summary to responses.title (rather than ignoring it or using another key) is not stated anywhere.",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > cancelBooking > should handle cancellation errors gracefully without throwing": {
+    "label": "fair",
+    "reason": "Description: errors are caught and logged, not thrown; handleCancelBooking is the stated mechanism.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > cancelBooking > should handle database errors gracefully without throwing": {
+    "label": "fair",
+    "reason": "Description: 'Errors are caught and logged but don't block the calendar sync operation'.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > cancelBooking > should successfully cancel a booking": {
+    "label": "unfair",
+    "reason": "Exact handleCancelBooking args include the invented cancellationReason \"Cancelled on user's calendar\" and actionSource \"SYSTEM\".",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > rescheduleBooking > should build fallback responses when booking responses are missing": {
+    "label": "unfair",
+    "reason": "Requires an invented fallback shape (name=title, guests [], location with `label`), the metadata calendarSubscriptionEvent key, and exact bookingMeta with unrequested skip flags.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > rescheduleBooking > should handle database errors gracefully without throwing": {
+    "label": "fair",
+    "reason": "Description states errors are caught and logged, not thrown.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > rescheduleBooking > should handle rescheduling errors gracefully without throwing": {
+    "label": "fair",
+    "reason": "Description states errors are caught and logged; createBooking via getRegularBookingService is the stated mechanism.",
+    "confidence": "high"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > rescheduleBooking > should preserve original duration when external event has different duration": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Description only says rescheduleBooking 'updates booking times'; using the external event's end is an equally valid reading, and nothing states that the original booking duration is kept (the expected end differs under that reading).",
+    "confidence": "medium"
+  },
+  "packages/features/calendar-subscription/lib/sync/__tests__/CalendarSyncService.test.ts::CalendarSyncService > rescheduleBooking > should successfully reschedule a booking preserving original duration": {
+    "label": "unfair",
+    "reason": "Full toHaveBeenCalledWith requires the metadata calendarSubscriptionEvent string (contradicting the description's `metadata: {}`), bookingMeta skipAvailabilityCheck/skipEventLimitsCheck, and location with `label`.",
+    "confidence": "high"
+  }
+}
