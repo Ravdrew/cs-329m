@@ -1,0 +1,39 @@
+{
+  "unchanged": [
+    {
+      "id": "booking-audit",
+      "reason": "Viewer/action service refactors; responsibility unchanged"
+    },
+    {
+      "id": "booking-list-query",
+      "reason": "addGuests refactor only"
+    },
+    {
+      "id": "bookings-list-page",
+      "reason": "Details sheet UI changes only"
+    },
+    {
+      "id": "email-sms-notifications",
+      "reason": "Template tweaks only"
+    },
+    {
+      "id": "event-type-editor-ui",
+      "reason": "UI tweaks only"
+    },
+    {
+      "id": "payment-lib",
+      "reason": "Minor no-show fee/getBooking changes"
+    },
+    {
+      "id": "tasker",
+      "reason": "Task payload/list tweaks; same responsibility"
+    },
+    {
+      "id": "workflow-reminders",
+      "reason": "Reminder manager tweaks only"
+    }
+  ],
+  "out_of_scope": [],
+  "components_left": [],
+  "new_files_left": []
+}

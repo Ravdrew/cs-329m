@@ -1,0 +1,177 @@
+{
+  "unchanged": [
+    {
+      "id": "availability-ui",
+      "reason": "Page and skeleton edits only; still the schedule editor UI."
+    },
+    {
+      "id": "booker-booking-hooks",
+      "reason": "useBookings simplified, still posts to /api/book/event."
+    },
+    {
+      "id": "booker-ui",
+      "reason": "Refactors of Booker components and hooks; responsibility unchanged."
+    },
+    {
+      "id": "booking-audit",
+      "reason": "Service internals trimmed; still queues and serves audit history."
+    },
+    {
+      "id": "booking-fields",
+      "reason": "getBookingFields simplified; still builds booking fields and schemas."
+    },
+    {
+      "id": "booking-request-reschedule",
+      "reason": "Handler trimmed; still cancels refs and emails attendee."
+    },
+    {
+      "id": "booking-seats",
+      "reason": "handleSeats trimmed; still seat create, reschedule and cancel."
+    },
+    {
+      "id": "booking-success-page",
+      "reason": "CancelBooking and page refactors; same responsibility."
+    },
+    {
+      "id": "bookings-list-page",
+      "reason": "Hook and component refactors; same list page."
+    },
+    {
+      "id": "calendar-weekly-view",
+      "reason": "Files renamed and small edits; same weekly grid."
+    },
+    {
+      "id": "crm-integrations-family",
+      "reason": "Salesforce service slimmed; still the CRM service family."
+    },
+    {
+      "id": "data-table",
+      "reason": "Refactors within data table framework."
+    },
+    {
+      "id": "email-sms-notifications",
+      "reason": "Billing email service trimmed; email-manager still sends booking emails and SMS."
+    },
+    {
+      "id": "embed-core",
+      "reason": "Embed iframe utility refactors only."
+    },
+    {
+      "id": "event-type-editor-ui",
+      "reason": "Tab component edits; same editor UI."
+    },
+    {
+      "id": "feature-flags",
+      "reason": "Opt-in service and config tweaks; same flag service."
+    },
+    {
+      "id": "model-credential",
+      "reason": "Credential and CalendarCache models still exist as cited."
+    },
+    {
+      "id": "model-event-type",
+      "reason": "EventType, Host, Availability and Schedule models still present."
+    },
+    {
+      "id": "model-payment",
+      "reason": "Payment model still present."
+    },
+    {
+      "id": "model-webhook",
+      "reason": "Webhook and WebhookScheduledTriggers models still present."
+    },
+    {
+      "id": "nextauth-credentials",
+      "reason": "next-auth options trimmed; still credentials login."
+    },
+    {
+      "id": "no-show-tasks",
+      "reason": "common.ts and handlers simplified; same no-show task responsibility."
+    },
+    {
+      "id": "oauth-provider",
+      "reason": "Service and updateClient handler edits; same OAuth provider."
+    },
+    {
+      "id": "payment-lib",
+      "reason": "Refund and payment helpers edited; same orchestration."
+    },
+    {
+      "id": "public-booking-pages",
+      "reason": "Page edits only."
+    },
+    {
+      "id": "public-event-loader",
+      "reason": "getPublicEvent edits; same loader."
+    },
+    {
+      "id": "signup",
+      "reason": "Handlers edited; same signup flow."
+    },
+    {
+      "id": "stripe-integration",
+      "reason": "Billing portal service refactor; Stripe payment service unchanged."
+    },
+    {
+      "id": "tasker",
+      "reason": "Task map slimmed; same queue framework."
+    },
+    {
+      "id": "user-availability",
+      "reason": "getUserAvailability edits; same availability computation."
+    }
+  ],
+  "out_of_scope": [
+    {
+      "path": "apps/web/modules/users/",
+      "reason": "Admin user management UI, not booking product.",
+      "files": [
+        "apps/web/modules/users/components/UsersTable.tsx",
+        "apps/web/modules/users/views/users-add-view.tsx",
+        "apps/web/modules/users/views/users-listing-view.tsx"
+      ]
+    },
+    {
+      "path": "packages/features/bookings/services/BookingAttendeesRemoveService.integration-test.ts",
+      "reason": "test",
+      "files": [
+        "packages/features/bookings/services/BookingAttendeesRemoveService.integration-test.ts"
+      ]
+    },
+    {
+      "path": "packages/features/di/containers/UserRepository.ts",
+      "reason": "generic DI container",
+      "files": [
+        "packages/features/di/containers/UserRepository.ts"
+      ]
+    },
+    {
+      "path": "packages/features/url-shortener/",
+      "reason": "URL shortener utility outside the graph's scope",
+      "files": [
+        "packages/features/url-shortener/IUrlShortenerProvider.ts",
+        "packages/features/url-shortener/UrlShortenerFactory.ts",
+        "packages/features/url-shortener/providers/DubShortener.ts",
+        "packages/features/url-shortener/providers/NoopShortener.ts",
+        "packages/features/url-shortener/providers/SinkClient.ts",
+        "packages/features/url-shortener/providers/SinkShortener.ts"
+      ]
+    },
+    {
+      "path": "packages/features/users/repositories/UserRepository.integration-test.ts",
+      "reason": "test",
+      "files": [
+        "packages/features/users/repositories/UserRepository.integration-test.ts"
+      ]
+    },
+    {
+      "path": "packages/lib/LinkBuilder.ts",
+      "reason": "generic link helper",
+      "files": [
+        "packages/lib/LinkBuilder.ts"
+      ]
+    }
+  ],
+  "components_left": [],
+  "new_files_left": []
+}

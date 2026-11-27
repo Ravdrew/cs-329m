@@ -166,6 +166,57 @@
       "existing_in_graph": 3
     }
   },
+  "24124": {
+    "pull": 24124,
+    "base_commit": "5d65a0f09199abeab9729d2665e9bed399692f55",
+    "previous": 27428,
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/chain-v2/runs/24124-1/2026-11-27T00-34-28.423Z-TS5Ol6",
+        "status": "completed",
+        "cost_usd": 0.2988235,
+        "elapsed_s": 75.422,
+        "error": null,
+        "seed": {
+          "path": "/Users/andg/Desktop/cs-329m-fresh-graphs/graphs/chain/27428.yaml",
+          "commit": "5d65df9c05a2bf55bac89a5c821d6f5c0db02df9",
+          "sha256": "cf39bff5bb7754f72615e94a3308a3eab58e7ba95a57394a4f0db3f95d6e153a",
+          "pending": 9,
+          "changed_files": 219,
+          "history": true,
+          "commits": 25,
+          "host_added_files": 1,
+          "unassigned_new_files": 15,
+          "components_to_review": 9
+        },
+        "quality": {
+          "commit": "5d65a0f09199abeab9729d2665e9bed399692f55",
+          "nodes": 71,
+          "edges": 111,
+          "groups": 14,
+          "owned_files": 1844,
+          "in_scope_files": 3750,
+          "scope_coverage": 0.409,
+          "evidence_ranges": 203,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.099,
+          "median_files_per_node": 12,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "pr_coverage": {
+      "pull": 24124,
+      "pr_files": 4,
+      "in_graph": 2,
+      "existing_pr_files": 4,
+      "existing_in_graph": 2
+    }
+  },
   "24207": {
     "pull": 24207,
     "base_commit": "f3269a3ddf5156eac9b6ca4663c68c938c231252",
@@ -574,6 +625,57 @@
       "existing_in_graph": 2
     }
   },
+  "27088": {
+    "pull": 27088,
+    "base_commit": "3e874917ec369bdd31a8ae73e8dbe02b02ca21d3",
+    "previous": 24124,
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/chain-v2/runs/27088-1/2026-11-27T00-35-44.658Z-9OJ75Y",
+        "status": "completed",
+        "cost_usd": 0.1646689,
+        "elapsed_s": 51.195,
+        "error": null,
+        "seed": {
+          "path": "/Users/andg/Desktop/cs-329m-fresh-graphs/graphs/chain/24124.yaml",
+          "commit": "5d65a0f09199abeab9729d2665e9bed399692f55",
+          "sha256": "199515bc41e75a7db148f845b74a854edd69ca823601599689722ed331fd9c20",
+          "pending": 7,
+          "changed_files": 124,
+          "history": true,
+          "commits": 23,
+          "host_added_files": 1,
+          "unassigned_new_files": 30,
+          "components_to_review": 7
+        },
+        "quality": {
+          "commit": "3e874917ec369bdd31a8ae73e8dbe02b02ca21d3",
+          "nodes": 71,
+          "edges": 111,
+          "groups": 14,
+          "owned_files": 1845,
+          "in_scope_files": 3776,
+          "scope_coverage": 0.407,
+          "evidence_ranges": 203,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.099,
+          "median_files_per_node": 12,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "pr_coverage": {
+      "pull": 27088,
+      "pr_files": 10,
+      "in_graph": 5,
+      "existing_pr_files": 10,
+      "existing_in_graph": 5
+    }
+  },
   "27192": {
     "pull": 27192,
     "base_commit": "d9658a5a2780ff6ba131f3e7bf34e209845e37b9",
@@ -776,6 +878,109 @@
       "in_graph": 3,
       "existing_pr_files": 4,
       "existing_in_graph": 3
+    }
+  },
+  "27428": {
+    "pull": 27428,
+    "base_commit": "5d65df9c05a2bf55bac89a5c821d6f5c0db02df9",
+    "previous": 27405,
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/chain-v2/runs/27428-1/2026-11-27T00-31-22.663Z-xn1BEZ",
+        "status": "completed",
+        "cost_usd": 0.5805560000000001,
+        "elapsed_s": 130.479,
+        "error": null,
+        "seed": {
+          "path": "/Users/andg/Desktop/cs-329m-fresh-graphs/graphs/chain/27405.yaml",
+          "commit": "c3a8301b0cdc5bea32102bd2b2696253f7c3e04f",
+          "sha256": "7d69096fdde5d0e7bd959b3516e7e3a12eae9e01be2520fec952ca1e23721018",
+          "pending": 31,
+          "changed_files": 1267,
+          "history": true,
+          "commits": 112,
+          "host_added_files": 6,
+          "unassigned_new_files": 29,
+          "components_to_review": 31
+        },
+        "quality": {
+          "commit": "5d65df9c05a2bf55bac89a5c821d6f5c0db02df9",
+          "nodes": 70,
+          "edges": 110,
+          "groups": 14,
+          "owned_files": 1828,
+          "in_scope_files": 3734,
+          "scope_coverage": 0.407,
+          "evidence_ranges": 200,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.1,
+          "median_files_per_node": 13,
+          "verdict": "ok",
+          "reasons": []
+        },
+        "note": "recorded by hand: the batch read a stale run folder (credit-exhausted run) instead of this one; batch fixed to read the run the child names"
+      }
+    ],
+    "accepted": 1,
+    "pr_coverage": {
+      "pull": 27428,
+      "pr_files": 4,
+      "in_graph": 3,
+      "existing_pr_files": 3,
+      "existing_in_graph": 3
+    }
+  },
+  "30354": {
+    "pull": 30354,
+    "base_commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+    "previous": 27088,
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit": 0,
+        "run_dir": "/Users/andg/Desktop/llm-only-runs/chain-v2/runs/30354-1/2026-11-27T00-36-36.638Z-sTXSS5",
+        "status": "completed",
+        "cost_usd": 1.4967983999999996,
+        "elapsed_s": 309.658,
+        "error": null,
+        "seed": {
+          "path": "/Users/andg/Desktop/cs-329m-fresh-graphs/graphs/chain/27088.yaml",
+          "commit": "3e874917ec369bdd31a8ae73e8dbe02b02ca21d3",
+          "sha256": "461cb54595bb51a6c58fa26b15683550e4fabad78c71ee109fdad7306c1cc49b",
+          "pending": 43,
+          "changed_files": 2287,
+          "history": true,
+          "commits": 208,
+          "host_added_files": 16,
+          "unassigned_new_files": 18,
+          "components_to_review": 43
+        },
+        "quality": {
+          "commit": "54343aa685ae8f33159d2f485ec4a57bad5c574a",
+          "nodes": 68,
+          "edges": 102,
+          "groups": 14,
+          "owned_files": 1583,
+          "in_scope_files": 2630,
+          "scope_coverage": 0.516,
+          "evidence_ranges": 189,
+          "weak_evidence": 0,
+          "single_file_nodes": 0.118,
+          "median_files_per_node": 12,
+          "verdict": "ok",
+          "reasons": []
+        }
+      }
+    ],
+    "accepted": 1,
+    "pr_coverage": {
+      "pull": 30354,
+      "pr_files": 21,
+      "in_graph": 15,
+      "existing_pr_files": 21,
+      "existing_in_graph": 15
     }
   }
 }

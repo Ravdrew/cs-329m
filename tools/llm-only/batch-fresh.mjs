@@ -58,7 +58,8 @@ function build(pull, attempt) {
     child.stderr.on('data', d => { text += d; });
     child.on('close', code => {
       writeFileSync(logFile, text);
-      const runDir = readdirSync(root).map(d => join(root, d))[0] ?? null;
+      // The run this child started: its first line names it. (The folder can hold older runs of the same attempt.)
+      const runDir = text.match(/"run_directory":"([^"]+)"/)?.[1] ?? null;
       const run = runDir && existsSync(join(runDir, 'run.json')) ? JSON.parse(readFileSync(join(runDir, 'run.json'), 'utf8')) : null;
       const record = { attempt, exit: code, run_dir: runDir, status: run?.status ?? 'no-run', cost_usd: run?.estimated_cost_usd ?? 0,
         elapsed_s: run?.elapsed_seconds ?? null, error: run?.error ?? null };
