@@ -1,0 +1,43 @@
+{
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to booking owner": {
+    "label": "fair",
+    "reason": "Signature input includes bookingOwnerId, and owning the credential is the obvious grant; the test only checks for no throw.",
+    "confidence": "high"
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to logged-in user": {
+    "label": "fair",
+    "reason": "The logged-in user owning the credential is the obvious grant; the test only checks for no throw.",
+    "confidence": "high"
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to organization the logged-in user belongs to": {
+    "label": "fair",
+    "reason": "Spec names UserRepository.getUserOrganizationAndTeams as the dependency; it returns organizationId and teams (UserRepository.ts:827-837), and the sibling BookingAccessService.ts:74-95 treats the org as a team id.",
+    "confidence": "medium"
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to team the booking owner belongs to": {
+    "label": "ambiguous",
+    "kind": "behavior",
+    "reason": "Checking the booking owner's teams, and not only the logged-in user's, is a separate decision; the description ('fixes the access control') does not settle it, though bookingOwnerId in the input hints at it.",
+    "confidence": "medium"
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should allow access when credential belongs to team the logged-in user belongs to": {
+    "label": "fair",
+    "reason": "Spec mocks getUserOrganizationAndTeams, which returns teams[{teamId}]; matching credential.teamId against it is the evident use.",
+    "confidence": "high"
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should handle null bookingOwnerId": {
+    "label": "fair",
+    "reason": "Type bookingOwnerId: number | null is in the spec; the credential belongs to the logged-in user, so access should not throw.",
+    "confidence": "high"
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should throw FORBIDDEN when credential is not accessible": {
+    "label": "unfair",
+    "reason": "Asserts the exact message 'You do not have access to this credential' (invented) plus HttpError with status 403; the description is one line.",
+    "confidence": "high"
+  },
+  "packages/features/credentials/services/CredentialAccessService.test.ts::CredentialAccessService > should throw NOT_FOUND when credential does not exist": {
+    "label": "unfair",
+    "reason": "Asserts the exact message 'Credential not found' and HttpError with status 404; the message is not given, though it is a common phrase in base (handleDeleteCredential.ts:71).",
+    "confidence": "medium"
+  }
+}

@@ -1,100 +1,317 @@
 {
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingCancelledWebhook": {
     "label": "fair",
-    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_CANCELLED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_CANCELLED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_CANCELLED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "queueBookingCancelledWebhook and its BOOKING_CANCELLED payload already exist in base WebhookTaskerProducerService.ts; only the constructor ({webhookTasker, logger} per spec) and a deliverWebhook call (description: producer uses the new WebhookTasker) change.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingCreatedWebhook": {
     "label": "fair",
-    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_CREATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_CREATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_CREATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "queueBookingCreatedWebhook and its BOOKING_CREATED payload already exist in base WebhookTaskerProducerService.ts; only the constructor ({webhookTasker, logger} per spec) and a deliverWebhook call (description: producer uses the new WebhookTasker) change.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingNoShowUpdatedWebhook": {
     "label": "fair",
-    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_NO_SHOW_UPDATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_NO_SHOW_UPDATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_NO_SHOW_UPDATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "queueBookingNoShowUpdatedWebhook and its BOOKING_NO_SHOW_UPDATED payload already exist in base WebhookTaskerProducerService.ts; only the constructor ({webhookTasker, logger} per spec) and a deliverWebhook call (description: producer uses the new WebhookTasker) change.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingPaidWebhook": {
     "label": "fair",
-    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_PAID. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_PAID. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_PAID. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "queueBookingPaidWebhook and its BOOKING_PAID payload already exist in base WebhookTaskerProducerService.ts; only the constructor ({webhookTasker, logger} per spec) and a deliverWebhook call (description: producer uses the new WebhookTasker) change.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingPaymentInitiatedWebhook": {
     "label": "fair",
-    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_PAYMENT_INITIATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_PAYMENT_INITIATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_PAYMENT_INITIATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "queueBookingPaymentInitiatedWebhook and its BOOKING_PAYMENT_INITIATED payload already exist in base WebhookTaskerProducerService.ts; only the constructor ({webhookTasker, logger} per spec) and a deliverWebhook call (description: producer uses the new WebhookTasker) change.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingRejectedWebhook": {
     "label": "fair",
-    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_REJECTED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_REJECTED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_REJECTED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "queueBookingRejectedWebhook and its BOOKING_REJECTED payload already exist in base WebhookTaskerProducerService.ts; only the constructor ({webhookTasker, logger} per spec) and a deliverWebhook call (description: producer uses the new WebhookTasker) change.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingRequestedWebhook": {
     "label": "fair",
-    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_REQUESTED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_REQUESTED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_REQUESTED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "queueBookingRequestedWebhook and its BOOKING_REQUESTED payload already exist in base WebhookTaskerProducerService.ts; only the constructor ({webhookTasker, logger} per spec) and a deliverWebhook call (description: producer uses the new WebhookTasker) change.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueBookingRescheduledWebhook": {
     "label": "fair",
-    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_RESCHEDULED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_RESCHEDULED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts deliverWebhook is called with triggerEvent BOOKING_RESCHEDULED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "queueBookingRescheduledWebhook and its BOOKING_RESCHEDULED payload already exist in base WebhookTaskerProducerService.ts; only the constructor ({webhookTasker, logger} per spec) and a deliverWebhook call (description: producer uses the new WebhookTasker) change.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueFormSubmittedWebhook": {
     "label": "fair",
-    "reason": "Asserts deliverWebhook is called with triggerEvent FORM_SUBMITTED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Asserts deliverWebhook is called with triggerEvent FORM_SUBMITTED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts deliverWebhook is called with triggerEvent FORM_SUBMITTED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "queueFormSubmittedWebhook and its FORM_SUBMITTED payload already exist in base WebhookTaskerProducerService.ts; only the constructor ({webhookTasker, logger} per spec) and a deliverWebhook call (description: producer uses the new WebhookTasker) change.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueOOOCreatedWebhook": {
     "label": "fair",
-    "reason": "Asserts deliverWebhook is called with triggerEvent OOO_CREATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Asserts deliverWebhook is called with triggerEvent OOO_CREATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts deliverWebhook is called with triggerEvent OOO_CREATED. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "queueOOOCreatedWebhook and its OOO_CREATED payload already exist in base WebhookTaskerProducerService.ts; only the constructor ({webhookTasker, logger} per spec) and a deliverWebhook call (description: producer uses the new WebhookTasker) change.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > All Event-Specific Methods > should have queueRecordingReadyWebhook": {
     "label": "fair",
-    "reason": "Asserts deliverWebhook is called with triggerEvent RECORDING_READY. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Asserts deliverWebhook is called with triggerEvent RECORDING_READY. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts deliverWebhook is called with triggerEvent RECORDING_READY. The trigger event comes from the existing base queue methods. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "queueRecordingReadyWebhook and its RECORDING_READY payload already exist in base WebhookTaskerProducerService.ts; only the constructor ({webhookTasker, logger} per spec) and a deliverWebhook call (description: producer uses the new WebhookTasker) change.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > Constructor & Dependencies > should be instantiable with Tasker and Logger": {
     "label": "fair",
-    "reason": "Constructing with the deps object from the spec."
+    "reason": "Constructing with the deps object from the spec.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Constructing with the deps object from the spec."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Spec gives constructor(deps: IWebhookTaskerProducerServiceDeps) with webhookTasker/logger.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > Constructor & Dependencies > should create sub-logger with prefix": {
     "label": "fair",
-    "reason": "The prefix '[WebhookTaskerProducerService]' is unchanged from the base constructor. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "The prefix '[WebhookTaskerProducerService]' is unchanged from the base constructor. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "The prefix '[WebhookTaskerProducerService]' is unchanged from the base constructor. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Base constructor already calls logger.getSubLogger({prefix:['[WebhookTaskerProducerService]']}); keeping it is the base convention.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > Error Handling > should log and rethrow error if WebhookTasker fails": {
     "label": "fair",
-    "reason": "The 'Failed to queue webhook delivery task' log and rethrow are existing base queueTask behavior. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "The 'Failed to queue webhook delivery task' log and rethrow are existing base queueTask behavior. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "The 'Failed to queue webhook delivery task' log and rethrow are existing base queueTask behavior. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Base queueTask already logs 'Failed to queue webhook delivery task' with error message and rethrows.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > Metadata Support > should include metadata if provided": {
     "label": "fair",
-    "reason": "Passing metadata through is existing base payload building. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Passing metadata through is existing base payload building. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Passing metadata through is existing base payload building. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Base payload construction already passes params.metadata through.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > queueBookingCancelledWebhook > should queue a BOOKING_CANCELLED webhook task": {
     "label": "fair",
-    "reason": "Existing base payload fields. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Existing base payload fields. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Existing base payload fields. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Existing method; only routing to webhookTasker.deliverWebhook changes, per the description.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > queueBookingCreatedWebhook > should generate operationId if not provided": {
     "label": "fair",
-    "reason": "The UUID operationId comes from the base uuidv4 usage. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "The UUID operationId comes from the base uuidv4 usage. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "The UUID operationId comes from the base uuidv4 usage. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Base already generates operationId with uuidv4.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > queueBookingCreatedWebhook > should log debug messages": {
-    "label": "ambiguous",
-    "kind": "convention",
-    "reason": "Besides the base 'Queueing booking webhook task' log, it asserts the existing 'Webhook delivery task queued' debug log now includes taskId: 'task-id-123' from deliverWebhook's result. The base logged only { operationId }, and neither the description nor the spec asks for taskId in the log, so keeping the base log line also fits.",
-    "clarification": "After deliverWebhook resolves, queueTask logs debug 'Webhook delivery task queued' with { operationId, taskId } where taskId is the returned result.taskId."
+    "label": "unfair",
+    "reason": "Needs taskId in the \"Webhook delivery task queued\" log; base logs only operationId and nothing asks for taskId.",
+    "first_review": {
+      "label": "ambiguous",
+      "kind": "convention",
+      "reason": "Besides the base 'Queueing booking webhook task' log, it asserts the existing 'Webhook delivery task queued' debug log now includes taskId: 'task-id-123' from deliverWebhook's result. The base logged only { operationId }, and neither the description nor the spec asks for taskId in the log, so keeping the base log line also fits.",
+      "clarification": "After deliverWebhook resolves, queueTask logs debug 'Webhook delivery task queued' with { operationId, taskId } where taskId is the returned result.taskId."
+    },
+    "second_review": {
+      "label": "unfair",
+      "reason": "The second assertion needs the debug log 'Webhook delivery task queued' to include taskId from the deliverWebhook result. Base logs only {operationId}, and neither the description nor the spec says to log taskId.",
+      "confidence": "medium"
+    },
+    "resolution": "Disagreement (convention vs unfair) resolved by Jo, 2026-11-26."
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > queueBookingCreatedWebhook > should queue a BOOKING_CREATED webhook task": {
     "label": "fair",
-    "reason": "Existing base payload fields passed to deliverWebhook. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Existing base payload fields passed to deliverWebhook. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Existing base payload fields passed to deliverWebhook. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Existing payload fields; the call goes to deliverWebhook, the only method on the spec's IWebhookTasker.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/service/__tests__/WebhookTaskerProducerService.test.ts::WebhookTaskerProducerService > queueBookingCreatedWebhook > should use provided operationId": {
     "label": "fair",
-    "reason": "Existing base behavior. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    "reason": "Existing base behavior. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Existing base behavior. It fails at base only because the constructor now takes the {webhookTasker, logger} deps object given in the spec, and the producer must call webhookTasker.deliverWebhook(payload), which the description states."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Base behavior, unchanged.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/tasker/WebhookTasker.test.ts::WebhookSyncTasker > should execute webhook delivery immediately via consumer": {
     "label": "fair",
-    "reason": "Asserts processWebhookTask(payload, /^sync_/) and taskId /^sync_/. The description says the sync tasker calls WebhookTaskConsumer directly, processWebhookTask(payload, taskId) is the base signature, and `sync_${nanoid(10)}` is the base convention in BookingEmailAndSmsSyncTasker.ts:16 and MonthlyProrationSyncTasker.ts:11."
+    "reason": "Asserts processWebhookTask(payload, /^sync_/) and taskId /^sync_/. The description says the sync tasker calls WebhookTaskConsumer directly, processWebhookTask(payload, taskId) is the base signature, and `sync_${nanoid(10)}` is the base convention in BookingEmailAndSmsSyncTasker.ts:16 and MonthlyProrationSyncTasker.ts:11.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts processWebhookTask(payload, /^sync_/) and taskId /^sync_/. The description says the sync tasker calls WebhookTaskConsumer directly, processWebhookTask(payload, taskId) is the base signature, and `sync_${nanoid(10)}` is the base convention in BookingEmailAndSmsSyncTasker.ts:16 and MonthlyProrationSyncTasker.ts:11."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Description: sync tasker 'calls WebhookTaskConsumer directly'. processWebhookTask(payload, taskId) is the base signature, and the 'sync_' prefix is the convention in every base SyncTasker (e.g. BookingEmailAndSmsSyncTasker.ts:16 `sync_${nanoid(10)}`).",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/tasker/WebhookTasker.test.ts::WebhookSyncTasker > should generate unique task IDs for each delivery": {
     "label": "fair",
-    "reason": "Asserts taskId 'sync_test123456' when nanoid is mocked to 'test123456'. The nanoid mock is in the spec, and the sync_ + nanoid format is the base convention in the existing sync taskers."
+    "reason": "Asserts taskId 'sync_test123456' when nanoid is mocked to 'test123456'. The nanoid mock is in the spec, and the sync_ + nanoid format is the base convention in the existing sync taskers.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts taskId 'sync_test123456' when nanoid is mocked to 'test123456'. The nanoid mock is in the spec, and the sync_ + nanoid format is the base convention in the existing sync taskers."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Exact 'sync_test123456' follows from the base `sync_${nanoid(...)}` convention, with nanoid named as a mocked module in the spec.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/tasker/WebhookTasker.test.ts::WebhookSyncTasker > should propagate errors from consumer": {
     "label": "fair",
-    "reason": "A rejection from the consumer propagates, which is the natural result of awaiting it, as in the base sync taskers."
+    "reason": "A rejection from the consumer propagates, which is the natural result of awaiting it, as in the base sync taskers.",
+    "first_review": {
+      "label": "fair",
+      "reason": "A rejection from the consumer propagates, which is the natural result of awaiting it, as in the base sync taskers."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "A direct awaited call propagates errors naturally; no base SyncTasker swallows them.",
+      "confidence": "high"
+    }
   },
   "packages/features/webhooks/lib/tasker/WebhookTasker.test.ts::WebhookTriggerTasker > should trigger webhook delivery via trigger.dev": {
     "label": "fair",
-    "reason": "Asserts taskId equals the trigger handle id. The spec names the deliverWebhook.trigger mock, and returning handle.id follows the base PlatformOrganizationBillingTriggerTasker pattern that the description cites."
+    "reason": "Asserts taskId equals the trigger handle id. The spec names the deliverWebhook.trigger mock, and returning handle.id follows the base PlatformOrganizationBillingTriggerTasker pattern that the description cites.",
+    "first_review": {
+      "label": "fair",
+      "reason": "Asserts taskId equals the trigger handle id. The spec names the deliverWebhook.trigger mock, and returning handle.id follows the base PlatformOrganizationBillingTriggerTasker pattern that the description cites."
+    },
+    "second_review": {
+      "label": "fair",
+      "reason": "Spec lists the deliver-webhook mock (.trigger), and base PlatformOrganizationBillingTriggerTasker returns handle.id; the spec's result type is {taskId}.",
+      "confidence": "high"
+    }
   }
 }

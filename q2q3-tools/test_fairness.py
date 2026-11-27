@@ -52,14 +52,22 @@ for pull, rules in L.items():
         rule = next(r for r in rules if r[0] in test)
         entry = {'label': rule[1], 'reason': rule[2]}
         if len(rule) > 3:
-            entry['kind'] = rule[3]
-            if rule[4]:
-                entry['clarification'] = rule[4]
+            entry['kind'] = rule[3]  # rule[4] was a drafted spec clarification; all were rejected on 2026-11-26
         out[str(pull)][test] = entry
 # Labels for the other PRs, written per PR in fairness/<PR>.json (same format), are merged in.
 for f in sorted((pathlib.Path(__file__).parent / 'fairness').glob('*.json')):
     out[f.stem] = json.load(open(f))
+# Scoring tiers (2026-11-26): fair = tier 1, the competence check; ambiguous = tier 2, underdetermined by the shared
+# inputs, where graph or intent can add information; unfair = excluded. The full FAIL_TO_PASS score is reported too.
+TIER = {'fair': 'fair', 'ambiguous': 'underdetermined', 'unfair': 'excluded'}
+for d in out.values():
+    for v in d.values():
+        assert 'clarification' not in v, 'spec clarifications were rejected on 2026-11-26'
+        v['tier'] = TIER[v['label']]
 json.dump(out, open(pathlib.Path(__file__).parent / 'test_fairness.json', 'w'), indent=1)
-for p, d in out.items():
-    c = {k: sum(v['label'] == k for v in d.values()) for k in ('fair', 'ambiguous', 'unfair')}
+total = {t: 0 for t in TIER.values()}
+for p, d in sorted(out.items()):
+    c = {t: sum(v['tier'] == t for v in d.values()) for t in TIER.values()}
+    for t in c: total[t] += c[t]
     print(p, len(d), c)
+print('total', sum(total.values()), total)
