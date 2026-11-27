@@ -1,0 +1,12 @@
+{
+  "modify": [
+    {
+      "id": "calendar-cache",
+      "note": "Make the cache-serving decision a boolean on every normal path. In CacheService's `getShouldServeCache`, keep an explicitly supplied `true` or `false` as the highest-priority decision. When there is no explicit override and no team ID, return `false` rather than `undefined`. Only consult the team's `calendar-cache-serve` feature when a team ID is available and no boolean override was supplied."
+    },
+    {
+      "id": "google-calendar-integration",
+      "note": "Follow the `getShouldServeCache` result into the calendar availability code that selects the cached or live provider. Treat any falsy `shouldServeCache` value as a request to bypass cache, replacing the strict comparison with `false` that currently allows an unset value through. A truthy decision should retain the existing cached path. Keep the change focused on whether cached availability may be served; preserve the current provider calls, cache population behavior, and date/calendar selection inputs."
+    }
+  ]
+}
