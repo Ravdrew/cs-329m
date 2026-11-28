@@ -61,7 +61,7 @@ nodes:
         end_line: 43
     provenance: inferred
     status: modify
-    note: Add BotID verification to the `/api/book/event` request path before booking creation can cause side effects. The route stays responsible for assembling the inputs to `checkBotDetection` (the request headers and the optional event type ID) and for reporting an unsuccessful verification through its normal error handling. Keep a disabled rollout from changing ordinary booking behavior. Preserve the route's existing Turnstile, rate limiting, session handling, and booking metadata.
+    note: Add BotID verification to the `/api/book/event` request path before booking creation can cause side effects. The route assembles the inputs to `checkBotDetection` (the request headers and the optional event type ID) and reports an unsuccessful verification through its normal error handling. Keep a disabled rollout from changing ordinary booking behavior. Preserve the route's existing Turnstile, rate limiting, session handling, and booking metadata.
   - id: api.cancel
     label: Cancel booking endpoint
     kind: endpoint
@@ -1035,7 +1035,7 @@ nodes:
         end_line: 50
     provenance: inferred
     status: modify
-    note: Register the team feature `booker-botid` with its default off. The feature repository is used to resolve whether the event type team has the `booker-botid` feature setting.
+    note: Register the team feature `booker-botid` with its default off.
   - id: form.builder
     label: Form builder
     kind: component
@@ -1915,12 +1915,12 @@ nodes:
     kind: service
     group: booking-core
     summary: Decides whether BotID verification is enabled for a booking request and runs it.
-    description: Holds the decision and verification logic for BotID on the /api/book/event path. The feature and event-type repositories are injected through its constructor. checkBotDetection takes the request headers and an optional event type ID.
+    description: Holds the BotID decision and verification logic for the booking request path.
     files:
       - packages/features/bot-detection/BotDetectionService.ts
     provenance: manual
     status: new
-    note: Put the decision and verification logic in BotDetectionService, with the feature and event-type repositories injected through its constructor. `checkBotDetection` receives the request headers and optional event type ID. Use `NEXT_PUBLIC_VERCEL_USE_BOTID_IN_BOOKER` and the event type team's `booker-botid` feature setting to determine whether the check is enabled; add the environment setting to the example configuration. Make the behavior for a missing event type or personal event explicit without assuming a team exists. When verification is enabled, call `checkBotId` using the request context, reject a detected bot, and allow a human result to continue. Keep a disabled rollout from changing ordinary booking behavior. Distinguish a bot verdict from a verification-service failure in logging and error handling, with an explicit failure policy.
+    note: Put the decision and verification logic in BotDetectionService, with the feature and event-type repositories injected through its constructor. Use `NEXT_PUBLIC_VERCEL_USE_BOTID_IN_BOOKER` and the event type team's `booker-botid` feature setting to determine whether the check is enabled, and add the environment setting to the example configuration. When verification is enabled, call `checkBotId` using the request context. Distinguish a bot verdict from a verification-service failure in logging and error handling, with an explicit failure policy.
 edges:
   - id: e1
     from: ui.booking-pages
@@ -2884,7 +2884,7 @@ edges:
       - file: apps/web/pages/api/book/recurring-event.ts
         line: 33
         note: Lines 33–52 (inclusive).
-    note: The BotID check runs before this call, so booking creation cannot cause side effects first. When verification is enabled, a detected bot is rejected and a human result is allowed to continue to the existing booking handler. Keep a disabled rollout from changing ordinary booking behavior.
+    note: A detected bot is rejected before this call; a human result continues to the existing booking handler.
   - id: e50
     from: trpc.confirm
     to: core.refund
@@ -3740,7 +3740,7 @@ edges:
     label: checkBotDetection
     provenance: manual
     status: new
-    note: The route passes the request headers and optional event type ID into `checkBotDetection` before booking creation, and reports an unsuccessful verification through its normal error handling.
+    note: The route calls `checkBotDetection`.
   - id: e-botdetection-flags
     from: bot-detection-service
     to: flags.features
@@ -3748,7 +3748,7 @@ edges:
     label: checks booker-botid team feature
     provenance: manual
     status: new
-    note: Through the injected feature repository, check whether the event type team has the `booker-botid` feature setting, which together with `NEXT_PUBLIC_VERCEL_USE_BOTID_IN_BOOKER` determines whether the check is enabled.
+    note: Read the team's `booker-botid` setting through the injected feature repository.
   - id: e-botdetection-eventtype
     from: bot-detection-service
     to: model.event-type
@@ -3756,7 +3756,7 @@ edges:
     label: getTeamIdByEventTypeId
     provenance: manual
     status: new
-    note: Resolve the team through `getTeamIdByEventTypeId` on the injected event-type repository. Make the behavior for a missing event type or personal event explicit without assuming a team exists.
+    note: Resolve the team through `getTeamIdByEventTypeId`, and make the behavior for a missing event type or personal event explicit without assuming a team exists.
 x-variant: llm-only
 title: Cal.com booking product component graph
 description: Components of the cal.diy web product centred on public booking, booking management, availability, calendars, apps, webhooks, tasks and persistence.
@@ -5473,4 +5473,4 @@ x-source-files:
     sha256: b16f884cdec29649a96626032803d25a93f3ed87c50b25fe91f7d542f4e5bbf1
   - path: packages/trpc/server/routers/viewer/webhook/util.ts
     sha256: 4308b3de8e0b6566b32fa310904b9a1b16bcf5f14b47b237df9851dd5969b12c
-x-edit: graph edit translated from q2q3-tools/prose-intents/24207.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/24207.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/24207.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/24207.yaml; tools/llm-only/EDITS-INTENT.md; tightened after review 2026-11-28

@@ -296,7 +296,7 @@ nodes:
         end_line: 500
     provenance: inferred
     status: modify
-    note: "Booker DatePicker (packages/features/bookings/Booker/components/DatePicker.tsx): make the booker's automatic month advance depend on availability in the month being displayed. The CRM-owner lookup can return slots from the following month, so deriving one list of nonempty days from the whole response incorrectly makes an empty current month look bookable. Restrict the dates used for this decision to the browsing month and year, using the existing nonempty-schedule-day logic. Keep the existing restriction that automatic advancement applies to the current month. Wait for a completed availability response before deciding that the month is empty; missing data or an in-progress fetch should not trigger navigation. When the loaded current month has no bookable days, advance through the existing month-change callback so the selected date and day-count state stay consistent. A bookable day in the displayed month must prevent advancement even when the response spans multiple months. Decouple the booker DatePicker from the schedule-query object by accepting `slots` and `isLoading` directly. Update callers. Add the shared `Slots` type in packages/features/bookings/types.ts."
+    note: In the booker DatePicker, make the automatic month advance depend on availability in the month being displayed. The CRM-owner lookup can return slots from the following month, so deriving one list of nonempty days from the whole response incorrectly makes an empty current month look bookable. Restrict the dates used for this decision to the browsing month and year, using the existing nonempty-schedule-day logic. Keep the existing restriction that automatic advancement applies to the current month. Wait for a completed availability response before deciding that the month is empty; missing data or an in-progress fetch should not trigger navigation. When the loaded current month has no bookable days, advance through the existing month-change callback so the selected date and day-count state stay consistent. A bookable day in the displayed month must prevent advancement even when the response spans multiple months. Decouple the booker DatePicker from the schedule-query object by accepting `slots` and `isLoading` directly, and update callers. Add the shared `Slots` type.
   - id: booking-confirm-decline
     label: Confirm or decline booking (tRPC)
     kind: endpoint
@@ -600,7 +600,7 @@ nodes:
         end_line: 60
     provenance: inferred
     status: modify
-    note: "Calendar DatePicker (packages/features/calendars/DatePicker.tsx): keep the actual slot data available to the calendar for rendering and out-of-office information. Use `isLoading` consistently in the calendar component. Expose the named `DatePicker` export as specified. Expose the month label as a `<time>` element with its machine-readable `dateTime` value as specified."
+    note: In the calendar DatePicker, keep the actual slot data available for rendering and out-of-office information, and use `isLoading` consistently. Expose the named `DatePicker` export and the month label's `<time>` element with its machine-readable `dateTime` value as specified.
   - id: cancel-api
     label: Cancel booking endpoint
     kind: endpoint
@@ -3449,7 +3449,7 @@ edges:
     label: renders calendar DatePicker
     provenance: manual
     status: new
-    note: The booker DatePicker passes the actual slot data (`slots`) to the calendar DatePicker for rendering and out-of-office information, and passes `isLoading`; month changes go through the existing month-change callback (`onMonthChange`).
+    note: The booker DatePicker renders the calendar DatePicker.
 x-variant: llm-only
 title: Cal.com booking product component graph
 description: Component graph of calcom/cal.diy covering public booking, booking management, availability/slots, calendars and caching, event types, auth, app-store integrations, notifications, webhooks, tasks and persistence.
@@ -5372,4 +5372,4 @@ x-source-files:
     sha256: 9e7ad17e136194a378cd45b7c675e2e57ca94268d91bc182833fc8c30e6bb19f
   - path: packages/trpc/server/routers/viewer/slots/util.ts
     sha256: 74408747e8d60ae7fdf467bb82fd708bc3076bdc4a960b8a50e796fdaaafda39
-x-edit: graph edit translated from q2q3-tools/prose-intents/19626.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/19626.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/19626.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/19626.yaml; tools/llm-only/EDITS-INTENT.md; tightened after review 2026-11-28
