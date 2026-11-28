@@ -146,7 +146,7 @@ def render(graph, max_files=40, ev_mode='files', per_edge=2):
         out.append('None. The graph describes the code as it is; no component or dependency is marked as changed.')
     else:
         out.append('The developer marked these parts of the graph as changed. Implement them; the rest of the graph '
-                   'below is the code as it is now.')
+                   'is the code as it is now.')
         verbs = {'new': 'Add component', 'modify': 'Change component', 'delete': 'Remove component'}
         for n in changed_nodes:
             line = f"- {verbs[status(n)]} {names[n['id']]} ({n['kind']})"

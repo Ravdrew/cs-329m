@@ -129,7 +129,7 @@ export function requestedChange(index, maxFiles = 40) {
     return out;
   }
   out.push('The developer marked these parts of the graph as changed. Implement them; the rest of the graph ' +
-    'below is the code as it is now.');
+    'is the code as it is now.');
   const verbs = { new: 'Add component', modify: 'Change component', delete: 'Remove component' };
   for (const n of nodes) {
     const status = changeOf(n), summary = clean(n.summary);

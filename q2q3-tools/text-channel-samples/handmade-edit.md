@@ -6,7 +6,7 @@ The same graph with a developer edit applied, as in Figure 2 of the proposal: ad
 
 ## Requested change
 
-The developer marked these parts of the graph as changed. Implement them; the rest of the graph below is the code as it is now.
+The developer marked these parts of the graph as changed. Implement them; the rest of the graph is the code as it is now.
 - Change component Booking success page [booking-success-page] (page): Confirmation page after a booking; also cancel/reschedule entry.
   - Routes: `/booking/[uid]`, `/booking-successful/[uid]`
   - Developer note: Add a "See all your bookings" link to the new page.

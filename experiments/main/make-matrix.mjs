@@ -16,7 +16,7 @@ import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
 const ROOT = resolve(new URL('../..', import.meta.url).pathname);
-export const DEFAULT_CONDITIONS = ['prose', 'prose-brief', 'prose-intent', 'text@fresh', 'text@chain', 'tool@fresh', 'tool@chain', 'tool@fresh-brief', 'codegraph-intent'];
+export const DEFAULT_CONDITIONS = ['prose', 'prose-brief', 'prose-intent', 'text@fresh', 'tool@fresh', 'tool@fresh-brief', 'codegraph-intent'];
 export const TASKS = Object.keys(JSON.parse(readFileSync(join(ROOT, 'q2q3-tools/test_fairness.json'), 'utf8'))).map(Number);
 
 export function inputsFor(pull) {
