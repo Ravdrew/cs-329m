@@ -15,6 +15,24 @@ plus `codegraph-intent`, Nathan's intents (`codex/prose-intents-2026-11-26`), Jo
 - **Real smoke test** (`~/q2q3-main/runs-smoke`, #24207, $0.34): `prose-intent`, `text@fresh` and `tool@chain` each
   resolved 7/7. Each run.json records and hashes its set's graph, and the tool run used the graph tools.
 
+## Inputs are solution-blind
+
+No input any condition gets was made with the real PR's solution: nobody who made them opened the PR's diff, the
+code after the change, or the hidden test bodies.
+
+| Input | Made from | Record |
+|---|---|---|
+| Prose intents (`q2q3-tools/prose-intents/`) | PR description, spec, and for 7 tasks (19626, 19997, 20646, 22024, 24207, 24465, 25315) code files at the base commit | Nathan's `README.md`, `provenance.json` (files and hashes) |
+| Graph edits (`graphs/edits-{fresh,chain}/`) | the intent, PR description, spec and the two graphs only | `tools/llm-only/EDITS-INTENT.md` (by instruction, not sandboxed) |
+| Graphs (`graphs/fresh`, `graphs/chain`) | the code at the base commit (chain: rolled forward over earlier PRs) | build logs on `fresh-graphs` |
+| Briefs (`q2q3-tools/prose-briefs/`) | the intents only | `prose-briefs/README.md` |
+| Review fixes (2026-11-28: 19626, 24207 edits; 24880 brief) | the intent, the edit and the reviewer's comment | commits bfbfa72, 4a3dc75 |
+
+What still carries knowledge of the solution, the same for every condition: the PR description (its author knew the
+solution) and the spec (written from the hidden tests: names, signatures, paths). Intents and edits that restate the
+spec add nothing an agent doesn't already have. The records cover how the inputs were drafted, not what a human
+reviewer had seen before; reviewers should judge from the intent and description only.
+
 ## Conditions (default in make-matrix.mjs)
 
 | Condition | The agent gets | Input |
