@@ -1,0 +1,17 @@
+{
+  "modify": [
+    { "id": "booking-list-ui", "note": "Let the booking details sheet respond to arrow keys and Esc." },
+    { "id": "calendar-views", "note": "Mark calendar events with their booking so switching keeps the sheet open." }
+  ],
+  "add_nodes": [
+    { "id": "booking-sheet-keyboard-handler", "label": "Booking sheet keyboard handler", "kind": "other", "group": "booking-ui",
+      "summary": "Booking sheet shortcuts", "files": [],
+      "note": "Arrows move between bookings, Esc closes; ignore keys while typing or another menu is open." }
+  ],
+  "add_edges": [
+    { "id": "e-bookinglist-sheet-keyboard", "from": "booking-list-ui", "to": "booking-sheet-keyboard-handler", "kind": "uses",
+      "label": "capture-phase keydown handler", "note": "Uses the shortcut handling." },
+    { "id": "e-bookinglist-calviews-marker", "from": "booking-list-ui", "to": "calendar-views", "kind": "uses",
+      "label": "recognizes calendar event marker", "note": "Recognizes clicks on calendar events." }
+  ]
+}

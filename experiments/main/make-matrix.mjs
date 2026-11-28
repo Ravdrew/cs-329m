@@ -8,6 +8,7 @@
 //   brief               q2q3-tools/prose-briefs/PULL.md
 //   sets.fresh.edit     graphs/edits-fresh/PULL/edit.yaml    sets.fresh.base  graphs/fresh/PULL.yaml
 //   sets.chain.edit     graphs/edits-chain/PULL/edit.yaml    sets.chain.base  graphs/chain/PULL.yaml
+//   sets.fresh-brief.edit  graphs/edits-fresh-brief/PULL/edit.yaml (same marks as fresh, brief-level notes)
 // Default conditions: the plan in RUN-PLAN.md.
 import { existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -15,7 +16,7 @@ import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
 const ROOT = resolve(new URL('../..', import.meta.url).pathname);
-export const DEFAULT_CONDITIONS = ['prose', 'prose-brief', 'prose-intent', 'text@fresh', 'text@chain', 'tool@fresh', 'tool@chain', 'codegraph-intent'];
+export const DEFAULT_CONDITIONS = ['prose', 'prose-brief', 'prose-intent', 'text@fresh', 'text@chain', 'tool@fresh', 'tool@chain', 'tool@fresh-brief', 'codegraph-intent'];
 export const TASKS = Object.keys(JSON.parse(readFileSync(join(ROOT, 'q2q3-tools/test_fairness.json'), 'utf8'))).map(Number);
 
 export function inputsFor(pull) {
@@ -26,6 +27,7 @@ export function inputsFor(pull) {
     sets: {
       fresh: { edit: p(`graphs/edits-fresh/${pull}/edit.yaml`), base: p(`graphs/fresh/${pull}.yaml`) },
       chain: { edit: p(`graphs/edits-chain/${pull}/edit.yaml`), base: p(`graphs/chain/${pull}.yaml`) },
+      'fresh-brief': { edit: p(`graphs/edits-fresh-brief/${pull}/edit.yaml`), base: p(`graphs/fresh/${pull}.yaml`) },
     },
   };
   const missing = [inputs.intent, inputs.brief, ...Object.values(inputs.sets).flatMap(s => Object.values(s))].filter(f => !existsSync(f));

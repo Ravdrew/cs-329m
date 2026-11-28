@@ -1,0 +1,30 @@
+{
+  "modify": [
+    {
+      "id": "form-builder",
+      "note": "Let booking questions and their options carry an optional price."
+    },
+    {
+      "id": "payment-collection",
+      "note": "Add the priced answers' charges to the event price, worked out on the server."
+    },
+    {
+      "id": "e-hnb-payment",
+      "note": "Passes the booking questions along with the answers."
+    },
+    {
+      "id": "e-collect-apps",
+      "note": "Charges the combined amount."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-payment-uses-booking-fields",
+      "from": "payment-collection",
+      "to": "form-builder",
+      "kind": "uses",
+      "label": "reads booking-field prices",
+      "note": "Reads the saved question prices."
+    }
+  ]
+}

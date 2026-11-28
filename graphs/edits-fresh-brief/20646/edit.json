@@ -1,0 +1,8 @@
+{
+  "modify": [
+    {
+      "id": "embeds",
+      "note": "Show a skeleton while inline and modal embeds load, reserving its height."
+    }
+  ]
+}

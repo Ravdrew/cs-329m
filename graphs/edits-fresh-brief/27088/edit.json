@@ -1,0 +1,14 @@
+{
+  "modify": [
+    { "id": "busy-times", "note": "Each busy time records where it came from, separate from the title people see." },
+    { "id": "user-availability", "note": "Return busy times with their sources, including those from limits." },
+    { "id": "available-slots-service", "note": "Keep each busy time's source while working out free slots." },
+    { "id": "e-avail-busy", "note": "Gets limit busy times with sources." }
+  ],
+  "add_nodes": [
+    { "id": "troubleshooter-large-calendar", "label": "Troubleshooter and LargeCalendar", "kind": "component", "group": "availability",
+      "summary": "Troubleshooter calendar view",
+      "files": [],
+      "note": "Show translated busy-time titles in the troubleshooter." }
+  ]
+}

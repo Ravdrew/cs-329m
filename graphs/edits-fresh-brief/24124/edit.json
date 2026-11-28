@@ -1,0 +1,30 @@
+{
+  "modify": [
+    {
+      "id": "calendar-subscription",
+      "note": "Apply cancellations and time changes from the external calendar to the matching Cal.com bookings."
+    },
+    {
+      "id": "cancel-booking",
+      "note": "Allow cancelling without deleting the external event again, so it doesn't loop."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-sync-cancel-booking",
+      "from": "calendar-subscription",
+      "to": "cancel-booking",
+      "kind": "calls",
+      "label": "cancels booking from external deletion",
+      "note": "Cancels through the normal flow."
+    },
+    {
+      "id": "e-sync-reschedule-booking",
+      "from": "calendar-subscription",
+      "to": "regular-booking-service",
+      "kind": "calls",
+      "label": "reschedules booking from external time change",
+      "note": "Reschedules through the normal flow without re-creating the external event."
+    }
+  ]
+}

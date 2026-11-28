@@ -1,0 +1,112 @@
+{
+  "modify": [
+    {
+      "id": "bookings-trpc-router",
+      "note": "Add a report-booking action that saves the report and cancels upcoming bookings."
+    },
+    {
+      "id": "e32",
+      "note": "Looks up the reported booking to see if it's upcoming."
+    },
+    {
+      "id": "bookings-list-view",
+      "note": "Add a Report action to bookings and show which ones were reported."
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "booking-report-model",
+      "label": "BookingReport model",
+      "kind": "model",
+      "group": "persistence",
+      "summary": "A reported booking",
+      "files": [],
+      "note": "Store each report with its reason: spam, unknown person, or other."
+    },
+    {
+      "id": "booking-report-repository",
+      "label": "PrismaBookingReportRepository",
+      "kind": "store",
+      "group": "persistence",
+      "summary": "Saves booking reports",
+      "files": [],
+      "note": "Save and read booking reports."
+    },
+    {
+      "id": "booking-access-service",
+      "label": "BookingAccessService",
+      "kind": "service",
+      "group": "booking-core",
+      "summary": "Booking access checks",
+      "files": [],
+      "note": "Check that the user may report this booking."
+    },
+    {
+      "id": "report-booking-dialog",
+      "label": "Report booking dialog",
+      "kind": "component",
+      "group": "booking-ui",
+      "summary": "Report a booking",
+      "files": [],
+      "note": "Let the user pick a reason and report the booking."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-report-access",
+      "from": "bookings-trpc-router",
+      "to": "booking-access-service",
+      "kind": "calls",
+      "label": "verifies booking access",
+      "note": "Checks access first."
+    },
+    {
+      "id": "e-report-repo",
+      "from": "bookings-trpc-router",
+      "to": "booking-report-repository",
+      "kind": "calls",
+      "label": "creates report",
+      "note": "Saves the report."
+    },
+    {
+      "id": "e-report-repo-model",
+      "from": "booking-report-repository",
+      "to": "booking-report-model",
+      "kind": "writes",
+      "label": "writes BookingReport",
+      "note": "Stores reports."
+    },
+    {
+      "id": "e-report-booking-rel",
+      "from": "booking-report-model",
+      "to": "booking-model",
+      "kind": "uses",
+      "label": "booking relation",
+      "note": "Each report belongs to a booking."
+    },
+    {
+      "id": "e-report-cancel",
+      "from": "bookings-trpc-router",
+      "to": "cancel-booking-service",
+      "kind": "calls",
+      "label": "cancels reported upcoming booking",
+      "note": "Cancels the booking if it's upcoming."
+    },
+    {
+      "id": "e-list-report-dialog",
+      "from": "bookings-list-view",
+      "to": "report-booking-dialog",
+      "kind": "renders",
+      "label": "renders report dialog",
+      "note": "Opens the report dialog."
+    },
+    {
+      "id": "e-dialog-report",
+      "from": "report-booking-dialog",
+      "to": "bookings-trpc-router",
+      "kind": "calls",
+      "label": "reports booking",
+      "note": "Submits the report."
+    }
+  ]
+}

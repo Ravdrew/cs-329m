@@ -1,0 +1,18 @@
+{
+  "modify": [
+    { "id": "webhook-dispatch", "note": "Hand webhooks to the new webhook tasker." }
+  ],
+  "add_nodes": [
+    { "id": "webhook-tasker", "label": "Webhook tasker", "kind": "service", "group": "g-notify",
+      "summary": "Queues or sends webhooks", "files": [],
+      "note": "Queue webhooks on Trigger.dev when async tasks are on, otherwise deliver right away." }
+  ],
+  "add_edges": [
+    { "id": "e-producer-webhook-tasker", "from": "webhook-dispatch", "to": "webhook-tasker", "kind": "calls",
+      "label": "producer sends webhooks", "note": "Hands off each webhook." },
+    { "id": "e-webhook-tasker-consumer", "from": "webhook-tasker", "to": "webhook-dispatch", "kind": "calls",
+      "label": "runs webhook delivery", "note": "Same delivery code in both modes." },
+    { "id": "e-webhook-tasker-base", "from": "webhook-tasker", "to": "tasker", "kind": "uses",
+      "label": "extends Tasker base class", "note": "Works like the other taskers." }
+  ]
+}

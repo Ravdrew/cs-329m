@@ -1,0 +1,54 @@
+{
+  "modify": [
+    {
+      "id": "crm-integrations",
+      "note": "Optionally fill HubSpot Meeting properties from booking data at creation; when off, nothing changes."
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "crm-shared-enums-schemas",
+      "label": "Shared CRM enums and schemas",
+      "kind": "other",
+      "group": "app-store",
+      "summary": "CRM field-mapping settings",
+      "files": [],
+      "note": "Shared settings for which booking data goes into which Meeting property."
+    },
+    {
+      "id": "tracking-repository",
+      "label": "Tracking repository",
+      "kind": "store",
+      "group": "persistence",
+      "summary": "Booking tracking data",
+      "files": [],
+      "note": "Provides a booking's tracking data for the mapping."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-crm-uses-crm-enums-schemas",
+      "from": "crm-integrations",
+      "to": "crm-shared-enums-schemas",
+      "kind": "uses",
+      "label": "field mapping config",
+      "note": "Reads the mapping settings."
+    },
+    {
+      "id": "e-crm-reads-tracking",
+      "from": "crm-integrations",
+      "to": "tracking-repository",
+      "kind": "reads",
+      "label": "UTM data by booking UID",
+      "note": "Gets tracking data for the booking."
+    },
+    {
+      "id": "e-crm-reads-booking-created",
+      "from": "crm-integrations",
+      "to": "booking-model",
+      "kind": "reads",
+      "label": "booking creation time",
+      "note": "Gets booking details for mapped values."
+    }
+  ]
+}

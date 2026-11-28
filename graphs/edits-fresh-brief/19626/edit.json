@@ -1,0 +1,22 @@
+{
+  "modify": [
+    {
+      "id": "booker-ui",
+      "note": "Skip ahead only when the shown month has no slots and availability has finished loading."
+    },
+    {
+      "id": "calendar-weekly-view",
+      "note": "Tell the booker whether the month's availability is still loading."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-booker-ui-renders-calendar-datepicker",
+      "from": "booker-ui",
+      "to": "calendar-weekly-view",
+      "kind": "renders",
+      "label": "renders calendar DatePicker",
+      "note": "Renders the month picker."
+    }
+  ]
+}

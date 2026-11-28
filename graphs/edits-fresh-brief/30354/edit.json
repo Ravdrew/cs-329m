@@ -1,0 +1,19 @@
+{
+  "modify": [
+    { "id": "app-store-framework", "note": "Calendars can optionally return event titles with busy times." },
+    { "id": "google-calendar-app", "note": "Return event titles for Google calendars." },
+    { "id": "other-calendar-apps", "note": "Return event titles for Office365 calendars." },
+    { "id": "calendar-subscription-service", "note": "Pass event titles through the telemetry wrapper too." },
+    { "id": "calendar-manager", "note": "Fall back to plain Busy when titles aren't available." },
+    { "id": "schedule-management", "note": "Ask for titles only for the user's own calendars in the overlay." },
+    { "id": "busy-times", "note": "Busy times can carry the event title." },
+    { "id": "availability-ui", "note": "Show real event titles in the troubleshooter." },
+    { "id": "booker-ui", "note": "Show real event titles in the overlay calendar." },
+    { "id": "calendar-views-ui", "note": "Draw overlay events with their titles in the week view." },
+    { "id": "session-auth", "note": "Connect the user's calendar when they sign in from the overlay." }
+  ],
+  "add_edges": [
+    { "id": "e-booker-social-providers", "from": "booker-ui", "to": "session-auth", "kind": "calls",
+      "label": "enabled social-login providers", "note": "Lists the sign-in options." }
+  ]
+}

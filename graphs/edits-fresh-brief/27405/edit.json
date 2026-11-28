@@ -1,0 +1,22 @@
+{
+  "modify": [
+    { "id": "trpc-bookings-router", "note": "Let people report a booking as wrongly assigned, refusing a second report." },
+    { "id": "bookings-list-ui", "note": "Warn in the dialog when the booking was already reported." },
+    { "id": "e-list-router", "note": "Asks whether it's already reported." },
+    { "id": "m-booking", "note": "Supply the booking details saved with the report." }
+  ],
+  "add_nodes": [
+    { "id": "wrong-assignment-report-repository", "label": "WrongAssignmentReportRepository", "kind": "store", "group": "data",
+      "summary": "Wrong-assignment reports", "files": [],
+      "note": "Look up and save wrong-assignment reports." },
+    { "id": "model-wrong-assignment-report", "label": "WrongAssignmentReport model", "kind": "model", "group": "data",
+      "summary": "Wrong-assignment report records", "files": [],
+      "note": "Stores reports, at most one per booking." }
+  ],
+  "add_edges": [
+    { "id": "e-wrong-assignment-handler-repo", "from": "trpc-bookings-router", "to": "wrong-assignment-report-repository", "kind": "calls",
+      "label": "checks and creates report", "note": "Checks for a prior report, then saves." },
+    { "id": "e-wrong-assignment-repo-model", "from": "wrong-assignment-report-repository", "to": "model-wrong-assignment-report", "kind": "writes",
+      "label": "persists reports", "note": "Writes reports." }
+  ]
+}

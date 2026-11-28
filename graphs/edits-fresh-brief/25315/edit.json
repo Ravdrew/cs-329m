@@ -1,0 +1,37 @@
+{
+  "modify": [
+    {
+      "id": "bookings-trpc",
+      "note": "When a location change uses a credential, check the user may use it before changing anything."
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "credential-access-service",
+      "label": "CredentialAccessService",
+      "kind": "service",
+      "group": "app-store",
+      "summary": "Credential access checks",
+      "files": [],
+      "note": "Decide whether someone is allowed to use a credential; editing the booking isn't enough."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-editlocation-credential-access",
+      "from": "bookings-trpc",
+      "to": "credential-access-service",
+      "kind": "calls",
+      "label": "check credential access",
+      "note": "Checks credential access."
+    },
+    {
+      "id": "e-credential-access-reads-credential",
+      "from": "credential-access-service",
+      "to": "model-credential",
+      "kind": "reads",
+      "label": "loads credential with key and user",
+      "note": "Looks up the credential."
+    }
+  ]
+}

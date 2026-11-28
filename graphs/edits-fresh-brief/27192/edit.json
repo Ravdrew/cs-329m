@@ -1,0 +1,28 @@
+{
+  "modify": [
+    { "id": "booking-model", "note": "Provide the stored assignment reason along with the booking." },
+    { "id": "email-manager", "note": "Show why the host was assigned in organizer emails." },
+    { "id": "webhook-dispatch", "note": "Leave the webhook payload unchanged." }
+  ],
+  "add_nodes": [
+    { "id": "assignment-reason-category", "label": "getAssignmentReasonCategory", "kind": "service", "group": "booking-flow",
+      "summary": "Assignment reason categories", "files": [],
+      "note": "Turn an assignment reason into a readable label like routed or reassigned." },
+    { "id": "calendar-event-builder", "label": "CalendarEvent builder", "kind": "service", "group": "booking-flow",
+      "summary": "Builds event data for emails", "files": [],
+      "note": "Include the assignment reason in the event data that emails use." },
+    { "id": "booking-single-view", "label": "Booking single view", "kind": "page", "group": "booker-pages",
+      "summary": "Booking detail page", "files": [],
+      "note": "Show why the booking was assigned to the host." }
+  ],
+  "add_edges": [
+    { "id": "e-builder-category", "from": "calendar-event-builder", "to": "assignment-reason-category", "kind": "uses",
+      "label": "maps reason enum to category", "note": "Label for the email." },
+    { "id": "e-builder-booking-reason", "from": "calendar-event-builder", "to": "booking-model", "kind": "reads",
+      "label": "reads stored assignment reason", "note": "Reason for the email." },
+    { "id": "e-view-category", "from": "booking-single-view", "to": "assignment-reason-category", "kind": "uses",
+      "label": "maps reason enum to badge category", "note": "Label for the badge." },
+    { "id": "e-view-booking", "from": "booking-single-view", "to": "booking-model", "kind": "reads",
+      "label": "loads booking", "note": "Reason for the page." }
+  ]
+}

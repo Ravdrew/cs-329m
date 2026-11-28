@@ -1,0 +1,54 @@
+{
+  "modify": [
+    {
+      "id": "oauth-provider",
+      "note": "Support PKCE so public clients sign in without a secret; existing clients unchanged."
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "model-oauth-client",
+      "label": "OAuth client and access code models",
+      "kind": "model",
+      "group": "persistence",
+      "summary": "OAuth clients and codes.",
+      "files": [],
+      "note": "Mark clients as public or confidential; public clients have no secret."
+    },
+    {
+      "id": "pkce-util",
+      "label": "PKCE utility",
+      "kind": "service",
+      "group": "auth",
+      "summary": "PKCE checks.",
+      "files": [],
+      "note": "Check a PKCE verifier against the saved challenge."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-oauth-provider-pkce",
+      "from": "oauth-provider",
+      "to": "pkce-util",
+      "kind": "calls",
+      "label": "verifies PKCE verifier",
+      "note": "Checks the verifier."
+    },
+    {
+      "id": "e-oauth-provider-writes-oauth-models",
+      "from": "oauth-provider",
+      "to": "model-oauth-client",
+      "kind": "writes",
+      "label": "stores client type and challenge",
+      "note": "Saves the PKCE challenge with the code."
+    },
+    {
+      "id": "e-oauth-provider-reads-oauth-models",
+      "from": "oauth-provider",
+      "to": "model-oauth-client",
+      "kind": "reads",
+      "label": "reads client type and challenge",
+      "note": "Reads it back at token time."
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "modify": [
+    { "id": "bookings-list-ui", "note": "Drop people or teams the viewer can no longer access from saved filters." },
+    { "id": "e-list-datatable", "note": "Passes the access check to the table." },
+    { "id": "data-table", "note": "Apply a saved filter only once it's checked, so unfiltered results never flash." }
+  ]
+}

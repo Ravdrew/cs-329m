@@ -1,0 +1,53 @@
+{
+  "modify": [
+    {
+      "id": "api.book",
+      "note": "Check for bots with BotID before booking when the team's flag is on."
+    },
+    {
+      "id": "e5",
+      "note": "Only reached by requests that pass the bot check."
+    },
+    {
+      "id": "flags.features",
+      "note": "Add a per-team BotID booking flag, off by default."
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "bot-detection-service",
+      "label": "BotDetectionService",
+      "kind": "service",
+      "group": "booking-core",
+      "summary": "BotID check for bookings.",
+      "files": [],
+      "note": "Run Vercel BotID verification when the event's team has the flag on."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-bookapi-botdetection",
+      "from": "api.book",
+      "to": "bot-detection-service",
+      "kind": "calls",
+      "label": "runs bot check",
+      "note": "Runs the bot check."
+    },
+    {
+      "id": "e-botdetection-flags",
+      "from": "bot-detection-service",
+      "to": "flags.features",
+      "kind": "reads",
+      "label": "checks team BotID flag",
+      "note": "Reads the team's flag."
+    },
+    {
+      "id": "e-botdetection-eventtype",
+      "from": "bot-detection-service",
+      "to": "model.event-type",
+      "kind": "reads",
+      "label": "looks up event type's team",
+      "note": "Finds the event's team."
+    }
+  ]
+}

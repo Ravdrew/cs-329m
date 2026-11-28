@@ -1,0 +1,12 @@
+{
+  "modify": [
+    {
+      "id": "legacy-calendar-cache",
+      "note": "Always return true or false when deciding whether to serve availability from cache."
+    },
+    {
+      "id": "google-calendar-app",
+      "note": "Skip the cache unless the decision is true."
+    }
+  ]
+}

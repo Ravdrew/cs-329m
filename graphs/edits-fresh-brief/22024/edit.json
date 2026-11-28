@@ -1,0 +1,30 @@
+{
+  "modify": [
+    {
+      "id": "form-builder",
+      "note": "Offer the phone-only booking option on personal events too."
+    },
+    {
+      "id": "booker-ui",
+      "note": "Ask personal-event attendees for a phone number instead of email when set."
+    },
+    {
+      "id": "handle-new-booking",
+      "note": "Accept phone-only bookings on personal events."
+    },
+    {
+      "id": "email-manager",
+      "note": "Text phone-only attendees on personal events too, unless their org turned it off."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-sms-dispatch",
+      "from": "email-manager",
+      "to": "workflows-boundary",
+      "kind": "calls",
+      "label": "dispatches SMS",
+      "note": "Sends the text, with or without a team."
+    }
+  ]
+}

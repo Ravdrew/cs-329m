@@ -1,0 +1,29 @@
+{
+  "modify": [
+    {
+      "id": "signup",
+      "note": "If an invitee already has an account, don't create another; send them to log in."
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "signup-fetch",
+      "label": "fetchSignup client",
+      "kind": "service",
+      "group": "g-auth",
+      "summary": "Client signup request",
+      "files": [],
+      "note": "Send the signup and let the page tell when the account already exists."
+    }
+  ],
+  "add_edges": [
+    {
+      "id": "e-signupfetch-signup",
+      "from": "signup-fetch",
+      "to": "signup",
+      "kind": "calls",
+      "label": "sends signup request",
+      "note": "Sends the signup."
+    }
+  ]
+}

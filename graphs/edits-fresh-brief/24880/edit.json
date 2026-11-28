@@ -1,0 +1,8 @@
+{
+  "modify": [
+    {
+      "id": "calendar-views-ui",
+      "note": "Give each weekly calendar its own Zustand store, and lay out any number of overlapping events."
+    }
+  ]
+}
