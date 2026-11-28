@@ -1557,7 +1557,7 @@ nodes:
         end_line: 182
     provenance: inferred
     status: modify
-    note: "Handle an invitation for an existing account before the signup flow performs account creation or consumes the invitation. Apply the same decision in both the hosted and self-hosted signup handlers (calcomHandler and selfHostedHandler): validate the invite token, determine the invited email, and check whether it already belongs to an account. Return an explicit HTTP 409 response identifying USER_ALREADY_EXISTS so the client can send that person through login. Keep the invitation usable by the proper existing-account flow, and preserve normal signup for a new invited user and for a user signing up without a token. Also handle a concurrent duplicate-account creation attempt through the existing Prisma unique-constraint error path, distinguishing the relevant account conflict from unrelated errors. Do not turn every server error into an existing-user redirect, and do not continue with billing and membership side effects after a rejected signup. In the signup UI: send the signup request through fetchSignup and use its result helpers to recognize an existing user or a checkout-session continuation without duplicating parsing logic; show the translated explanation before redirecting an existing invitee to login, while preserving the checkout path for other signup outcomes."
+    note: "Handle an invitation for an existing account before the signup flow performs account creation or consumes the invitation. Apply the same decision in both the hosted and self-hosted signup handlers: validate the invite token, determine the invited email, and check whether it already belongs to an account. Return an explicit HTTP 409 response identifying USER_ALREADY_EXISTS so the client can send that person through login. Keep the invitation usable by the proper existing-account flow and preserve normal signup for a new invited user and for a user signing up without a token. Also handle a concurrent duplicate-account creation attempt through the existing Prisma unique-constraint error path, distinguishing the relevant account conflict from unrelated errors. Do not turn every server error into an existing-user redirect or continue with billing and membership side effects after a rejected signup. In the signup UI, show the translated explanation before redirecting an existing invitee to login, while preserving the checkout path for other signup outcomes."
   - id: slot-reservation
     label: Slot reservation
     kind: service
@@ -1899,14 +1899,11 @@ nodes:
     label: fetchSignup client
     kind: service
     group: g-auth
-    summary: Client-side signup request returning a discriminated SignupResult.
-    description: fetchSignup sends the signup request and parses responses into the supplied discriminated result type; helpers isUserAlreadyExistsError and hasCheckoutSession let the UI recognize outcomes. Shared error codes live in SIGNUP_ERROR_CODES.
-    files:
-      - packages/features/auth/signup/lib/fetchSignup.ts
-      - packages/features/auth/signup/constants.ts
+    summary: Client-side signup request.
+    files: []
     provenance: manual
     status: new
-    note: Extract the signup request into fetchSignup with the supplied discriminated result type (SignupResult). Pass the signup fields and optional verification token through the existing request contract, parse successful and unsuccessful responses consistently, and represent invalid server responses using the shared error code (SIGNUP_ERROR_CODES in constants.ts). Add the two result helpers (isUserAlreadyExistsError, hasCheckoutSession) so the UI can recognize an existing user or a checkout-session continuation without duplicating parsing logic.
+    note: Extract the signup request into fetchSignup with the supplied discriminated result type. Pass the signup fields and optional verification token through the existing request contract, parse successful and unsuccessful responses consistently, and represent invalid server responses using the shared error code. Add the two result helpers so the UI can recognize an existing user or a checkout-session continuation without duplicating parsing logic.
 edges:
   - id: e-api-cancel
     from: booking-http-api
@@ -3435,7 +3432,7 @@ edges:
     label: sends signup request
     provenance: manual
     status: new
-    note: Pass the signup fields and optional verification token through the existing request contract; parse successful and unsuccessful responses (including the 409 USER_ALREADY_EXISTS response) consistently.
+    note: Sends the signup request to the signup handlers.
 x-variant: llm-only
 title: Cal.com booking product component graph
 description: Component graph of public booking, booking management, availability, calendars, app store, webhooks/tasks, auth, embeds and persistence in calcom/cal.diy.
@@ -5265,4 +5262,4 @@ x-source-files:
     sha256: 76536f985b9dd22c9f8ae1c1d20842d5ee48ebef6842f81ec657c615edf02ecd
   - path: packages/trpc/server/routers/viewer/slots/util.ts
     sha256: f0802f0574fa618b455fadf15bd6bed88ac45844fdd459166efcdaab964b6fe4
-x-edit: graph edit translated from q2q3-tools/prose-intents/26217.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/26217.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/26217.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/26217.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

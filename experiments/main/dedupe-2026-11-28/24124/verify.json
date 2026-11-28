@@ -1,0 +1,6 @@
+{ "pull": 24124, "verdict": "minor",
+  "lost": [], "added": [], "repeated": [], 
+  "misplaced": ["Both arms: the original put the routing dynamic import on its own `routing-forms` modify (\"Use the requested dynamic import for routing dependencies\"). The new edit drops that entry and puts \"dynamic imports for booking-service and routing dependencies\" on `calendar-subscription`. That settles the intent's ambiguity about where the routing import changes (sync code or the routing code itself) and unmarks routing-forms. The graph doesn't show which component holds the routing import, so this is a placement doubt rather than a loss."],
+  "arms_differ": [],
+  "notes": "The intent change only merges the check and log-and-skip sentences, with the same meaning, and the brief is unchanged. The cancellation and reschedule requirements each sit once on the right edge or node, and both arms are identical apart from component ids. The only issue is that the routing dynamic import moved off routing-forms (changes.md lists this as an open question)."
+}

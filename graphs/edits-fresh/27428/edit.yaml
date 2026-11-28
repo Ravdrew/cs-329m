@@ -566,7 +566,7 @@ nodes:
         end_line: 60
     provenance: inferred
     status: modify
-    note: Place the booking UID on calendar event buttons (and the weekly-calendar event interaction marker) so the booking details sheet stays open when switching bookings through weekly-calendar events.
+    note: Place the booking UID on calendar event buttons.
   - id: cancel-api
     label: /api/cancel
     kind: endpoint
@@ -1811,12 +1811,11 @@ nodes:
     label: Booking sheet keyboard handler
     kind: other
     group: booking-ui
-    summary: Keyboard shortcut handling for the booking details sheet.
-    files:
-      - apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.ts
+    summary: Booking sheet shortcuts.
+    files: []
     provenance: manual
     status: new
-    note: Extract booking-sheet keyboard handling into the specified utility (apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.ts). Only handle shortcuts while the sheet is active and the target is not editable. Treat focus inside a different Radix portal as an active overlay whose keys belong to that overlay, while allowing shortcuts when focus is inside the sheet or outside any portal. For ArrowUp and ArrowDown, always prevent the default action and stop propagation when the sheet owns the event, including at the first and last booking. Call the previous or next handler only when that direction is available and a transition is not already in progress. For Enter, activate the current join link when present and consume the event so a focused actions button cannot also open; leave unrelated keys and Enter without a join action alone.
+    note: Extract booking-sheet keyboard handling into the specified utility. Only handle shortcuts while the sheet is active and the target is not editable. Treat focus inside a different Radix portal as an active overlay whose keys belong to that overlay, while allowing shortcuts when focus is inside the sheet or outside any portal. For ArrowUp and ArrowDown, always prevent the default action and stop propagation when the sheet owns the event, including at the first and last booking. Call the previous or next handler only when that direction is available and a transition is not already in progress. For Enter, activate the current join link when present and consume the event so a focused actions button cannot also open; leave unrelated keys and Enter without a join action alone.
 edges:
   - id: e-audit-tasker
     from: booking-audit-events
@@ -3027,7 +3026,7 @@ edges:
     label: capture-phase keydown handler
     provenance: manual
     status: new
-    note: BookingDetailsSheet connects the utility with a capture-phase keydown listener, removes the listener when it is no longer needed and keeps its navigation state current.
+    note: Sheet keyboard handling.
   - id: e-bookinglist-calviews-marker
     from: booking-list-ui
     to: calendar-views
@@ -3035,7 +3034,7 @@ edges:
     label: recognizes calendar event marker
     provenance: manual
     status: new
-    note: BookingDetailsSheet recognizes the weekly-calendar event interaction marker (alongside the list-row marker) so switching bookings through weekly-calendar events keeps the sheet open.
+    note: Recognizes weekly-calendar event interactions.
 x-variant: llm-only
 title: Cal.com booking component graph
 description: Booking, availability, calendar, app-store, webhook, notification, task and persistence components of calcom/cal.diy.
@@ -5194,4 +5193,4 @@ x-source-files:
     sha256: 33c9c9e619767122764da82a92611beed26c73c3ffc37118aafe77960035c4cb
   - path: packages/trpc/server/routers/viewer/slots/util.ts
     sha256: acbdbf6c5e6b6b961d78550de7edca1e7b990a32515720936b01fec85c9fa345
-x-edit: graph edit translated from q2q3-tools/prose-intents/27428.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/27428.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/27428.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/27428.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

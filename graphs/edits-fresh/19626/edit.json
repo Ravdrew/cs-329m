@@ -6,7 +6,7 @@
     },
     {
       "id": "calendar-weekly-view",
-      "note": "In the calendar DatePicker, keep the actual slot data available for rendering and out-of-office information, and use `isLoading` consistently. Expose the named `DatePicker` export and the month label's `<time>` element with its machine-readable `dateTime` value as specified."
+      "note": "In the calendar DatePicker, keep the actual slot data available for rendering and out-of-office information, and use `isLoading` consistently. Expose the named `DatePicker` export and the month label's `<time>` element with its machine-readable `dateTime` value."
     }
   ],
   "add_edges": [

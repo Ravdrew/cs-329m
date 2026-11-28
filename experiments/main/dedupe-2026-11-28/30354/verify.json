@@ -1,0 +1,11 @@
+{ "pull": 30354, "verdict": "minor",
+  "lost": [],
+  "added": ["(doubt, inherited from the original) booker-ui in both arms says \"the conflicting-slot (confirmation) hover card\", treating the intent's two names as one card. The new intent keeps both names and does not say they are the same card."],
+  "repeated": [],
+  "misplaced": [
+    "fresh: \"Request titles only for overlay mode ... checked by user ID ... Keep other availability requests on the ordinary path\" now sits only on schedule-management, whose files are the schedule/* CRUD handlers and do not include calendarOverlay.handler. The copy on calendar-manager, which was the other placement, was removed. Chain is fine: schedules-api lists calendarOverlay.handler.ts.",
+    "fresh: user-availability was removed from modify, but it sits between busy-times and the troubleshooter/booker in the graph. \"Carry the optional title through busy-time data\" now marks only busy-times."
+  ],
+  "arms_differ": [],
+  "notes": "Intent changes are wording only (Google/Office365/telemetry list, \"Finally,\" dropped), and every requirement survives once in each arm with the same content. The doubts are fresh-arm placements after removing the repeats, plus the hover-card equation carried over from the original."
+}

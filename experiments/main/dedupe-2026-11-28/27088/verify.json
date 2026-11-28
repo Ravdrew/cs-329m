@@ -1,0 +1,8 @@
+{ "pull": 27088, "verdict": "minor",
+  "lost": [],
+  "added": [],
+  "repeated": [],
+  "misplaced": ["chain: calendar-weekly-view (which owns LargeCalendar.tsx and weeklyview event/Event.tsx, where the event's diagnostic data attribute would be rendered) no longer carries the concrete steps: translate the title with `busy_time.*`, the `busy_time.busy` fallback, and exposing the source on the data attribute. It now has only the pointer 'LargeCalendar's part of the troubleshooter's busy-time title and source display'. The full requirement sits once on availability-ui, whose files are the schedule editor and troubleshoot pages and include no LargeCalendar file. Nothing is lost from the edit, but the component that does the rendering now gets only a vague reference."],
+  "arms_differ": [],
+  "notes": "Intent and brief are unchanged. Fresh only moves 'Obtain the needed limit busy times ... when they are not already supplied' from user-availability onto the existing e-avail-busy edge (user-availability -> busy-times), which is fine. Both arms carry the same intent content, laid out according to their own graphs."
+}

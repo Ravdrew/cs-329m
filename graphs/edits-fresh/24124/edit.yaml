@@ -705,7 +705,7 @@ nodes:
         end_line: 330
     provenance: inferred
     status: modify
-    note: Process external-calendar cancellations and time changes through CalendarSyncService and the existing booking services. Filter incoming events to those associated with Cal.com bookings, resolve the booking safely from its UID, and skip malformed or missing references. For rescheduling, use the exported helpers to compare the event's start time, extract saved booking responses, merge updated event data, and construct the regular-booking service input; preserve existing response data that the calendar event does not replace. Check required owner, email, and event-type information before invoking the booking services. Log and skip incomplete data, and catch processing failures with serialized error details so one bad event does not abort the sync operation. Add the described invocation, outcome, and duration metrics.
+    note: Process external-calendar cancellations and time changes through CalendarSyncService and the existing booking services. Filter incoming events to those associated with Cal.com bookings, resolve the booking safely from its UID, and skip malformed or missing references. For rescheduling, use the exported helpers to compare the event's start time, extract saved booking responses, merge updated event data, and construct the regular-booking service input; preserve existing response data that the calendar event does not replace. Check required owner, email, and event-type information before invoking the booking services, logging and skipping incomplete data. Catch processing failures with serialized error details so one bad event does not abort the sync operation. Add the described invocation, outcome, and duration metrics. Use the requested dynamic imports for booking-service and routing dependencies to keep webhook module initialization from loading the problematic UI dependency chain.
   - id: calendar-subscription-endpoints
     label: Calendar webhook and cron endpoints
     kind: endpoint
@@ -744,7 +744,7 @@ nodes:
         end_line: 720
     provenance: inferred
     status: modify
-    note: Called by calendar sync with `skipCalendarSyncTaskCancellation` so Cal.com updates its booking without trying to delete the external event again. Mark booking references deleted regardless of that skip flag, because the external deletion has already happened.
+    note: Mark booking references deleted regardless of the `skipCalendarSyncTaskCancellation` flag, because the external deletion has already happened.
   - id: confirm-reject-booking
     label: Confirm or reject booking
     kind: service
@@ -1582,8 +1582,7 @@ nodes:
         start_line: 345
         end_line: 393
     provenance: inferred
-    status: modify
-    note: Use the requested dynamic import for routing dependencies to keep webhook module initialization from loading the problematic UI dependency chain.
+    status: existing
   - id: schedules
     label: Schedules and availability management
     kind: service
@@ -3493,7 +3492,7 @@ edges:
     label: cancels booking from external deletion
     provenance: manual
     status: new
-    note: For cancellation, call the existing cancellation handler with `skipCalendarSyncTaskCancellation` so Cal.com updates its booking without trying to delete the external event again. Only invoke it once the required owner and email information is present.
+    note: For cancellation, call the existing cancellation handler with `skipCalendarSyncTaskCancellation` so Cal.com updates its booking without trying to delete the external event again.
   - id: e-sync-reschedule-booking
     from: calendar-subscription
     to: regular-booking-service
@@ -3501,7 +3500,7 @@ edges:
     label: reschedules booking from external time change
     provenance: manual
     status: new
-    note: For rescheduling, pass the constructed regular-booking service input, including the original booking's `rescheduleUid`, and use the existing idempotency service. Set the calendar-creation skip flag to avoid a sync loop. Reuse RegularBookingService rather than implementing a second booking mutation path, and keep this operation scoped to the affected booking. Only invoke it once the required event-type information is present. Use the requested dynamic import for the booking-service dependency to keep webhook module initialization from loading the problematic UI dependency chain.
+    note: For rescheduling, pass the constructed input with the original booking's `rescheduleUid` and use the existing idempotency service. Set the calendar-creation skip flag to avoid a sync loop. Reuse RegularBookingService rather than implementing a second booking mutation path, and keep this operation scoped to the affected booking.
 x-variant: llm-only
 title: Cal.com web product - booking component graph
 description: Component graph of the Cal.com web booking product (public booking, booking management, availability, calendars, event types, app store, auth, embeds, webhooks, tasks, notifications, data tables, persistence).
@@ -5591,4 +5590,4 @@ x-source-files:
     sha256: 33c9c9e619767122764da82a92611beed26c73c3ffc37118aafe77960035c4cb
   - path: packages/trpc/server/routers/viewer/slots/util.ts
     sha256: d6c58104c3d3f4c204be7f0aa811989fa2c8706c6ed539d2dc1c360319ddd128
-x-edit: graph edit translated from q2q3-tools/prose-intents/24124.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/24124.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/24124.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/24124.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

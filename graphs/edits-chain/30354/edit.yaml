@@ -154,7 +154,7 @@ nodes:
         end_line: 45
     provenance: inferred
     status: modify
-    note: Add an optional title-aware availability method to the calendar service contract (the Calendar interface that getCalendar resolves). The busy-time data gains an optional title.
+    note: Add an optional title-aware availability method to the calendar service contract.
   - id: availability-ui
     label: Schedule editor UI
     kind: component
@@ -185,7 +185,7 @@ nodes:
       - path: packages/features/schedules/components/ScheduleComponent.tsx
         start_line: 183
         end_line: 227
-    note: Troubleshooter shows the optional title carried through busy-time data.
+    note: Troubleshooter shows the busy-time title.
   - id: available-slots-service
     label: Available slots service (getSchedule)
     kind: service
@@ -337,7 +337,7 @@ nodes:
       - path: apps/web/modules/bookings/components/Booker.tsx
         start_line: 631
         end_line: 637
-    note: "Overlay: initialize the overlay with the calendars already selected for conflict checking and fetch their availability immediately after authentication. Use the requested date-range helpers and `lastVisibleDate` input to cover the displayed range. Pass an overlapping event's title through `useCheckOverlapWithOverlay` so the confirmation hover card (conflicting-slot hover card) can show it with the relevant time range. Continue modal: fetch the enabled social-login providers when the continue modal opens and offer the corresponding Google or Microsoft action."
+    note: "Overlay: initialize it with the calendars already selected for conflict checking and fetch their availability immediately after authentication. Use the requested date-range helpers and `lastVisibleDate` input to cover the displayed range. Pass an overlapping event's title through `useCheckOverlapWithOverlay` so the confirmation hover card can show it with the relevant time range. Continue modal: fetch the enabled social-login providers when it opens and offer the corresponding Google or Microsoft action."
   - id: booking-audit
     label: Booking audit log
     kind: service
@@ -744,7 +744,7 @@ nodes:
       - path: packages/features/calendars/lib/CalendarManager.ts
         start_line: 311
         end_line: 404
-    note: Request titles only for overlay mode using the logged-in user's own credentials. Keep other availability requests on the ordinary path, and fall back to ordinary availability when a provider lacks the optional method or title retrieval fails.
+    note: Fall back to ordinary availability when a provider lacks the optional method or title retrieval fails.
   - id: calendar-subscription
     label: Calendar subscription sync and event cache
     kind: service
@@ -774,7 +774,7 @@ nodes:
       - path: packages/features/calendar-subscription/lib/CalendarSubscriptionService.ts
         start_line: 45
         end_line: 97
-    note: Implement the optional title-aware availability method in the telemetry wrapper too.
+    note: Implement the optional title-aware availability method in the telemetry wrapper.
   - id: calendar-weekly-view
     label: Weekly calendar view
     kind: component
@@ -820,7 +820,7 @@ nodes:
       - path: apps/web/modules/calendar-view/components/LargeCalendar.tsx
         start_line: 16
         end_line: 80
-    note: Overlay week view shows the optional title from busy-time data. Split multi-day and all-day events into day-bounded display segments using `getEventSegmentForDay`, rendering each nonempty segment on its covered day. Keep end-boundary handling consistent so an event ending at midnight does not occupy the following day.
+    note: Overlay week view shows the busy-time title. Split multi-day and all-day events into day-bounded display segments using `getEventSegmentForDay`, rendering each nonempty segment on its covered day. Keep end-boundary handling consistent so an event ending at midnight does not occupy the following day.
   - id: calendars-tasker
     label: Calendars tasker (ensure default calendars)
     kind: job
@@ -1857,7 +1857,7 @@ nodes:
       - path: packages/features/auth/lib/next-auth-options.ts
         start_line: 151
         end_line: 222
-    note: When the user picks the Google or Microsoft action from the overlay continue modal, connect that calendar during the existing sign-in flow and return to the booking page with overlay enabled, without broadening Google OAuth scopes.
+    note: Connect the calendar chosen in the overlay continue modal during the existing sign-in flow and return to the booking page with overlay enabled, without broadening Google OAuth scopes.
   - id: no-show-tasks
     label: No-show triggers
     kind: job
@@ -2076,7 +2076,7 @@ nodes:
       - path: packages/features/schedules/services/ScheduleService.ts
         start_line: 111
         end_line: 136
-    note: Request titles (overlay mode) only for the logged-in user's own credentials, with identity checked by user ID rather than username. Keep other availability requests on the ordinary path.
+    note: Request titles only for overlay mode using the logged-in user's own credentials, with identity checked by user ID rather than username. Keep other availability requests on the ordinary path.
   - id: signup
     label: Signup
     kind: service
@@ -4247,7 +4247,7 @@ edges:
     label: enabled social-login providers
     provenance: manual
     status: new
-    note: Fetch the enabled social-login providers when the continue modal opens.
+    note: Lists social-login providers for the continue modal.
 x-variant: llm-only-chained
 x-scope:
   included:
@@ -7428,4 +7428,4 @@ x-source-files:
     sha256: e56322cc3398d09c74ae6f9e9b9d8a7589efb45b5c4fd8bdfff97da4cca42886
   - path: packages/types/AppMetaSchema.ts
     sha256: 2979f3d907650759e6c6dc5856f4709234bdc12511df91ab6574e6c514f3d388
-x-edit: graph edit translated from q2q3-tools/prose-intents/30354.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/30354.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/30354.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/30354.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

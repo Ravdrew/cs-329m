@@ -182,7 +182,7 @@ nodes:
       - path: packages/features/schedules/components/ScheduleComponent.tsx
         start_line: 183
         end_line: 227
-    note: In the troubleshooter (and its LargeCalendar), translate the title using the `busy_time.*` keys, use `busy_time.busy` for the fallback label, and expose the source on the event's diagnostic data attribute.
+    note: In the troubleshooter, show the translated busy-time title and source through LargeCalendar.
   - id: available-slots-service
     label: Available slots service (getSchedule)
     kind: service
@@ -838,7 +838,7 @@ nodes:
       - path: packages/platform/atoms/calendar-view/components/LargeCalendar.tsx
         start_line: 16
         end_line: 80
-    note: In LargeCalendar (as used by the troubleshooter), translate the title using the `busy_time.*` keys, use `busy_time.busy` for the fallback label, and expose the source on the event's diagnostic data attribute.
+    note: In LargeCalendar, translate the title using the `busy_time.*` keys, use `busy_time.busy` for the fallback label, and expose the source on the event's diagnostic data attribute.
   - id: calendars-tasker
     label: Calendars tasker (ensure default calendars)
     kind: job
@@ -8394,4 +8394,4 @@ x-source-files:
     sha256: 6a99d12a027a0b713a6f4d1fee5f618420497aceeb5141c55ceab6ad383e1eb1
   - path: packages/types/AppMetaSchema.ts
     sha256: 944e0cf7c418897ca82522d0daf71a75b3184d4a28fb89edb56787d3311930d0
-x-edit: graph edit translated from q2q3-tools/prose-intents/27088.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/27088.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/27088.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/27088.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

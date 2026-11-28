@@ -811,7 +811,7 @@ nodes:
         end_line: 168
     provenance: inferred
     status: modify
-    note: Carry assignment explanations from booking data into organizer emails. Render the translated category followed by available details in organizer emails, and handle absent or null reasons without showing an empty explanation.
+    note: Render the translated category followed by available details in organizer emails, and handle absent or null reasons without showing an empty explanation.
   - id: embed-core
     label: Embed SDK
     kind: component
@@ -1595,7 +1595,7 @@ nodes:
         end_line: 12
     provenance: inferred
     status: modify
-    note: Preserve the webhook payload's existing array of `{ reasonEnum, reasonString }` entries by separating its assignmentReason type from the CalendarEvent email type rather than forcing both consumers onto the same representation.
+    note: Preserve the webhook payload's existing array of `{ reasonEnum, reasonString }` entries by separating its assignmentReason type from the CalendarEvent email type.
   - id: webhook-scheduled-triggers
     label: Scheduled webhook triggers
     kind: job
@@ -1630,23 +1630,20 @@ nodes:
     label: getAssignmentReasonCategory
     kind: service
     group: booking-flow
-    summary: Single mapping from AssignmentReasonEnum values to translation keys.
-    files:
-      - packages/features/bookings/lib/getAssignmentReasonCategory.ts
+    summary: Assignment reason categories.
+    files: []
     provenance: manual
     status: new
     note: Add `getAssignmentReasonCategory` as the single mapping from AssignmentReasonEnum values to translation keys, and reuse it wherever a human-readable category is needed.
   - id: calendar-event-builder
-    label: CalendarEventBuilder and CalendarEvent type
+    label: CalendarEvent builder
     kind: service
     group: booking-flow
     summary: Builds the CalendarEvent used by emails from booking data.
-    files:
-      - packages/features/CalendarEventBuilder.ts
-      - packages/types/Calendar.d.ts
+    files: []
     provenance: manual
     status: new
-    note: "Represent the email-facing CalendarEvent value (`CalendarEvent` in `packages/types/Calendar.d.ts`) as the optional `assignmentReason?: { category: string; details?: string | null } | null` object described in the interface. Add the chainable `withAssignmentReason(assignmentReason?: { category: string; details?: string | null } | null)` builder method and have booking-to-event construction populate it from the stored assignment reason."
+    note: Represent the email-facing CalendarEvent value as the optional `{ category, details }` object described in the interface. Add the chainable `withAssignmentReason` builder method and have booking-to-event construction populate it from the stored assignment reason.
   - id: booking-single-view
     label: Booking single view
     kind: page
@@ -1655,7 +1652,7 @@ nodes:
     files: []
     provenance: manual
     status: new
-    note: Carry assignment explanations from booking data into the authenticated booking detail view. On the booking single view, show the category badge and details only under the existing hidden-data access rule for the logged-in host or an authorized team member. Keep the presentation translated and consistent with the email wording.
+    note: In the authenticated view, show the category badge and details only under the existing hidden-data access rule for the logged-in host or an authorized team member. Keep the presentation translated and consistent with the email wording.
 edges:
   - id: e-api-flags
     from: api-book-endpoints
@@ -3296,7 +3293,7 @@ edges:
     label: maps reason enum to category
     provenance: manual
     status: new
-    note: Booking-to-event construction gets the category for the stored assignment reason from `getAssignmentReasonCategory`.
+    note: Category for the stored reason.
   - id: e-builder-booking-reason
     from: calendar-event-builder
     to: booking-model
@@ -3304,7 +3301,7 @@ edges:
     label: reads stored assignment reason
     provenance: manual
     status: new
-    note: Booking-to-event construction populates `withAssignmentReason` from the stored assignment reason (reason enum and detailed reason string).
+    note: Reads the stored assignment reason.
   - id: e-view-category
     from: booking-single-view
     to: assignment-reason-category
@@ -3312,7 +3309,7 @@ edges:
     label: maps reason enum to badge category
     provenance: manual
     status: new
-    note: The booking single view reuses `getAssignmentReasonCategory` for the translated category badge.
+    note: Category for the badge.
   - id: e-view-booking
     from: booking-single-view
     to: booking-model
@@ -3320,7 +3317,7 @@ edges:
     label: loads booking
     provenance: manual
     status: new
-    note: The booking single view shows the assignment reason from booking data.
+    note: Reads the stored assignment reason.
 x-variant: llm-only
 title: Cal.diy booking product component graph
 description: Booking flow, availability/slots, calendars, payments, notifications, webhooks, tasks, app-store framework, auth, embeds, data tables and persistence of the Cal.com web product.
@@ -4778,4 +4775,4 @@ x-source-files:
     sha256: 33c9c9e619767122764da82a92611beed26c73c3ffc37118aafe77960035c4cb
   - path: packages/trpc/server/routers/viewer/slots/util.ts
     sha256: c7b8baff3f29fffab00df3f1af9768e5f70281b6cbabc043d8876f6dbc7e096f
-x-edit: graph edit translated from q2q3-tools/prose-intents/27192.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/27192.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/27192.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/27192.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

@@ -1,0 +1,4 @@
+{ "pull": 24465, "verdict": "ok",
+  "lost": [], "added": [], "repeated": [], "misplaced": [], "arms_differ": [],
+  "notes": "Intent, brief and both edits are byte-identical to the originals; each requirement appears once, on the cache component and the Google Calendar component, in both arms."
+}

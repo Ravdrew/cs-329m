@@ -663,7 +663,7 @@ nodes:
         end_line: 382
     provenance: inferred
     status: modify
-    note: "HubSpot: add an opt-in mapping from booking data to HubSpot Meeting properties at meeting creation. Store the enable switch and field mappings in the HubSpot app configuration using the shared CRM enums and schemas, and expose them in the app card through the split WriteToObjectSettings types, utilities, and UI. Keep the existing meeting creation fields and organizer information intact when mappings are absent or disabled. In CrmService, read configuration through `getAppOptions` and fetch the available Meeting properties from HubSpot before building the extra property payload. Skip configured properties that do not exist on the Meeting object. Resolve each configured value by its declared type and source: literal text, booking-field placeholders, UTM placeholders, booleans, phone values, or booking dates. Support placeholders within surrounding text as well as a value consisting entirely of one placeholder, and define a consistent empty-value behavior when the requested booking data is unavailable. Convert dates and other typed values to the representation expected by the existing HubSpot integration before merging the mapped properties into the create request. Respect the configured write policy and keep missing optional tracking or form answers from corrupting the ordinary meeting payload."
+    note: "HubSpot: add an opt-in mapping from booking data to HubSpot Meeting properties at meeting creation. Store the enable switch and field mappings in the HubSpot app configuration using the shared CRM enums and schemas, and expose them in the app card through the split WriteToObjectSettings types, utilities, and UI. Keep the existing meeting creation fields and organizer information intact when mappings are absent or disabled. In CrmService, read configuration through `getAppOptions` and fetch the available Meeting properties from HubSpot before building the extra property payload. Skip configured properties that do not exist on the Meeting object. Resolve each configured value by its declared type and source: literal text, booking-field placeholders, UTM placeholders, booleans, phone values, or booking dates. Support placeholders inside surrounding text and as the whole value, and define a consistent empty-value behavior when the requested booking data is unavailable. Convert dates and other typed values to the representation the existing HubSpot integration expects before merging the mapped properties into the create request. Respect the configured write policy and keep missing optional tracking or form answers from corrupting the ordinary meeting payload."
   - id: data-table
     label: Data table and filter segments
     kind: component
@@ -1774,23 +1774,19 @@ nodes:
     kind: other
     group: app-store
     summary: Shared CRM enums and schemas for write-to-object field mappings.
-    files:
-      - packages/app-store/_lib/crm-enums.ts
-      - packages/app-store/_lib/crm-schemas.ts
+    files: []
     provenance: manual
     status: new
-    note: Shared CRM enums and schemas used to store the HubSpot enable switch and field mappings in the app configuration and by the app card's WriteToObjectSettings.
+    note: New shared module.
   - id: tracking-repository
     label: Tracking repository
     kind: store
     group: persistence
-    summary: Tracking repository for UTM data keyed by booking UID.
-    files:
-      - packages/lib/server/repository/TrackingRepository.interface.ts
-      - packages/lib/server/repository/PrismaTrackingRepository.ts
+    summary: Booking tracking (UTM) data.
+    files: []
     provenance: manual
     status: new
-    note: Injected tracking repository that HubSpot CrmService uses for UTM data keyed by booking UID.
+    note: New repository, injected into HubSpot CrmService, returning UTM data keyed by booking UID.
 edges:
   - id: e-appstore-cred
     from: app-store-framework
@@ -3303,7 +3299,7 @@ edges:
     label: field mapping config
     provenance: manual
     status: new
-    note: HubSpot app configuration (enable switch and field mappings) and WriteToObjectSettings use the shared CRM enums and schemas.
+    note: Types for the mapping configuration.
   - id: e-crm-reads-tracking
     from: crm-integrations
     to: tracking-repository
@@ -3311,7 +3307,7 @@ edges:
     label: UTM data by booking UID
     provenance: manual
     status: new
-    note: HubSpot CrmService uses the injected tracking repository for UTM data keyed by booking UID, to resolve UTM placeholders; missing optional tracking must not corrupt the ordinary meeting payload.
+    note: UTM placeholder values.
   - id: e-crm-reads-booking-created
     from: crm-integrations
     to: booking-model
@@ -3319,7 +3315,7 @@ edges:
     label: booking creation time
     provenance: manual
     status: new
-    note: HubSpot CrmService uses the booking repository for booking creation time, used for booking-date values.
+    note: Booking repository supplies booking creation time for date values.
 x-variant: llm-only
 title: Cal.com booking product component graph
 description: Components for public booking, booking management, availability and slots, calendars and cache, event types and forms, auth, app-store integrations, notifications (email, webhooks, tasks), platform utilities and persistence.
@@ -4767,4 +4763,4 @@ x-source-files:
     sha256: 9e7ad17e136194a378cd45b7c675e2e57ca94268d91bc182833fc8c30e6bb19f
   - path: packages/trpc/server/routers/viewer/slots/util.ts
     sha256: f0802f0574fa618b455fadf15bd6bed88ac45844fdd459166efcdaab964b6fe4
-x-edit: graph edit translated from q2q3-tools/prose-intents/26039.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/26039.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/26039.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/26039.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

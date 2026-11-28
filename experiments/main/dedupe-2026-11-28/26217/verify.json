@@ -1,0 +1,4 @@
+{ "pull": 26217, "verdict": "ok",
+  "lost": [], "added": [], "repeated": [], "misplaced": [], "arms_differ": [],
+  "notes": "Intent and brief unchanged. Edits drop names not in the intent (calcomHandler/selfHostedHandler, SignupResult, SIGNUP_ERROR_CODES, helper names, files, description) and the signup-node restatement of the fetchSignup/helpers requirement, which stays once on signup-fetch; both arms identical apart from group id."
+}

@@ -2,19 +2,19 @@
   "modify": [
     {
       "id": "trpc-bookings-router",
-      "note": "In `reportWrongAssignment` (reportWrongAssignment.handler.ts): check booking access, load the booking's team and routing-form response, reject an existing report, and then create the new record through WrongAssignmentReportRepository. Return its ID with the handler's existing response. Keep the database uniqueness constraint as the final protection against concurrent submissions, translating the relevant P2002 conflict into the same localized duplicate-report error as the earlier existence check. Preserve the existing reporting notification flow without sending it twice for a rejected duplicate. Persist `routedFromRoutingFormReponse.formId` when present. Add the access-checked `hasWrongAssignmentReport` query for the dialog. Keep authorization and duplicate protection on the server."
+      "note": "In `reportWrongAssignment`, check booking access, load the booking's team and routing-form response, reject an existing report, and then create the new record. Return its ID with the handler's existing response. Keep the database uniqueness constraint as the final protection against concurrent submissions, translating the relevant P2002 conflict into the same localized duplicate-report error as the earlier existence check. Preserve the existing reporting notification flow without sending it twice for a rejected duplicate. Persist the booking's routing form ID when present. Add the access-checked `hasWrongAssignmentReport` query for the dialog, keeping authorization and duplicate protection on the server."
     },
     {
       "id": "bookings-list-ui",
-      "note": "WrongAssignmentDialog: use the `hasWrongAssignmentReport` query to display the already-reported warning and disable submission, while keeping authorization and duplicate protection on the server. Fix clearing the assignee Select so an empty selection clears the form value instead of leaving the previous assignee behind."
+      "note": "In the wrong-assignment dialog, use `hasWrongAssignmentReport` to display the already-reported warning and disable submission. Fix clearing the assignee Select so an empty selection clears the form value instead of leaving the previous assignee behind."
     },
     {
       "id": "e-list-router",
-      "note": "The wrong-assignment dialog calls the access-checked `hasWrongAssignmentReport` query to display the already-reported warning and disable submission."
+      "note": "The dialog checks for an existing report."
     },
     {
       "id": "m-booking",
-      "note": "BookingRepository: include `routedFromRoutingFormReponse.formId` in the booking repository result (findByUidIncludeEventTypeAndTeamAndAssignmentReason), so the handler can persist it when present."
+      "note": "Include `routedFromRoutingFormReponse.formId` in the booking repository result."
     }
   ],
   "add_nodes": [
@@ -24,10 +24,8 @@
       "kind": "store",
       "group": "data",
       "summary": "Persists wrong-assignment reports.",
-      "files": [
-        "packages/features/bookings/repositories/WrongAssignmentReportRepository.ts"
-      ],
-      "note": "Persist wrong-assignment reports through this new WrongAssignmentReportRepository; the handler checks for an existing report and creates the new record through it."
+      "files": [],
+      "note": "Persist wrong-assignment reports through this new repository."
     },
     {
       "id": "model-wrong-assignment-report",
@@ -35,10 +33,8 @@
       "kind": "model",
       "group": "data",
       "summary": "Prisma model for wrong-assignment reports.",
-      "files": [
-        "packages/prisma/schema.prisma"
-      ],
-      "note": "The specified Prisma model for wrong-assignment reports. Make `bookingUid` unique, set a new report's initial status to PENDING, and store the reporter, proposed correct assignee, notes, team, and routing form alongside timestamps. Keep reporter and team relationships nullable with the requested deletion behavior so useful reports survive removal of those accounts or teams."
+      "files": [],
+      "note": "Add the specified Prisma model. Make `bookingUid` unique, set a new report's initial status to PENDING, and store the reporter, proposed correct assignee, notes, team, and routing form alongside timestamps. Keep reporter and team relationships nullable with the requested deletion behavior so useful reports survive removal of those accounts or teams."
     }
   ],
   "add_edges": [
@@ -48,7 +44,7 @@
       "to": "wrong-assignment-report-repository",
       "kind": "calls",
       "label": "checks and creates report",
-      "note": "reportWrongAssignment rejects an existing report, then creates the new record; `hasWrongAssignmentReport` checks for an existing report."
+      "note": "Existence checks and report creation."
     },
     {
       "id": "e-wrong-assignment-repo-model",
@@ -56,7 +52,7 @@
       "to": "model-wrong-assignment-report",
       "kind": "writes",
       "label": "persists reports",
-      "note": "Persist wrong-assignment reports to the new Prisma model."
+      "note": "Stores report rows."
     }
   ]
 }

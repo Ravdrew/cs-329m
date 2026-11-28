@@ -2,23 +2,19 @@
   "modify": [
     {
       "id": "form-builder",
-      "note": "Extend booking fields so supported questions can contribute an additional charge to the event's configured price. Store optional prices on fields and on individual options, and use field-type capabilities to distinguish quantity or checkbox pricing from option pricing. In the form builder, expose the price controls only when pricing is enabled and the selected field type supports it. Keep each option's price attached to its stable value when options are added or edited, and show prices in the payment currency. Fields without prices should retain their existing behavior."
+      "note": "Extend booking fields so supported questions can add a charge to the event's configured price. Store optional prices on fields and on individual options, and use field-type capabilities to distinguish quantity or checkbox pricing from option pricing. In the form builder, expose the price controls only when pricing is enabled and the selected field type supports it. Keep each option's price attached to its stable value when options are added or edited, and show prices in the payment currency."
     },
     {
       "id": "payment-lib",
-      "note": "Compute the payable amount on the server from the saved booking-field definitions and the submitted responses. A number field contributes its quantity times its configured price; a checked checkbox contributes its fee; single-choice fields contribute the selected option's fee; and multi-choice fields sum the selected option fees. Unanswered optional fields and unselected options should contribute nothing. Resolve prices from the event configuration rather than accepting amounts supplied by the booker, and use the payment integration's existing currency units consistently. handlePayment takes `bookingFields` and `locale`. Combine the add-on amount with the base event price before invoking the existing payment service, keeping the amount consistent across payment creation, card-collection behavior, and the price shown to the booker. Preserve the current dry-run and unsupported-payment-service behavior and the post-payment flow. Fields without prices should retain their existing behavior."
-    },
-    {
-      "id": "handle-new-booking",
-      "note": "Thread `bookingFields` and `locale` into `handlePayment` (handleNewBooking is a caller of handlePayment)."
+      "note": "Compute the payable amount on the server from the saved booking-field definitions and the submitted responses. A number field contributes its quantity times its configured price; a checked checkbox contributes its fee; single-choice fields contribute the selected option's fee; and multi-choice fields sum the selected option fees. Unanswered optional fields and unselected options contribute nothing. Resolve prices from the event configuration rather than accepting amounts supplied by the booker, and use the payment integration's existing currency units consistently. Combine the add-on amount with the base event price before invoking the existing payment service, keeping the amount consistent across payment creation, card-collection behavior, and the price shown to the booker. Preserve the current dry-run and unsupported-payment-service behavior and the post-payment flow. Fields without prices keep their existing behavior."
     },
     {
       "id": "e-hnb-payment",
-      "note": "Pass `bookingFields` and `locale` to `handlePayment`, along with the submitted responses; prices are resolved from the event configuration rather than amounts supplied by the booker."
+      "note": "Thread `bookingFields` and `locale` into `handlePayment` and its callers."
     },
     {
       "id": "e-payment-stripe",
-      "note": "Invoke the existing payment service with the base event price combined with the add-on amount, so the amount is consistent across payment creation and card-collection behavior; use the payment integration's existing currency units consistently."
+      "note": "Receives the combined amount."
     }
   ],
   "add_edges": [
@@ -28,7 +24,7 @@
       "to": "form-builder",
       "kind": "uses",
       "label": "reads booking-field prices",
-      "note": "handlePayment reads the saved booking-field definitions (prices on fields and options, field-type capabilities) to compute the add-on amount from the submitted responses."
+      "note": "Reads the saved field and option prices."
     }
   ]
 }

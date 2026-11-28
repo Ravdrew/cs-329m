@@ -272,7 +272,8 @@ nodes:
         start_line: 410
         end_line: 498
     provenance: inferred
-    status: existing
+    status: modify
+    note: Carry the phone-versus-email requirement choice into the booker form.
   - id: booking-pages
     label: Public booking pages
     kind: page
@@ -861,7 +862,7 @@ nodes:
         end_line: 60
     provenance: inferred
     status: modify
-    note: Make phone-only booking an option for personal events as well as team and organization events. Expose the phone-versus-email requirement control through the booking-field editor. Carry the phone-versus-email requirement choice made in the booking-field editor into the booker form, so a booking with a valid required phone number can be confirmed without asking the attendee for an email address. Keep the email-confirmation path working for event types that select it.
+    note: Make phone-only booking an option for personal events as well as team and organization events. Expose the phone-versus-email requirement control through the booking-field editor.
   - id: handle-cancel-booking
     label: handleCancelBooking
     kind: service
@@ -4231,4 +4232,4 @@ x-source-files:
     sha256: b16f884cdec29649a96626032803d25a93f3ed87c50b25fe91f7d542f4e5bbf1
   - path: packages/trpc/server/routers/viewer/webhook/util.ts
     sha256: 9ee4b3be609926ac4f815ec7c1f9fbd902ab42015d5f0c318687bc0a47499f48
-x-edit: graph edit translated from q2q3-tools/prose-intents/22024.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/22024.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/22024.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/22024.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

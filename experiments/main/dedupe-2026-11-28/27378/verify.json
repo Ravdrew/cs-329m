@@ -1,0 +1,5 @@
+{ "pull": 27378, "verdict": "ok",
+  "lost": [], "added": [], "repeated": [], "misplaced": [],
+  "arms_differ": ["\"Add the corresponding DI tokens and modules\" sits on the webhook-tasker node in fresh but on webhook-dispatch in chain; same as the originals, and chain's webhook-dispatch owns packages/features/di/webhooks/modules, so this is placement, not content"],
+  "notes": "Intent and brief unchanged. Edits keep every intent requirement exactly once across node, modify and edge notes in both arms; dropped items (WebhookTaskerProducerService, WebhookTaskConsumer parentheticals, files list, description) were names not in the intent or restatements."
+}

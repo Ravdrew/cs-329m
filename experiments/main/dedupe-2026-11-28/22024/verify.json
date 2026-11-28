@@ -1,0 +1,8 @@
+{ "pull": 22024, "verdict": "minor",
+  "lost": [],
+  "added": [],
+  "repeated": [],
+  "misplaced": ["fresh: 'Carry the phone-versus-email requirement choice into the booker form' moved off form-builder onto a new booker-ui modify entry. booker-ui fits (it composes BookEventForm), and it now matches chain, but fresh form-builder also owns BookEventForm/BookingFields.tsx, so the original placement was defensible. This is a structural change to the fresh arm, not just a wording cut."],
+  "arms_differ": [],
+  "notes": "Intent and brief are byte-identical to the originals. Edits only drop the booker-form copy of 'confirmed without asking ... email' and 'Keep the email-confirmation path working', which stay on the server-validation entry, so every intent requirement is still carried once and both arms match apart from node ids."
+}

@@ -500,7 +500,7 @@ nodes:
       - path: packages/trpc/server/routers/viewer/bookings/reportBooking.handler.ts
         start_line: 1
         end_line: 40
-    note: "In `reportWrongAssignment` (reportWrongAssignment.handler.ts): check booking access, load the booking's team and routing-form response, reject an existing report, and then create the new record through WrongAssignmentReportRepository. Return its ID with the handler's existing response. Keep the database uniqueness constraint as the final protection against concurrent submissions, translating the relevant P2002 conflict into the same localized duplicate-report error as the earlier existence check. Preserve the existing reporting notification flow without sending it twice for a rejected duplicate. Persist `routedFromRoutingFormReponse.formId` when present. Add the access-checked `hasWrongAssignmentReport` query for the dialog. Keep authorization and duplicate protection on the server. WrongAssignmentDialog: use the `hasWrongAssignmentReport` query to display the already-reported warning and disable submission, while keeping authorization and duplicate protection on the server. Fix clearing the assignee Select so an empty selection clears the form value instead of leaving the previous assignee behind."
+    note: In `reportWrongAssignment`, check booking access, load the booking's team and routing-form response, reject an existing report, and then create the new record. Return its ID with the handler's existing response. Keep the database uniqueness constraint as the final protection against concurrent submissions, translating the relevant P2002 conflict into the same localized duplicate-report error as the earlier existence check. Preserve the existing reporting notification flow without sending it twice for a rejected duplicate. Persist the booking's routing form ID when present. Add the access-checked `hasWrongAssignmentReport` query for the dialog, keeping authorization and duplicate protection on the server. In the wrong-assignment dialog, use `hasWrongAssignmentReport` to display the already-reported warning and disable submission. Fix clearing the assignee Select so an empty selection clears the form value instead of leaving the previous assignee behind.
   - id: booking-request-reschedule
     label: Request reschedule (tRPC)
     kind: endpoint
@@ -1808,7 +1808,7 @@ nodes:
       - path: packages/prisma/schema.prisma
         start_line: 859
         end_line: 938
-    note: "BookingRepository: include `routedFromRoutingFormReponse.formId` in the booking repository result (findByUidIncludeEventTypeAndTeamAndAssignmentReason), so the handler can persist it when present."
+    note: Include `routedFromRoutingFormReponse.formId` in the booking repository result.
   - id: model-credential
     label: Credential and CalendarCache models
     kind: model
@@ -2796,21 +2796,19 @@ nodes:
     kind: store
     group: persistence
     summary: Persists wrong-assignment reports.
-    files:
-      - packages/features/bookings/repositories/WrongAssignmentReportRepository.ts
+    files: []
     provenance: manual
     status: new
-    note: Persist wrong-assignment reports through this new WrongAssignmentReportRepository; the handler checks for an existing report and creates the new record through it.
+    note: Persist wrong-assignment reports through this new repository.
   - id: model-wrong-assignment-report
     label: WrongAssignmentReport model
     kind: model
     group: persistence
     summary: Prisma model for wrong-assignment reports.
-    files:
-      - packages/prisma/schema.prisma
+    files: []
     provenance: manual
     status: new
-    note: The specified Prisma model for wrong-assignment reports. Make `bookingUid` unique, set a new report's initial status to PENDING, and store the reporter, proposed correct assignee, notes, team, and routing form alongside timestamps. Keep reporter and team relationships nullable with the requested deletion behavior so useful reports survive removal of those accounts or teams.
+    note: Add the specified Prisma model. Make `bookingUid` unique, set a new report's initial status to PENDING, and store the reporter, proposed correct assignee, notes, team, and routing form alongside timestamps. Keep reporter and team relationships nullable with the requested deletion behavior so useful reports survive removal of those accounts or teams.
 edges:
   - id: e-audit-tasker
     from: booking-audit
@@ -4633,7 +4631,7 @@ edges:
     label: checks and creates report
     provenance: manual
     status: new
-    note: reportWrongAssignment rejects an existing report, then creates the new record; `hasWrongAssignmentReport` checks for an existing report.
+    note: Existence checks and report creation.
   - id: e-wrong-assignment-repo-model
     from: wrong-assignment-report-repository
     to: model-wrong-assignment-report
@@ -4641,7 +4639,7 @@ edges:
     label: persists reports
     provenance: manual
     status: new
-    note: Persist wrong-assignment reports to the new Prisma model.
+    note: Stores report rows.
 x-variant: llm-only-chained
 x-scope:
   included:
@@ -8262,4 +8260,4 @@ x-source-files:
     sha256: be159217ca2bb46730fab6169b4144531930b571ee41faf812b19bd2854527ee
   - path: packages/types/AppMetaSchema.ts
     sha256: 944e0cf7c418897ca82522d0daf71a75b3184d4a28fb89edb56787d3311930d0
-x-edit: graph edit translated from q2q3-tools/prose-intents/27405.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/27405.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/27405.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/27405.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

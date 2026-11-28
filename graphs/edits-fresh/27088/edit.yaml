@@ -2470,7 +2470,7 @@ nodes:
         end_line: 600
     provenance: inferred
     status: modify
-    note: Give date-override entries the same complete information. Apply `withSource` at the response boundary so callers that did not request diagnostic sources keep the expected response shape. Add `getUserAvailabilityIncludingBusyTimesFromLimits` as a wrapper around the existing `_getUserAvailability` method. Obtain the needed limit busy times through the existing busy-time services when they are not already supplied. Preserve `initialData.busyTimesFromLimitsBookings`, including an intentionally empty array, instead of overwriting it with a newly initialized empty list. Leave an absent value absent when no computation produced one, then forward the assembled initial data into the existing availability calculation.
+    note: Give date-override entries the same complete information. Apply `withSource` at the response boundary so callers that did not request diagnostic sources keep the expected response shape. Add `getUserAvailabilityIncludingBusyTimesFromLimits` as a wrapper around the existing `_getUserAvailability` method. Preserve `initialData.busyTimesFromLimitsBookings`, including an intentionally empty array, instead of overwriting it with a newly initialized empty list. Leave an absent value absent when no computation produced one, then forward the assembled initial data into the existing availability calculation.
   - id: video-integrations
     label: Video conferencing integration family
     kind: component
@@ -2720,7 +2720,7 @@ edges:
       - file: packages/features/availability/lib/getUserAvailability.ts
         line: 570
         note: Lines 570–600 (inclusive).
-    note: "`getUserAvailabilityIncludingBusyTimesFromLimits` obtains the needed limit busy times through the existing busy-time services when they are not already supplied in initial data."
+    note: Obtain the needed limit busy times through the existing busy-time services when they are not already supplied.
   - id: e-availtrpc-schedule
     from: trpc-availability
     to: schedule-service
@@ -7310,4 +7310,4 @@ x-source-files:
     sha256: b16f884cdec29649a96626032803d25a93f3ed87c50b25fe91f7d542f4e5bbf1
   - path: packages/trpc/server/routers/viewer/webhook/util.ts
     sha256: 4308b3de8e0b6566b32fa310904b9a1b16bcf5f14b47b237df9851dd5969b12c
-x-edit: graph edit translated from q2q3-tools/prose-intents/27088.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/27088.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/27088.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/27088.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

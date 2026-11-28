@@ -2,7 +2,7 @@
   "modify": [
     {
       "id": "api.book",
-      "note": "Add BotID verification to the `/api/book/event` request path before booking creation can cause side effects. The route assembles the inputs to `checkBotDetection` (the request headers and the optional event type ID) and reports an unsuccessful verification through its normal error handling. Keep a disabled rollout from changing ordinary booking behavior. Preserve the route's existing Turnstile, rate limiting, session handling, and booking metadata."
+      "note": "Add BotID verification to the `/api/book/event` request path before booking creation can cause side effects. The route assembles the request headers and optional event type ID for `checkBotDetection` and reports an unsuccessful verification through its normal error handling. Keep a disabled rollout from changing ordinary booking behavior. Preserve the route's existing Turnstile, rate limiting, session handling, and booking metadata."
     },
     {
       "id": "e5",
@@ -19,11 +19,8 @@
       "label": "BotDetectionService",
       "kind": "service",
       "group": "booking-core",
-      "summary": "Decides whether BotID verification is enabled for a booking request and runs it.",
-      "description": "Holds the BotID decision and verification logic for the booking request path.",
-      "files": [
-        "packages/features/bot-detection/BotDetectionService.ts"
-      ],
+      "summary": "BotID check for booking requests.",
+      "files": [],
       "note": "Put the decision and verification logic in BotDetectionService, with the feature and event-type repositories injected through its constructor. Use `NEXT_PUBLIC_VERCEL_USE_BOTID_IN_BOOKER` and the event type team's `booker-botid` feature setting to determine whether the check is enabled, and add the environment setting to the example configuration. When verification is enabled, call `checkBotId` using the request context. Distinguish a bot verdict from a verification-service failure in logging and error handling, with an explicit failure policy."
     }
   ],
@@ -34,7 +31,7 @@
       "to": "bot-detection-service",
       "kind": "calls",
       "label": "checkBotDetection",
-      "note": "The route calls `checkBotDetection`."
+      "note": "Runs the bot check."
     },
     {
       "id": "e-botdetection-flags",
@@ -42,7 +39,7 @@
       "to": "flags.features",
       "kind": "reads",
       "label": "checks booker-botid team feature",
-      "note": "Read the team's `booker-botid` setting through the injected feature repository."
+      "note": "Reads the team's feature setting through the feature repository."
     },
     {
       "id": "e-botdetection-eventtype",

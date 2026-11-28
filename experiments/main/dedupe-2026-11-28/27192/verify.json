@@ -1,0 +1,4 @@
+{ "pull": 27192, "verdict": "ok",
+  "lost": [], "added": [], "repeated": [], "misplaced": [], "arms_differ": [],
+  "notes": "Intent only drops \"rather than forcing both consumers onto the same representation\", a restatement of \"separating its assignmentReason type\". Edits keep every intent requirement on the same components in both arms; the removed type signatures, Calendar.d.ts reference and files lists were spec detail not in the intent, and \"described in the interface\" still points to the exact shape."
+}

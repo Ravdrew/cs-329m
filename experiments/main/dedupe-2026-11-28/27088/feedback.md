@@ -1,0 +1,11 @@
+# Feedback for #27088
+
+## Independent check (a second AI compared both edits with the intent)
+Verdict: minor
+Both edits carry all of the intent's content and add nothing new. Each arm repeats one requirement on two entries.
+
+- [repeated] fresh e-avail-busy: The note "`getUserAvailabilityIncludingBusyTimesFromLimits` obtains the needed limit busy times through the existing busy-time services when they are not already supplied" repeats the user-availability note's "Obtain the needed limit busy times through the existing busy-time services when they are not already supplied." Also, fresh/graph.md lists no dependency ids, so the id 'e-avail-busy' cannot be matched to a dependency in the graph (presumably user-availability -> busy-times).
+- [repeated] chain calendar-weekly-view: The full troubleshooter requirement ("translate the title using the `busy_time.*` keys, use `busy_time.busy` for the fallback label, and expose the source on the event's diagnostic data attribute") is stated on both availability-ui and calendar-weekly-view. Each component owns part of the change (troubleshoot page and LargeCalendar.tsx), but the same requirement is written out twice.
+
+## Human reviewer comments
+- brief: verdict ok

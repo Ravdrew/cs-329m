@@ -1,0 +1,8 @@
+{ "pull": 27208, "verdict": "ok",
+  "lost": [],
+  "added": [],
+  "repeated": [],
+  "misplaced": [],
+  "arms_differ": [],
+  "notes": "Intent and brief are unchanged. In both arms only the e-list-datatable note was cut, to 'Passes the validator from `useActiveFiltersValidator` to DataTableProvider.', which drops a restatement of segment validation already on bookings-list-ui/bookings-list-page and data-table. The query gating sits on the bookings-list-ui node in fresh and on the e-list-query edge in chain, which is the same as in the originals and follows each graph."
+}

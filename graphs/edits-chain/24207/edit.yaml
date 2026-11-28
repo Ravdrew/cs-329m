@@ -213,7 +213,7 @@ nodes:
       - path: apps/web/pages/api/book/event.ts
         start_line: 12
         end_line: 39
-    note: Add BotID verification to the `/api/book/event` request path before booking creation can cause side effects. The route assembles the inputs to `checkBotDetection` (the request headers and the optional event type ID) and reports an unsuccessful verification through its normal error handling. Keep a disabled rollout from changing ordinary booking behavior. Preserve the route's existing Turnstile, rate limiting, session handling, and booking metadata.
+    note: Add BotID verification to the `/api/book/event` request path before booking creation can cause side effects. The route assembles the request headers and optional event type ID for `checkBotDetection` and reports an unsuccessful verification through its normal error handling. Keep a disabled rollout from changing ordinary booking behavior. Preserve the route's existing Turnstile, rate limiting, session handling, and booking metadata.
   - id: booker-booking-hooks
     label: Booker booking mutations
     kind: component
@@ -2205,10 +2205,8 @@ nodes:
     label: BotDetectionService
     kind: service
     group: booking-core
-    summary: Decides whether BotID verification is enabled for a booking request and runs it.
-    description: Holds the BotID decision and verification logic for the booking request path.
-    files:
-      - packages/features/bot-detection/BotDetectionService.ts
+    summary: BotID check for booking requests.
+    files: []
     provenance: manual
     status: new
     note: Put the decision and verification logic in BotDetectionService, with the feature and event-type repositories injected through its constructor. Use `NEXT_PUBLIC_VERCEL_USE_BOTID_IN_BOOKER` and the event type team's `booker-botid` feature setting to determine whether the check is enabled, and add the environment setting to the example configuration. When verification is enabled, call `checkBotId` using the request context. Distinguish a bot verdict from a verification-service failure in logging and error handling, with an explicit failure policy.
@@ -3857,7 +3855,7 @@ edges:
     label: checkBotDetection
     provenance: manual
     status: new
-    note: The route calls `checkBotDetection`.
+    note: Runs the bot check.
   - id: e-botdetection-flags
     from: bot-detection-service
     to: feature-flags
@@ -3865,7 +3863,7 @@ edges:
     label: checks booker-botid team feature
     provenance: manual
     status: new
-    note: Read the team's `booker-botid` setting through the injected feature repository.
+    note: Reads the team's feature setting through the feature repository.
   - id: e-botdetection-eventtype
     from: bot-detection-service
     to: model-event-type
@@ -6384,4 +6382,4 @@ x-source-files:
     sha256: b0c42a7e20b0b44084d2163f63f90eb0ed13fb5eeba40cb46da7473b15f83b1e
   - path: packages/types/AppMetaSchema.ts
     sha256: aad40aefd0a45f62d59bc57bb69d7fa6a38678bcbe4316625b994137b68a93c8
-x-edit: graph edit translated from q2q3-tools/prose-intents/24207.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/24207.yaml; tools/llm-only/EDITS-INTENT.md; tightened after review 2026-11-28
+x-edit: graph edit translated from q2q3-tools/prose-intents/24207.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/24207.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

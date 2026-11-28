@@ -1,0 +1,4 @@
+{ "pull": 24207, "verdict": "ok",
+  "lost": [], "added": [], "repeated": [], "misplaced": [], "arms_differ": [],
+  "notes": "The intent's one merged sentence keeps the meaning: the route assembles the headers and optional event type ID for checkBotDetection and reports failure through its normal error handling. All other intent points are unchanged and appear once, on the same components as the originals, with both arms identical apart from ids. \"Add the environment setting to the example configuration\" is still on the service node, as in the original, because neither graph has a config component."
+}

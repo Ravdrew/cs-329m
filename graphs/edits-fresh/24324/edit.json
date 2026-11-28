@@ -2,15 +2,15 @@
   "modify": [
     {
       "id": "bookings-trpc-router",
-      "note": "Add booking reporting as an authenticated operation. The tRPC handler `reportBookingHandler` coordinates the operation without embedding database access rules in the UI: validate the input, verify the caller's access to the booking (via BookingAccessService), and load the booking with its existing report before making changes. Derive the booker's email and organizational context from the booking and authenticated user. Create the report (via PrismaBookingReportRepository) with the supplied reason and optional description, record whether cancellation occurred, and leave `watchlistId` unset. Handle an already-reported booking deliberately so retries do not produce duplicate reports or repeated cancellation work. Return the booking UID and updated report count to the client. Keep administrative watchlist management and future email blocking outside this feature, as described in the request."
+      "note": "Add booking reporting as an authenticated operation in `reportBookingHandler`, which coordinates it without embedding database access rules in the UI. Validate the input, verify the caller's access to the booking, and load the booking with its existing report before making changes. Derive the booker's email and organizational context from the booking and authenticated user. Handle an already-reported booking deliberately so retries do not produce duplicate reports or repeated cancellation work. Return the booking UID and updated report count to the client. Keep administrative watchlist management and future email blocking outside this feature."
     },
     {
       "id": "e32",
-      "note": "Load the booking with its existing report before making changes. Use the recurring-booking repository lookup where the operation needs to identify active related bookings, with a clear scope for which occurrences are affected."
+      "note": "Use the recurring-booking repository lookup where the operation needs to identify active related bookings, with a clear scope for which occurrences are affected."
     },
     {
       "id": "bookings-list-view",
-      "note": "Add the reporting action and dialog to bookings, then refresh the booking's report badge, count, and reason tooltip after success."
+      "note": "Add the reporting action; after a successful report, refresh the booking's report badge, count, and reason tooltip."
     }
   ],
   "add_nodes": [
@@ -19,11 +19,9 @@
       "label": "BookingReport model",
       "kind": "model",
       "group": "persistence",
-      "summary": "BookingReport record for reported bookings",
-      "files": [
-        "packages/prisma/schema.prisma"
-      ],
-      "note": "Add booking reporting backed by a BookingReport record. Give the model the specified booking, reporter, organization, and optional watchlist relations and the three report reasons (BookingReportReason: SPAM, DONT_KNOW_PERSON, OTHER). Optional watchlist relation on the report; watchlistId stays unset. Administrative watchlist management and future email blocking stay outside this feature."
+      "summary": "Record of a reported booking",
+      "files": [],
+      "note": "Add a BookingReport record with the specified booking, reporter, organization, and optional watchlist relations and the three report reasons."
     },
     {
       "id": "booking-report-repository",
@@ -31,30 +29,25 @@
       "kind": "store",
       "group": "persistence",
       "summary": "Persistence for booking reports",
-      "files": [
-        "packages/lib/server/repository/bookingReport.ts",
-        "packages/lib/server/repository/bookingReport.interface.ts"
-      ],
-      "note": "Put persistence of booking reports behind PrismaBookingReportRepository. It creates the report with the supplied reason and optional description, records whether cancellation occurred, and leaves watchlistId unset."
+      "files": [],
+      "note": "Put booking-report persistence behind PrismaBookingReportRepository."
     },
     {
       "id": "booking-access-service",
       "label": "BookingAccessService",
       "kind": "service",
       "group": "booking-core",
-      "summary": "Checks whether a user has access to a booking",
-      "files": [
-        "packages/features/bookings/services/BookingAccessService.ts"
-      ],
-      "note": "Put authorization behind BookingAccessService: it verifies the caller's access to the booking, so database access rules are not embedded in the UI."
+      "summary": "Booking access checks",
+      "files": [],
+      "note": "Put the reporting operation's authorization behind BookingAccessService."
     },
     {
       "id": "report-booking-dialog",
       "label": "Report booking dialog",
       "kind": "component",
       "group": "booking-ui",
-      "summary": "Reporting action and dialog for a booking",
-      "note": "Add the reporting action and dialog for a booking."
+      "summary": "Dialog for reporting a booking",
+      "note": "Add the reporting dialog."
     }
   ],
   "add_edges": [
@@ -64,7 +57,7 @@
       "to": "booking-access-service",
       "kind": "calls",
       "label": "verifies booking access",
-      "note": "Verify the caller's access to the booking before making changes."
+      "note": "Access check for the booking."
     },
     {
       "id": "e-report-repo",
@@ -72,7 +65,7 @@
       "to": "booking-report-repository",
       "kind": "calls",
       "label": "creates report",
-      "note": "Create the report with the supplied reason and optional description, record whether cancellation occurred, and leave watchlistId unset; no duplicate reports on retry."
+      "note": "Create the report with the supplied reason and optional description, record whether cancellation occurred, and leave `watchlistId` unset."
     },
     {
       "id": "e-report-repo-model",
@@ -80,7 +73,7 @@
       "to": "booking-report-model",
       "kind": "writes",
       "label": "writes BookingReport",
-      "note": "Persist the BookingReport record."
+      "note": "Stores BookingReport records."
     },
     {
       "id": "e-report-booking-rel",
@@ -88,7 +81,7 @@
       "to": "booking-model",
       "kind": "uses",
       "label": "booking relation",
-      "note": "BookingReport has a booking relation (each booking has its existing report)."
+      "note": "The report's booking relation."
     },
     {
       "id": "e-report-cancel",
@@ -96,7 +89,7 @@
       "to": "cancel-booking-service",
       "kind": "calls",
       "label": "cancels reported upcoming booking",
-      "note": "Use the existing cancellation flow for an upcoming booking that is reported, including its notifications and booking-state updates. Avoid repeated cancellation work when an already-reported booking is retried."
+      "note": "Cancel a reported upcoming booking through the existing cancellation flow, including its notifications and booking-state updates."
     },
     {
       "id": "e-list-report-dialog",
@@ -104,7 +97,7 @@
       "to": "report-booking-dialog",
       "kind": "renders",
       "label": "renders report dialog",
-      "note": "Show the reporting dialog from the booking's reporting action."
+      "note": "The reporting action opens the dialog."
     },
     {
       "id": "e-dialog-report",
@@ -112,7 +105,7 @@
       "to": "bookings-trpc-router",
       "kind": "calls",
       "label": "reports booking",
-      "note": "Submit the report (booking UID, reason, optional description) to the authenticated reporting operation; it returns the booking UID and updated report count to the client, after which the report badge, count, and reason tooltip refresh."
+      "note": "Submits the report."
     }
   ]
 }

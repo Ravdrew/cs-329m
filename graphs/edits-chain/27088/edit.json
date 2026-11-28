@@ -1,7 +1,16 @@
 {
   "modify": [
-    { "id": "user-availability", "note": "Make every internal EventBusyDetails entry carry its source, while keeping the user-facing title separate from that diagnostic value. Add LimitSources helpers that return the translation key and descriptive source together, and pass that pair into LimitManager when it creates event-booking, event-duration, and team-limit busy intervals. Give buffer and date-override entries the same complete information. Preserve an external calendar's supplied source, and use the calendar fallback only when that source is absent. Propagate this metadata through interval subtraction with generic types so splitting a busy range does not discard its source. Apply `withSource` at the response boundary so callers that did not request diagnostic sources keep the expected response shape. Add `getUserAvailabilityIncludingBusyTimesFromLimits` as a wrapper around the existing `_getUserAvailability` method. Obtain the needed limit busy times through the existing busy-time services when they are not already supplied. Preserve `initialData.busyTimesFromLimitsBookings`, including an intentionally empty array, instead of overwriting it with a newly initialized empty list. Leave an absent value absent when no computation produced one, then forward the assembled initial data into the existing availability calculation." },
-    { "id": "availability-ui", "note": "In the troubleshooter (and its LargeCalendar), translate the title using the `busy_time.*` keys, use `busy_time.busy` for the fallback label, and expose the source on the event's diagnostic data attribute." },
-    { "id": "calendar-weekly-view", "note": "In LargeCalendar (as used by the troubleshooter), translate the title using the `busy_time.*` keys, use `busy_time.busy` for the fallback label, and expose the source on the event's diagnostic data attribute." }
+    {
+      "id": "user-availability",
+      "note": "Make every internal EventBusyDetails entry carry its source, while keeping the user-facing title separate from that diagnostic value. Add LimitSources helpers that return the translation key and descriptive source together, and pass that pair into LimitManager when it creates event-booking, event-duration, and team-limit busy intervals. Give buffer and date-override entries the same complete information. Preserve an external calendar's supplied source, and use the calendar fallback only when that source is absent. Propagate this metadata through interval subtraction with generic types so splitting a busy range does not discard its source. Apply `withSource` at the response boundary so callers that did not request diagnostic sources keep the expected response shape. Add `getUserAvailabilityIncludingBusyTimesFromLimits` as a wrapper around the existing `_getUserAvailability` method. Obtain the needed limit busy times through the existing busy-time services when they are not already supplied. Preserve `initialData.busyTimesFromLimitsBookings`, including an intentionally empty array, instead of overwriting it with a newly initialized empty list. Leave an absent value absent when no computation produced one, then forward the assembled initial data into the existing availability calculation."
+    },
+    {
+      "id": "availability-ui",
+      "note": "In the troubleshooter, show the translated busy-time title and source through LargeCalendar."
+    },
+    {
+      "id": "calendar-weekly-view",
+      "note": "In LargeCalendar, translate the title using the `busy_time.*` keys, use `busy_time.busy` for the fallback label, and expose the source on the event's diagnostic data attribute."
+    }
   ]
 }

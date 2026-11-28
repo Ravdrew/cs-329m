@@ -392,7 +392,7 @@ nodes:
       - path: packages/trpc/server/routers/viewer/bookings/get.handler.ts
         start_line: 37
         end_line: 58
-    note: "Add booking reporting as an authenticated operation. The tRPC handler `reportBookingHandler` coordinates the operation without embedding database access rules in the UI: validate the input, verify the caller's access to the booking (via BookingAccessService), and load the booking with its existing report before making changes. Derive the booker's email and organizational context from the booking and authenticated user. Create the report (via PrismaBookingReportRepository) with the supplied reason and optional description, record whether cancellation occurred, and leave `watchlistId` unset. Handle an already-reported booking deliberately so retries do not produce duplicate reports or repeated cancellation work. Return the booking UID and updated report count to the client. Keep administrative watchlist management and future email blocking outside this feature, as described in the request."
+    note: Add booking reporting as an authenticated operation in `reportBookingHandler`, which coordinates it without embedding database access rules in the UI. Validate the input, verify the caller's access to the booking, and load the booking with its existing report before making changes. Derive the booker's email and organizational context from the booking and authenticated user. Handle an already-reported booking deliberately so retries do not produce duplicate reports or repeated cancellation work. Return the booking UID and updated report count to the client. Keep administrative watchlist management and future email blocking outside this feature.
   - id: booking-request-reschedule
     label: Request reschedule (tRPC)
     kind: endpoint
@@ -469,7 +469,7 @@ nodes:
       - path: apps/web/modules/bookings/views/bookings-listing-view.tsx
         start_line: 170
         end_line: 186
-    note: Add the reporting action and dialog to bookings, then refresh the booking's report badge, count, and reason tooltip after success.
+    note: Add the reporting action; after a successful report, refresh the booking's report badge, count, and reason tooltip.
   - id: calendar-cache
     label: Calendar cache
     kind: service
@@ -2263,42 +2263,38 @@ nodes:
     label: BookingReport model
     kind: model
     group: persistence
-    summary: BookingReport record for reported bookings
-    files:
-      - packages/prisma/schema.prisma
+    summary: Record of a reported booking
+    files: []
     provenance: manual
     status: new
-    note: "Add booking reporting backed by a BookingReport record. Give the model the specified booking, reporter, organization, and optional watchlist relations and the three report reasons (BookingReportReason: SPAM, DONT_KNOW_PERSON, OTHER)."
+    note: Add a BookingReport record with the specified booking, reporter, organization, and optional watchlist relations and the three report reasons.
   - id: booking-report-repository
     label: PrismaBookingReportRepository
     kind: store
     group: persistence
     summary: Persistence for booking reports
-    files:
-      - packages/lib/server/repository/bookingReport.ts
-      - packages/lib/server/repository/bookingReport.interface.ts
+    files: []
     provenance: manual
     status: new
-    note: Put persistence of booking reports behind PrismaBookingReportRepository. It creates the report with the supplied reason and optional description, records whether cancellation occurred, and leaves watchlistId unset.
+    note: Put booking-report persistence behind PrismaBookingReportRepository.
   - id: booking-access-service
     label: BookingAccessService
     kind: service
     group: booking-core
-    summary: Checks whether a user has access to a booking
-    files:
-      - packages/features/bookings/services/BookingAccessService.ts
+    summary: Booking access checks
+    files: []
     provenance: manual
     status: new
-    note: "Put authorization behind BookingAccessService: it verifies the caller's access to the booking, so database access rules are not embedded in the UI."
+    note: Put the reporting operation's authorization behind BookingAccessService.
   - id: report-booking-dialog
     label: Report booking dialog
     kind: component
     group: booking-ui
-    summary: Reporting action and dialog for a booking
+    summary: Dialog for reporting a booking
     files: []
     provenance: manual
     status: new
-    note: Add the reporting action and dialog for a booking.
+    note: Add the reporting dialog.
 edges:
   - id: e-avail-cm
     from: user-availability
@@ -3192,7 +3188,7 @@ edges:
       - file: packages/trpc/server/routers/viewer/bookings/get.handler.ts
         line: 599
         note: Lines 599–626 (inclusive).
-    note: Load the booking with its existing report before making changes. Use the recurring-booking repository lookup where the operation needs to identify active related bookings, with a clear scope for which occurrences are affected.
+    note: Use the recurring-booking repository lookup where the operation needs to identify active related bookings, with a clear scope for which occurrences are affected.
   - id: e-noshow-tasker
     from: no-show-tasks
     to: tasker
@@ -3960,7 +3956,7 @@ edges:
     label: verifies booking access
     provenance: manual
     status: new
-    note: Verify the caller's access to the booking before making changes.
+    note: Access check for the booking.
   - id: e-report-repo
     from: booking-list-query
     to: booking-report-repository
@@ -3968,7 +3964,7 @@ edges:
     label: creates report
     provenance: manual
     status: new
-    note: Create the report with the supplied reason and optional description, record whether cancellation occurred, and leave watchlistId unset; no duplicate reports on retry.
+    note: Create the report with the supplied reason and optional description, record whether cancellation occurred, and leave `watchlistId` unset.
   - id: e-report-repo-model
     from: booking-report-repository
     to: booking-report-model
@@ -3976,7 +3972,7 @@ edges:
     label: writes BookingReport
     provenance: manual
     status: new
-    note: Persist the BookingReport record.
+    note: Stores BookingReport records.
   - id: e-report-booking-rel
     from: booking-report-model
     to: model-booking
@@ -3984,7 +3980,7 @@ edges:
     label: booking relation
     provenance: manual
     status: new
-    note: BookingReport has a booking relation (each booking has its existing report).
+    note: The report's booking relation.
   - id: e-report-cancel
     from: booking-list-query
     to: handle-cancel-booking
@@ -3992,7 +3988,7 @@ edges:
     label: cancels reported upcoming booking
     provenance: manual
     status: new
-    note: Use the existing cancellation flow for an upcoming booking that is reported, including its notifications and booking-state updates. Avoid repeated cancellation work when an already-reported booking is retried.
+    note: Cancel a reported upcoming booking through the existing cancellation flow, including its notifications and booking-state updates.
   - id: e-list-report-dialog
     from: bookings-list-page
     to: report-booking-dialog
@@ -4000,7 +3996,7 @@ edges:
     label: renders report dialog
     provenance: manual
     status: new
-    note: Show the reporting dialog from the booking's reporting action.
+    note: The reporting action opens the dialog.
   - id: e-dialog-report
     from: report-booking-dialog
     to: booking-list-query
@@ -4008,15 +4004,7 @@ edges:
     label: reports booking
     provenance: manual
     status: new
-    note: Submit the report (booking UID, reason, optional description) to the authenticated reporting operation; it returns the booking UID and updated report count to the client, after which the report badge, count, and reason tooltip refresh.
-  - id: e-report-watchlist
-    from: booking-report-model
-    to: watchlist
-    kind: uses
-    label: optional watchlist relation
-    provenance: manual
-    status: new
-    note: Optional watchlist relation on the report; watchlistId stays unset. Administrative watchlist management and future email blocking stay outside this feature.
+    note: Submits the report.
 x-variant: llm-only-chained
 x-scope:
   included:
@@ -6611,4 +6599,4 @@ x-source-files:
     sha256: a5ae67f49226140c88a2eee4ab28dd87e5830a783f40bdb8186dd29128f84a2c
   - path: packages/types/AppMetaSchema.ts
     sha256: aad40aefd0a45f62d59bc57bb69d7fa6a38678bcbe4316625b994137b68a93c8
-x-edit: graph edit translated from q2q3-tools/prose-intents/24324.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/24324.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/24324.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/24324.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

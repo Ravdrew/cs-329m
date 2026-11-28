@@ -6,7 +6,7 @@
     },
     {
       "id": "booker-ui",
-      "note": "Carry the phone-versus-email requirement choice made in the booking-field editor into the booker form, so a booking with a valid required phone number can be confirmed without asking the attendee for an email address. Keep the email-confirmation path working for event types that select it."
+      "note": "Carry the phone-versus-email requirement choice into the booker form."
     },
     {
       "id": "booking-fields",

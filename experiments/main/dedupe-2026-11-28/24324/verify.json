@@ -1,0 +1,8 @@
+{ "pull": 24324, "verdict": "minor",
+  "lost": [],
+  "added": [],
+  "repeated": ["\"load the booking with its existing report\" is stated on the handler node (bookings-trpc-router / booking-list-query) and again on e32 / e-listquery-reads, in both arms"],
+  "misplaced": [],
+  "arms_differ": [],
+  "notes": "Intent only reworded (cancellation sentence, dropped \"as described in the request\"); every edit requirement is carried once across handler, edges and new nodes, and both arms match. File paths, the enum values and the chain-only e-report-watchlist edge (target not in chain graph) were removed as not stated in the intent; I accept that, since the intent defers to \"the specified\" relations and reasons and names no files."
+}

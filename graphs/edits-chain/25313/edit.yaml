@@ -1619,7 +1619,7 @@ nodes:
       - path: packages/trpc/server/routers/viewer/oAuth/generateAuthCode.handler.ts
         start_line: 19
         end_line: 66
-    note: "Carry the OAuth client's public or confidential type through client creation, authorization, token exchange, and refresh. Expose the PKCE choice in the admin client form. Persist the authorization request's challenge and method on its access code so token issuance can verify the original request. Require a challenge for a public client and a matching verifier when exchanging its authorization code. Confidential clients must still authenticate with their secret; if they opted into PKCE, they must also satisfy its verifier check. Keep the authorization code bound to the correct client and redirect URI and preserve the existing expiry and consumption behavior. Update the token and refresh handlers together. Follow this task's requested refresh contract: public clients, and confidential clients that used PKCE, supply the verifier on refresh, while confidential clients also supply their secret. Preserve enough server-side or token-bound context to enforce that contract. Accept the supported refresh-token input locations, return standard token fields and no-store headers, and retain compatibility for existing confidential clients that do not use PKCE."
+    note: "Carry the OAuth client's public or confidential type through client creation, authorization, token exchange, and refresh. Expose the PKCE choice in the admin client form. Require a challenge for a public client and a matching verifier when exchanging its authorization code. Confidential clients must still authenticate with their secret and, if they opted into PKCE, also pass the verifier check. Keep the authorization code bound to the correct client and redirect URI and preserve the existing expiry and consumption behavior. Update the token and refresh handlers together. Follow this task's refresh contract: public clients, and confidential clients that used PKCE, supply the verifier on refresh, while confidential clients also supply their secret. Preserve enough server-side or token-bound context to enforce that contract. Accept the supported refresh-token input locations, return standard token fields and no-store headers, and retain compatibility for existing confidential clients that do not use PKCE."
   - id: payment-lib
     label: Payment orchestration
     kind: service
@@ -2327,23 +2327,20 @@ nodes:
         start_line: 236
         end_line: 277
   - id: model-oauth-client
-    label: OAuthClient and AccessCode models
+    label: OAuth client and access code models
     kind: model
     group: persistence
-    summary: OAuthClient and AccessCode tables.
-    description: OAuth client rows with a public or confidential client type, and access codes that carry the authorization request's PKCE challenge and method.
-    files:
-      - packages/prisma/schema.prisma
+    summary: OAuth client and access code tables.
+    files: []
     provenance: manual
     status: new
-    note: Add the client type with confidential as the migration default, make the secret nullable for public clients. Persist the authorization request's challenge and method on its access code.
+    note: Add the client type with confidential as the migration default, and make the secret nullable for public clients.
   - id: pkce-util
     label: PKCE utility
     kind: service
     group: auth
-    summary: Shared PKCE utility around S256.
-    files:
-      - packages/lib/pkce.ts
+    summary: Shared PKCE utility.
+    files: []
     provenance: manual
     status: new
     note: "Implement the shared PKCE utility around S256: derive the URL-safe, unpadded SHA-256 challenge from the verifier and compare it with the saved challenge. Reject unsupported challenge methods."
@@ -3985,7 +3982,7 @@ edges:
     label: verifies PKCE verifier
     provenance: manual
     status: new
-    note: Token exchange and refresh check the verifier against the saved challenge for public clients and for confidential clients that opted into PKCE.
+    note: Verifier checks on token exchange and refresh.
   - id: e-oauth-provider-writes-oauth-models
     from: oauth-provider
     to: model-oauth-client
@@ -3993,7 +3990,7 @@ edges:
     label: stores client type and challenge
     provenance: manual
     status: new
-    note: Client creation stores the client type (secret nullable for public clients); authorization persists the request's challenge and method on its access code.
+    note: Persist the authorization request's challenge and method on its access code so token issuance can verify the original request.
   - id: e-oauth-provider-reads-oauth-models
     from: oauth-provider
     to: model-oauth-client
@@ -4001,7 +3998,7 @@ edges:
     label: reads client type and challenge
     provenance: manual
     status: new
-    note: Token issuance reads the client type and the access code's saved challenge and method to verify the original request.
+    note: Token exchange reads the client type and saved challenge.
 x-variant: llm-only-chained
 x-scope:
   included:
@@ -6756,4 +6753,4 @@ x-source-files:
     sha256: 8d02f03c7d7dfc919265c1c3c5380e51056cfc0614a3ba70285fc073b171df37
   - path: packages/types/AppMetaSchema.ts
     sha256: aad40aefd0a45f62d59bc57bb69d7fa6a38678bcbe4316625b994137b68a93c8
-x-edit: graph edit translated from q2q3-tools/prose-intents/25313.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/25313.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/25313.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/25313.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

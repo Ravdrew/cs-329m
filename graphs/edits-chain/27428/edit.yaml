@@ -656,7 +656,7 @@ nodes:
         end_line: 69
     provenance: inferred
     status: modify
-    note: "Extract booking-sheet keyboard handling into the specified utility (apps/web/modules/bookings/lib/bookingSheetKeyboardHandler.ts). Only handle shortcuts while the sheet is active and the target is not editable. Treat focus inside a different Radix portal as an active overlay whose keys belong to that overlay, while allowing shortcuts when focus is inside the sheet or outside any portal. For ArrowUp and ArrowDown, always prevent the default action and stop propagation when the sheet owns the event, including at the first and last booking. Call the previous or next handler only when that direction is available and a transition is not already in progress. For Enter, activate the current join link when present and consume the event so a focused actions button cannot also open; leave unrelated keys and Enter without a join action alone. BookingDetailsSheet: connect the extracted keyboard utility with a capture-phase keydown listener. Remove the listener when it is no longer needed and keep its navigation state current. Preserve the existing Escape-to-close behavior. Add translated shortcut tooltips to previous, next, close, and join controls, using the JoinMeetingButton ref to locate its link. Keep the sheet open when switching bookings through either list rows or weekly-calendar events by recognizing both interaction markers."
+    note: "Extract booking-sheet keyboard handling into the specified utility. Only handle shortcuts while the sheet is active and the target is not editable. Treat focus inside a different Radix portal as an active overlay whose keys belong to that overlay, while allowing shortcuts when focus is inside the sheet or outside any portal. For ArrowUp and ArrowDown, always prevent the default action and stop propagation when the sheet owns the event, including at the first and last booking. Call the previous or next handler only when that direction is available and a transition is not already in progress. For Enter, activate the current join link when present and consume the event so a focused actions button cannot also open; leave unrelated keys and Enter without a join action alone. BookingDetailsSheet: connect the extracted keyboard utility with a capture-phase keydown listener. Remove the listener when it is no longer needed and keep its navigation state current. Preserve the existing Escape-to-close behavior. Add translated shortcut tooltips to previous, next, close, and join controls, using the JoinMeetingButton ref to locate its link. Keep the sheet open when switching bookings through either list rows or weekly-calendar events by recognizing both interaction markers."
   - id: calendar-cache-cron
     label: Delegation credential calendar cron
     kind: job
@@ -836,7 +836,7 @@ nodes:
       - path: packages/platform/atoms/calendar-view/components/LargeCalendar.tsx
         start_line: 16
         end_line: 80
-    note: Place the booking UID on calendar event buttons (and the weekly-calendar event interaction marker) so the booking details sheet stays open when switching bookings through weekly-calendar events.
+    note: Place the booking UID on calendar event buttons.
   - id: calendars-tasker
     label: Calendars tasker (ensure default calendars)
     kind: job
@@ -4647,7 +4647,7 @@ edges:
     label: recognizes calendar event marker
     provenance: manual
     status: new
-    note: BookingDetailsSheet recognizes the weekly-calendar event interaction marker (alongside the list-row marker) so switching bookings through weekly-calendar events keeps the sheet open.
+    note: Recognizes weekly-calendar event interactions.
 x-variant: llm-only-chained
 x-scope:
   included:
@@ -8318,4 +8318,4 @@ x-source-files:
     sha256: 6a99d12a027a0b713a6f4d1fee5f618420497aceeb5141c55ceab6ad383e1eb1
   - path: packages/types/AppMetaSchema.ts
     sha256: 944e0cf7c418897ca82522d0daf71a75b3184d4a28fb89edb56787d3311930d0
-x-edit: graph edit translated from q2q3-tools/prose-intents/27428.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/27428.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/27428.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/27428.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

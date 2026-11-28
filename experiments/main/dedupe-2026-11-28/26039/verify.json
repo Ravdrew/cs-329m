@@ -1,0 +1,8 @@
+{ "pull": 26039, "verdict": "ok",
+  "lost": [],
+  "added": [],
+  "repeated": [],
+  "misplaced": [],
+  "arms_differ": [],
+  "notes": "Intent changes are wording only. \"inside surrounding text and as the whole value\" keeps the two placeholder cases. Each arm carries every requirement once: the modify note has the core work, the tracking node has \"injected ... UTM data keyed by booking UID\", and the booking edge has the creation time. Both arms are identical apart from node ids."
+}

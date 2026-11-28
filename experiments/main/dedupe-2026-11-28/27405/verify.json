@@ -1,0 +1,4 @@
+{ "pull": 27405, "verdict": "ok",
+  "lost": [], "added": [], "repeated": [], "misplaced": [], "arms_differ": [],
+  "notes": "Intent and brief are unchanged. Both arms carry every intent requirement once on the same components as the originals: handler and query on the router or booking-report node, dialog and Select fix on the UI node (chain: booking-report, which holds WrongAssignmentDialog), formId on the booking repository and the model rules on the new model. The removals were file paths, method or component names the intent doesn't use, and duplicate edge text."
+}

@@ -1,0 +1,8 @@
+{ "pull": 25313, "verdict": "fix",
+  "lost": [],
+  "added": ["e-oauth-provider-reads-oauth-models (both arms): \"Token exchange and refresh read the client type and saved challenge\" has refresh read the stored access-code challenge from the model, which settles the intent's open \"server-side or token-bound context\" choice in favour of server-side; the original put this on token issuance only (it also appeared on the original PKCE edge, so it is inherited, not new). Suggest \"Token exchange reads the client type and saved challenge\""],
+  "repeated": [],
+  "misplaced": [],
+  "arms_differ": [],
+  "notes": "Intent changes are wording only (\"requested\" dropped, verifier sentence merged). Every requirement is carried once: challenge persistence on the writes edge, client type and nullable secret on the model node, S256 on pkce-util, the rest on oauth-provider. Both arms are identical."
+}

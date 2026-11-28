@@ -1,0 +1,8 @@
+{ "pull": 19626, "verdict": "ok",
+  "lost": [],
+  "added": [],
+  "repeated": [],
+  "misplaced": [],
+  "arms_differ": [],
+  "notes": "The only change, in the intent and in both arms' calendar-weekly-view note, is dropping \"as specified\" after the `<time>`/`dateTime` requirement. spec.md still pins the export and the `<time>` element, so the meaning holds. Every other requirement is unchanged, carried once, and identical across the arms."
+}

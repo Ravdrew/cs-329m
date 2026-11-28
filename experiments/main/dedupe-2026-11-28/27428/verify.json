@@ -1,0 +1,6 @@
+{ "pull": 27428, "verdict": "minor",
+  "lost": [], "added": [], "repeated": [],
+  "misplaced": ["Both arms: the calendar node (fresh `calendar-views`, chain `calendar-weekly-view`) lost \"(and the weekly-calendar event interaction marker)\" and now only says \"Place the booking UID on calendar event buttons.\" The intent never says the calendar adds that marker, so the cut is defensible. But \"recognizing both interaction markers\" on the sheet node now assumes a calendar marker that no component is told to provide. This is a placement doubt, not a confirmed loss."],
+  "arms_differ": [],
+  "notes": "Intent and brief are unchanged. Every keyboard, overlay, Enter, tooltip and sheet-open requirement appears once and on the same component as in the originals, and both arms carry the same text (chain merges the handler onto bookings-list-page, as its original did). The removals were the utility path, a duplicate summary and duplicate edge notes."
+}

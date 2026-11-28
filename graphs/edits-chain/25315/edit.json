@@ -2,7 +2,7 @@
   "modify": [
     {
       "id": "booking-list-query",
-      "note": "In `editLocationHandler` (editLocation.handler.ts), call `CredentialAccessService.ensureAccessible` whenever the request supplies a credential ID. Run the check before constructing the event manager or performing any external calendar update, database write, or notification. Being authorized to edit a booking should not by itself make an arbitrary credential ID usable. A missing credential or a relationship that does not grant access is rejected before returning to the handler. Keep the handler's location conversion, connected-app update, booking reference updates, and notifications in their current flow after authorization succeeds."
+      "note": "In `editLocationHandler`, call `ensureAccessible` whenever the request supplies a credential ID. Run the check before constructing the event manager or performing any external calendar update, database write, or notification. Being authorized to edit a booking should not by itself make an arbitrary credential ID usable. Keep the handler's location conversion, connected-app update, booking reference updates, and notifications in their current flow after authorization succeeds."
     }
   ],
   "add_nodes": [
@@ -11,12 +11,9 @@
       "label": "CredentialAccessService",
       "kind": "service",
       "group": "app-store",
-      "summary": "Centralizes conferencing-credential authorization via ensureAccessible.",
-      "description": "ensureAccessible loads the credential and checks that the authenticated user may use it, given the booking owner, through direct ownership or the applicable team or organization relationship.",
-      "files": [
-        "packages/features/credentials/services/CredentialAccessService.ts"
-      ],
-      "note": "New service that centralizes conferencing-credential authorization, exposing `ensureAccessible`. Load the credential through `CredentialRepository.findFirstByIdWithKeyAndUser` and evaluate access using the authenticated user's ID and the booking owner's ID. Cover direct ownership and credentials made available through the applicable team or organization relationship. Use `UserRepository.getUserOrganizationAndTeams` for accepted team memberships and organizational context rather than treating an unaccepted invitation or an unrelated team as access. Keep the distinction between the editor, booking owner, and credential owner explicit, including a missing booking owner. Reject a missing credential or a relationship that does not grant access before returning to the handler. Make the successful service result simply mean that the existing location-update flow may continue. Allow an optional Prisma client for dependency injection with the normal client as its default."
+      "summary": "Conferencing-credential authorization",
+      "files": [],
+      "note": "New service that centralizes conferencing-credential authorization, exposing `ensureAccessible`. Evaluate access using the authenticated user's ID and the booking owner's ID. Cover direct ownership and credentials made available through the applicable team or organization relationship. Use `UserRepository.getUserOrganizationAndTeams` for accepted team memberships and organizational context rather than treating an unaccepted invitation or an unrelated team as access. Keep the distinction between the editor, booking owner, and credential owner explicit, including a missing booking owner. Reject a missing credential or a relationship that does not grant access before returning to the handler. Make the successful service result simply mean that the existing location-update flow may continue. Allow an optional Prisma client for dependency injection with the normal client as its default."
     }
   ],
   "add_edges": [
@@ -26,7 +23,7 @@
       "to": "credential-access-service",
       "kind": "calls",
       "label": "ensureAccessible before location update",
-      "note": "`editLocationHandler` calls `ensureAccessible` whenever the request supplies a credential ID, before constructing the event manager or performing any external calendar update, database write, or notification. Success simply means the existing location-update flow may continue; a missing credential or a relationship that does not grant access is rejected before returning to the handler."
+      "note": "Credential authorization check."
     },
     {
       "id": "e-credential-access-reads-credential",
@@ -34,7 +31,7 @@
       "to": "model-credential",
       "kind": "reads",
       "label": "loads credential with key and user",
-      "note": "Load the credential through `CredentialRepository.findFirstByIdWithKeyAndUser`; a missing credential is rejected."
+      "note": "Load the credential through `CredentialRepository.findFirstByIdWithKeyAndUser`."
     }
   ]
 }

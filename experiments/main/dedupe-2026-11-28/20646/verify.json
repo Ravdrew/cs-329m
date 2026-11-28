@@ -1,0 +1,8 @@
+{ "pull": 20646, "verdict": "minor",
+  "lost": [],
+  "added": [],
+  "repeated": [],
+  "misplaced": [],
+  "arms_differ": [],
+  "notes": "Intent, fresh 'embeds' and chain 'embed-core' all drop 'and the shadow-root lookup contract in the shared interface' as a repeat of 'find the loader and skeleton inside the element's shadow root'. That clause mostly is a repeat, but it was also the only pointer to the spec's narrower contract: the test shadowRoot has only `querySelector` and `host`, and connectedCallback must use `this.shadowRoot.querySelector`. spec.md still states that contract, so this is a doubt rather than a loss. Otherwise there is one pure rewording ('when page-type information is insufficient'), the brief is unchanged, and both arms match word for word."
+}

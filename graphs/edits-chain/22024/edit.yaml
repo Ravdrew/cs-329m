@@ -311,7 +311,7 @@ nodes:
         end_line: 470
     provenance: inferred
     status: modify
-    note: Carry the phone-versus-email requirement choice made in the booking-field editor into the booker form, so a booking with a valid required phone number can be confirmed without asking the attendee for an email address. Keep the email-confirmation path working for event types that select it.
+    note: Carry the phone-versus-email requirement choice into the booker form.
   - id: booking-confirm-decline
     label: Confirm or decline booking (tRPC)
     kind: endpoint
@@ -5730,4 +5730,4 @@ x-source-files:
     sha256: 9e7ad17e136194a378cd45b7c675e2e57ca94268d91bc182833fc8c30e6bb19f
   - path: packages/trpc/server/routers/viewer/slots/util.ts
     sha256: 65b7a237ec4da8250476ce3222e149e9b87cc519040c78dcb8385858290f1d54
-x-edit: graph edit translated from q2q3-tools/prose-intents/22024.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/22024.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/22024.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/22024.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

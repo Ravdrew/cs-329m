@@ -6,11 +6,11 @@
     },
     {
       "id": "email-manager",
-      "note": "Carry assignment explanations from booking data into organizer emails. Render the translated category followed by available details in organizer emails, and handle absent or null reasons without showing an empty explanation."
+      "note": "Render the translated category followed by available details in organizer emails, and handle absent or null reasons without showing an empty explanation."
     },
     {
       "id": "webhook-dispatch",
-      "note": "Preserve the webhook payload's existing array of `{ reasonEnum, reasonString }` entries by separating its assignmentReason type from the CalendarEvent email type rather than forcing both consumers onto the same representation."
+      "note": "Preserve the webhook payload's existing array of `{ reasonEnum, reasonString }` entries by separating its assignmentReason type from the CalendarEvent email type."
     }
   ],
   "add_nodes": [
@@ -19,23 +19,18 @@
       "label": "getAssignmentReasonCategory",
       "kind": "service",
       "group": "booking-flow",
-      "summary": "Single mapping from AssignmentReasonEnum values to translation keys.",
-      "files": [
-        "packages/features/bookings/lib/getAssignmentReasonCategory.ts"
-      ],
+      "summary": "Assignment reason categories.",
+      "files": [],
       "note": "Add `getAssignmentReasonCategory` as the single mapping from AssignmentReasonEnum values to translation keys, and reuse it wherever a human-readable category is needed."
     },
     {
       "id": "calendar-event-builder",
-      "label": "CalendarEventBuilder and CalendarEvent type",
+      "label": "CalendarEvent builder",
       "kind": "service",
       "group": "booking-flow",
       "summary": "Builds the CalendarEvent used by emails from booking data.",
-      "files": [
-        "packages/features/CalendarEventBuilder.ts",
-        "packages/types/Calendar.d.ts"
-      ],
-      "note": "Represent the email-facing CalendarEvent value (`CalendarEvent` in `packages/types/Calendar.d.ts`) as the optional `assignmentReason?: { category: string; details?: string | null } | null` object described in the interface. Add the chainable `withAssignmentReason(assignmentReason?: { category: string; details?: string | null } | null)` builder method and have booking-to-event construction populate it from the stored assignment reason."
+      "files": [],
+      "note": "Represent the email-facing CalendarEvent value as the optional `{ category, details }` object described in the interface. Add the chainable `withAssignmentReason` builder method and have booking-to-event construction populate it from the stored assignment reason."
     },
     {
       "id": "booking-single-view",
@@ -43,7 +38,7 @@
       "kind": "page",
       "group": "booker-pages",
       "summary": "Booking detail view for a booking.",
-      "note": "Carry assignment explanations from booking data into the authenticated booking detail view. On the booking single view, show the category badge and details only under the existing hidden-data access rule for the logged-in host or an authorized team member. Keep the presentation translated and consistent with the email wording."
+      "note": "In the authenticated view, show the category badge and details only under the existing hidden-data access rule for the logged-in host or an authorized team member. Keep the presentation translated and consistent with the email wording."
     }
   ],
   "add_edges": [
@@ -53,7 +48,7 @@
       "to": "assignment-reason-category",
       "kind": "uses",
       "label": "maps reason enum to category",
-      "note": "Booking-to-event construction gets the category for the stored assignment reason from `getAssignmentReasonCategory`."
+      "note": "Category for the stored reason."
     },
     {
       "id": "e-builder-booking-reason",
@@ -61,7 +56,7 @@
       "to": "booking-model",
       "kind": "reads",
       "label": "reads stored assignment reason",
-      "note": "Booking-to-event construction populates `withAssignmentReason` from the stored assignment reason (reason enum and detailed reason string)."
+      "note": "Reads the stored assignment reason."
     },
     {
       "id": "e-view-category",
@@ -69,7 +64,7 @@
       "to": "assignment-reason-category",
       "kind": "uses",
       "label": "maps reason enum to badge category",
-      "note": "The booking single view reuses `getAssignmentReasonCategory` for the translated category badge."
+      "note": "Category for the badge."
     },
     {
       "id": "e-view-booking",
@@ -77,7 +72,7 @@
       "to": "booking-model",
       "kind": "reads",
       "label": "loads booking",
-      "note": "The booking single view shows the assignment reason from booking data."
+      "note": "Reads the stored assignment reason."
     }
   ]
 }

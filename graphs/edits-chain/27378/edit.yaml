@@ -2708,7 +2708,7 @@ nodes:
       - path: packages/features/webhooks/lib/triggerDelegationCredentialErrorWebhook.ts
         start_line: 26
         end_line: 71
-    note: Update the producer service (WebhookTaskerProducerService) to depend on WebhookTasker instead of InternalTasker and pass its existing payloads through `deliverWebhook`. Preserve the tasker framework's established dispatch and error behavior so the producer does not invent a separate fallback policy or accidentally deliver a webhook twice. Keep payload construction and actual delivery semantics (WebhookTaskConsumer) shared across both modes. Add the corresponding DI tokens and modules using the project's binding pattern.
+    note: Update the producer service to depend on WebhookTasker instead of InternalTasker and pass its existing payloads through `deliverWebhook`. Preserve the tasker framework's established dispatch and error behavior so the producer does not invent a separate fallback policy or accidentally deliver a webhook twice. Add the corresponding DI tokens and modules using the project's binding pattern.
   - id: webhook-scheduled-triggers
     label: Scheduled webhook triggers
     kind: service
@@ -2789,17 +2789,10 @@ nodes:
     kind: service
     group: webhooks-tasks
     summary: WebhookTasker choosing a synchronous or Trigger.dev implementation of IWebhookTasker by environment.
-    description: WebhookTasker extends the Tasker base class with a WebhookSyncTasker (calls WebhookTaskConsumer directly) and a WebhookTriggerTasker (triggers a Trigger.dev webhook job), selected through ENABLE_ASYNC_TASKER.
-    files:
-      - packages/features/webhooks/lib/tasker/types.ts
-      - packages/features/webhooks/lib/tasker/WebhookTasker.ts
-      - packages/features/webhooks/lib/tasker/WebhookSyncTasker.ts
-      - packages/features/webhooks/lib/tasker/WebhookTriggerTasker.ts
-      - packages/features/webhooks/lib/tasker/trigger/deliver-webhook.ts
-      - packages/features/webhooks/lib/tasker/trigger/schema.ts
+    files: []
     provenance: manual
     status: new
-    note: "New WebhookTasker: route webhook delivery through a WebhookTasker that uses the same environment-based dispatch pattern as the existing taskers. Define the shared `IWebhookTasker` contract around the existing WebhookTaskPayload and `{ taskId }` result, then supply synchronous and Trigger.dev implementations to the Tasker base class. Use `ENABLE_ASYNC_TASKER` through that common mechanism so production can enqueue work while an environment without async task processing can complete delivery immediately. WebhookSyncTasker calls the injected WebhookTaskConsumer directly and awaits its work, returning an identifier through the same result shape. WebhookTriggerTasker dynamically loads and triggers the webhook job and returns the queued task's identifier. The Trigger.dev job should validate the same payload schema, resolve the consumer through the existing dependency-injection container, and execute the same delivery operation. Keep payload construction and actual delivery semantics shared across both modes. Wire the Trigger.dev job configuration and schema re-export."
+    note: New WebhookTasker that routes webhook delivery using the same environment-based dispatch pattern as the existing taskers. Define the shared `IWebhookTasker` contract around the existing WebhookTaskPayload and `{ taskId }` result, then supply synchronous and Trigger.dev implementations to the Tasker base class. Use `ENABLE_ASYNC_TASKER` through that common mechanism so production can enqueue work while an environment without async task processing can complete delivery immediately. WebhookSyncTasker returns an identifier through the same result shape. WebhookTriggerTasker dynamically loads and triggers the webhook job and returns the queued task's identifier. The Trigger.dev job validates the same payload schema; wire its job configuration and schema re-export. Keep payload construction and actual delivery semantics shared across both modes.
 edges:
   - id: e-audit-tasker
     from: booking-audit
@@ -4622,7 +4615,7 @@ edges:
     label: producer calls deliverWebhook
     provenance: manual
     status: new
-    note: The producer service depends on WebhookTasker instead of InternalTasker and passes its existing payloads through `deliverWebhook`.
+    note: Producer hands webhook deliveries to the tasker.
   - id: e-webhook-tasker-consumer
     from: webhook-tasker
     to: webhook-dispatch
@@ -4638,7 +4631,7 @@ edges:
     label: extends Tasker base class
     provenance: manual
     status: new
-    note: Supply the synchronous and Trigger.dev implementations to the Tasker base class and use `ENABLE_ASYNC_TASKER` through that common mechanism; preserve the tasker framework's established dispatch and error behavior.
+    note: Builds on the Tasker base class's dispatch.
 x-variant: llm-only-chained
 x-scope:
   included:
@@ -8211,4 +8204,4 @@ x-source-files:
     sha256: be159217ca2bb46730fab6169b4144531930b571ee41faf812b19bd2854527ee
   - path: packages/types/AppMetaSchema.ts
     sha256: aad40aefd0a45f62d59bc57bb69d7fa6a38678bcbe4316625b994137b68a93c8
-x-edit: graph edit translated from q2q3-tools/prose-intents/27378.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/27378.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/27378.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/27378.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

@@ -6,7 +6,7 @@
     },
     {
       "id": "e-list-datatable",
-      "note": "Pass the validator from `useActiveFiltersValidator` into DataTableProvider, which accepts it and applies it to saved booking filter segments before applying them."
+      "note": "Passes the validator from `useActiveFiltersValidator` to DataTableProvider."
     },
     {
       "id": "e-list-query",

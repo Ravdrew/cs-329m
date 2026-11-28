@@ -2,15 +2,11 @@
   "modify": [
     {
       "id": "calendar-subscription",
-      "note": "Process external-calendar cancellations and time changes through CalendarSyncService and the existing booking services. Filter incoming events to those associated with Cal.com bookings, resolve the booking safely from its UID, and skip malformed or missing references. For rescheduling, use the exported helpers to compare the event's start time, extract saved booking responses, merge updated event data, and construct the regular-booking service input; preserve existing response data that the calendar event does not replace. Check required owner, email, and event-type information before invoking the booking services. Log and skip incomplete data, and catch processing failures with serialized error details so one bad event does not abort the sync operation. Add the described invocation, outcome, and duration metrics."
+      "note": "Process external-calendar cancellations and time changes through CalendarSyncService and the existing booking services. Filter incoming events to those associated with Cal.com bookings, resolve the booking safely from its UID, and skip malformed or missing references. For rescheduling, use the exported helpers to compare the event's start time, extract saved booking responses, merge updated event data, and construct the regular-booking service input; preserve existing response data that the calendar event does not replace. Check required owner, email, and event-type information before invoking the booking services, logging and skipping incomplete data. Catch processing failures with serialized error details so one bad event does not abort the sync operation. Add the described invocation, outcome, and duration metrics. Use the requested dynamic imports for booking-service and routing dependencies to keep webhook module initialization from loading the problematic UI dependency chain."
     },
     {
       "id": "handle-cancel-booking",
-      "note": "Called by calendar sync with `skipCalendarSyncTaskCancellation` so Cal.com updates its booking without trying to delete the external event again. Mark booking references deleted regardless of that skip flag, because the external deletion has already happened."
-    },
-    {
-      "id": "routing-forms",
-      "note": "Use the requested dynamic import for routing dependencies to keep webhook module initialization from loading the problematic UI dependency chain."
+      "note": "Mark booking references deleted regardless of the `skipCalendarSyncTaskCancellation` flag, because the external deletion has already happened."
     }
   ],
   "add_edges": [
@@ -20,7 +16,7 @@
       "to": "handle-cancel-booking",
       "kind": "calls",
       "label": "cancels booking from external deletion",
-      "note": "For cancellation, call the existing cancellation handler with `skipCalendarSyncTaskCancellation` so Cal.com updates its booking without trying to delete the external event again. Only invoke it once the required owner and email information is present."
+      "note": "For cancellation, call the existing cancellation handler with `skipCalendarSyncTaskCancellation` so Cal.com updates its booking without trying to delete the external event again."
     },
     {
       "id": "e-sync-reschedule-booking",
@@ -28,7 +24,7 @@
       "to": "handle-new-booking",
       "kind": "calls",
       "label": "reschedules booking from external time change",
-      "note": "For rescheduling, pass the constructed regular-booking service input, including the original booking's `rescheduleUid`, and use the existing idempotency service. Set the calendar-creation skip flag to avoid a sync loop. Reuse RegularBookingService rather than implementing a second booking mutation path, and keep this operation scoped to the affected booking. Only invoke it once the required event-type information is present. Use the requested dynamic import for the booking-service dependency to keep webhook module initialization from loading the problematic UI dependency chain."
+      "note": "For rescheduling, pass the constructed input with the original booking's `rescheduleUid` and use the existing idempotency service. Set the calendar-creation skip flag to avoid a sync loop. Reuse RegularBookingService rather than implementing a second booking mutation path, and keep this operation scoped to the affected booking."
     }
   ]
 }

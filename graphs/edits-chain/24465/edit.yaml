@@ -6606,4 +6606,4 @@ x-source-files:
     sha256: a5ae67f49226140c88a2eee4ab28dd87e5830a783f40bdb8186dd29128f84a2c
   - path: packages/types/AppMetaSchema.ts
     sha256: aad40aefd0a45f62d59bc57bb69d7fa6a38678bcbe4316625b994137b68a93c8
-x-edit: graph edit translated from q2q3-tools/prose-intents/24465.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/24465.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/24465.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/24465.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

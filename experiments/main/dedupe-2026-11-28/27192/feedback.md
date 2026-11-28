@@ -1,0 +1,12 @@
+# Feedback for #27192
+
+## Independent check (a second AI compared both edits with the intent)
+Verdict: fix
+Both edits carry every intent requirement and match each other in content. Both add a concrete type signature and file locations that the intent leaves to 'the interface'. In chain, the booking-repository change is placed on a model node whose only file is schema.prisma.
+
+- [added] both calendar-event-builder: The intent only says 'the optional `{ category, details }` object described in the interface' and 'the chainable `withAssignmentReason` builder method'. The note fixes the exact types: 'assignmentReason?: { category: string; details?: string | null } | null' and 'withAssignmentReason(assignmentReason?: { category: string; details?: string | null } | null)'. Making details optional and nullable, and the whole value nullable, are decisions the intent does not spell out.
+- [added] both calendar-event-builder: The note and node name files the intent never mentions: '`CalendarEvent` in `packages/types/Calendar.d.ts`', 'packages/features/CalendarEventBuilder.ts', and, on assignment-reason-category, 'packages/features/bookings/lib/getAssignmentReasonCategory.ts'. The intent names only the function and the builder method, not where they live.
+- [misplaced] chain model-booking: 'Fetch both the reason enum and detailed reason string in the booking repository' is placed on model-booking, whose only file is packages/prisma/schema.prisma. In the chain graph, packages/features/bookings/repositories/ belongs to handle-new-booking, so the repository change happens there. This is a small placement doubt, since model-booking is still a reasonable conceptual home. Fresh is fine: its booking-model lists BookingRepository.ts.
+
+## Human reviewer comments
+(none yet)

@@ -2959,7 +2959,7 @@ edges:
       - file: apps/web/modules/bookings/views/bookings-view.tsx
         line: 59
         note: Lines 59–68 (inclusive).
-    note: Pass the validator from `useActiveFiltersValidator` into DataTableProvider, which accepts it and applies it to saved booking filter segments before applying them.
+    note: Passes the validator from `useActiveFiltersValidator` to DataTableProvider.
   - id: e-noshow-tasker
     from: no-show-triggers
     to: tasker
@@ -5096,4 +5096,4 @@ x-source-files:
     sha256: b16f884cdec29649a96626032803d25a93f3ed87c50b25fe91f7d542f4e5bbf1
   - path: packages/trpc/server/routers/viewer/webhook/util.ts
     sha256: 4308b3de8e0b6566b32fa310904b9a1b16bcf5f14b47b237df9851dd5969b12c
-x-edit: graph edit translated from q2q3-tools/prose-intents/27208.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/27208.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/27208.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/fresh/27208.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)

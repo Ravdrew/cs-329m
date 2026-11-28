@@ -1,0 +1,9 @@
+{ "pull": 19997, "verdict": "minor",
+  "lost": [], "added": [], "repeated": [],
+  "misplaced": [
+    "\"Thread `bookingFields` and `locale` into `handlePayment` and its callers\" now lives only on edge e-hnb-payment; the original handle-new-booking modify entry was removed, so handleNewBooking (the caller that must pass the new arguments, handleNewBooking.ts) is no longer marked as a changed component in either arm (5 marked instead of 6)",
+    "the payment node (payment-collection / payment-lib, which owns handlePayment.ts) dropped \"handlePayment takes `bookingFields` and `locale`\"; the signature change is now carried only by the e-hnb-payment edge note"
+  ],
+  "arms_differ": [],
+  "notes": "Intent and brief changes are pure rewording (\"add a charge\", \"contribute nothing\", \"keep their existing behavior\") and every requirement is still carried once in both identical arms. The doubt is whether moving the threading requirement from the handle-new-booking node (and the handlePayment signature from the payment node) onto the edge loses those components' change marks."
+}

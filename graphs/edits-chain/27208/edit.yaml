@@ -3722,7 +3722,7 @@ edges:
       - file: apps/web/modules/bookings/components/BookingList.tsx
         line: 40
         note: Lines 40–50 (inclusive).
-    note: Pass the validator from `useActiveFiltersValidator` into DataTableProvider, which accepts it and applies it to saved booking filter segments before applying them.
+    note: Passes the validator from `useActiveFiltersValidator` to DataTableProvider.
   - id: e-list-query
     from: bookings-list-page
     to: booking-list-query
@@ -8216,4 +8216,4 @@ x-source-files:
     sha256: be159217ca2bb46730fab6169b4144531930b571ee41faf812b19bd2854527ee
   - path: packages/types/AppMetaSchema.ts
     sha256: 944e0cf7c418897ca82522d0daf71a75b3184d4a28fb89edb56787d3311930d0
-x-edit: graph edit translated from q2q3-tools/prose-intents/27208.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/27208.yaml; tools/llm-only/EDITS-INTENT.md
+x-edit: graph edit translated from q2q3-tools/prose-intents/27208.md (origin/codex/prose-intents-2026-11-26 3f0b3b7) onto graphs/chain/27208.yaml; tools/llm-only/EDITS-INTENT.md; repetition removed 2026-11-28 (experiments/main/dedupe-2026-11-28)
