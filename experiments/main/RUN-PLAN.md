@@ -78,13 +78,9 @@ Each run.json has, next to the full FAIL_TO_PASS score:
 
 ## Decide before starting
 
-1. **Edit wording.** The edits carry all of each intent. An independent check (`EDIT-CHECKS.md`) found:
-   - nothing missing in any of the 20;
-   - 15 added details, mostly file or function names copied from the spec;
-   - 42 repeated requirements;
-   - 8 placement doubts.
-
-   Tighten them (same content, each clause once, no added names), or run them as they are.
+1. **Edit wording.** Done 2026-11-28: repetition and wordy language removed from the intents, briefs and both edits,
+   using the independent check and the human comments; checked again for anything lost (`dedupe-2026-11-28/`).
+   Edits are about 21% shorter. Still open: whether the intents should keep text that restates the spec.
 2. **`get_requested_change` wording.** It says "the rest of the graph below" in the tool arm, where nothing follows.
    Fixing it is one line in `tools/graph-mcp/render.mjs`, but the same sentence is in the text arm.
 3. **Nathan's review of his intents.** Six of them have open questions (his README). Changing an intent means
