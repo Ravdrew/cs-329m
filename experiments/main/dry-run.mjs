@@ -46,7 +46,7 @@ for (const task of matrix.tasks) {
         if (wantsEdit && !req.includes('Developer note')) throw new Error('get_requested_change shows no notes');
       }
       if (name.startsWith('text')) row.marked = (prompt.match(/Developer note/g) ?? []).length;
-      if (conditionOf(name).needs.includes('intent') && !prompt.includes(readFileSync(inputs.intent, 'utf8').trim().slice(0, 200))) throw new Error('intent not in prompt');
+      for (const k of ['intent', 'brief']) if (conditionOf(name).needs.includes(k) && !prompt.includes(readFileSync(inputs[k], 'utf8').trim().slice(0, 200))) throw new Error(`${k} not in prompt`);
       row.ok = true;
     } catch (error) { row.ok = false; row.error = error.message.split('\n')[0]; problems.push(`#${task} ${name}: ${row.error}`); }
     rows.push(row);

@@ -3,8 +3,11 @@
 //   base   — the graph of the code as it is at the task's base commit
 //   edit   — the same graph with the developer's edit (status/note) applied
 //   intent — the developer's intent written as prose, for the same change
+//   brief  — the same request as a developer would type it: 1-3 sentences, high level
 export const CONDITIONS = {
   prose: { prompt: [], channel: 'none', needs: [] },
+  // A short human request on top of the description and spec: the low-detail end of the intent axis.
+  'prose-brief': { prompt: ['--brief', '{brief}'], channel: 'none', needs: ['brief'] },
   'prose-intent': { prompt: ['--intent', '{intent}'], channel: 'none', needs: ['intent'] },
   text: { prompt: ['--graph', '{edit}'], channel: 'none', needs: ['edit'] },
   tool: { prompt: ['--graph-tools', 'graph'], channel: 'mcp', graph: 'edit', needs: ['edit'] },

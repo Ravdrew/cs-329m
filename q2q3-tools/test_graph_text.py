@@ -138,7 +138,9 @@ def test_tool_and_intent_conditions_differ_only_in_their_block(tmp_path, monkeyp
     for kwargs, block in [({'graph_tools': 'graph'}, make_prompt.TOOLS_INTRO['graph']),
                           ({'graph_tools': 'codegraph'}, make_prompt.TOOLS_INTRO['codegraph']),
                           ({'intent': str(tmp_path / 'intent.md')},
-                           make_prompt.INTENT_INTRO.format(intent='Add a page that lists bookings.'))]:
+                           make_prompt.INTENT_INTRO.format(intent='Add a page that lists bookings.')),
+                          ({'brief': str(tmp_path / 'intent.md')},
+                           make_prompt.BRIEF_INTRO.format(brief='Add a page that lists bookings.'))]:
         prompt = make_prompt.build(1, spec=True, **kwargs)
         assert prompt.replace(block + '\n\n', '', 1) == base
         assert prompt.index('Interface the tests expect') < prompt.index(block) < prompt.index('Implement this change')
@@ -146,6 +148,8 @@ def test_tool_and_intent_conditions_differ_only_in_their_block(tmp_path, monkeyp
     assert make_prompt.TOOLS_INTRO['graph'].startswith(make_prompt.GRAPH_INTRO.split('\n\n<component_graph>')[0])
     with pytest.raises(SystemExit):
         make_prompt.build(1, graph_tools='graph', intent=str(tmp_path / 'intent.md'))
+    with pytest.raises(SystemExit):
+        make_prompt.build(1, brief=str(tmp_path / 'intent.md'), intent=str(tmp_path / 'intent.md'))
     # codegraph-intent: the intent, then CodeGraph's block, and nothing else changes.
     both = make_prompt.build(1, spec=True, graph_tools='codegraph', intent=str(tmp_path / 'intent.md'))
     intent_block = make_prompt.INTENT_INTRO.format(intent='Add a page that lists bookings.')

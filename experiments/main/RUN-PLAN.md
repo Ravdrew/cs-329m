@@ -10,7 +10,7 @@ plus `codegraph-intent`, Nathan's intents (`codex/prose-intents-2026-11-26`), Jo
   works. All 366 hidden tests fail at the base commit and pass with the real PR. Prepare takes 1–2 minutes a task.
 - **Three workers** (`~/q2q3-pilot`, `-w1`, `-w2`, APFS clones): three tasks prepared and checked at the same time,
   and each worker's history was restored.
-- **Dry run**: all 140 task × condition combinations build their prompt and graph tools, and prompts differ only in
+- **Dry run**: all task × condition combinations build their prompt and graph tools, and prompts differ only in
   the condition block.
 - **Real smoke test** (`~/q2q3-main/runs-smoke`, #24207, $0.34): `prose-intent`, `text@fresh` and `tool@chain` each
   resolved 7/7. Each run.json records and hashes its set's graph, and the tool run used the graph tools.
@@ -19,7 +19,8 @@ plus `codegraph-intent`, Nathan's intents (`codex/prose-intents-2026-11-26`), Jo
 
 | Condition | The agent gets | Input |
 |---|---|---|
-| `prose` | PR description and spec only | |
+| `prose` | PR description and spec only (the control) | |
+| `prose-brief` | plus a 1–3 sentence request in the developer’s words | `q2q3-tools/prose-briefs/PULL.md` |
 | `prose-intent` | plus Nathan's intent | `q2q3-tools/prose-intents/PULL.md` |
 | `text@fresh` | plus the edited fresh graph, rendered in the prompt | `graphs/edits-fresh/PULL/edit.yaml` |
 | `text@chain` | plus the edited chain graph, rendered in the prompt | `graphs/edits-chain/PULL/edit.yaml` |
@@ -36,16 +37,16 @@ Every prompt has the same description, spec and work rules; only the condition b
 
 | | |
 |---|---|
-| Runs | 20 tasks × 7 conditions × 3 repeats = **420** |
-| Cost estimate | about **$26 per repeat, $78 for 3** (see below) |
+| Runs | 20 tasks × 8 conditions × 3 repeats = **480** |
+| Cost estimate | about **$28 per repeat, $84 for 3** (see below) |
 | Budget stop | `maxTotalUsd` (default $60 in make-matrix.mjs; pass `--max-total-usd`), per-run cap $1 |
 | Time | about 1.5 min per run → 3.5 h per repeat on one checkout; **about 4 h for all 3** on 3 workers |
 
 Cost per run in the pilots (Sonnet 5.5, medium; 5 small tasks, 5 runs each): prose $0.09, prose-intent $0.11,
 tool $0.12, codegraph-intent $0.13, text $0.20. The new graphs are larger (text prompts 22k–27k tokens, against
-about 10k in the pilot), so text is estimated at $0.35 a run. Per task and repeat: 0.09 + 0.11 + 2 × 0.35 + 2 × 0.13
-+ 0.13 ≈ $1.29; × 20 tasks ≈ $26. The 15 tasks not in the pilot are larger on average, so this could be 30–50%
-higher; a $90 budget stop leaves room.
+about 10k in the pilot), so text is estimated at $0.35 a run. `prose-brief` is estimated like `prose`, $0.10. Per task and repeat: 0.09 + 0.10 + 0.11 + 2 × 0.35 + 2 × 0.13
++ 0.13 ≈ $1.39; × 20 tasks ≈ $28. The 15 tasks not in the pilot are larger on average, so this could be 30–50%
+higher; a $100 budget stop leaves room.
 
 Suggested start: one repeat of all conditions on 2 tasks (about $3) to check the new graphs end to end, then the rest.
 
@@ -72,9 +73,11 @@ Each run.json has, next to the full FAIL_TO_PASS score:
    re-translating its two edits.
 4. **Task choice.** Keep all 20 and analyse by tier, or drop tasks every condition already solves (#24207 in the
    pilots) or with very few scored tests (#22024: 2 tier-1 tests).
-5. **Budget.** The estimate is $78; a stop at $90 is suggested.
+5. **Budget.** The estimate is $84; a stop at $100 is suggested.
 6. **Pushing.** The branch is local. Push it, and open a PR, before the run, so the run records a revision others can
    check out.
+7. **Briefs.** `q2q3-tools/prose-briefs/` was drafted by Claude from the intents (1–3 sentences, no names from the
+   spec). Read them before the run; a brief that says more than a developer would type defeats the condition.
 
 ## How to run
 
@@ -82,7 +85,7 @@ Each run.json has, next to the full FAIL_TO_PASS score:
 cd /Users/andg/Desktop/cs-329m-experiment
 experiments/main/setup-workers.sh 3                     # once: APFS clones ~/q2q3-pilot-w1, -w2 (instant)
 experiments/main/run-main.sh ~/q2q3-main/runs-pilot --tasks 19626,24124 --repeats 1 --max-total-usd 5
-experiments/main/run-main.sh ~/q2q3-main/runs --max-total-usd 90      # resumable; Ctrl-C and rerun to continue
+experiments/main/run-main.sh ~/q2q3-main/runs --max-total-usd 100     # resumable; Ctrl-C and rerun to continue
 ```
 
 `run-main.sh` writes `matrix.json`, a dry run (`dry-run.txt`), the git revision, `batch.log`, and

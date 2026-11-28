@@ -2,7 +2,7 @@
 """Build the coding agent's prompt for one task and condition, so every condition gets identical wording.
 
     python3 make_prompt.py PULL [--spec] [--graph GRAPH.yaml | --graph-text GRAPH.md | --graph-tools {graph,codegraph}
-                           | --intent INTENT.md] [-o PROMPT.md] [--workdir DIR] [--env-script PATH]
+                           | --intent INTENT.md | --brief BRIEF.md] [-o PROMPT.md] [--workdir DIR] [--env-script PATH]
 
 The template is the one the 2026-10-30 pilot used (PR description as the developer wrote it, the same work
 instructions and rules). The pieces are added in this order, and only block 3 differs between conditions:
@@ -12,7 +12,8 @@ instructions and rules). The pieces are added in this order, and only block 3 di
     3. one of: the graph, with --graph (rendered here by graph_to_text.py with its defaults) or --graph-text
        (pre-rendered); a note that the graph is available through tools, with --graph-tools (tool channel, or the
        CodeGraph control); or the developer's intent written as prose, with --intent (the prose-intent condition).
-       --intent with --graph-tools codegraph gives both, intent first (the codegraph-intent condition)
+       --intent with --graph-tools codegraph gives both, intent first (the codegraph-intent condition); or a
+       1-3 sentence request in the developer's words, with --brief (the prose-brief condition)
     4. work instructions and rules
 
 The prompt is printed (or written with -o) and its sha256 goes to stderr, for the run log.
@@ -82,6 +83,9 @@ TOOLS_INTRO = {
 INTENT_INTRO = ('## What the developer intends\n\n'
                 'The developer also described how the change should fit into the codebase:\n\n{intent}')
 
+BRIEF_INTRO = ('## What the developer asked for\n\n'
+               'The developer’s request, in their own words:\n\n{brief}')
+
 WORK = ('Implement this change in the repository. Work the way you normally would on an unfamiliar codebase: find '
         'the relevant code, make the change, and add or update unit tests where it makes sense.')
 
@@ -108,7 +112,7 @@ def load_task(pull):
 
 
 def build(pull, spec=False, graph=None, graph_text=None, workdir='/work/calcom', env='/work/env.sh',
-          graph_tools=None, intent=None):
+          graph_tools=None, intent=None, brief=None):
     task = load_task(pull)
     parts = [INTRO.format(workdir=workdir, problem=task['problem_statement'].replace('\r\n', '\n').strip())]
     if spec:
@@ -118,9 +122,9 @@ def build(pull, spec=False, graph=None, graph_text=None, workdir='/work/calcom',
         parts.append(sp.read_text().strip())
     # The intent can go with CodeGraph (the codegraph-intent condition: CodeGraph has no description of the change);
     # our graph's edit already is one, so the intent never goes with the graph itself.
-    blocks = [x for x in (graph, graph_text, graph_tools, intent) if x is not None]
+    blocks = [x for x in (graph, graph_text, graph_tools, intent, brief) if x is not None]
     if len(blocks) > 1 and not (len(blocks) == 2 and intent is not None and graph_tools == 'codegraph'):
-        raise SystemExit('give at most one of --graph, --graph-text, --graph-tools, --intent '
+        raise SystemExit('give at most one of --graph, --graph-text, --graph-tools, --intent, --brief '
                          '(or --intent with --graph-tools codegraph)')
     if graph:
         import yaml
@@ -131,6 +135,8 @@ def build(pull, spec=False, graph=None, graph_text=None, workdir='/work/calcom',
         parts.append(GRAPH_INTRO.format(graph=Path(graph_text).read_text()))
     if intent:
         parts.append(INTENT_INTRO.format(intent=Path(intent).read_text().strip()))
+    if brief:
+        parts.append(BRIEF_INTRO.format(brief=Path(brief).read_text().strip()))
     if graph_tools:
         parts.append(TOOLS_INTRO[graph_tools])
     parts.append(WORK)
@@ -146,11 +152,12 @@ def main(argv=None):
     ap.add_argument('--graph-text', help='pre-rendered graph text to put into the prompt')
     ap.add_argument('--graph-tools', choices=sorted(TOOLS_INTRO), help='the graph is served through tools (tool channel)')
     ap.add_argument('--intent', help="the developer's intent as prose (prose-intent condition)")
+    ap.add_argument('--brief', help="a 1-3 sentence request in the developer's words (prose-brief condition)")
     ap.add_argument('--workdir', default='/work/calcom')
     ap.add_argument('--env-script', default='/work/env.sh')
     ap.add_argument('-o', '--out')
     a = ap.parse_args(argv)
-    prompt = build(a.pull, a.spec, a.graph, a.graph_text, a.workdir, a.env_script, a.graph_tools, a.intent)
+    prompt = build(a.pull, a.spec, a.graph, a.graph_text, a.workdir, a.env_script, a.graph_tools, a.intent, a.brief)
     if a.out:
         Path(a.out).write_text(prompt)
     else:
